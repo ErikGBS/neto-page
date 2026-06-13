@@ -221,6 +221,31 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
 .deficit .val{font-family:var(--font-display);font-weight:700;font-size:1.5rem;color:var(--magenta)}
 .deficit .tag{font-size:.72rem;color:var(--magenta);background:rgba(255,61,127,.12);padding:6px 11px;border-radius:999px;font-weight:700}
 
+/* ---------- pricing / pro ---------- */
+.pricing{padding:clamp(60px,9vw,110px) 0}
+.eyebrow.gold{color:var(--gold)}
+.eyebrow.gold::before{background:var(--gold)}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:48px;align-items:stretch}
+.plan{position:relative;border-radius:24px;border:1px solid var(--border);background:var(--surface);padding:34px 30px;display:flex;flex-direction:column;transition:transform .3s,border-color .3s}
+.plan:hover{transform:translateY(-5px)}
+.plan-name{font-family:var(--font-display);font-weight:600;font-size:1.32rem;display:flex;align-items:center;gap:9px}
+.plan-price{font-family:var(--font-display);font-weight:700;font-size:2.1rem;margin-top:12px;letter-spacing:-.02em;line-height:1}
+.plan-price small{font-size:.86rem;color:var(--mute);font-weight:500;font-family:var(--font-body);letter-spacing:0}
+.plan-sub{color:var(--dim);font-size:.92rem;margin-top:10px}
+.plan ul{list-style:none;margin:24px 0 0;display:flex;flex-direction:column;gap:13px;flex:1}
+.plan li{display:flex;gap:11px;font-size:.92rem;color:var(--dim);line-height:1.42}
+.plan li .ck{flex:0 0 auto;width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.66rem;margin-top:2px;font-weight:700}
+.plan li b{color:var(--text);font-weight:600}
+.plan-cta{margin-top:28px;width:100%;justify-content:center}
+.plan-free .ck{background:rgba(26,208,236,.12);color:var(--cyan)}
+.plan-pro{border-color:rgba(236,188,78,.42);background:linear-gradient(165deg,rgba(236,188,78,.08),var(--surface) 55%);box-shadow:0 30px 90px -34px rgba(236,188,78,.35)}
+.plan-pro .plan-name{color:var(--gold)}
+.plan-pro .ck{background:rgba(236,188,78,.16);color:var(--gold)}
+.plan-badge{position:absolute;top:-13px;right:26px;font-family:var(--font-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;padding:6px 13px;border-radius:999px;background:linear-gradient(120deg,var(--gold),#f4d27a);color:#1a1405;font-weight:700}
+.btn-gold{background:linear-gradient(120deg,var(--gold),#f4d27a);color:#1a1405;box-shadow:0 0 0 1px rgba(236,188,78,.4),0 14px 40px -12px rgba(236,188,78,.55)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(236,188,78,.6),0 18px 50px -12px rgba(236,188,78,.7)}
+.pro-note{text-align:center;color:var(--mute);font-size:.84rem;font-family:var(--font-mono);letter-spacing:.03em;margin-top:26px}
+
 /* ---------- privacy ---------- */
 .privacy{padding:clamp(60px,9vw,110px) 0}
 .priv-card{border-radius:26px;border:1px solid var(--border-strong);background:linear-gradient(155deg,rgba(47,230,168,.05),var(--surface));padding:clamp(30px,5vw,52px);position:relative;overflow:hidden}
@@ -270,7 +295,7 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
 @media(max-width:920px){
   .hero{grid-template-columns:1fr;text-align:left;overflow:hidden}
   .phone-stage{margin-top:30px;overflow:hidden}
-  .feat-grid,.steps,.priv-cols,.show-grid{grid-template-columns:1fr}
+  .feat-grid,.steps,.priv-cols,.show-grid,.plans{grid-template-columns:1fr}
   .feat-grid{grid-template-columns:1fr 1fr}
   .priv-head{flex-direction:column;align-items:flex-start}
   /* stack CTAs full-width + hide overhanging mockup cards once single-column */
@@ -332,6 +357,7 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
     <div class="nav-links" id="navLinks">
       <a href="#producto">Producto</a>
       <a href="#como">Cómo funciona</a>
+      <a href="#pro">Plan Pro</a>
       <a href="#privacidad">Privacidad</a>
     </div>
     <span class="pill">● Próximamente</span>
@@ -492,6 +518,44 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
   </div>
 </section>
 
+<!-- PRICING / PRO -->
+<section class="pricing" id="pro">
+  <div class="wrap">
+    <span class="eyebrow gold reveal">Y Altoque Pro</span>
+    <h2 class="section-title reveal" data-d="1">Empieza gratis. Crece con Pro.</h2>
+    <div class="plans">
+      <div class="plan plan-free reveal" data-d="1">
+        <div class="plan-name">⚡ Gratis</div>
+        <div class="plan-price">S/ 0<small> · para siempre</small></div>
+        <div class="plan-sub">Todo lo esencial para ver tu mes con claridad.</div>
+        <ul>
+          <li><span class="ck">✓</span><span><b>Sincronización automática</b> de Yape, Plin y BCP</span></li>
+          <li><span class="ck">✓</span><span><b>Categorización con IA</b> de cada movimiento</span></li>
+          <li><span class="ck">✓</span><span><b>Dashboard del mes</b> en tiempo real, por categoría</span></li>
+          <li><span class="ck">✓</span><span>Registra gastos por <b>WhatsApp</b></span></li>
+          <li><span class="ck">✓</span><span>Balance, ingresos y egresos del mes al instante</span></li>
+        </ul>
+        <a href="#notify" class="btn btn-ghost plan-cta">Empezar gratis</a>
+      </div>
+      <div class="plan plan-pro reveal" data-d="2">
+        <span class="plan-badge">Recomendado</span>
+        <div class="plan-name">★ Y Altoque Pro</div>
+        <div class="plan-price">Pro<small> · actívalo cuando quieras</small></div>
+        <div class="plan-sub">Todo lo de Gratis, más el control completo de tu plata.</div>
+        <ul>
+          <li><span class="ck">✓</span><span><b>Proyección de flujo</b> — cuánto te queda hasta tu próximo pago</span></li>
+          <li><span class="ck">✓</span><span><b>Análisis mensual</b> — comparativa y patrones de gasto entre meses</span></li>
+          <li><span class="ck">✓</span><span><b>Historial completo</b> — consulta meses anteriores sin límite</span></li>
+          <li><span class="ck">✓</span><span><b>Reportes tributarios</b> — resumen de negocio y gastos deducibles</span></li>
+          <li><span class="ck">✓</span><span><b>Cuentas por cobrar</b> — quién te debe y a quién le debes</span></li>
+        </ul>
+        <a href="#notify" class="btn btn-gold plan-cta">Quiero Pro</a>
+      </div>
+    </div>
+    <p class="pro-note">Pago fácil con Yape · Sin permanencia · Cancela cuando quieras</p>
+  </div>
+</section>
+
 <!-- PRIVACY -->
 <section class="privacy" id="privacidad">
   <div class="wrap">
@@ -565,6 +629,7 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
     <div class="meta">
       <a href="#producto">Producto</a><br>
       <a href="#como">Cómo funciona</a><br>
+      <a href="#pro">Plan Pro</a><br>
       <a href="privacidad.html">Política de privacidad</a><br>
       <a href="mailto:marketing@yaltoque.com">marketing@yaltoque.com</a>
     </div>
