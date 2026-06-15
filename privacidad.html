@@ -182,7 +182,7 @@
 <div class="hero">
   <span class="eyebrow">Legal</span>
   <h1>Política de Privacidad</h1>
-  <p class="updated">Última actualización: 8 de junio de 2026</p>
+  <p class="updated">Última actualización: 14 de junio de 2026</p>
 </div>
 
 <div class="cards">
@@ -190,17 +190,16 @@
   <div class="card">
     <div class="card-head">
       <div class="ic" style="background:rgba(26,208,236,.1)">📖</div>
-      <h2>Qué leemos</h2>
+      <h2>Qué usamos</h2>
     </div>
-    <p>Con tu permiso, leemos <strong>únicamente</strong> los correos de notificación de
-    Yape (<code>notificaciones@yape.pe</code>), Plin (<code>notificaciones@plin.pe</code> y
-    <code>servicioalcliente@netinterbank.com.pe</code>) y BCP
-    (<code>notificaciones@notificacionesbcp.com.pe</code>) para detectar tus ingresos y
-    gastos automáticamente.</p>
+    <p>Actualmente, Y Altoque solo usa <strong>Inicio de sesión con Google</strong> para crear e
+    identificar tu cuenta (tu nombre y tu correo). <strong>No leemos tu Gmail.</strong></p>
     <br>
-    <p>No accedemos a ningún otro correo de tu bandeja de entrada. El permiso solicitado es
-    de <strong>solo lectura</strong> (<code>gmail.readonly</code>). No podemos enviar,
-    modificar ni eliminar correos en tu nombre.</p>
+    <p>La <strong>detección automática por correo</strong> —leer las notificaciones de Yape, Plin y
+    BCP para registrar tus movimientos— es una función <strong>próximamente</strong>. Cuando la
+    habilitemos, será <strong>opcional (opt-in)</strong>, con permiso de <strong>solo lectura</strong>
+    limitado a esos remitentes financieros, y nunca podremos enviar, modificar ni eliminar correos.
+    Esta política se aplicará a esa función cuando esté disponible.</p>
   </div>
 
   <div class="card">
@@ -209,11 +208,12 @@
       <h2>Qué guardamos</h2>
     </div>
     <ul>
-      <li>Los <strong>movimientos detectados</strong>: monto, fecha y categoría. La descripción
-          y contraparte se almacenan <strong>cifradas con Fernet (AES-128-CBC)</strong>.</li>
-      <li>Tu <strong>correo de identificación</strong> de Google (solo para identificar tu cuenta).</li>
-      <li>Tus <strong>tokens de acceso a Gmail</strong>, cifrados con Fernet a nivel de aplicación.
-          La base de datos (Supabase) cuenta adicionalmente con cifrado en reposo <strong>AES-256</strong>.</li>
+      <li>Tu <strong>correo de identificación</strong> de Google (para crear e identificar tu cuenta).</li>
+      <li>Los <strong>movimientos que registres</strong> (manualmente o por WhatsApp): monto, fecha y
+          categoría. La descripción y contraparte se almacenan <strong>cifradas con Fernet (AES-128-CBC)</strong>.</li>
+      <li><em>Próximamente</em>, si activas la detección por correo: tus <strong>tokens de acceso a Gmail</strong>,
+          cifrados con Fernet a nivel de aplicación. La base de datos (Supabase) cuenta adicionalmente con
+          cifrado en reposo <strong>AES-256</strong>.</li>
     </ul>
     <br>
     <p>No guardamos tu contraseña de Google en ningún momento. El acceso se realiza mediante
@@ -227,8 +227,9 @@
     </div>
     <ul>
       <li>No vendemos ni compartimos tus datos con terceros.</li>
-      <li>No leemos correos fuera de los remitentes financieros listados.</li>
-      <li>No enviamos ni modificamos correos en tu nombre.</li>
+      <li>Hoy <strong>no leemos tu Gmail</strong>. Cuando exista la detección por correo, leeremos
+          únicamente los remitentes financieros (Yape, Plin, BCP) y solo si la activas.</li>
+      <li>Nunca enviamos, modificamos ni eliminamos correos en tu nombre.</li>
       <li>No usamos tus datos para publicidad ni perfilado.</li>
       <li>No tenemos acceso a tu contraseña de Google.</li>
     </ul>
@@ -292,7 +293,7 @@
     solo se usan para proveer y mejorar las funcionalidades de la app descritas en esta política,
     y no se comparten con terceros ni se usan para publicidad.</p>
     <br>
-    <span class="badge">🔐 gmail.readonly — solo lectura</span>
+    <span class="badge">🔐 Inicio de sesión con Google — solo email y perfil</span>
   </div>
 
   <div class="card">
