@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.erikgbs.finance_app",
+      "sha256_cert_fingerprints": [
+        "9F:99:C4:58:7C:2B:82:DD:63:C1:4D:8C:84:7E:A3:E5:15:1A:52:34:0F:2D:19:6A:40:40:D0:F5:7C:33:53:2C"
+      ]
+    }
+  }
+]

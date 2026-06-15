@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Y Altoque</title>
+  <style>
+    :root{--bg:#060a0d;--surface:#0d161d;--border:rgba(120,230,240,.12);--teal:#2fe6a8;--cyan:#3fe0f5;--gold:#ecbc4e;--dim:#92a8b0;--text:#eaf4f6}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:
+      radial-gradient(800px 500px at 50% 0%,rgba(47,230,168,.10),transparent 60%),linear-gradient(135deg,#060a0d,#0a1217);
+      color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{max-width:440px;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:40px 28px}
+    .logo{width:84px;height:84px;border-radius:20px;margin:0 auto 20px;display:block}
+    h1{font-size:24px;font-weight:800;letter-spacing:-.01em}
+    .ac{background:linear-gradient(120deg,var(--teal),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    p{color:var(--dim);font-size:15px;line-height:1.6;margin:14px 0 26px}
+    .btn{display:inline-block;background:linear-gradient(120deg,var(--cyan),#3fe0f5);color:#04141a;font-weight:700;text-decoration:none;padding:14px 26px;border-radius:14px;font-size:15px}
+    .alt{display:block;margin-top:16px;color:var(--cyan);text-decoration:none;font-size:14px}
+    .tag{margin-top:22px;font-size:12px;color:#56707a}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img class="logo" src="/logo.png" alt="Y Altoque" />
+    <h1 id="title">Abre esto en <span class="ac">Y Altoque</span></h1>
+    <p id="msg">Para ver este movimiento, abre la app Y Altoque en tu teléfono. Si aún no la tienes, muy pronto estará disponible.</p>
+    <a class="btn" href="/">Ir a yaltoque.com</a>
+    <a class="alt" href="#" id="retry">Reintentar abrir en la app</a>
+    <div class="tag">Tu dinero, bajo control 🇵🇪</div>
+  </div>
+  <script>
+    (function(){
+      var path = location.pathname || "";
+      // Si NO es un enlace de transacción (/t/...), mostramos un 404 normal.
+      if (!path.indexOf || path.indexOf("/t/") !== 0) {
+        document.getElementById("title").innerHTML = "Página no encontrada";
+        document.getElementById("msg").textContent = "La página que buscas no existe.";
+        document.getElementById("retry").style.display = "none";
+        return;
+      }
+      // Es /t/<id>: intentar reabrir el deep link (por si quedó en el navegador in-app).
+      var url = location.href;
+      document.getElementById("retry").addEventListener("click", function(e){
+        e.preventDefault();
+        window.location.href = url; // el SO intercepta y abre la app si está instalada
+      });
+    })();
+  </script>
+</body>
+</html>

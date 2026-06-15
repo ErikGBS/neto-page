@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "M36A59CL6N.com.erikgbs.financeApp",
+        "paths": ["/t/*"]
+      }
+    ]
+  }
+}
