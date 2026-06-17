@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Y Altoque — Panel admin</title>
+<style>
+  :root{--bg:#05090c;--surface:#0d1117;--border:#1a2133;--cyan:#1ad0ec;--teal:#2fe6a8;
+        --gold:#ecbc4e;--pink:#e84393;--text:#e2e8f0;--muted:#8892a4;--dim:#5a6478}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;padding:24px 18px 60px}
+  .wrap{max-width:1100px;margin:0 auto}
+  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  header h1{font-size:1.3rem;font-weight:800}
+  header .y{color:var(--gold)}
+  header .right{margin-left:auto;display:flex;gap:10px;align-items:center}
+  .muted{color:var(--muted);font-size:.82rem}
+  button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:8px 14px}
+  button.primary{background:var(--cyan);color:#04141a;border-color:var(--cyan);font-weight:700}
+  button:hover{filter:brightness(1.1)}
+  #login{max-width:420px;margin:14vh auto;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:40px 28px}
+  #login h2{font-size:1.4rem;margin-bottom:8px}
+  #login p{color:var(--muted);margin-bottom:22px;font-size:.9rem}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+  .kpi .label{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}
+  .kpi .val{font-size:1.9rem;font-weight:800;margin-top:4px}
+  .kpi .sub{color:var(--dim);font-size:.78rem;margin-top:2px}
+  .kpi .val.teal{color:var(--teal)}.kpi .val.cyan{color:var(--cyan)}.kpi .val.gold{color:var(--gold)}.kpi .val.pink{color:var(--pink)}
+  .section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin:12px 0}
+  .section h3{font-size:.95rem;margin-bottom:12px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:720px){.row2{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;font-size:.86rem}
+  th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--border)}
+  th{color:var(--muted);font-weight:600;font-size:.74rem;text-transform:uppercase}
+  .err{color:var(--pink);text-align:center;margin:14vh auto;max-width:420px}
+  canvas{max-height:240px}
+</style>
+</head>
+<body>
+
+<div id="login" style="display:none">
+  <h2>Panel admin · <span class="y">Y</span> Altoque</h2>
+  <p>Acceso restringido. Inicia sesión con la cuenta de administrador.</p>
+  <button class="primary" id="loginBtn">Continuar con Google</button>
+</div>
+
+<div id="forbidden" class="err" style="display:none">
+  <h2>Sin acceso 🚫</h2>
+  <p class="muted">Esta cuenta no es administradora.</p>
+  <p><button id="logoutBtn2">Cerrar sesión</button></p>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+  <header>
+    <h1><span class="y">Y</span> Altoque · Panel admin</h1>
+    <div class="right">
+      <span class="muted" id="gen"></span>
+      <button id="refreshBtn">↻ Actualizar</button>
+      <button id="logoutBtn">Salir</button>
+    </div>
+  </header>
+
+  <div class="grid" id="kpis"></div>
+
+  <div class="row2">
+    <div class="section"><h3>Nuevos registros / día (30d)</h3><canvas id="cSignups"></canvas></div>
+    <div class="section"><h3>Movimientos / día (30d)</h3><canvas id="cMov"></canvas></div>
+  </div>
+
+  <div class="row2">
+    <div class="section"><h3>Top categorías</h3><canvas id="cCat"></canvas></div>
+    <div class="section">
+      <h3>Últimos registros</h3>
+      <table><thead><tr><th>Nombre</th><th>Correo</th><th>Fecha</th></tr></thead>
+      <tbody id="recent"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+const SUPABASE_URL  = "https://dwqzsgonkkrctnrtlkdz.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3cXpzZ29ua2tyY3RucnRsa2R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTE5MzEsImV4cCI6MjA5NjA2NzkzMX0.94_SbN7ZPSemAprEJ-9T6u3YOmo40aMt2WyDpCGSyJ0";
+const BACKEND = "https://finance-tracker-production-450d.up.railway.app";
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const $ = (id) => document.getElementById(id);
+let charts = {};
+
+function show(view){ for (const v of ["login","forbidden","app"]) $(v).style.display = (v===view?(v==="app"?"block":"block"):"none"); }
+
+$("loginBtn").onclick = () =>
+  sb.auth.signInWithOAuth({ provider:"google", options:{ redirectTo: location.href.split("#")[0] } });
+const logout = async () => { await sb.auth.signOut(); location.reload(); };
+$("logoutBtn").onclick = logout; $("logoutBtn2").onclick = logout;
+$("refreshBtn").onclick = () => boot();
+
+function fmt(n){ return (n ?? 0).toLocaleString("es-PE"); }
+function pct(a,b){ return b ? Math.round((a/b)*100) : 0; }
+
+function kpi(label,val,cls,sub){
+  return `<div class="kpi"><div class="label">${label}</div><div class="val ${cls||''}">${val}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`;
+}
+
+function lineChart(canvasId, data, color){
+  if (charts[canvasId]) charts[canvasId].destroy();
+  charts[canvasId] = new Chart($(canvasId), {
+    type:"line",
+    data:{ labels:data.map(d=>d.d.slice(5)), datasets:[{ data:data.map(d=>d.n),
+      borderColor:color, backgroundColor:color+"22", fill:true, tension:.3, pointRadius:2 }]},
+    options:{ plugins:{legend:{display:false}}, scales:{
+      x:{ticks:{color:"#5a6478",maxTicksLimit:8},grid:{display:false}},
+      y:{ticks:{color:"#5a6478",precision:0},grid:{color:"#1a2133"},beginAtZero:true}} }
+  });
+}
+function barChart(canvasId, data){
+  if (charts[canvasId]) charts[canvasId].destroy();
+  charts[canvasId] = new Chart($(canvasId), {
+    type:"bar",
+    data:{ labels:data.map(d=>d.c), datasets:[{ data:data.map(d=>d.n),
+      backgroundColor:"#1ad0ec" }]},
+    options:{ indexAxis:"y", plugins:{legend:{display:false}}, scales:{
+      x:{ticks:{color:"#5a6478",precision:0},grid:{color:"#1a2133"},beginAtZero:true},
+      y:{ticks:{color:"#cdd6e6"},grid:{display:false}}} }
+  });
+}
+
+function render(m){
+  const r=m.registered, a=m.active, p=m.plans, mv=m.movements;
+  $("kpis").innerHTML =
+    kpi("Registrados", fmt(r.total), "cyan", `+${fmt(r.today)} hoy · +${fmt(r.d7)} 7d`) +
+    kpi("Activos (7d)", fmt(a.d7), "teal", `${fmt(a.today)} hoy · ${pct(a.total,r.total)}% activación`) +
+    kpi("Movimientos", fmt(mv.total), "", `+${fmt(mv.today)} hoy · +${fmt(mv.d7)} 7d`) +
+    kpi("Pro", fmt(p.pro), "gold", `${pct(p.pro,p.total_users)}% de ${fmt(p.total_users)}`) +
+    kpi("WhatsApp vinculados", fmt(m.whatsapp_linked), "") +
+    kpi("Pagos Pro", `${fmt(m.payments.confirmed)}✓`, "teal", `${fmt(m.payments.pending)} pendientes`) +
+    kpi("Prom. mov/activo", a.total?(mv.total/a.total).toFixed(1):"0", "") +
+    kpi("En 'Otros'", fmt(m.otros_count), "pink", "por recategorizar");
+
+  lineChart("cSignups", m.signups_by_day, "#1ad0ec");
+  lineChart("cMov", m.movements_by_day, "#2fe6a8");
+  barChart("cCat", m.top_categories);
+
+  $("recent").innerHTML = (m.recent_signups||[]).map(u=>{
+    const d = new Date(u.at).toLocaleDateString("es-PE",{day:"2-digit",month:"short"});
+    return `<tr><td>${u.name||"—"}</td><td>${u.email||"—"}</td><td>${d}</td></tr>`;
+  }).join("") || `<tr><td colspan="3" class="muted">Sin datos</td></tr>`;
+
+  $("gen").textContent = "Actualizado: " + new Date(m.generated_at).toLocaleString("es-PE");
+}
+
+async function boot(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session){ show("login"); return; }
+  try{
+    const res = await fetch(BACKEND + "/admin/metrics", {
+      headers:{ Authorization:"Bearer " + session.access_token }
+    });
+    if (res.status === 403){ show("forbidden"); return; }
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    show("app");
+    render(data);
+  }catch(e){
+    show("app");
+    $("kpis").innerHTML = `<div class="kpi"><div class="label">Error</div><div class="val pink">!</div><div class="sub">${e.message}</div></div>`;
+  }
+}
+
+sb.auth.onAuthStateChange((_e, s) => { if (s) boot(); });
+boot();
+</script>
+</body>
+</html>
