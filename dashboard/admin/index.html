@@ -134,7 +134,9 @@ function render(m){
   $("kpis").innerHTML =
     kpi("Registrados", fmt(r.total), "cyan", `+${fmt(r.today)} hoy · +${fmt(r.d7)} 7d`) +
     kpi("Activos (7d)", fmt(a.d7), "teal", `${fmt(a.today)} hoy · ${pct(a.total,r.total)}% activación`) +
+    kpi("Usuarios con registros hoy", fmt(a.today), "teal", "ingresaron info hoy") +
     kpi("Movimientos", fmt(mv.total), "", `+${fmt(mv.today)} hoy · +${fmt(mv.d7)} 7d`) +
+    kpi("Movimientos hoy", fmt(mv.today), "cyan", "registrados hoy") +
     kpi("Pro", fmt(p.pro), "gold", `${pct(p.pro,p.total_users)}% de ${fmt(p.total_users)}`) +
     kpi("WhatsApp vinculados", fmt(m.whatsapp_linked), "") +
     kpi("Pagos Pro", `${fmt(m.payments.confirmed)}✓`, "teal", `${fmt(m.payments.pending)} pendientes`) +
