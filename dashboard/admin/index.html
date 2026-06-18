@@ -241,15 +241,15 @@ function render(m){
   // Distribución de uso
   barChart("cDist", (m.movements_distribution || []).map(d => ({ c: d.b, n: d.n })));
 
-  // Ranking del mes con niveles
-  const tier = (rank) =>
-    rank === 1 ? {e:"🥇",n:"Oro",c:"gold"} :
-    rank === 2 ? {e:"🥈",n:"Plata",c:"silver"} :
-    rank === 3 ? {e:"🥉",n:"Bronce",c:"bronze"} :
-    rank <= 5  ? {e:"⭐",n:"Estrella",c:"star"} :
+  // Ranking del mes — nivel según # de movimientos del mes
+  const tier = (mov) =>
+    mov >= 100 ? {e:"🥇",n:"Oro",c:"gold"} :
+    mov >= 50  ? {e:"🥈",n:"Plata",c:"silver"} :
+    mov >= 20  ? {e:"🥉",n:"Bronce",c:"bronze"} :
+    mov >= 10  ? {e:"⭐",n:"Estrella",c:"star"} :
                  {e:"🐥",n:"Pollito",c:"chick"};
   $("power").innerHTML = (m.power_users || []).map((u, i) => {
-    const t = tier(i + 1);
+    const t = tier(u.movements || 0);
     const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "—";
     return `<tr><td><span class="tier ${t.c}">${t.e} ${t.n}</span></td><td>${u.name||"—"}</td><td>${fmt(u.movements)}</td><td>${last}</td></tr>`;
   }).join("") || `<tr><td colspan="4" class="muted">Sin movimientos este mes</td></tr>`;
