@@ -46,6 +46,11 @@
   .badge{font-size:.72rem;padding:3px 9px;border-radius:8px;white-space:nowrap}
   .badge.never{background:rgba(232,67,147,.15);color:var(--pink)}
   .badge.idle{background:rgba(236,188,78,.15);color:var(--gold)}
+  .funnel{display:flex;flex-direction:column;gap:10px}
+  .fn{position:relative;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;height:48px;display:flex;align-items:center}
+  .fn .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(26,208,236,.38),rgba(47,230,168,.16));border-right:2px solid var(--cyan)}
+  .fn .lbl{position:relative;padding:0 14px;font-size:.86rem;z-index:1}
+  .fn .val{position:relative;margin-left:auto;padding:0 14px;font-weight:700;z-index:1}
 </style>
 </head>
 <body>
@@ -100,6 +105,20 @@
     <h3>Usuarios dormidos / en riesgo <span class="muted" style="font-weight:400">· registrados ≥3d sin actividad en 7d</span></h3>
     <table><thead><tr><th>Nombre</th><th>Correo</th><th>Última actividad</th><th>Estado</th></tr></thead>
     <tbody id="dormant"></tbody></table>
+  </div>
+
+  <div class="row2">
+    <div class="section">
+      <h3>Embudo de activación</h3>
+      <div id="funnel" class="funnel"></div>
+    </div>
+    <div class="section"><h3>Distribución de uso · movimientos por usuario</h3><canvas id="cDist"></canvas></div>
+  </div>
+
+  <div class="section">
+    <h3>Power users <span class="muted" style="font-weight:400">· top por movimientos</span></h3>
+    <table><thead><tr><th>Usuario</th><th>Correo</th><th>Movimientos</th><th>Última actividad</th></tr></thead>
+    <tbody id="power"></tbody></table>
   </div>
 </div>
 
@@ -198,6 +217,29 @@ function render(m){
       : `<span class="badge idle">${u.days_inactive}d inactivo</span>`;
     return `<tr><td>${u.name||"—"}</td><td>${u.email||"—"}</td><td>${last}</td><td>${badge}</td></tr>`;
   }).join("") || `<tr><td colspan="4" class="muted">Sin usuarios dormidos 🎉</td></tr>`;
+
+  // Embudo de activación (usa KPIs ya existentes)
+  const base = r.total || 1;
+  const funnel = [
+    ["Registrados", r.total],
+    ["Con ≥1 movimiento", a.total],
+    ["WhatsApp vinculado", m.whatsapp_linked],
+    ["Activos (7d)", a.d7],
+  ];
+  $("funnel").innerHTML = funnel.map(([lbl, v]) => {
+    const w = Math.round((v / base) * 100);
+    return `<div class="fn"><div class="fill" style="width:${w}%"></div>`
+      + `<span class="lbl">${lbl}</span><span class="val">${fmt(v)} · ${w}%</span></div>`;
+  }).join("");
+
+  // Distribución de uso
+  barChart("cDist", (m.movements_distribution || []).map(d => ({ c: d.b, n: d.n })));
+
+  // Power users
+  $("power").innerHTML = (m.power_users || []).map((u, i) => {
+    const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "—";
+    return `<tr><td>${i+1}. ${u.name||"—"}</td><td>${u.email||"—"}</td><td>${fmt(u.movements)}</td><td>${last}</td></tr>`;
+  }).join("") || `<tr><td colspan="4" class="muted">Sin datos</td></tr>`;
 
   $("gen").textContent = "Actualizado: " + new Date(m.generated_at).toLocaleString("es-PE");
 }
