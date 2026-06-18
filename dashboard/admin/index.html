@@ -51,6 +51,12 @@
   .fn .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(26,208,236,.38),rgba(47,230,168,.16));border-right:2px solid var(--cyan)}
   .fn .lbl{position:relative;padding:0 14px;font-size:.86rem;z-index:1}
   .fn .val{position:relative;margin-left:auto;padding:0 14px;font-weight:700;z-index:1}
+  .tier{font-size:.78rem;padding:3px 11px;border-radius:20px;font-weight:700;white-space:nowrap}
+  .tier.gold{background:rgba(236,188,78,.18);color:#ecbc4e}
+  .tier.silver{background:rgba(196,205,216,.18);color:#cfd8e3}
+  .tier.bronze{background:rgba(205,127,50,.20);color:#e0a060}
+  .tier.star{background:rgba(26,208,236,.15);color:#1ad0ec}
+  .tier.chick{background:rgba(236,188,78,.10);color:#d2b06a}
 </style>
 </head>
 <body>
@@ -116,8 +122,8 @@
   </div>
 
   <div class="section">
-    <h3>Power users <span class="muted" style="font-weight:400">· top por movimientos</span></h3>
-    <table><thead><tr><th>Usuario</th><th>Correo</th><th>Movimientos</th><th>Última actividad</th></tr></thead>
+    <h3>Ranking del mes <span class="muted" style="font-weight:400">· top por movimientos (mes actual)</span></h3>
+    <table><thead><tr><th>Nivel</th><th>Usuario</th><th>Movimientos</th><th>Última act.</th></tr></thead>
     <tbody id="power"></tbody></table>
   </div>
 </div>
@@ -235,11 +241,18 @@ function render(m){
   // Distribución de uso
   barChart("cDist", (m.movements_distribution || []).map(d => ({ c: d.b, n: d.n })));
 
-  // Power users
+  // Ranking del mes con niveles
+  const tier = (rank) =>
+    rank === 1 ? {e:"🥇",n:"Oro",c:"gold"} :
+    rank === 2 ? {e:"🥈",n:"Plata",c:"silver"} :
+    rank === 3 ? {e:"🥉",n:"Bronce",c:"bronze"} :
+    rank <= 5  ? {e:"⭐",n:"Estrella",c:"star"} :
+                 {e:"🐥",n:"Pollito",c:"chick"};
   $("power").innerHTML = (m.power_users || []).map((u, i) => {
+    const t = tier(i + 1);
     const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "—";
-    return `<tr><td>${i+1}. ${u.name||"—"}</td><td>${u.email||"—"}</td><td>${fmt(u.movements)}</td><td>${last}</td></tr>`;
-  }).join("") || `<tr><td colspan="4" class="muted">Sin datos</td></tr>`;
+    return `<tr><td><span class="tier ${t.c}">${t.e} ${t.n}</span></td><td>${u.name||"—"}</td><td>${fmt(u.movements)}</td><td>${last}</td></tr>`;
+  }).join("") || `<tr><td colspan="4" class="muted">Sin movimientos este mes</td></tr>`;
 
   $("gen").textContent = "Actualizado: " + new Date(m.generated_at).toLocaleString("es-PE");
 }
