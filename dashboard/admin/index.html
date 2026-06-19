@@ -126,6 +126,14 @@
     <table><thead><tr><th>Nivel</th><th>Usuario</th><th>Movimientos</th><th>Última act.</th></tr></thead>
     <tbody id="power"></tbody></table>
   </div>
+
+  <div class="section"><h3>Movimientos por canal de entrada</h3><canvas id="cChannel"></canvas></div>
+
+  <div class="section">
+    <h3>Por usuario y canal <span class="muted" style="font-weight:400">· cómo registra cada uno (top 30)</span></h3>
+    <table><thead><tr><th>Usuario</th><th>App</th><th>💬 Texto</th><th>🎙️ Voz</th><th>📸 Foto</th><th>Total</th></tr></thead>
+    <tbody id="uchan"></tbody></table>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -253,6 +261,17 @@ function render(m){
     const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "—";
     return `<tr><td><span class="tier ${t.c}">${t.e} ${t.n}</span></td><td>${u.name||"—"}</td><td>${fmt(u.movements)}</td><td>${last}</td></tr>`;
   }).join("") || `<tr><td colspan="4" class="muted">Sin movimientos este mes</td></tr>`;
+
+  // Movimientos por canal de entrada
+  const CH = { app:"App", wa_text:"WhatsApp texto", wa_voice:"WhatsApp voz",
+               wa_photo:"WhatsApp foto", email:"Correo", desconocido:"Desconocido" };
+  barChart("cChannel", (m.movements_by_channel || []).map(c => ({ c: CH[c.channel] || c.channel, n: c.n })));
+
+  // Desglose por usuario y canal
+  $("uchan").innerHTML = (m.users_by_channel || []).map(u =>
+    `<tr><td>${u.name||"—"}</td><td>${u.app||0}</td><td>${u.wa_text||0}</td>`
+    + `<td>${u.wa_voice||0}</td><td>${u.wa_photo||0}</td><td><b>${u.total||0}</b></td></tr>`
+  ).join("") || `<tr><td colspan="6" class="muted">Sin datos</td></tr>`;
 
   $("gen").textContent = "Actualizado: " + new Date(m.generated_at).toLocaleString("es-PE");
 }
