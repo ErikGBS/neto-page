@@ -2,6 +2,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+<!-- Tema (oscuro por defecto; claro si el usuario lo eligió) — se aplica antes de pintar -->
+<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+
 <!-- Google Analytics (GA4) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-FLSYGLPE9R"></script>
 <script>
@@ -54,6 +57,34 @@
   --font-body:'Satoshi',sans-serif;
   --font-mono:'Space Mono',monospace;
 }
+/* ---------- tema claro (oscuro = default) ---------- */
+[data-theme="light"]{
+  --bg:#f4f8fb;
+  --bg-2:#e9f0f5;
+  --surface:#ffffff;
+  --surface-2:#eef4f8;
+  --border:rgba(12,42,52,.12);
+  --border-strong:rgba(12,42,52,.24);
+  --cyan:#0a93ad;
+  --cyan-bright:#1294b0;
+  --teal:#10936c;
+  --purple:#6b58e0;
+  --text:#0c1a20;
+  --dim:#46616b;
+  --mute:#7a909a;
+}
+/* fondos oscuros hardcodeados (no mockups) → claros en tema claro */
+[data-theme="light"] nav{background:rgba(255,255,255,.7)}
+[data-theme="light"] nav.scrolled{background:rgba(255,255,255,.86)}
+[data-theme="light"] .priv-badge,
+[data-theme="light"] .notify input,
+[data-theme="light"] .social-link{background:rgba(12,42,52,.04)}
+@media(max-width:760px){
+  [data-theme="light"] .nav-links{background:rgba(255,255,255,.97)}
+}
+/* botón de tema en el menú */
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;border:1px solid var(--border-strong);background:var(--surface);cursor:pointer;font-size:1.05rem;line-height:1;transition:border-color .2s,background .2s;margin-left:6px}
+.theme-toggle:hover{border-color:var(--cyan)}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
@@ -443,6 +474,7 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
       <a href="#privacidad">Privacidad</a>
     </div>
     <span class="pill">● Próximamente</span>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro" title="Cambiar tema">🌙</button>
     <button class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -910,6 +942,15 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
 </footer>
 
 <script>
+// tema claro/oscuro
+(function(){
+  const root=document.documentElement, btn=document.getElementById('themeToggle');
+  function apply(t){root.setAttribute('data-theme',t);try{localStorage.setItem('theme',t);}catch(e){}
+    if(btn) btn.textContent = t==='light' ? '☀️' : '🌙';}
+  apply(root.getAttribute('data-theme')||'dark');
+  if(btn) btn.addEventListener('click',()=>apply(root.getAttribute('data-theme')==='light'?'dark':'light'));
+})();
+
 // nav scroll
 const nav=document.getElementById('nav');
 addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>20));
