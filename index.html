@@ -59,21 +59,25 @@
 }
 /* ---------- tema claro (oscuro = default) ---------- */
 [data-theme="light"]{
-  --bg:#f4f8fb;
-  --bg-2:#e9f0f5;
+  --bg:#e9eff4;
+  --bg-2:#dde6ec;
   --surface:#ffffff;
   --surface-2:#eef4f8;
-  --border:rgba(12,42,52,.12);
-  --border-strong:rgba(12,42,52,.24);
-  --cyan:#0a93ad;
-  --cyan-bright:#1294b0;
-  --teal:#10936c;
-  --purple:#6b58e0;
-  --text:#0c1a20;
-  --dim:#46616b;
-  --mute:#7a909a;
+  --border:rgba(12,42,52,.16);
+  --border-strong:rgba(12,42,52,.30);
+  --cyan:#0784a6;
+  --cyan-bright:#0a93ad;
+  --teal:#0c7d5d;
+  --purple:#5a45d6;
+  --gold:#9a6b10;
+  --text:#0a161c;
+  --dim:#33474f;
+  --mute:#566a72;
 }
 /* fondos oscuros hardcodeados (no mockups) → claros en tema claro */
+[data-theme="light"] .glow{opacity:.16}
+[data-theme="light"] .glow.b{opacity:.13}
+[data-theme="light"] .glow.c{opacity:.1}
 [data-theme="light"] nav{background:rgba(255,255,255,.7)}
 [data-theme="light"] nav.scrolled{background:rgba(255,255,255,.86)}
 [data-theme="light"] .priv-badge,
