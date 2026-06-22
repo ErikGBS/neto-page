@@ -182,24 +182,62 @@
 <div class="hero">
   <span class="eyebrow">Legal</span>
   <h1>Política de Privacidad</h1>
-  <p class="updated">Última actualización: 14 de junio de 2026</p>
+  <p class="updated">Última actualización: 22 de junio de 2026</p>
 </div>
 
 <div class="cards">
 
   <div class="card">
     <div class="card-head">
-      <div class="ic" style="background:rgba(26,208,236,.1)">📖</div>
-      <h2>Qué usamos</h2>
+      <div class="ic" style="background:rgba(26,208,236,.1)">🔑</div>
+      <h2>Datos de tu Cuenta de Google que accedemos</h2>
     </div>
-    <p>Actualmente, Y Altoque solo usa <strong>Inicio de sesión con Google</strong> para crear e
-    identificar tu cuenta (tu nombre y tu correo). <strong>No leemos tu Gmail.</strong></p>
+    <p>Y Altoque usa <strong>Inicio de sesión con Google</strong> (OAuth 2.0 / OpenID Connect) para
+    crear e identificar tu cuenta. Solicitamos únicamente estos tres permisos <strong>no sensibles</strong>
+    y ningún otro:</p>
+    <ul>
+      <li><code>.../auth/userinfo.email</code> — <strong>Dato accedido:</strong> la dirección de correo
+          electrónico principal de tu Cuenta de Google.
+          <strong>Uso:</strong> identificar tu cuenta de forma única y permitirte iniciar sesión.</li>
+      <li><code>.../auth/userinfo.profile</code> — <strong>Dato accedido:</strong> tu información básica
+          de perfil (nombre y foto de perfil).
+          <strong>Uso:</strong> mostrar tu nombre dentro de la app y asociarlo a tu cuenta.</li>
+      <li><code>openid</code> — <strong>Dato accedido:</strong> un identificador único de tu Cuenta de
+          Google (token OpenID).
+          <strong>Uso:</strong> autenticar de forma segura cada inicio de sesión.</li>
+    </ul>
     <br>
+    <p><strong>No accedemos a ningún otro dato de tu Cuenta de Google.</strong> En particular,
+    <strong>no leemos tu Gmail</strong> ni el contenido de tus correos.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="ic" style="background:rgba(26,208,236,.1)">⚙️</div>
+      <h2>Cómo usamos estos datos</h2>
+    </div>
+    <ul>
+      <li><strong>Crear e identificar</strong> tu cuenta de Y Altoque.</li>
+      <li><strong>Autenticarte</strong> de forma segura en cada inicio de sesión.</li>
+      <li><strong>Personalizar la app</strong> mostrando tu nombre.</li>
+    </ul>
+    <br>
+    <p>No usamos estos datos para publicidad ni perfilado, <strong>no los vendemos</strong>,
+    <strong>no los compartimos</strong> con terceros y <strong>no los usamos para entrenar
+    modelos de inteligencia artificial</strong>.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="ic" style="background:rgba(155,125,248,.1)">🔭</div>
+      <h2>Función futura: detección por correo (aún no incluida)</h2>
+    </div>
     <p>La <strong>detección automática por correo</strong> —leer las notificaciones de Yape, Plin y
-    BCP para registrar tus movimientos— es una función <strong>próximamente</strong>. Cuando la
-    habilitemos, será <strong>opcional (opt-in)</strong>, con permiso de <strong>solo lectura</strong>
-    limitado a esos remitentes financieros, y nunca podremos enviar, modificar ni eliminar correos.
-    Esta política se aplicará a esa función cuando esté disponible.</p>
+    BCP para registrar tus movimientos— es una función <strong>próximamente</strong> y
+    <strong>no está incluida en los permisos que solicitamos hoy</strong>. Cuando la habilitemos,
+    será <strong>opcional (opt-in)</strong>, requerirá tu autorización por separado, usará un permiso
+    de <strong>solo lectura</strong> limitado a esos remitentes financieros, y nunca podremos enviar,
+    modificar ni eliminar correos. Actualizaremos esta política antes de activar esa función.</p>
   </div>
 
   <div class="card">
@@ -293,7 +331,7 @@
     solo se usan para proveer y mejorar las funcionalidades de la app descritas en esta política,
     y no se comparten con terceros ni se usan para publicidad.</p>
     <br>
-    <span class="badge">🔐 Inicio de sesión con Google — solo email y perfil</span>
+    <span class="badge">🔐 Inicio de sesión con Google — solo email, perfil y openid</span>
   </div>
 
   <div class="card">
