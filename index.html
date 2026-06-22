@@ -188,10 +188,15 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
 .globe .wrap{position:relative}
 .globe h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,4vw,2.7rem);letter-spacing:-.02em;margin:16px auto 0;max-width:16em;line-height:1.12}
 .globe .lead{color:var(--dim);font-size:1.06rem;max-width:34em;margin:16px auto 0}
-.globe .flags{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:36px auto 0;max-width:760px}
-.globe .flag{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-size:.9rem;color:var(--dim);font-weight:600;transition:transform .25s,border-color .25s,color .25s}
-.globe .flag:hover{transform:translateY(-3px);border-color:var(--border-strong);color:var(--text)}
+.globe .flag-marquee{margin:38px auto 0;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.globe .flag-track{display:flex;gap:12px;width:max-content;animation:flagscroll 36s linear infinite}
+.globe .flag-marquee:hover .flag-track{animation-play-state:paused}
+@keyframes flagscroll{to{transform:translateX(-50%)}}
+.globe .flag{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-size:.9rem;color:var(--dim);font-weight:600;white-space:nowrap;flex:0 0 auto}
 .globe .flag .fg{font-size:1.15rem;line-height:1}
+@media (prefers-reduced-motion:reduce){.globe .flag-track{animation:none;flex-wrap:wrap;justify-content:center;width:auto}}
 .globe .gstats{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin:38px auto 0}
 .globe .gstat{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 26px;border-radius:18px;border:1px solid var(--border);background:linear-gradient(165deg,rgba(26,208,236,.06),var(--surface) 60%);min-width:140px}
 .globe .gstat b{font-family:var(--font-display);font-weight:700;font-size:1.7rem;letter-spacing:-.02em;color:var(--text)}
@@ -523,16 +528,32 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
     <span class="eyebrow reveal">Sin fronteras</span>
     <h2 class="reveal" data-d="1">Tu plata, en tu idioma y tu moneda.</h2>
     <p class="lead reveal" data-d="2">Nació en Perú 🇵🇪 y ya se prueba en España 🇪🇸. Multimoneda y multilenguaje desde el día uno — donde estés, en lo que uses.</p>
-    <div class="flags reveal" data-d="3">
-      <span class="flag"><span class="fg">🇵🇪</span>Perú</span>
-      <span class="flag"><span class="fg">🇪🇸</span>España</span>
-      <span class="flag"><span class="fg">🇲🇽</span>México</span>
-      <span class="flag"><span class="fg">🇨🇴</span>Colombia</span>
-      <span class="flag"><span class="fg">🇨🇱</span>Chile</span>
-      <span class="flag"><span class="fg">🇦🇷</span>Argentina</span>
-      <span class="flag"><span class="fg">🇧🇷</span>Brasil</span>
-      <span class="flag"><span class="fg">🇺🇸</span>EE. UU.</span>
-      <span class="flag"><span class="fg">🌎</span>y más</span>
+    <div class="flag-marquee reveal" data-d="3">
+      <div class="flag-track">
+        <span class="flag"><span class="fg">🇵🇪</span>Perú</span>
+        <span class="flag"><span class="fg">🇪🇸</span>España</span>
+        <span class="flag"><span class="fg">🇲🇽</span>México</span>
+        <span class="flag"><span class="fg">🇨🇴</span>Colombia</span>
+        <span class="flag"><span class="fg">🇨🇱</span>Chile</span>
+        <span class="flag"><span class="fg">🇦🇷</span>Argentina</span>
+        <span class="flag"><span class="fg">🇧🇷</span>Brasil</span>
+        <span class="flag"><span class="fg">🇺🇾</span>Uruguay</span>
+        <span class="flag"><span class="fg">🇪🇨</span>Ecuador</span>
+        <span class="flag"><span class="fg">🇺🇸</span>EE. UU.</span>
+        <span class="flag"><span class="fg">🌎</span>y más</span>
+        <!-- copia para bucle continuo -->
+        <span class="flag" aria-hidden="true"><span class="fg">🇵🇪</span>Perú</span>
+        <span class="flag" aria-hidden="true"><span class="fg">🇪🇸</span>España</span>
+        <span class="flag" aria-hidden="true"><span class="fg">🇲🇽</span>México</span>
+        <span class="flag" aria-hidden="true"><span class="fg">🇨🇴</span>Colombia</span>
+        <span class="flag" aria-hidden="true"><span class="fg">🇨🇱</span>Chile</span>
+        <span class="flag" aria-hidden="true"><span class="fg">🇦🇷</span>Argentina</span>
+        <span class="flag" aria-hidden="true"><span class="fg">🇧🇷</span>Brasil</span>
+        <span class="flag" aria-hidden="true"><span class="fg">🇺🇾</span>Uruguay</span>
+        <span class="flag" aria-hidden="true"><span class="fg">🇪🇨</span>Ecuador</span>
+        <span class="flag" aria-hidden="true"><span class="fg">🇺🇸</span>EE. UU.</span>
+        <span class="flag" aria-hidden="true"><span class="fg">🌎</span>y más</span>
+      </div>
     </div>
     <div class="gstats reveal" data-d="3">
       <div class="gstat"><b>20+</b><span>Monedas</span></div>
