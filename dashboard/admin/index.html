@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Y Altoque — Panel admin</title>
+<title>Y Altoque - Panel admin</title>
 <style>
   :root{--bg:#05090c;--surface:#0d1117;--border:#1a2133;--cyan:#1ad0ec;--teal:#2fe6a8;
         --gold:#ecbc4e;--pink:#e84393;--text:#e2e8f0;--muted:#8892a4;--dim:#5a6478}
@@ -101,7 +101,7 @@
 
   <div class="row2">
     <div class="section">
-      <h3>Retención — ¿vuelven después de N días?</h3>
+      <h3>Retención: ¿vuelven después de N días?</h3>
       <div id="retention" class="retgrid"></div>
     </div>
     <div class="section"><h3>Movimientos por fuente</h3><canvas id="cSource"></canvas></div>
@@ -205,7 +205,7 @@ function render(m){
 
   $("recent").innerHTML = (m.recent_signups||[]).map(u=>{
     const d = new Date(u.at).toLocaleDateString("es-PE",{day:"2-digit",month:"short"});
-    return `<tr><td>${u.name||"—"}</td><td>${u.email||"—"}</td><td>${d}</td></tr>`;
+    return `<tr><td>${u.name||"-"}</td><td>${u.email||"-"}</td><td>${d}</td></tr>`;
   }).join("") || `<tr><td colspan="3" class="muted">Sin datos</td></tr>`;
 
   // Retención D1/D7/D30
@@ -214,7 +214,7 @@ function render(m){
     const p = (o && o.elig) ? Math.round(o.ret / o.elig * 100) : null;
     const cls = p === null ? "" : (p >= 50 ? "teal" : p >= 25 ? "gold" : "pink");
     return `<div class="ret"><div class="d">${label}</div>`
-      + `<div class="p ${cls}">${p === null ? "—" : p + "%"}</div>`
+      + `<div class="p ${cls}">${p === null ? "-" : p + "%"}</div>`
       + `<div class="n">${o ? `${fmt(o.ret)}/${fmt(o.elig)} usuarios` : ""}</div></div>`;
   };
   $("retention").innerHTML = retCell("Día 1", rt.d1) + retCell("Día 7", rt.d7) + retCell("Día 30", rt.d30);
@@ -225,11 +225,11 @@ function render(m){
 
   // Usuarios dormidos / en riesgo
   $("dormant").innerHTML = (m.dormant || []).map(u => {
-    const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "—";
+    const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "-";
     const badge = u.status === "nunca"
       ? `<span class="badge never">Nunca registró</span>`
       : `<span class="badge idle">${u.days_inactive}d inactivo</span>`;
-    return `<tr><td>${u.name||"—"}</td><td>${u.email||"—"}</td><td>${last}</td><td>${badge}</td></tr>`;
+    return `<tr><td>${u.name||"-"}</td><td>${u.email||"-"}</td><td>${last}</td><td>${badge}</td></tr>`;
   }).join("") || `<tr><td colspan="4" class="muted">Sin usuarios dormidos 🎉</td></tr>`;
 
   // Embudo de activación (usa KPIs ya existentes)
@@ -249,7 +249,7 @@ function render(m){
   // Distribución de uso
   barChart("cDist", (m.movements_distribution || []).map(d => ({ c: d.b, n: d.n })));
 
-  // Ranking del mes — nivel según # de movimientos del mes
+  // Ranking del mes: nivel según # de movimientos del mes
   const tier = (mov) =>
     mov >= 100 ? {e:"🥇",n:"Oro",c:"gold"} :
     mov >= 50  ? {e:"🥈",n:"Plata",c:"silver"} :
@@ -258,8 +258,8 @@ function render(m){
                  {e:"🐥",n:"Pollito",c:"chick"};
   $("power").innerHTML = (m.power_users || []).map((u, i) => {
     const t = tier(u.movements || 0);
-    const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "—";
-    return `<tr><td><span class="tier ${t.c}">${t.e} ${t.n}</span></td><td>${u.name||"—"}</td><td>${fmt(u.movements)}</td><td>${last}</td></tr>`;
+    const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "-";
+    return `<tr><td><span class="tier ${t.c}">${t.e} ${t.n}</span></td><td>${u.name||"-"}</td><td>${fmt(u.movements)}</td><td>${last}</td></tr>`;
   }).join("") || `<tr><td colspan="4" class="muted">Sin movimientos este mes</td></tr>`;
 
   // Movimientos por canal de entrada
@@ -269,7 +269,7 @@ function render(m){
 
   // Desglose por usuario y canal
   $("uchan").innerHTML = (m.users_by_channel || []).map(u =>
-    `<tr><td>${u.name||"—"}</td><td>${u.app||0}</td><td>${u.wa_text||0}</td>`
+    `<tr><td>${u.name||"-"}</td><td>${u.app||0}</td><td>${u.wa_text||0}</td>`
     + `<td>${u.wa_voice||0}</td><td>${u.wa_photo||0}</td><td><b>${u.total||0}</b></td></tr>`
   ).join("") || `<tr><td colspan="6" class="muted">Sin datos</td></tr>`;
 
