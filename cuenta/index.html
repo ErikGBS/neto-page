@@ -87,11 +87,15 @@
 const BACKEND = "https://finance-tracker-production-450d.up.railway.app";
 const params = new URLSearchParams(location.search);
 const S = params.get("s");   // share_token
-const P = params.get("p");   // invite_token (link personal)
+let P = params.get("p");     // invite_token (se reasigna al unirse por link de grupo)
 
 const SYMBOLS = {PEN:"S/ ",USD:"$ ",EUR:"€ ",BRL:"R$ ",COP:"$ ",MXN:"$ ",ARS:"$ ",CLP:"$ "};
 let currency = "PEN", myId = null, split = null, busy = false;
 
+// localStorage puede lanzar en webviews restringidos (navegador interno de
+// WhatsApp, modo privado). Lo envolvemos para no romper el arranque.
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 function money(n){ return (SYMBOLS[currency]||currency+" ") + Number(n||0).toFixed(2); }
 function esc(s){ return (s||"").replace(/</g,"&lt;"); }
 function show(id){ document.getElementById(id).classList.remove("hidden"); }
@@ -204,8 +208,8 @@ document.getElementById("joinBtn").addEventListener("click", async () => {
     });
     if(!res.ok) throw new Error();
     P = (await res.json()).invite_token;
-    localStorage.setItem(inviteKey(), P);
-    localStorage.setItem("yalt_name", name);
+    lsSet(inviteKey(), P);
+    lsSet("yalt_name", name);
     await openSplit();
   }catch(e){ btn.disabled = false; btn.textContent = "Entrar"; alert("No se pudo entrar. Intenta de nuevo."); }
 });
@@ -213,11 +217,11 @@ document.getElementById("joinBtn").addEventListener("click", async () => {
 function start(){
   if(!S) return fail("Link inválido. Pídele a quien pagó que te reenvíe el enlace.");
   // Link personal trae ?p=; link de grupo no. Si ya me uní antes, lo recuerdo.
-  P = params.get("p") || localStorage.getItem(inviteKey());
-  if(params.get("p")) localStorage.setItem(inviteKey(), params.get("p"));
+  P = params.get("p") || lsGet(inviteKey());
+  if(params.get("p")) lsSet(inviteKey(), params.get("p"));
   if(!P){
     hide("loading");
-    document.getElementById("nameInput").value = localStorage.getItem("yalt_name") || "";
+    document.getElementById("nameInput").value = lsGet("yalt_name") || "";
     show("namePrompt");
     return;
   }
