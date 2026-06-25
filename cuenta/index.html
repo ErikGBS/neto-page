@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divide la cuenta · Y Altoque</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{--bg:#04141a;--surface:#0b2129;--border:#16323b;--teal:#2fe6a8;--gold:#ecbc4e;
+        --text:#e7f3f0;--muted:#8fb0aa}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);
+       color:var(--text);min-height:100vh;padding:24px 16px}
+  .wrap{max-width:460px;margin:0 auto}
+  .logo{font-size:1.3rem;font-weight:800;text-align:center;margin-bottom:18px}
+  .logo .y{color:var(--gold)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:22px 20px;margin-bottom:14px}
+  h1{font-size:1.2rem;margin-bottom:4px}
+  .sub{color:var(--muted);font-size:.9rem;margin-bottom:16px;line-height:1.5}
+  .item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .item:last-child{border-bottom:none}
+  .item input{width:22px;height:22px;accent-color:var(--teal);flex:none}
+  .item .name{flex:1;font-size:.95rem}
+  .item .price{color:var(--muted);font-size:.9rem;white-space:nowrap}
+  .amount{text-align:center;padding:18px 0 4px}
+  .amount .label{color:var(--muted);font-size:.85rem}
+  .amount .val{font-size:2rem;font-weight:800;color:var(--gold);margin-top:2px}
+  .btn{display:block;width:100%;text-align:center;text-decoration:none;font-weight:700;border:none;
+       border-radius:12px;padding:14px;font-size:1rem;cursor:pointer;transition:filter .15s}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .primary{background:var(--teal);color:#04141a}
+  .ghost{background:transparent;border:1px solid var(--border);color:var(--text);margin-top:10px}
+  .install{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px 20px;text-align:center}
+  .install p{color:var(--muted);font-size:.88rem;margin-bottom:12px;line-height:1.5}
+  .install .stores{display:flex;flex-direction:column;gap:8px}
+  .msg{text-align:center;color:var(--muted);padding:30px 10px;line-height:1.6}
+  .ok{color:var(--teal);font-weight:700}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo"><span class="y">Y</span> Altoque</div>
+
+    <div id="loading" class="card"><div class="msg">Cargando la cuenta…</div></div>
+
+    <div id="error" class="card hidden"><div class="msg" id="errorMsg"></div></div>
+
+    <div id="content" class="hidden">
+      <div class="card">
+        <h1 id="title">Divide la cuenta</h1>
+        <p class="sub">Hola <strong id="who"></strong>, marca lo que consumiste 👇</p>
+        <div id="items"></div>
+        <div class="amount">
+          <div class="label">Te toca pagar</div>
+          <div class="val" id="amount">—</div>
+        </div>
+        <button class="btn primary" id="payBtn">Ya pagué</button>
+        <div id="paidMsg" class="msg ok hidden">Listo, avisamos que ya pagaste. Falta que lo confirmen. 🙌</div>
+      </div>
+
+      <div class="install">
+        <p><strong>Instala Y Altoque</strong> y tu parte queda registrada en tus gastos, más fácil para la próxima salida.</p>
+        <div class="stores">
+          <a class="btn primary" href="https://apps.apple.com/app/id6778281655">Descargar en App Store</a>
+          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.erikgbs.finance_app">Descargar en Google Play</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const BACKEND = "https://finance-tracker-production-450d.up.railway.app";
+const params = new URLSearchParams(location.search);
+const S = params.get("s");   // share_token
+const P = params.get("p");   // invite_token (link personal del participante)
+
+const SYMBOLS = {PEN:"S/ ",USD:"$ ",EUR:"€ ",BRL:"R$ ",COP:"$ ",MXN:"$ ",ARS:"$ ",CLP:"$ "};
+let currency = "PEN", participantId = null;
+
+function money(n){ return (SYMBOLS[currency]||currency+" ") + Number(n||0).toFixed(2); }
+function show(id){ document.getElementById(id).classList.remove("hidden"); }
+function hide(id){ document.getElementById(id).classList.add("hidden"); }
+function fail(msg){ hide("loading"); hide("content"); document.getElementById("errorMsg").textContent = msg; show("error"); }
+
+async function load(){
+  if(!S || !P){ return fail("Link inválido. Pídele a quien pagó que te reenvíe el enlace."); }
+  try{
+    const [splitRes, meRes] = await Promise.all([
+      fetch(`${BACKEND}/s/${S}`),
+      fetch(`${BACKEND}/s/${S}/me/${P}`),
+    ]);
+    if(!splitRes.ok || !meRes.ok){ return fail("No encontramos esta cuenta. El link puede haber expirado."); }
+    const split = await splitRes.json();
+    const me = await meRes.json();
+    currency = split.currency || "PEN";
+    participantId = me.participant_id;
+
+    document.getElementById("who").textContent = me.display_name || "tú";
+    if(split.title) document.getElementById("title").textContent = split.title;
+
+    const mine = new Set(me.item_ids || []);
+    const itemsEl = document.getElementById("items");
+    itemsEl.innerHTML = "";
+    (split.items || []).forEach(it => {
+      const row = document.createElement("label");
+      row.className = "item";
+      row.innerHTML = `<input type="checkbox" value="${it.id}" ${mine.has(it.id)?"checked":""}>
+        <span class="name">${(it.description||"Ítem").replace(/</g,"&lt;")}</span>
+        <span class="price">${money(it.total)}</span>`;
+      row.querySelector("input").addEventListener("change", saveSelection);
+      itemsEl.appendChild(row);
+    });
+
+    document.getElementById("amount").textContent = money(me.amount_due);
+    if(me.payment_status && me.payment_status !== "pending") markPaidUI();
+
+    hide("loading"); show("content");
+  }catch(e){ fail("Hubo un problema de conexión. Intenta de nuevo."); }
+}
+
+async function saveSelection(){
+  const ids = [...document.querySelectorAll("#items input:checked")].map(i => i.value);
+  document.getElementById("amount").textContent = "…";
+  try{
+    const res = await fetch(`${BACKEND}/s/${S}/participants/${P}/assign`, {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({item_ids: ids}),
+    });
+    if(!res.ok) throw new Error();
+    const split = await res.json();
+    const me = (split.participants||[]).find(p => p.id === participantId);
+    document.getElementById("amount").textContent = money(me ? me.amount_due : 0);
+  }catch(e){ document.getElementById("amount").textContent = "error"; }
+}
+
+function markPaidUI(){
+  const btn = document.getElementById("payBtn");
+  btn.disabled = true; btn.textContent = "Marcado como pagado";
+  show("paidMsg");
+}
+
+document.getElementById("payBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("payBtn");
+  btn.disabled = true; btn.textContent = "Enviando…";
+  try{
+    const res = await fetch(`${BACKEND}/s/${S}/participants/${P}/pay`, {method:"POST"});
+    if(!res.ok) throw new Error();
+    markPaidUI();
+  }catch(e){ btn.disabled = false; btn.textContent = "Ya pagué"; }
+});
+
+load();
+</script>
+</body>
+</html>
