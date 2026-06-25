@@ -51,6 +51,15 @@
     <div id="loading" class="card"><div class="msg">Cargando la cuenta…</div></div>
     <div id="error" class="card hidden"><div class="msg" id="errorMsg"></div></div>
 
+    <div id="namePrompt" class="card hidden">
+      <h1>Únete a la cuenta</h1>
+      <p class="sub">Pon tu nombre para marcar lo que consumiste.</p>
+      <input id="nameInput" type="text" placeholder="Tu nombre" autocomplete="name"
+             style="width:100%;padding:13px;border-radius:12px;border:1px solid var(--border);
+                    background:var(--bg);color:var(--text);font-size:1rem;margin-bottom:12px">
+      <button class="btn primary" id="joinBtn">Entrar</button>
+    </div>
+
     <div id="content" class="hidden">
       <div class="card">
         <h1 id="title">Divide la cuenta</h1>
@@ -173,14 +182,48 @@ document.getElementById("payBtn").addEventListener("click", async () => {
   }catch(e){ btn.disabled = false; btn.textContent = "Ya pagué"; }
 });
 
-async function load(){
-  if(!S || !P) return fail("Link inválido. Pídele a quien pagó que te reenvíe el enlace.");
-  try{ await refresh(); document.getElementById("who").textContent = (split.participants.find(p=>p.id===myId)||{}).display_name || "tú";
-       if(split.title) document.getElementById("title").textContent = split.title;
-       hide("loading"); show("content"); }
-  catch(e){ fail("Hubo un problema de conexión. Intenta de nuevo."); }
+function inviteKey(){ return "yalt_invite_" + S; }
+
+async function openSplit(){
+  show("loading"); hide("namePrompt");
+  try{
+    await refresh();
+    document.getElementById("who").textContent = (split.participants.find(p => p.id === myId) || {}).display_name || "tú";
+    if(split.title) document.getElementById("title").textContent = split.title;
+    hide("loading"); show("content");
+  }catch(e){ fail("Hubo un problema de conexión. Intenta de nuevo."); }
 }
-load();
+
+document.getElementById("joinBtn").addEventListener("click", async () => {
+  const name = document.getElementById("nameInput").value.trim();
+  if(!name){ document.getElementById("nameInput").focus(); return; }
+  const btn = document.getElementById("joinBtn"); btn.disabled = true; btn.textContent = "Entrando…";
+  try{
+    const res = await fetch(`${BACKEND}/s/${S}/join`, {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({display_name: name}),
+    });
+    if(!res.ok) throw new Error();
+    P = (await res.json()).invite_token;
+    localStorage.setItem(inviteKey(), P);
+    localStorage.setItem("yalt_name", name);
+    await openSplit();
+  }catch(e){ btn.disabled = false; btn.textContent = "Entrar"; alert("No se pudo entrar. Intenta de nuevo."); }
+});
+
+function start(){
+  if(!S) return fail("Link inválido. Pídele a quien pagó que te reenvíe el enlace.");
+  // Link personal trae ?p=; link de grupo no. Si ya me uní antes, lo recuerdo.
+  P = params.get("p") || localStorage.getItem(inviteKey());
+  if(params.get("p")) localStorage.setItem(inviteKey(), params.get("p"));
+  if(!P){
+    hide("loading");
+    document.getElementById("nameInput").value = localStorage.getItem("yalt_name") || "";
+    show("namePrompt");
+    return;
+  }
+  openSplit();
+}
+start();
 </script>
 </body>
 </html>
