@@ -17,11 +17,18 @@
   .card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:22px 20px;margin-bottom:14px}
   h1{font-size:1.2rem;margin-bottom:4px}
   .sub{color:var(--muted);font-size:.9rem;margin-bottom:16px;line-height:1.5}
-  .item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .item{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--border)}
   .item:last-child{border-bottom:none}
+  .item.taken{opacity:.5}
   .item input{width:22px;height:22px;accent-color:var(--teal);flex:none}
-  .item .name{flex:1;font-size:.95rem}
+  .item .mid{flex:1;min-width:0}
+  .item .name{font-size:.95rem}
+  .item .status{font-size:.76rem;color:var(--muted);margin-top:2px}
+  .item .status.mine{color:var(--teal)}
   .item .price{color:var(--muted);font-size:.9rem;white-space:nowrap}
+  .share{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;
+         padding:5px 8px;font-size:.7rem;cursor:pointer;white-space:nowrap;flex:none}
+  .share.on{color:var(--teal);border-color:var(--teal)}
   .amount{text-align:center;padding:18px 0 4px}
   .amount .label{color:var(--muted);font-size:.85rem}
   .amount .val{font-size:2rem;font-weight:800;color:var(--gold);margin-top:2px}
@@ -30,7 +37,6 @@
   .btn:hover{filter:brightness(1.08)}
   .btn:disabled{opacity:.5;cursor:default}
   .primary{background:var(--teal);color:#04141a}
-  .ghost{background:transparent;border:1px solid var(--border);color:var(--text);margin-top:10px}
   .install{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px 20px;text-align:center}
   .install p{color:var(--muted);font-size:.88rem;margin-bottom:12px;line-height:1.5}
   .install .stores{display:flex;flex-direction:column;gap:8px}
@@ -42,15 +48,13 @@
 <body>
   <div class="wrap">
     <div class="logo"><span class="y">Y</span> Altoque</div>
-
     <div id="loading" class="card"><div class="msg">Cargando la cuenta…</div></div>
-
     <div id="error" class="card hidden"><div class="msg" id="errorMsg"></div></div>
 
     <div id="content" class="hidden">
       <div class="card">
         <h1 id="title">Divide la cuenta</h1>
-        <p class="sub">Hola <strong id="who"></strong>, marca lo que consumiste 👇</p>
+        <p class="sub">Hola <strong id="who"></strong>, marca lo que consumiste. Lo que compartieron (gaseosa, piqueo), toca <em>compartir</em> y se divide entre quienes se unan.</p>
         <div id="items"></div>
         <div class="amount">
           <div class="label">Te toca pagar</div>
@@ -74,70 +78,89 @@
 const BACKEND = "https://finance-tracker-production-450d.up.railway.app";
 const params = new URLSearchParams(location.search);
 const S = params.get("s");   // share_token
-const P = params.get("p");   // invite_token (link personal del participante)
+const P = params.get("p");   // invite_token (link personal)
 
 const SYMBOLS = {PEN:"S/ ",USD:"$ ",EUR:"€ ",BRL:"R$ ",COP:"$ ",MXN:"$ ",ARS:"$ ",CLP:"$ "};
-let currency = "PEN", participantId = null;
+let currency = "PEN", myId = null, split = null, busy = false;
 
 function money(n){ return (SYMBOLS[currency]||currency+" ") + Number(n||0).toFixed(2); }
+function esc(s){ return (s||"").replace(/</g,"&lt;"); }
 function show(id){ document.getElementById(id).classList.remove("hidden"); }
 function hide(id){ document.getElementById(id).classList.add("hidden"); }
-function fail(msg){ hide("loading"); hide("content"); document.getElementById("errorMsg").textContent = msg; show("error"); }
+function fail(m){ hide("loading"); hide("content"); document.getElementById("errorMsg").textContent=m; show("error"); }
 
-async function load(){
-  if(!S || !P){ return fail("Link inválido. Pídele a quien pagó que te reenvíe el enlace."); }
-  try{
-    const [splitRes, meRes] = await Promise.all([
-      fetch(`${BACKEND}/s/${S}`),
-      fetch(`${BACKEND}/s/${S}/me/${P}`),
-    ]);
-    if(!splitRes.ok || !meRes.ok){ return fail("No encontramos esta cuenta. El link puede haber expirado."); }
-    const split = await splitRes.json();
-    const me = await meRes.json();
-    currency = split.currency || "PEN";
-    participantId = me.participant_id;
+function render(){
+  const nameById = {}; (split.participants||[]).forEach(p => nameById[p.id] = p.display_name);
+  const me = (split.participants||[]).find(p => p.id === myId);
+  document.getElementById("amount").textContent = money(me ? me.amount_due : 0);
+  if (me && me.payment_status && me.payment_status !== "pending") markPaidUI();
 
-    document.getElementById("who").textContent = me.display_name || "tú";
-    if(split.title) document.getElementById("title").textContent = split.title;
+  const itemsEl = document.getElementById("items");
+  itemsEl.innerHTML = "";
+  (split.items || []).forEach(it => {
+    const claimers = (split.assignments || {})[it.id] || [];
+    const mine = claimers.includes(myId);
+    const others = claimers.filter(c => c !== myId);
+    const isShared = !!it.shared;
+    const disabled = !isShared && others.length > 0;
 
-    const mine = new Set(me.item_ids || []);
-    const itemsEl = document.getElementById("items");
-    itemsEl.innerHTML = "";
-    (split.items || []).forEach(it => {
-      const row = document.createElement("label");
-      row.className = "item";
-      row.innerHTML = `<input type="checkbox" value="${it.id}" ${mine.has(it.id)?"checked":""}>
-        <span class="name">${(it.description||"Ítem").replace(/</g,"&lt;")}</span>
-        <span class="price">${money(it.total)}</span>`;
-      row.querySelector("input").addEventListener("change", saveSelection);
-      itemsEl.appendChild(row);
-    });
+    let status = "", cls = "";
+    if (isShared) status = "Compartido" + (claimers.length ? " · " + claimers.map(c => nameById[c] || "?").join(", ") : "");
+    else if (others.length) status = "Tomado por " + others.map(c => nameById[c] || "?").join(", ");
+    else if (mine) { status = "Tuyo"; cls = "mine"; }
 
-    document.getElementById("amount").textContent = money(me.amount_due);
-    if(me.payment_status && me.payment_status !== "pending") markPaidUI();
-
-    hide("loading"); show("content");
-  }catch(e){ fail("Hubo un problema de conexión. Intenta de nuevo."); }
+    const row = document.createElement("div");
+    row.className = "item" + (disabled ? " taken" : "");
+    row.innerHTML =
+      `<input type="checkbox" ${mine ? "checked" : ""} ${disabled ? "disabled" : ""} data-id="${it.id}">
+       <div class="mid"><div class="name">${esc(it.description)}</div>${status ? `<div class="status ${cls}">${status}</div>` : ""}</div>
+       <div class="price">${money(it.total)}</div>
+       <button class="share ${isShared ? "on" : ""}" data-id="${it.id}" data-shared="${isShared ? 1 : 0}">${isShared ? "✓ compartido" : "compartir"}</button>`;
+    row.querySelector("input").addEventListener("change", onAssign);
+    row.querySelector(".share").addEventListener("click", onShare);
+    itemsEl.appendChild(row);
+  });
 }
 
-async function saveSelection(){
-  const ids = [...document.querySelectorAll("#items input:checked")].map(i => i.value);
-  document.getElementById("amount").textContent = "…";
+async function refresh(){
+  const [sp, me] = await Promise.all([ fetch(`${BACKEND}/s/${S}`), fetch(`${BACKEND}/s/${S}/me/${P}`) ]);
+  if(!sp.ok || !me.ok) return fail("No encontramos esta cuenta. El link puede haber expirado.");
+  split = await sp.json(); currency = split.currency || "PEN";
+  myId = (await me.json()).participant_id;
+  render();
+}
+
+async function onAssign(){
+  if (busy) return; busy = true;
+  const ids = [...document.querySelectorAll("#items input:checked")].map(b => b.dataset.id);
   try{
     const res = await fetch(`${BACKEND}/s/${S}/participants/${P}/assign`, {
       method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({item_ids: ids}),
     });
+    if(res.status === 409){ alert("Ese plato ya lo tomó otra persona."); await refresh(); return; }
     if(!res.ok) throw new Error();
-    const split = await res.json();
-    const me = (split.participants||[]).find(p => p.id === participantId);
-    document.getElementById("amount").textContent = money(me ? me.amount_due : 0);
-  }catch(e){ document.getElementById("amount").textContent = "error"; }
+    split = await res.json(); render();
+  }catch(e){ await refresh(); }
+  finally{ busy = false; }
+}
+
+async function onShare(ev){
+  if (busy) return; busy = true;
+  const btn = ev.currentTarget;
+  try{
+    const res = await fetch(`${BACKEND}/s/${S}/share`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({item_id: btn.dataset.id, shared: btn.dataset.shared !== "1"}),
+    });
+    if(!res.ok) throw new Error();
+    split = await res.json(); render();
+  }catch(e){ await refresh(); }
+  finally{ busy = false; }
 }
 
 function markPaidUI(){
   const btn = document.getElementById("payBtn");
-  btn.disabled = true; btn.textContent = "Marcado como pagado";
-  show("paidMsg");
+  btn.disabled = true; btn.textContent = "Marcado como pagado"; show("paidMsg");
 }
 
 document.getElementById("payBtn").addEventListener("click", async () => {
@@ -150,6 +173,13 @@ document.getElementById("payBtn").addEventListener("click", async () => {
   }catch(e){ btn.disabled = false; btn.textContent = "Ya pagué"; }
 });
 
+async function load(){
+  if(!S || !P) return fail("Link inválido. Pídele a quien pagó que te reenvíe el enlace.");
+  try{ await refresh(); document.getElementById("who").textContent = (split.participants.find(p=>p.id===myId)||{}).display_name || "tú";
+       if(split.title) document.getElementById("title").textContent = split.title;
+       hide("loading"); show("content"); }
+  catch(e){ fail("Hubo un problema de conexión. Intenta de nuevo."); }
+}
 load();
 </script>
 </body>
