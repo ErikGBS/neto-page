@@ -4,59 +4,124 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#080b12">
 <title>Y Altoque - Panel admin</title>
 <style>
-  :root{--bg:#05090c;--surface:#0d1117;--border:#1a2133;--cyan:#1ad0ec;--teal:#2fe6a8;
-        --gold:#ecbc4e;--pink:#e84393;--text:#e2e8f0;--muted:#8892a4;--dim:#5a6478}
+  :root{
+    /* Azul noche + dorado, alineado con la landing, el app y la pagina de cuenta. */
+    --bg:#080b12; --bg-2:#0a0f1a; --surface:#0d1320; --surface-2:#111a2b;
+    --border:#1c2740; --border-strong:rgba(120,150,210,.30);
+    --gold:#d0a55c; --gold-bright:#f3ce7f; --gold-deep:#a8803f;
+    --green:#4ade80; --red:#f87171; --info:#5bd6f0; --purple:#8b6cf0;
+    --text:#f3f5fa; --dim:#b3bccd; --mute:#8893a6; --ink:#1a1206;
+  }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;padding:24px 18px 60px}
-  .wrap{max-width:1100px;margin:0 auto}
-  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
-  header h1{font-size:1.3rem;font-weight:800}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.5;
+    padding:26px 18px 64px; position:relative; min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* Glow ambiental sutil (profundidad sin distraer). */
+  body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:
+      radial-gradient(70% 45% at 18% -8%, rgba(208,165,92,.10), transparent 60%),
+      radial-gradient(60% 40% at 92% 4%, rgba(120,150,210,.08), transparent 60%)}
+  .wrap{max-width:1180px;margin:0 auto}
+
+  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  header h1{font-size:1.32rem;font-weight:800;letter-spacing:-.3px}
   header .y{color:var(--gold)}
   header .right{margin-left:auto;display:flex;gap:10px;align-items:center}
-  .muted{color:var(--muted);font-size:.82rem}
-  button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:8px 14px}
-  button.primary{background:var(--cyan);color:#04141a;border-color:var(--cyan);font-weight:700}
-  button:hover{filter:brightness(1.1)}
-  #login{max-width:420px;margin:14vh auto;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:40px 28px}
-  #login h2{font-size:1.4rem;margin-bottom:8px}
-  #login p{color:var(--muted);margin-bottom:22px;font-size:.9rem}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0}
-  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px}
-  .kpi .label{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}
-  .kpi .val{font-size:1.9rem;font-weight:800;margin-top:4px}
-  .kpi .sub{color:var(--dim);font-size:.78rem;margin-top:2px}
-  .kpi .val.teal{color:var(--teal)}.kpi .val.cyan{color:var(--cyan)}.kpi .val.gold{color:var(--gold)}.kpi .val.pink{color:var(--pink)}
-  .section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin:12px 0}
-  .section h3{font-size:.95rem;margin-bottom:12px}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .muted{color:var(--mute);font-size:.82rem}
+
+  button{font:inherit;cursor:pointer;border-radius:11px;border:1px solid var(--border);
+    background:var(--surface-2);color:var(--text);padding:9px 15px;transition:.15s}
+  button:hover{border-color:var(--border-strong)}
+  button:active{transform:scale(.97)}
+  button.primary{background:linear-gradient(145deg,var(--gold-bright),var(--gold));
+    color:var(--ink);border-color:transparent;font-weight:700;
+    box-shadow:0 12px 28px -14px rgba(208,165,92,.7)}
+  button.primary:hover{filter:brightness(1.04)}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  #login{max-width:430px;margin:13vh auto;text-align:center;background:var(--surface);
+    border:1px solid var(--border);border-radius:22px;padding:44px 30px;
+    box-shadow:0 30px 70px -34px rgba(0,0,0,.85)}
+  #login h2{font-size:1.45rem;margin-bottom:8px;font-weight:800}
+  #login p{color:var(--mute);margin-bottom:24px;font-size:.9rem}
+
+  /* KPIs */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;margin:6px 0 20px}
+  .kpi{background:linear-gradient(160deg,var(--surface-2),var(--surface));
+    border:1px solid var(--border);border-radius:16px;padding:17px 18px;position:relative;
+    overflow:hidden;transition:transform .18s, border-color .18s}
+  .kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:var(--accent,var(--gold));opacity:.85}
+  .kpi:hover{transform:translateY(-3px);border-color:var(--border-strong)}
+  .kpi .label{color:var(--mute);font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;font-weight:600}
+  .kpi .val{font-size:1.95rem;font-weight:800;margin-top:5px;letter-spacing:-.5px;
+    font-variant-numeric:tabular-nums}
+  .kpi .sub{color:var(--mute);font-size:.76rem;margin-top:3px}
+  .kpi .val.green{color:var(--green)} .kpi .val.cyan{color:var(--info)}
+  .kpi .val.gold{color:var(--gold-bright)} .kpi .val.pink{color:var(--red)}
+  .kpi.green{--accent:var(--green)} .kpi.cyan{--accent:var(--info)}
+  .kpi.gold{--accent:var(--gold)} .kpi.pink{--accent:var(--red)}
+
+  /* Secciones */
+  .section{background:var(--surface);border:1px solid var(--border);border-radius:18px;
+    padding:20px;margin:13px 0;box-shadow:0 20px 50px -38px rgba(0,0,0,.8)}
+  .section h3{font-size:.96rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+  .section h3::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);
+    box-shadow:0 0 10px rgba(208,165,92,.6);flex:none}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
   @media(max-width:720px){.row2{grid-template-columns:1fr}}
+
+  .chartbox{position:relative;height:248px}
+
+  /* Tablas */
   table{width:100%;border-collapse:collapse;font-size:.86rem}
-  th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--border)}
-  th{color:var(--muted);font-weight:600;font-size:.74rem;text-transform:uppercase}
-  .err{color:var(--pink);text-align:center;margin:14vh auto;max-width:420px}
-  canvas{max-height:240px}
-  .retgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
-  .ret{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 8px}
-  .ret .d{color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}
-  .ret .p{font-size:1.7rem;font-weight:800;margin-top:4px}
-  .ret .p.teal{color:var(--teal)}.ret .p.gold{color:var(--gold)}.ret .p.pink{color:var(--pink)}
-  .ret .n{color:var(--dim);font-size:.72rem;margin-top:2px}
-  .badge{font-size:.72rem;padding:3px 9px;border-radius:8px;white-space:nowrap}
-  .badge.never{background:rgba(232,67,147,.15);color:var(--pink)}
-  .badge.idle{background:rgba(236,188,78,.15);color:var(--gold)}
-  .funnel{display:flex;flex-direction:column;gap:10px}
-  .fn{position:relative;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;height:48px;display:flex;align-items:center}
-  .fn .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(26,208,236,.38),rgba(47,230,168,.16));border-right:2px solid var(--cyan)}
-  .fn .lbl{position:relative;padding:0 14px;font-size:.86rem;z-index:1}
-  .fn .val{position:relative;margin-left:auto;padding:0 14px;font-weight:700;z-index:1}
-  .tier{font-size:.78rem;padding:3px 11px;border-radius:20px;font-weight:700;white-space:nowrap}
-  .tier.gold{background:rgba(236,188,78,.18);color:#ecbc4e}
-  .tier.silver{background:rgba(196,205,216,.18);color:#cfd8e3}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--border)}
+  th{color:var(--mute);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+  tbody tr{transition:background .15s}
+  tbody tr:hover{background:rgba(120,150,210,.05)}
+  tbody tr:last-child td{border-bottom:none}
+  td b{color:var(--text)}
+  .err{color:var(--red);text-align:center;margin:13vh auto;max-width:430px}
+
+  /* Retencion */
+  .retgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;text-align:center}
+  .ret{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:16px 8px}
+  .ret .d{color:var(--mute);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}
+  .ret .p{font-size:1.75rem;font-weight:800;margin-top:5px;font-variant-numeric:tabular-nums}
+  .ret .p.teal{color:var(--green)} .ret .p.gold{color:var(--gold-bright)} .ret .p.pink{color:var(--red)}
+  .ret .n{color:var(--mute);font-size:.72rem;margin-top:3px}
+
+  /* Badges de estado */
+  .badge{font-size:.72rem;padding:4px 10px;border-radius:9px;white-space:nowrap;font-weight:600}
+  .badge.never{background:rgba(248,113,113,.14);color:var(--red)}
+  .badge.idle{background:rgba(208,165,92,.15);color:var(--gold-bright)}
+
+  /* Embudo */
+  .funnel{display:flex;flex-direction:column;gap:11px}
+  .fn{position:relative;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;
+    overflow:hidden;height:50px;display:flex;align-items:center}
+  .fn .fill{position:absolute;left:0;top:0;bottom:0;
+    background:linear-gradient(90deg,rgba(208,165,92,.42),rgba(208,165,92,.10));
+    border-right:2px solid var(--gold);transition:width .6s cubic-bezier(.2,.7,.2,1)}
+  .fn .lbl{position:relative;padding:0 15px;font-size:.87rem;z-index:1;font-weight:500}
+  .fn .val{position:relative;margin-left:auto;padding:0 15px;font-weight:700;z-index:1;
+    font-variant-numeric:tabular-nums}
+
+  /* Niveles del ranking */
+  .tier{font-size:.77rem;padding:4px 12px;border-radius:20px;font-weight:700;white-space:nowrap;display:inline-block}
+  .tier.gold{background:rgba(208,165,92,.18);color:var(--gold-bright)}
+  .tier.silver{background:rgba(196,205,216,.16);color:#cfd8e3}
   .tier.bronze{background:rgba(205,127,50,.20);color:#e0a060}
-  .tier.star{background:rgba(26,208,236,.15);color:#1ad0ec}
-  .tier.chick{background:rgba(236,188,78,.10);color:#d2b06a}
+  .tier.star{background:rgba(91,214,240,.15);color:var(--info)}
+  .tier.chick{background:rgba(208,165,92,.10);color:#d2b06a}
+
+  @media (prefers-reduced-motion: reduce){*{animation-duration:.001s!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -70,7 +135,7 @@
 <div id="forbidden" class="err" style="display:none">
   <h2>Sin acceso 🚫</h2>
   <p class="muted">Esta cuenta no es administradora.</p>
-  <p><button id="logoutBtn2">Cerrar sesión</button></p>
+  <p style="margin-top:14px"><button id="logoutBtn2">Cerrar sesión</button></p>
 </div>
 
 <div class="wrap" id="app" style="display:none">
@@ -86,12 +151,12 @@
   <div class="grid" id="kpis"></div>
 
   <div class="row2">
-    <div class="section"><h3>Nuevos registros / día (30d)</h3><canvas id="cSignups"></canvas></div>
-    <div class="section"><h3>Movimientos / día (30d)</h3><canvas id="cMov"></canvas></div>
+    <div class="section"><h3>Nuevos registros / día (30d)</h3><div class="chartbox"><canvas id="cSignups"></canvas></div></div>
+    <div class="section"><h3>Movimientos / día (30d)</h3><div class="chartbox"><canvas id="cMov"></canvas></div></div>
   </div>
 
   <div class="row2">
-    <div class="section"><h3>Top categorías</h3><canvas id="cCat"></canvas></div>
+    <div class="section"><h3>Top categorías</h3><div class="chartbox"><canvas id="cCat"></canvas></div></div>
     <div class="section">
       <h3>Últimos registros</h3>
       <table><thead><tr><th>Nombre</th><th>Correo</th><th>Fecha</th></tr></thead>
@@ -104,7 +169,7 @@
       <h3>Retención: ¿vuelven después de N días?</h3>
       <div id="retention" class="retgrid"></div>
     </div>
-    <div class="section"><h3>Movimientos por fuente</h3><canvas id="cSource"></canvas></div>
+    <div class="section"><h3>Movimientos por fuente</h3><div class="chartbox"><canvas id="cSource"></canvas></div></div>
   </div>
 
   <div class="section">
@@ -118,7 +183,7 @@
       <h3>Embudo de activación</h3>
       <div id="funnel" class="funnel"></div>
     </div>
-    <div class="section"><h3>Distribución de uso · movimientos por usuario</h3><canvas id="cDist"></canvas></div>
+    <div class="section"><h3>Distribución de uso · movimientos por usuario</h3><div class="chartbox"><canvas id="cDist"></canvas></div></div>
   </div>
 
   <div class="section">
@@ -127,7 +192,7 @@
     <tbody id="power"></tbody></table>
   </div>
 
-  <div class="section"><h3>Movimientos por canal de entrada</h3><canvas id="cChannel"></canvas></div>
+  <div class="section"><h3>Movimientos por canal de entrada</h3><div class="chartbox"><canvas id="cChannel"></canvas></div></div>
 
   <div class="section">
     <h3>Por usuario y canal <span class="muted" style="font-weight:400">· cómo registra cada uno (top 30)</span></h3>
@@ -147,6 +212,29 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const $ = (id) => document.getElementById(id);
 let charts = {};
 
+// ── Estilos base de Chart.js (modernos y consistentes) ──────────────────────
+Chart.defaults.font.family = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = "#8893a6";
+const GRID = "rgba(28,39,64,.55)";
+const PALETTE = ["#d0a55c","#5bd6f0","#4ade80","#8b6cf0","#f3ce7f","#f87171","#b3bccd"];
+const TOOLTIP = {
+  backgroundColor:"#111a2b", borderColor:"#1c2740", borderWidth:1,
+  titleColor:"#f3f5fa", bodyColor:"#b3bccd", padding:11, cornerRadius:11,
+  displayColors:false, titleFont:{weight:"600"}
+};
+// Degradado vertical para el relleno de las líneas.
+function areaFill(hex){
+  return (c) => {
+    const {ctx, chartArea} = c.chart;
+    if (!chartArea) return hex + "22";
+    const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+    g.addColorStop(0, hex + "55");
+    g.addColorStop(1, hex + "00");
+    return g;
+  };
+}
+
 function show(view){ for (const v of ["login","forbidden","app"]) $(v).style.display = (v===view?(v==="app"?"block":"block"):"none"); }
 
 $("loginBtn").onclick = () =>
@@ -159,49 +247,59 @@ function fmt(n){ return (n ?? 0).toLocaleString("es-PE"); }
 function pct(a,b){ return b ? Math.round((a/b)*100) : 0; }
 
 function kpi(label,val,cls,sub){
-  return `<div class="kpi"><div class="label">${label}</div><div class="val ${cls||''}">${val}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`;
+  return `<div class="kpi ${cls||''}"><div class="label">${label}</div><div class="val ${cls||''}">${val}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`;
 }
 
 function lineChart(canvasId, data, color){
   if (charts[canvasId]) charts[canvasId].destroy();
   charts[canvasId] = new Chart($(canvasId), {
     type:"line",
-    data:{ labels:data.map(d=>d.d.slice(5)), datasets:[{ data:data.map(d=>d.n),
-      borderColor:color, backgroundColor:color+"22", fill:true, tension:.3, pointRadius:2 }]},
-    options:{ plugins:{legend:{display:false}}, scales:{
-      x:{ticks:{color:"#5a6478",maxTicksLimit:8},grid:{display:false}},
-      y:{ticks:{color:"#5a6478",precision:0},grid:{color:"#1a2133"},beginAtZero:true}} }
+    data:{ labels:data.map(d=>d.d.slice(5)), datasets:[{
+      data:data.map(d=>d.n),
+      borderColor:color, borderWidth:2.5, tension:.35,
+      pointRadius:0, pointHoverRadius:5, pointHoverBackgroundColor:color,
+      pointHoverBorderColor:"#0d1320", pointHoverBorderWidth:2,
+      fill:true, backgroundColor:areaFill(color)
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      interaction:{intersect:false, mode:"index"},
+      plugins:{legend:{display:false}, tooltip:TOOLTIP},
+      scales:{
+        x:{ticks:{maxTicksLimit:8},grid:{display:false},border:{display:false}},
+        y:{ticks:{precision:0,maxTicksLimit:5},grid:{color:GRID},border:{display:false},beginAtZero:true}} }
   });
 }
-function barChart(canvasId, data){
+function barChart(canvasId, data, multi){
   if (charts[canvasId]) charts[canvasId].destroy();
+  const colors = multi ? data.map((_,i)=>PALETTE[i%PALETTE.length]) : "#d0a55c";
   charts[canvasId] = new Chart($(canvasId), {
     type:"bar",
-    data:{ labels:data.map(d=>d.c), datasets:[{ data:data.map(d=>d.n),
-      backgroundColor:"#1ad0ec" }]},
-    options:{ indexAxis:"y", plugins:{legend:{display:false}}, scales:{
-      x:{ticks:{color:"#5a6478",precision:0},grid:{color:"#1a2133"},beginAtZero:true},
-      y:{ticks:{color:"#cdd6e6"},grid:{display:false}}} }
+    data:{ labels:data.map(d=>d.c), datasets:[{
+      data:data.map(d=>d.n), backgroundColor:colors,
+      borderRadius:7, borderSkipped:false, maxBarThickness:34 }]},
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:"y",
+      plugins:{legend:{display:false}, tooltip:TOOLTIP},
+      scales:{
+        x:{ticks:{precision:0,maxTicksLimit:6},grid:{color:GRID},border:{display:false},beginAtZero:true},
+        y:{ticks:{color:"#cdd6e6"},grid:{display:false},border:{display:false}}} }
   });
 }
 
 function render(m){
-  const r=m.registered, a=m.active, p=m.plans, mv=m.movements;
+  const r=m.registered, a=m.active, mv=m.movements;
   $("kpis").innerHTML =
     kpi("Registrados", fmt(r.total), "cyan", `+${fmt(r.today)} hoy · +${fmt(r.d7)} 7d`) +
-    kpi("Activos (7d)", fmt(a.d7), "teal", `${fmt(a.today)} hoy · ${pct(a.total,r.total)}% activación`) +
-    kpi("Usuarios con registros hoy", fmt(a.today), "teal", "ingresaron info hoy") +
-    kpi("Movimientos", fmt(mv.total), "", `+${fmt(mv.today)} hoy · +${fmt(mv.d7)} 7d`) +
+    kpi("Activos (7d)", fmt(a.d7), "green", `${fmt(a.today)} hoy · ${pct(a.total,r.total)}% activación`) +
+    kpi("Usuarios con registros hoy", fmt(a.today), "green", "ingresaron info hoy") +
+    kpi("Movimientos", fmt(mv.total), "gold", `+${fmt(mv.today)} hoy · +${fmt(mv.d7)} 7d`) +
     kpi("Movimientos hoy", fmt(mv.today), "cyan", "registrados hoy") +
-    kpi("Pro", fmt(p.pro), "gold", `${pct(p.pro,p.total_users)}% de ${fmt(p.total_users)}`) +
-    kpi("WhatsApp vinculados", fmt(m.whatsapp_linked), "") +
-    kpi("Pagos Pro", `${fmt(m.payments.confirmed)}✓`, "teal", `${fmt(m.payments.pending)} pendientes`) +
-    kpi("Prom. mov/activo", a.total?(mv.total/a.total).toFixed(1):"0", "") +
+    kpi("WhatsApp vinculados", fmt(m.whatsapp_linked), "green") +
+    kpi("Prom. mov/activo", a.total?(mv.total/a.total).toFixed(1):"0", "gold") +
     kpi("En 'Otros'", fmt(m.otros_count), "pink", "por recategorizar");
 
-  lineChart("cSignups", m.signups_by_day, "#1ad0ec");
-  lineChart("cMov", m.movements_by_day, "#2fe6a8");
-  barChart("cCat", m.top_categories);
+  lineChart("cSignups", m.signups_by_day, "#5bd6f0");
+  lineChart("cMov", m.movements_by_day, "#4ade80");
+  barChart("cCat", m.top_categories, true);
 
   $("recent").innerHTML = (m.recent_signups||[]).map(u=>{
     const d = new Date(u.at).toLocaleDateString("es-PE",{day:"2-digit",month:"short"});
@@ -221,7 +319,7 @@ function render(m){
 
   // Movimientos por fuente
   const SRC = { whatsapp:"WhatsApp", manual:"Manual (app)", yape:"Yape", plin:"Plin", bcp:"BCP" };
-  barChart("cSource", (m.movements_by_source || []).map(s => ({ c: SRC[s.source] || s.source, n: s.n })));
+  barChart("cSource", (m.movements_by_source || []).map(s => ({ c: SRC[s.source] || s.source, n: s.n })), true);
 
   // Usuarios dormidos / en riesgo
   $("dormant").innerHTML = (m.dormant || []).map(u => {
@@ -265,7 +363,7 @@ function render(m){
   // Movimientos por canal de entrada
   const CH = { app:"App", wa_text:"WhatsApp texto", wa_voice:"WhatsApp voz",
                wa_photo:"WhatsApp foto", email:"Correo", desconocido:"Desconocido" };
-  barChart("cChannel", (m.movements_by_channel || []).map(c => ({ c: CH[c.channel] || c.channel, n: c.n })));
+  barChart("cChannel", (m.movements_by_channel || []).map(c => ({ c: CH[c.channel] || c.channel, n: c.n })), true);
 
   // Desglose por usuario y canal
   $("uchan").innerHTML = (m.users_by_channel || []).map(u =>
@@ -290,7 +388,7 @@ async function boot(){
     render(data);
   }catch(e){
     show("app");
-    $("kpis").innerHTML = `<div class="kpi"><div class="label">Error</div><div class="val pink">!</div><div class="sub">${e.message}</div></div>`;
+    $("kpis").innerHTML = `<div class="kpi pink"><div class="label">Error</div><div class="val pink">!</div><div class="sub">${e.message}</div></div>`;
   }
 }
 
