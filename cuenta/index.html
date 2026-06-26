@@ -4,12 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Divide la cuenta · Y Altoque</title>
-<meta name="theme-color" content="#04141a">
+<meta name="theme-color" content="#080b12">
 <meta name="robots" content="noindex">
 <style>
   :root{
-    --bg:#04141a; --surface:rgba(13,33,41,.72); --border:rgba(120,200,180,.15);
-    --teal:#2fe6a8; --gold:#ecbc4e; --text:#eaf5f1; --muted:#8fb0aa;
+    /* Azul noche + dorado, alineado con la landing y el app. */
+    --bg:#080b12; --surface:rgba(13,19,32,.72); --border:rgba(120,150,210,.18);
+    --gold:#d0a55c; --gold-bright:#f3ce7f; --gold-deep:#a8803f;
+    --green:#4ade80; --text:#f3f5fa; --muted:#8893a6; --ink:#1a1206;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html,body{min-height:100%}
@@ -22,9 +24,9 @@
   /* aurora ambiental en movimiento (da profundidad cinematográfica) */
   body::before,body::after{content:"";position:fixed;inset:-25% -15%;z-index:-2;
     pointer-events:none;filter:blur(75px);opacity:.55}
-  body::before{background:radial-gradient(40% 40% at 25% 18%, rgba(47,230,168,.32), transparent 70%);
+  body::before{background:radial-gradient(40% 40% at 25% 18%, rgba(208,165,92,.26), transparent 70%);
     animation:drift1 26s ease-in-out infinite alternate}
-  body::after{background:radial-gradient(46% 46% at 82% 78%, rgba(236,188,78,.22), transparent 70%);
+  body::after{background:radial-gradient(46% 46% at 82% 78%, rgba(120,150,210,.16), transparent 70%);
     animation:drift2 33s ease-in-out infinite alternate}
   .veil{position:fixed;inset:0;z-index:-1;pointer-events:none;
     background:radial-gradient(120% 85% at 50% -5%, transparent 42%, rgba(0,0,0,.6) 100%)}
@@ -48,45 +50,45 @@
 
   h1{font-size:1.4rem;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
   .sub{color:var(--muted);font-size:.9rem;margin-bottom:18px;line-height:1.55}
-  .sub em{color:var(--teal);font-style:normal}
+  .sub em{color:var(--gold);font-style:normal}
 
-  .item{display:flex;align-items:center;gap:13px;padding:14px 2px;border-bottom:1px solid rgba(120,200,180,.08)}
+  .item{display:flex;align-items:center;gap:13px;padding:14px 2px;border-bottom:1px solid rgba(120,150,210,.10)}
   .item:last-child{border-bottom:none}
   .item.taken{opacity:.42}
   .item input{appearance:none;-webkit-appearance:none;width:24px;height:24px;border-radius:8px;
     border:2px solid var(--border);background:rgba(0,0,0,.2);flex:none;cursor:pointer;position:relative;transition:.18s}
-  .item input:checked{background:var(--teal);border-color:var(--teal);box-shadow:0 0 14px rgba(47,230,168,.5)}
+  .item input:checked{background:var(--gold);border-color:var(--gold);box-shadow:0 0 14px rgba(208,165,92,.5)}
   .item input:checked::after{content:"";position:absolute;left:7px;top:3px;width:6px;height:11px;
-    border:solid #04141a;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+    border:solid var(--ink);border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
   .item input:disabled{cursor:default;opacity:.55}
   .item .mid{flex:1;min-width:0}
   .item .name{font-size:.98rem;font-weight:600}
   .item .status{font-size:.75rem;color:var(--muted);margin-top:3px}
-  .item .status.mine{color:var(--teal)}
+  .item .status.mine{color:var(--gold)}
   .item .price{font-size:.92rem;opacity:.85;white-space:nowrap;font-variant-numeric:tabular-nums}
   .share{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);border-radius:9px;
     padding:6px 9px;font-size:.68rem;font-weight:700;cursor:pointer;white-space:nowrap;flex:none;transition:.15s}
   .share:active{transform:scale(.94)}
-  .share.on{color:var(--teal);border-color:rgba(47,230,168,.5);background:rgba(47,230,168,.1)}
+  .share.on{color:var(--gold);border-color:rgba(208,165,92,.5);background:rgba(208,165,92,.1)}
 
   .amount{text-align:center;margin-top:20px;padding:22px 18px;border-radius:18px;
-    background:linear-gradient(180deg, rgba(236,188,78,.09), rgba(236,188,78,.02));
-    border:1px solid rgba(236,188,78,.18)}
+    background:linear-gradient(180deg, rgba(208,165,92,.10), rgba(208,165,92,.02));
+    border:1px solid rgba(208,165,92,.20)}
   .amount .label{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1.6px}
-  .amount .val{font-size:2.7rem;font-weight:800;color:var(--gold);margin-top:6px;letter-spacing:-1.2px;
-    line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(236,188,78,.38)}
+  .amount .val{font-size:2.7rem;font-weight:800;color:var(--gold-bright);margin-top:6px;letter-spacing:-1.2px;
+    line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(208,165,92,.38)}
 
   .btn{display:block;width:100%;text-align:center;text-decoration:none;font-weight:700;border:none;
     border-radius:14px;padding:15px;font-size:1rem;cursor:pointer;transition:transform .12s, filter .15s;margin-top:14px}
   .btn:active{transform:scale(.98)}
-  .primary{background:linear-gradient(180deg,#48f0b6,#24cf93);color:#04141a;
-    box-shadow:0 14px 32px -14px rgba(47,230,168,.75)}
+  .primary{background:linear-gradient(145deg,var(--gold-bright),var(--gold));color:var(--ink);
+    box-shadow:0 14px 32px -14px rgba(208,165,92,.6)}
   .primary:hover{filter:brightness(1.05)}
   .btn:disabled{opacity:.5;cursor:default;box-shadow:none;filter:none}
 
   #nameInput{width:100%;padding:15px;border-radius:14px;border:1px solid var(--border);
     background:rgba(0,0,0,.25);color:var(--text);font-size:1.05rem;margin-bottom:14px;outline:none;transition:.2s}
-  #nameInput:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(47,230,168,.15)}
+  #nameInput:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(208,165,92,.18)}
   #nameInput::placeholder{color:var(--muted)}
 
   .install{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:20px;text-align:center;
@@ -96,14 +98,14 @@
   .install .stores{display:flex;flex-direction:column;gap:10px}
   .store{display:block;text-decoration:none;font-weight:700;border-radius:13px;padding:13px;font-size:.95rem;
     background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);transition:.15s}
-  .store:hover{border-color:rgba(47,230,168,.4)}
+  .store:hover{border-color:rgba(208,165,92,.4)}
 
   .loader{display:flex;align-items:center;justify-content:center;gap:12px;padding:24px 10px;color:var(--muted)}
   .spin{width:20px;height:20px;border-radius:50%;border:2.5px solid rgba(255,255,255,.12);
-    border-top-color:var(--teal);animation:spin .8s linear infinite}
+    border-top-color:var(--gold);animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
   .msg{text-align:center;color:var(--muted);padding:30px 10px;line-height:1.6}
-  .ok{color:var(--teal);font-weight:700}
+  .ok{color:var(--green);font-weight:700}
   .hidden{display:none}
   @media (prefers-reduced-motion: reduce){*{animation-duration:.001s!important;animation-iteration-count:1!important}}
 </style>
