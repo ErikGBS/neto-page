@@ -192,7 +192,10 @@
     <tbody id="power"></tbody></table>
   </div>
 
-  <div class="section"><h3>Movimientos por canal de entrada</h3><div class="chartbox"><canvas id="cChannel"></canvas></div></div>
+  <div class="row2">
+    <div class="section"><h3>Mood del asistente <span class="muted" style="font-weight:400">· cuál usan más</span></h3><div class="chartbox"><canvas id="cMood"></canvas></div></div>
+    <div class="section"><h3>Movimientos por canal de entrada</h3><div class="chartbox"><canvas id="cChannel"></canvas></div></div>
+  </div>
 
   <div class="section">
     <h3>Por usuario y canal <span class="muted" style="font-weight:400">· cómo registra cada uno (top 30)</span></h3>
@@ -284,6 +287,22 @@ function barChart(canvasId, data, multi){
         y:{ticks:{color:"#cdd6e6"},grid:{display:false},border:{display:false}}} }
   });
 }
+// Dona para distribución (ej. mood del asistente). data: [{label,n,color}]
+function doughnutChart(canvasId, data){
+  if (charts[canvasId]) charts[canvasId].destroy();
+  const total = data.reduce((s,d)=>s+d.n,0);
+  charts[canvasId] = new Chart($(canvasId), {
+    type:"doughnut",
+    data:{ labels:data.map(d=>d.label), datasets:[{
+      data:data.map(d=>d.n), backgroundColor:data.map(d=>d.color),
+      borderColor:"#0d1320", borderWidth:2, hoverOffset:6 }]},
+    options:{ responsive:true, maintainAspectRatio:false, cutout:"60%",
+      plugins:{
+        legend:{ position:"bottom", labels:{ color:"#cdd6e6", padding:14, usePointStyle:true, pointStyle:"circle" } },
+        tooltip:{ ...TOOLTIP, callbacks:{ label:(c)=>` ${c.label}: ${fmt(c.parsed)} (${total?Math.round(c.parsed/total*100):0}%)` } }
+      } }
+  });
+}
 
 function render(m){
   const r=m.registered, a=m.active, mv=m.movements;
@@ -300,6 +319,15 @@ function render(m){
   lineChart("cSignups", m.signups_by_day, "#5bd6f0");
   lineChart("cMov", m.movements_by_day, "#4ade80");
   barChart("cCat", m.top_categories, true);
+
+  // Mood del asistente (light=Cariño, normal=Pana, rude=Sargento). Orden fijo y
+  // siempre los 3, aunque alguno sea 0.
+  const MOOD = { light:{label:"Cariño",color:"#ec9bc0"}, normal:{label:"Pana",color:"#d0a55c"}, rude:{label:"Sargento",color:"#f87171"} };
+  const moodData = ["light","normal","rude"].map(t => {
+    const row = (m.mood_distribution || []).find(x => x.tone === t);
+    return { label:MOOD[t].label, n: row ? row.n : 0, color:MOOD[t].color };
+  });
+  doughnutChart("cMood", moodData);
 
   $("recent").innerHTML = (m.recent_signups||[]).map(u=>{
     const d = new Date(u.at).toLocaleDateString("es-PE",{day:"2-digit",month:"short"});
