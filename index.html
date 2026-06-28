@@ -717,6 +717,47 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
   </div>
 </section>
 
+<!-- MOOD DEL ASISTENTE -->
+<style>
+  .mood-sec{padding:84px 0}
+  .mood-sec .section-title .accent{background:linear-gradient(120deg,var(--gold),var(--gold-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .mood-lead{color:var(--dim);font-size:1.06rem;line-height:1.62;margin:16px 0 34px;max-width:40em}
+  .mood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .mood-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+  .mood-card:hover{transform:translateY(-4px);border-color:var(--mc);box-shadow:0 22px 50px -26px rgba(0,0,0,.7)}
+  .mood-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .mood-emoji{width:48px;height:48px;flex:0 0 48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--mt)}
+  .mood-name{font-family:var(--font-display);font-weight:700;font-size:1.2rem;color:var(--text);line-height:1.1}
+  .mood-tag{font-size:.82rem;color:var(--mc);font-weight:600}
+  .mood-desc{color:var(--dim);font-size:.95rem;line-height:1.55;margin-bottom:14px}
+  .mood-bubble{background:var(--mt);border-radius:4px 16px 16px 16px;padding:11px 14px;color:var(--text);font-size:.92rem;line-height:1.45}
+  @media(max-width:860px){.mood-sec{padding:60px 0}.mood-grid{grid-template-columns:1fr}}
+</style>
+<section class="mood-sec" id="mood">
+  <div class="wrap">
+    <span class="eyebrow gold reveal">Nuevo</span>
+    <h2 class="section-title reveal" data-d="1">Elige <span class="accent">cómo te habla.</span></h2>
+    <p class="mood-lead reveal" data-d="2">Tu asistente tiene personalidad. Escoge el tono con el que Y Altoque te habla en la app y por WhatsApp, y cámbialo cuando quieras desde Ajustes.</p>
+    <div class="mood-grid">
+      <div class="mood-card reveal" data-d="1" style="--mc:#ec9bc0;--mt:rgba(236,155,192,.14)">
+        <div class="mood-head"><div class="mood-emoji">🤍</div><div><div class="mood-name">Cariño</div><div class="mood-tag">Cálido y cercano</div></div></div>
+        <p class="mood-desc">Dulce y atento, siempre pendiente de ti.</p>
+        <div class="mood-bubble">"Holi 🤍 anoté tus S/ 240 de hoy. Cuídate un poquito ¿ya?"</div>
+      </div>
+      <div class="mood-card reveal" data-d="2" style="--mc:var(--gold);--mt:rgba(208,165,92,.14)">
+        <div class="mood-head"><div class="mood-emoji">🤝</div><div><div class="mood-name">Pana</div><div class="mood-tag">De confianza</div></div></div>
+        <p class="mood-desc">Un pata relajado, con buena onda, sin sonar robot.</p>
+        <div class="mood-bubble">"Ojo 👀 hoy van S/ 240. Vamos tranqui pero atentos."</div>
+      </div>
+      <div class="mood-card reveal" data-d="3" style="--mc:var(--negative);--mt:rgba(248,113,113,.14)">
+        <div class="mood-head"><div class="mood-emoji">🫡</div><div><div class="mood-name">Sargento</div><div class="mood-tag">Directo y firme</div></div></div>
+        <p class="mood-desc">Sin rodeos, te jala las orejas si te excedes.</p>
+        <div class="mood-bubble">"S/ 240 en un día. Para la mano YA. Esto no va."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- LOGIN SHOWCASE -->
 <section class="login-sec" id="login">
   <div class="wrap">
