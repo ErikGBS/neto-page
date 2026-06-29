@@ -440,8 +440,9 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
 .social-link:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 
 /* ---------- reveal ---------- */
-.reveal{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
-.reveal.in{opacity:1;transform:none}
+.reveal{opacity:0;transform:perspective(1000px) translateY(64px) translateZ(-150px) rotateX(16deg);transform-origin:50% 100%;transition:opacity 1s ease,transform 1s cubic-bezier(.2,.8,.2,1);will-change:transform,opacity}
+.reveal.in{opacity:1;transform:perspective(1000px) translateY(0) translateZ(0) rotateX(0)}
+.reveal[data-d="1"]{transition-delay:.08s}.reveal[data-d="2"]{transition-delay:.18s}.reveal[data-d="3"]{transition-delay:.28s}.reveal[data-d="4"]{transition-delay:.4s}
 [data-d="1"]{transition-delay:.08s}[data-d="2"]{transition-delay:.16s}[data-d="3"]{transition-delay:.24s}[data-d="4"]{transition-delay:.32s}[data-d="5"]{transition-delay:.4s}
 
 @media(max-width:920px){
@@ -526,7 +527,14 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
 
 <a id="top"></a>
 <!-- HERO -->
+<style>
+  .hero{position:relative}
+  .hero>div,.hero>.phone-stage{position:relative;z-index:1}
+  #hero3d{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  @media(max-width:760px){#hero3d{display:none}}
+</style>
 <header class="hero wrap">
+  <canvas id="hero3d" aria-hidden="true"></canvas>
   <div>
     <span class="eyebrow reveal">Nace en Perú 🇵🇪 · ahora también en España 🇪🇸 · pensada para el mundo</span>
     <h1 class="reveal" data-d="1">Tu dinero,<br><span class="accent">bajo control.</span></h1>
@@ -639,7 +647,8 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
 </section>
 
 <!-- FEATURES -->
-<section class="features" id="producto">
+<section class="features orb-host" id="producto">
+  <div class="px-orb" data-px="0.34" style="width:520px;height:520px;background:radial-gradient(circle,#d0a55c,transparent 70%);top:-140px;right:-160px"></div>
   <div class="wrap">
     <span class="eyebrow reveal">El producto</span>
     <h2 class="section-title reveal" data-d="1">Todo tu dinero, sin esfuerzo.</h2>
@@ -859,7 +868,8 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
 </section>
 
 <!-- SHOWCASE -->
-<section class="showcase">
+<section class="showcase orb-host">
+  <div class="px-orb" data-px="0.42" style="width:560px;height:560px;background:radial-gradient(circle,#8b6cf0,transparent 70%);bottom:-180px;left:-160px;opacity:.3"></div>
   <div class="wrap">
     <span class="eyebrow reveal">En la app</span>
     <h2 class="section-title reveal" data-d="1">Datos que entiendes de un vistazo.</h2>
@@ -1212,6 +1222,146 @@ nForm.addEventListener('submit', async (ev)=>{
   POP.addEventListener('click',function(e){if(e.target===POP)close();});
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&POP.classList.contains('show'))close();});
   setTimeout(function(){POP.classList.add('show');},900);
+})();
+</script>
+<!-- 3D al scrollear: parallax por capas + tilt de secciones + tilt de tarjetas. -->
+<style>
+  .px-orb{position:absolute;border-radius:50%;filter:blur(85px);opacity:.4;z-index:0;pointer-events:none;will-change:transform}
+  .orb-host{position:relative;overflow:hidden}
+  .orb-host>.wrap{position:relative;z-index:1}
+</style>
+<script>
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var clamp=function(v,a,b){return v<a?a:(v>b?b:v);};
+
+  // (A) Parallax: capas de fondo + orbes [data-px]
+  var layers=[];
+  function reg(el,f){ if(!el) return; el.style.willChange='transform'; layers.push([el,f]); }
+  document.querySelectorAll('.glow.a').forEach(function(e){reg(e,0.42);});
+  document.querySelectorAll('.glow.b').forEach(function(e){reg(e,0.24);});
+  document.querySelectorAll('.glow.c').forEach(function(e){reg(e,0.32);});
+  reg(document.getElementById('hero3d'),-0.14);
+  document.querySelectorAll('[data-px]').forEach(function(e){reg(e, parseFloat(e.getAttribute('data-px'))||0.15);});
+
+  // (B) Tilt de secciones segun su posicion en pantalla (excluye el hero)
+  var tilt=[].slice.call(document.querySelectorAll('section')).filter(function(s){return !s.classList.contains('hero');});
+  tilt.forEach(function(s){ s.style.willChange='transform'; });
+  var vh=innerHeight; addEventListener('resize',function(){ vh=innerHeight; });
+
+  var ticking=false;
+  function update(){
+    var y=window.scrollY||window.pageYOffset;
+    for(var i=0;i<layers.length;i++){ layers[i][0].style.transform='translate3d(0,'+(y*layers[i][1]).toFixed(1)+'px,0)'; }
+    for(var j=0;j<tilt.length;j++){
+      var r=tilt[j].getBoundingClientRect();
+      var p=clamp(((r.top+r.height/2)-vh/2)/vh,-1,1);
+      tilt[j].style.transform='perspective(1000px) rotateX('+(p*7).toFixed(2)+'deg) translateZ('+(-Math.abs(p)*40).toFixed(1)+'px)';
+    }
+    ticking=false;
+  }
+  addEventListener('scroll',function(){ if(!ticking){ ticking=true; requestAnimationFrame(update); } },{passive:true});
+  update();
+
+  // (C) Tilt 3D de tarjetas siguiendo el cursor
+  document.querySelectorAll('.feat,.mood-card,.step').forEach(function(card){
+    card.addEventListener('pointermove',function(e){
+      var r=card.getBoundingClientRect();
+      var px=(e.clientX-r.left)/r.width-0.5, py=(e.clientY-r.top)/r.height-0.5;
+      card.style.transition='transform .06s linear';
+      card.style.transform='perspective(600px) rotateX('+(-py*13).toFixed(2)+'deg) rotateY('+(px*17).toFixed(2)+'deg) translateZ(22px) scale(1.03)';
+    });
+    card.addEventListener('pointerleave',function(){
+      card.style.transition='transform .5s cubic-bezier(.2,.8,.2,1)';
+      card.style.transform='';
+    });
+  });
+})();
+</script>
+
+<!-- Teléfono 3D: rotación siguiendo el cursor (CSS, fallback seguro). -->
+<script>
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches || innerWidth<760) return;
+  var hero=document.querySelector('.hero'), stage=document.querySelector('.phone-stage');
+  if(!hero||!stage) return;
+  var tx=0,ty=0,cx=0,cy=0,raf=0;
+  stage.style.transition='none';
+  function render(){
+    cx+=(tx-cx)*0.08; cy+=(ty-cy)*0.08;
+    stage.style.transform='perspective(1100px) rotateY('+cx.toFixed(2)+'deg) rotateX('+cy.toFixed(2)+'deg)';
+    if(Math.abs(tx-cx)>0.02||Math.abs(ty-cy)>0.02){ raf=requestAnimationFrame(render); } else { raf=0; }
+  }
+  hero.addEventListener('pointermove',function(e){ var r=hero.getBoundingClientRect();
+    tx=((e.clientX-r.left)/r.width-0.5)*22; ty=-((e.clientY-r.top)/r.height-0.5)*14;
+    if(!raf) raf=requestAnimationFrame(render); },{passive:true});
+  hero.addEventListener('pointerleave',function(){ tx=0; ty=0; if(!raf) raf=requestAnimationFrame(render); });
+})();
+</script>
+
+<!-- Hero 3D (Three.js): moneda dorada con reflejos, reactiva al mouse. Fallback 2D. -->
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script>
+(function(){
+  var canvas = document.getElementById('hero3d');
+  if(!canvas) return;
+  if(innerWidth < 760) return;                                  // móvil: hero 2D
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  try{ if(!(canvas.getContext('webgl2')||canvas.getContext('webgl'))) return; }catch(e){ return; }
+  Promise.all([ import('three'), import('three/addons/environments/RoomEnvironment.js') ]).then(function(m){
+    var THREE=m[0], RoomEnvironment=m[1].RoomEnvironment;
+    var W=function(){return canvas.clientWidth||1}, H=function(){return canvas.clientHeight||1};
+    var renderer=new THREE.WebGLRenderer({canvas:canvas,alpha:true,antialias:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    renderer.setSize(W(),H(),false);
+    renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+    var scene=new THREE.Scene();
+    var camera=new THREE.PerspectiveCamera(45,W()/H(),0.1,100); camera.position.set(0,0,6);
+    // Reflejos de estudio para que el oro brille
+    var pmrem=new THREE.PMREMGenerator(renderer);
+    scene.environment=pmrem.fromScene(new RoomEnvironment(),0.04).texture;
+    scene.add(new THREE.AmbientLight(0x332b1a,0.5));
+    var key=new THREE.PointLight(0xffe6b0,90,60); key.position.set(5,6,7); scene.add(key);
+    // Cara con la "Y"
+    var cc=document.createElement('canvas'); cc.width=cc.height=512; var x=cc.getContext('2d');
+    x.fillStyle='#e6b663'; x.fillRect(0,0,512,512);
+    x.strokeStyle='#b98e44'; x.lineWidth=26; x.beginPath(); x.arc(256,256,238,0,7); x.stroke();
+    x.fillStyle='#11192a'; x.font='bold 300px Arial'; x.textAlign='center'; x.textBaseline='middle'; x.fillText('Y',256,286);
+    var faceTex=new THREE.CanvasTexture(cc); faceTex.anisotropy=8;
+    var gold=new THREE.MeshStandardMaterial({color:0xe8b864,metalness:1.0,roughness:0.22,envMapIntensity:1.5});
+    var goldFace=new THREE.MeshStandardMaterial({map:faceTex,color:0xffffff,metalness:0.9,roughness:0.3,envMapIntensity:1.3});
+    var coin=new THREE.Mesh(new THREE.CylinderGeometry(1.35,1.35,0.2,80),[gold,goldFace,goldFace]);
+    coin.position.set(1.7,0,0); scene.add(coin);
+    var N=reduce?120:320, pos=new Float32Array(N*3);
+    for(var i=0;i<N*3;i++) pos[i]=(Math.random()-0.5)*22;
+    var pts=new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.BufferAttribute(pos,3)),
+      new THREE.PointsMaterial({color:0xf3ce7f,size:0.045,transparent:true,opacity:0.55}));
+    scene.add(pts);
+    // Reactividad al mouse
+    var mx=0,my=0,cmx=0,cmy=0;
+    addEventListener('pointermove',function(e){ mx=e.clientX/innerWidth-0.5; my=e.clientY/innerHeight-0.5; },{passive:true});
+    function resize(){ camera.aspect=W()/H(); camera.updateProjectionMatrix(); renderer.setSize(W(),H(),false); }
+    addEventListener('resize',resize);
+    var visible=true, running=true;
+    function frame(t){
+      cmx+=(mx-cmx)*0.05; cmy+=(my-cmy)*0.05;
+      coin.rotation.x=Math.PI/2 + cmy*0.5;
+      coin.rotation.y=Math.sin(t*0.0005)*0.45 + cmx*1.1;
+      coin.rotation.z=-0.12;
+      coin.position.y=Math.sin(t*0.0011)*0.16;
+      pts.rotation.y=t*0.00018;
+      renderer.render(scene,camera);
+    }
+    function loop(){ if(!running||!visible) return; requestAnimationFrame(loop); frame(performance.now()); }
+    document.addEventListener('visibilitychange',function(){ running=!document.hidden; if(running&&visible&&!reduce) loop(); });
+    if('IntersectionObserver' in window){ new IntersectionObserver(function(es){ visible=es[0].isIntersecting; if(visible&&!reduce) loop(); else frame(performance.now()); }).observe(canvas); }
+    if(reduce){ frame(1500); } else { loop(); }
+  }).catch(function(){});
 })();
 </script>
 </body>

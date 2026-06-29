@@ -118,6 +118,27 @@ Mantén el estilo ya definido en el dashboard admin:
 - [ ] Contraste y tamaños accesibles.
 - [ ] Copy sin em dashes, claro y de marca.
 
+## 9b. 3D y motion (Three.js / WebGL)
+
+Cuando se pida contenido 3D, sigue estas reglas para que sume y no rompa el sitio.
+
+- **El 3D es decorado, no contenido.** Todo el texto, titulares y CTAs viven en HTML
+  normal, NUNCA dentro del canvas WebGL (si no, mueres en SEO y accesibilidad). El
+  canvas va de fondo o como pieza; el HTML va encima.
+- **Identidad de marca:** materiales dorados (metalness ~0.9, roughness ~0.3) sobre
+  fondo azul noche; luces cálidas para que el dorado brille. Nada de colores fuera de paleta.
+- **Performance:** una sola escena ligera (pocos meshes, geometрías simples), `antialias`
+  con cuidado, `pixelRatio` limitado (`Math.min(devicePixelRatio, 2)`), y **pausa el render
+  cuando el canvas está fuera de viewport o la pestaña oculta** (IntersectionObserver +
+  `visibilitychange`). Carga Three.js de forma diferida.
+- **Accesibilidad:** respeta `prefers-reduced-motion`: si está activo, renderiza un
+  **frame estático** (sin loop de animación).
+- **Móvil:** baja la densidad (menos partículas, menos pixelRatio) o muestra un **fallback
+  2D** (imagen/mockup) en pantallas chicas o si no hay WebGL.
+- **Carga:** import map + ES modules de un CDN; siempre con fallback si el módulo no carga.
+- **Patrón:** canvas `position:absolute/fixed` detrás del contenido, `pointer-events:none`
+  si es solo decorativo; el HTML hero encima conserva jerarquía y foco.
+
 ## Do & Don't
 
 - DO: fondos oscuros neutros, dorado como acento, mucho aire, bordes redondeados consistentes.
