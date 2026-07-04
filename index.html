@@ -185,7 +185,7 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
 .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 @media(max-width:760px){
   .burger{display:flex}
-  .pill{display:none}.pill.lang{display:inline-flex}
+  .pill{display:none}.pill.lang{display:inline-flex;align-items:center;gap:9px;padding:6px 10px;letter-spacing:0}.pill.lang .lc,.pill.lang .lsep{display:none}.pill.lang a{opacity:.45}
   .nav-links{position:absolute;top:72px;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;
     background:rgba(8,13,17,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);
     max-height:0;overflow:hidden;transition:max-height .35s ease}
@@ -524,7 +524,7 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
       <a href="#privacidad">Privacidad</a>
     </div>
     <a class="pill" href="#login" style="text-decoration:none"><span style="color:var(--teal)">●</span> Ya en iOS y Android</a>
-    <span class="pill lang" aria-label="Idioma"><b style="color:var(--gold)">🇪🇸&nbsp;ES</b>&nbsp;·&nbsp;<a href="/en/" style="color:var(--mute);text-decoration:none">🇺🇸&nbsp;EN</a>&nbsp;·&nbsp;<a href="/pt/" style="color:var(--mute);text-decoration:none">🇧🇷&nbsp;PT</a></span>
+    <span class="pill lang" aria-label="Idioma"><b style="color:var(--gold)">🇵🇪<span class="lc">&nbsp;ES</span></b><span class="lsep">&nbsp;·&nbsp;</span><a href="/en/" style="color:var(--mute);text-decoration:none">🇺🇸<span class="lc">&nbsp;EN</span></a><span class="lsep">&nbsp;·&nbsp;</span><a href="/pt/" style="color:var(--mute);text-decoration:none">🇧🇷<span class="lc">&nbsp;PT</span></a></span>
     <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro" title="Cambiar tema">🌙</button>
     <button class="burger" id="burger" aria-label="Abrir menú" aria-expanded="false">
       <span></span><span></span><span></span>
