@@ -184,7 +184,7 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
 .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 @media(max-width:760px){
   .burger{display:flex}
-  .pill{display:none}
+  .pill{display:none}.pill.lang{display:inline-flex}
   .nav-links{position:absolute;top:72px;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;
     background:rgba(8,13,17,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);
     max-height:0;overflow:hidden;transition:max-height .35s ease}
@@ -523,7 +523,7 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
       <a href="#privacidad">Privacy</a>
     </div>
     <a class="pill" href="#login" style="text-decoration:none"><span style="color:var(--teal)">●</span> Now on iOS and Android</a>
-    <span class="pill" aria-label="Language"><a href="/" style="color:var(--mute);text-decoration:none">ES</a>&nbsp;·&nbsp;<b style="color:var(--gold)">EN</b>&nbsp;·&nbsp;<a href="/pt/" style="color:var(--mute);text-decoration:none">PT</a></span>
+    <span class="pill lang" aria-label="Language"><a href="/" style="color:var(--mute);text-decoration:none">🇪🇸&nbsp;ES</a>&nbsp;·&nbsp;<b style="color:var(--gold)">🇺🇸&nbsp;EN</b>&nbsp;·&nbsp;<a href="/pt/" style="color:var(--mute);text-decoration:none">🇧🇷&nbsp;PT</a></span>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle theme">🌙</button>
     <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">
       <span></span><span></span><span></span>
