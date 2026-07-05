@@ -313,6 +313,8 @@ function render(m){
     kpi("Movimientos", fmt(mv.total), "gold", `+${fmt(mv.today)} hoy · +${fmt(mv.d7)} 7d`) +
     kpi("Movimientos hoy", fmt(mv.today), "cyan", "registrados hoy") +
     kpi("WhatsApp vinculados", fmt(m.whatsapp_linked), "green") +
+    kpi("iOS / Android", `${fmt((m.platforms||{}).ios)} / ${fmt((m.platforms||{}).android)}`, "cyan",
+        (m.platforms&&m.platforms.unknown) ? `${fmt(m.platforms.unknown)} sin token de push` : "por token de push") +
     kpi("Prom. mov/activo", a.total?(mv.total/a.total).toFixed(1):"0", "gold") +
     kpi("En 'Otros'", fmt(m.otros_count), "pink", "por recategorizar");
 
