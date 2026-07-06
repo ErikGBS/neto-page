@@ -53,7 +53,11 @@
           '<span style="display:block;margin:14px auto 0;font-size:26px;font-weight:800;' +
           'letter-spacing:6px;color:var(--text)">' + code + '</span>';
         document.getElementById("stores").style.display = "block";
-        retryDeepLink();
+        // Botón principal: abre la app directo en la pantalla del código.
+        var btn = document.querySelector(".btn");
+        btn.textContent = "Abrir en Y Altoque";
+        btn.href = "yaltoque://duo/" + code;
+        document.getElementById("retry").style.display = "none";
         return;
       }
       // Detalle de movimiento: /t/<id> → reintentar el deep link.
