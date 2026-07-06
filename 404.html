@@ -24,7 +24,11 @@
   <div class="card">
     <img class="logo" src="/logo.png" alt="Y Altoque" />
     <h1 id="title">Abre esto en <span class="ac">Y Altoque</span></h1>
-    <p id="msg">Para ver este movimiento, abre la app Y Altoque en tu teléfono. Si aún no la tienes, muy pronto estará disponible.</p>
+    <p id="msg">Para ver este movimiento, abre la app Y Altoque en tu teléfono.</p>
+    <div id="stores" style="display:none;margin-bottom:18px">
+      <a href="https://apps.apple.com/app/id6778281655" style="color:var(--cyan);text-decoration:none;font-size:14px;display:block;margin-bottom:8px">📱 Descargar en App Store</a>
+      <a href="https://play.google.com/store/apps/details?id=com.erikgbs.finance_app" style="color:var(--cyan);text-decoration:none;font-size:14px;display:block">▶ Descargar en Google Play</a>
+    </div>
     <a class="btn" href="/">Ir a yaltoque.com</a>
     <a class="alt" href="#" id="retry">Reintentar abrir en la app</a>
     <div class="tag">Tu dinero, bajo control 🇵🇪</div>
@@ -32,19 +36,32 @@
   <script>
     (function(){
       var path = location.pathname || "";
-      // Si NO es un enlace de transacción (/t/...), mostramos un 404 normal.
-      if (!path.indexOf || path.indexOf("/t/") !== 0) {
-        document.getElementById("title").innerHTML = "Página no encontrada";
-        document.getElementById("msg").textContent = "La página que buscas no existe.";
-        document.getElementById("retry").style.display = "none";
+      var url = location.href;
+      function retryDeepLink(){
+        document.getElementById("retry").addEventListener("click", function(e){
+          e.preventDefault();
+          window.location.href = url; // el SO intercepta y abre la app si está instalada
+        });
+      }
+      // Invitación de Dúo: /duo/<CODIGO> → mostrar el código y cómo usarlo.
+      if (path.indexOf("/duo/") === 0) {
+        var code = path.slice(5).split("/")[0].toUpperCase();
+        document.getElementById("title").innerHTML = 'Te invitaron a un <span class="ac">Dúo</span> 💞';
+        document.getElementById("msg").innerHTML =
+          'Abre la app <b>Y Altoque</b>, entra al mundo <b>Dúo</b> y toca ' +
+          '"Tengo un código". Tu código de invitación es:' +
+          '<span style="display:block;margin:14px auto 0;font-size:26px;font-weight:800;' +
+          'letter-spacing:6px;color:var(--text)">' + code + '</span>';
+        document.getElementById("stores").style.display = "block";
+        retryDeepLink();
         return;
       }
-      // Es /t/<id>: intentar reabrir el deep link (por si quedó en el navegador in-app).
-      var url = location.href;
-      document.getElementById("retry").addEventListener("click", function(e){
-        e.preventDefault();
-        window.location.href = url; // el SO intercepta y abre la app si está instalada
-      });
+      // Detalle de movimiento: /t/<id> → reintentar el deep link.
+      if (path.indexOf("/t/") === 0) { retryDeepLink(); return; }
+      // Cualquier otra ruta: 404 normal.
+      document.getElementById("title").innerHTML = "Página no encontrada";
+      document.getElementById("msg").textContent = "La página que buscas no existe.";
+      document.getElementById("retry").style.display = "none";
     })();
   </script>
 </body>
