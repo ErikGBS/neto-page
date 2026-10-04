@@ -172,6 +172,18 @@
     <div class="section"><h3>Movimientos por fuente</h3><div class="chartbox"><canvas id="cSource"></canvas></div></div>
   </div>
 
+  <div class="row2">
+    <div class="section">
+      <h3>Países <span class="muted" style="font-weight:400">· usuarios que registran</span></h3>
+      <div class="chartbox"><canvas id="cCountry"></canvas></div>
+    </div>
+    <div class="section">
+      <h3>Detalle por país</h3>
+      <table><thead><tr><th>País</th><th>Usuarios</th><th>Movimientos</th><th>Promedio</th></tr></thead>
+      <tbody id="countries"></tbody></table>
+    </div>
+  </div>
+
   <div class="section">
     <h3>Usuarios dormidos / en riesgo <span class="muted" style="font-weight:400">· registrados ≥3d sin actividad en 7d</span></h3>
     <table><thead><tr><th>Nombre</th><th>Correo</th><th>Última actividad</th><th>Estado</th></tr></thead>
@@ -350,6 +362,16 @@ function render(m){
   // Movimientos por fuente
   const SRC = { whatsapp:"WhatsApp", manual:"Manual (app)", yape:"Yape", plin:"Plin", bcp:"BCP" };
   barChart("cSource", (m.movements_by_source || []).map(s => ({ c: SRC[s.source] || s.source, n: s.n })), true);
+
+  // Países de quienes registran. El dato sale de la zona horaria del
+  // dispositivo: el campo "país" del perfil lo llena casi nadie.
+  const paises = m.by_country || [];
+  barChart("cCountry", paises.map(p => ({ c: p.country, n: p.users })), true);
+  $("countries").innerHTML = paises.map(p => {
+    const prom = p.users ? (p.movements / p.users).toFixed(1) : "0";
+    const zonas = p.timezones ? ` <span class="muted">(${p.timezones.join(", ")})</span>` : "";
+    return `<tr><td>${p.country}${zonas}</td><td>${p.users}</td><td>${p.movements}</td><td>${prom}</td></tr>`;
+  }).join("") || `<tr><td colspan="4" class="muted">Todavía nadie registra movimientos</td></tr>`;
 
   // Usuarios dormidos / en riesgo
   $("dormant").innerHTML = (m.dormant || []).map(u => {
