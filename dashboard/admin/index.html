@@ -202,6 +202,8 @@
       <div id="funnel" class="funnel"></div>
       <h3 style="margin-top:22px">Dentro de la app <span class="muted" style="font-weight:400">· dónde se traba el primer registro</span></h3>
       <div id="funnelEvents"></div>
+      <h3 style="margin-top:22px">Versión de sistema <span class="muted" style="font-weight:400">· a quién deja fuera subir el mínimo</span></h3>
+      <div id="osList"></div>
     </div>
     <div class="section"><h3>Distribución de uso · movimientos por usuario</h3><div class="chartbox"><canvas id="cDist"></canvas></div></div>
   </div>
@@ -434,6 +436,16 @@ function render(m){
     ? `<div class="muted">Todavía nadie con la versión que manda eventos. Aparece solo cuando se publique la 1.1.1.</div>`
     : `<div class="muted" style="margin-bottom:9px">Sobre ${fmt(ev.cohort)} usuarios con la versión instrumentada</div>`
       + `<div class="funnel">${evPasos.map(s => paso(s, evPasos[0].n)).join("")}</div>`;
+
+  // Versiones de sistema. Solo existe para quien tenga la app instrumentada,
+  // así que se dice: un cero acá es falta de datos, no falta de usuarios.
+  const os = m.by_os || [];
+  $("osList").innerHTML = os.length
+    ? `<table><thead><tr><th>Sistema</th><th>Versión</th><th>Usuarios</th></tr></thead><tbody>`
+      + os.map(o => `<tr><td>${o.platform === "ios" ? "iOS" : o.platform === "android" ? "Android" : o.platform}</td>`
+          + `<td>${o.os_version}</td><td>${fmt(o.users)}</td></tr>`).join("")
+      + `</tbody></table>`
+    : `<div class="muted">Todavía sin datos. Se llena cuando la gente actualice a la versión que reporta el sistema.</div>`;
 
   // Distribución de uso
   barChart("cDist", (m.movements_distribution || []).map(d => ({ c: d.b, n: d.n })));
