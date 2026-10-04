@@ -198,8 +198,10 @@
 
   <div class="row2">
     <div class="section">
-      <h3>Embudo de activación</h3>
+      <h3>Embudo de activación <span class="muted" style="font-weight:400">· toda la base</span></h3>
       <div id="funnel" class="funnel"></div>
+      <h3 style="margin-top:22px">Dentro de la app <span class="muted" style="font-weight:400">· dónde se traba el primer registro</span></h3>
+      <div id="funnelEvents"></div>
     </div>
     <div class="section"><h3>Distribución de uso · movimientos por usuario</h3><div class="chartbox"><canvas id="cDist"></canvas></div></div>
   </div>
@@ -407,19 +409,31 @@ function render(m){
     return `<tr><td>${u.name||"-"}</td><td>${u.email||"-"}</td><td>${last}</td><td>${badge}</td></tr>`;
   }).join("") || `<tr><td colspan="4" class="muted">Sin usuarios dormidos 🎉</td></tr>`;
 
-  // Embudo de activación (usa KPIs ya existentes)
-  const base = r.total || 1;
-  const funnel = [
-    ["Registrados", r.total],
-    ["Con ≥1 movimiento", a.total],
-    ["WhatsApp vinculado", m.whatsapp_linked],
-    ["Activos (7d)", a.d7],
-  ];
-  $("funnel").innerHTML = funnel.map(([lbl, v]) => {
-    const w = Math.round((v / base) * 100);
+  // Embudo de activación. Antes se armaba acá con los KPIs sueltos y decía
+  // cuántos se pierden, no dónde: ahora lo calcula el backend
+  // (app/features/admin/funnel.py) y trae la caída de cada paso.
+  const paso = (s, tope) => {
+    const w = Math.round((s.n / (tope || 1)) * 100);
+    const caida = s.drop > 0 ? ` <span class="muted">· -${fmt(s.drop)}</span>` : "";
     return `<div class="fn"><div class="fill" style="width:${w}%"></div>`
-      + `<span class="lbl">${lbl}</span><span class="val">${fmt(v)} · ${w}%</span></div>`;
-  }).join("");
+      + `<span class="lbl">${s.label}${caida}</span>`
+      + `<span class="val">${fmt(s.n)} · ${s.pct}%</span></div>`;
+  };
+  const embudo = m.funnel || {};
+  const pasos = embudo.base || [];
+  $("funnel").innerHTML = pasos.length
+    ? pasos.map(s => paso(s, pasos[0].n)).join("")
+    : `<div class="muted">Sin datos</div>`;
+
+  // El embudo de dentro de la app necesita los eventos que manda la versión
+  // instrumentada, así que se muestra aparte y con su población a la vista:
+  // junto al otro daría pasos en cero que parecen fuga y son versión vieja.
+  const ev = embudo.events || {};
+  const evPasos = ev.steps || [];
+  $("funnelEvents").innerHTML = !ev.cohort
+    ? `<div class="muted">Todavía nadie con la versión que manda eventos. Aparece solo cuando se publique la 1.1.1.</div>`
+    : `<div class="muted" style="margin-bottom:9px">Sobre ${fmt(ev.cohort)} usuarios con la versión instrumentada</div>`
+      + `<div class="funnel">${evPasos.map(s => paso(s, evPasos[0].n)).join("")}</div>`;
 
   // Distribución de uso
   barChart("cDist", (m.movements_distribution || []).map(d => ({ c: d.b, n: d.n })));
