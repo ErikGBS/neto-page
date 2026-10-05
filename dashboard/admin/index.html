@@ -377,7 +377,11 @@ function render(m){
   const act = m.activity || {};
   const cubos = act.buckets || [];
   barChart("cActivity", cubos.map(b => ({ c: b.label, n: b.n })), true);
-  const pct = n => act.total ? Math.round((n / act.total) * 100) : 0;
+  // OJO: no llamarla `pct`. Arriba hay una función global con ese nombre, y
+  // declararla acá la sombrea en TODO el ámbito de render(): la línea que la
+  // usa antes revienta con "Cannot access 'pct' before initialization" y el
+  // dashboard se cae entero. Pasó.
+  const pctBase = n => act.total ? Math.round((n / act.total) * 100) : 0;
   // Mismo estilo que las celdas de retención (.ret .d/.p/.n). Rojo cuando la
   // cifra es mala: acá "más alto" siempre es peor.
   $("activityKpis").innerHTML = [
@@ -385,7 +389,7 @@ function render(m){
     ["Nunca empezaron", act.never, "instalaron y no registraron"],
     ["Sin usar la app", act.inactive_30d, `de ${act.total || 0} usuarios`],
   ].map(([t, n, sub]) => {
-    const p = pct(n ?? 0);
+    const p = pctBase(n ?? 0);
     const cls = p >= 50 ? "pink" : p >= 25 ? "gold" : "teal";
     return `<div class="ret"><div class="d">${t}</div>`
       + `<div class="p ${cls}">${n ?? "-"}</div>`
