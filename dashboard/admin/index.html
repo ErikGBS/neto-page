@@ -208,6 +208,19 @@
     <div class="section"><h3>Distribución de uso · movimientos por usuario</h3><div class="chartbox"><canvas id="cDist"></canvas></div></div>
   </div>
 
+  <div class="row2">
+    <div class="section">
+      <h3>Mapa de calor · lo más tocado <span class="muted" style="font-weight:400">· últimos 30 días</span></h3>
+      <div id="usageTaps"></div>
+    </div>
+    <div class="section">
+      <h3>Dónde pasan el tiempo</h3>
+      <div id="usageScreens"></div>
+      <h3 style="margin-top:22px">Nadie lo tocó <span class="muted" style="font-weight:400">· candidatos a quitar</span></h3>
+      <div id="usageZero"></div>
+    </div>
+  </div>
+
   <div class="section">
     <h3>Ranking del mes <span class="muted" style="font-weight:400">· top por movimientos (mes actual)</span></h3>
     <table><thead><tr><th>Nivel</th><th>Usuario</th><th>Movimientos</th><th>Última act.</th></tr></thead>
@@ -477,6 +490,32 @@ function render(m){
     `<tr><td>${u.name||"-"}</td><td>${u.app||0}</td><td>${u.wa_text||0}</td>`
     + `<td>${u.wa_voice||0}</td><td>${u.wa_photo||0}</td><td><b>${u.total||0}</b></td></tr>`
   ).join("") || `<tr><td colspan="6" class="muted">Sin datos</td></tr>`;
+
+  // Mapa de calor de uso. Ordenado por USUARIOS distintos, no por el total:
+  // con una base chica, uno que abra cincuenta veces la misma pantalla la
+  // pondría primera él solo. Y se dice sobre cuántos usuarios se calcula, por
+  // la misma razón que en el embudo: un cero acá puede ser falta de versión.
+  const usoVacio = (texto) => `<div class="muted">${texto}</div>`;
+  const uso = m.usage || {};
+  const barra = (v, max) => `<div style="background:#2b3153;border-radius:4px;height:7px;width:100%">`
+    + `<div style="background:#6f7bf7;border-radius:4px;height:7px;width:${max ? Math.round((v/max)*100) : 0}%"></div></div>`;
+
+  const tabla = (filas, titulo, unidad) => {
+    if (!filas || !filas.length) return usoVacio("Todavía sin datos. Se llena cuando salga la versión que lo reporta.");
+    const max = Math.max(...filas.map(f => f.users));
+    return `<div class="muted" style="margin-bottom:9px">Sobre ${fmt(uso.cohort || 0)} usuarios con la versión instrumentada</div>`
+      + `<table><thead><tr><th>${titulo}</th><th>Usuarios</th><th>${unidad}</th><th style="width:28%"></th></tr></thead><tbody>`
+      + filas.map(f => `<tr><td>${f.label}</td><td>${fmt(f.users)}</td>`
+          + `<td>${unidad === "Minutos" ? fmt(Math.round(f.n / 60)) : fmt(f.n)}</td>`
+          + `<td>${barra(f.users, max)}</td></tr>`).join("")
+      + `</tbody></table>`;
+  };
+
+  $("usageTaps").innerHTML = tabla(uso.taps, "Elemento", "Toques");
+  $("usageScreens").innerHTML = tabla(uso.screens, "Pantalla", "Minutos");
+  $("usageZero").innerHTML = (uso.zero && uso.zero.length)
+    ? `<table><tbody>` + uso.zero.map(z => `<tr><td>${z.label}</td></tr>`).join("") + `</tbody></table>`
+    : usoVacio("Todo lo instrumentado se usó al menos una vez.");
 
   $("gen").textContent = "Actualizado: " + new Date(m.generated_at).toLocaleString("es-PE");
 }
