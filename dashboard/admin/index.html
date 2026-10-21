@@ -95,7 +95,11 @@
   #login p{color:var(--mute);margin-bottom:24px;font-size:.9rem}
 
   /* KPIs */
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;margin:0 0 20px}
+  /* 168px y no 190: con 5 tarjetas, 190 dejaba la quinta sola en una segunda
+     fila en pantallas normales. */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:13px;margin:0 0 12px}
+  /* Lo que no merece tarjeta propia pero tampoco se tira: plataforma y calidad. */
+  #kpisExtra{margin:0 0 20px;font-size:.8rem;line-height:1.6}
   .kpi{background:linear-gradient(160deg,var(--surface-2),var(--surface));
     border:1px solid var(--border);border-radius:16px;padding:17px 18px;position:relative;
     overflow:hidden;transition:transform .18s, border-color .18s}
@@ -164,14 +168,6 @@
   .fn .val{position:relative;margin-left:auto;padding:0 15px;font-weight:700;z-index:1;
     font-variant-numeric:tabular-nums}
 
-  /* Niveles del ranking */
-  .tier{font-size:.77rem;padding:4px 12px;border-radius:20px;font-weight:700;white-space:nowrap;display:inline-block}
-  .tier.gold{background:rgba(208,165,92,.18);color:var(--gold-bright)}
-  .tier.silver{background:rgba(196,205,216,.16);color:#cfd8e3}
-  .tier.bronze{background:rgba(205,127,50,.20);color:#e0a060}
-  .tier.star{background:rgba(91,214,240,.15);color:var(--info)}
-  .tier.chick{background:rgba(208,165,92,.10);color:#d2b06a}
-
   /* ── Movil ────────────────────────────────────────────────────────────────
      Las tablas son lo unico que desborda: con display:block cada una scrollea
      por dentro y la pagina deja de correrse en horizontal. Va en CSS y no
@@ -237,6 +233,7 @@
   <!-- ── Resumen ─────────────────────────────────────────────────────────── -->
   <section class="tab" id="tab-resumen">
     <div class="grid" id="kpis"></div>
+    <div class="muted" id="kpisExtra"></div>
 
     <div class="row2">
       <div class="section"><h3>Nuevos registros / día (30d)</h3><div class="chartbox"><canvas id="cSignups"></canvas></div></div>
@@ -248,8 +245,15 @@
   <section class="tab" id="tab-crecimiento" style="display:none">
     <div class="row2">
       <div class="section">
-        <h3>Retención: ¿vuelven después de N días?</h3>
-        <div id="retention" class="retgrid"></div>
+        <h3>Retención <span class="muted" style="font-weight:400">· apagada a propósito</span></h3>
+        <div class="muted">
+          Lo que había acá no era retención: medía "alguna vez registró algo a
+          partir del día N", sin tope y sobre toda la base junta. Un usuario de
+          hace un año que anotó un gasto ayer contaba como retenido a D1, D7 y
+          D30 a la vez, así que el número subía solo con el paso del tiempo,
+          mejorara o no el producto. Vuelve cuando se calcule por cohorte de
+          registro, que obliga a tocar el SQL de la RPC.
+        </div>
       </div>
       <div class="section"><h3>Movimientos por fuente</h3><div class="chartbox"><canvas id="cSource"></canvas></div></div>
     </div>
@@ -284,21 +288,18 @@
     </div>
 
     <div class="row2">
-      <div class="section"><h3>Mood del asistente <span class="muted" style="font-weight:400">· cuál usan más</span></h3><div class="chartbox"><canvas id="cMood"></canvas></div></div>
       <div class="section"><h3>Distribución de uso · movimientos por usuario</h3><div class="chartbox"><canvas id="cDist"></canvas></div></div>
-    </div>
-
-    <div class="row2">
       <div class="section">
         <h3>Mapa de calor · lo más tocado <span class="muted" style="font-weight:400">· últimos 30 días</span></h3>
         <div id="usageTaps"></div>
       </div>
-      <div class="section">
-        <h3>Dónde pasan el tiempo</h3>
-        <div id="usageScreens"></div>
-        <h3 style="margin-top:22px">Nadie lo tocó <span class="muted" style="font-weight:400">· candidatos a quitar</span></h3>
-        <div id="usageZero"></div>
-      </div>
+    </div>
+
+    <div class="section">
+      <h3>Dónde pasan el tiempo</h3>
+      <div id="usageScreens"></div>
+      <h3 style="margin-top:22px">Nadie lo tocó <span class="muted" style="font-weight:400">· candidatos a quitar</span></h3>
+      <div id="usageZero"></div>
     </div>
   </section>
 
@@ -320,18 +321,6 @@
       <h3>Últimos registros</h3>
       <table><thead><tr><th>Nombre</th><th>Correo</th><th>Fecha</th></tr></thead>
       <tbody id="recent"></tbody></table>
-    </div>
-
-    <div class="section">
-      <h3>Ranking del mes <span class="muted" style="font-weight:400">· top por movimientos (mes actual)</span></h3>
-      <table><thead><tr><th>Nivel</th><th>Usuario</th><th>Movimientos</th><th>Última act.</th></tr></thead>
-      <tbody id="power"></tbody></table>
-    </div>
-
-    <div class="section">
-      <h3>Por usuario y canal <span class="muted" style="font-weight:400">· cómo registra cada uno (top 30)</span></h3>
-      <table><thead><tr><th>Usuario</th><th>App</th><th>💬 Texto</th><th>🎙️ Voz</th><th>📸 Foto</th><th>Total</th></tr></thead>
-      <tbody id="uchan"></tbody></table>
     </div>
   </section>
 
@@ -437,65 +426,33 @@ function barChart(canvasId, data, multi){
         y:{ticks:{color:"#cdd6e6"},grid:{display:false},border:{display:false}}} }
   });
 }
-// Dona para distribución (ej. mood del asistente). data: [{label,n,color}]
-function doughnutChart(canvasId, data){
-  if (charts[canvasId]) charts[canvasId].destroy();
-  const total = data.reduce((s,d)=>s+d.n,0);
-  charts[canvasId] = new Chart($(canvasId), {
-    type:"doughnut",
-    data:{ labels:data.map(d=>d.label), datasets:[{
-      data:data.map(d=>d.n), backgroundColor:data.map(d=>d.color),
-      borderColor:"#0d1320", borderWidth:2, hoverOffset:6 }]},
-    options:{ responsive:true, maintainAspectRatio:false, cutout:"60%",
-      plugins:{
-        legend:{ position:"bottom", labels:{ color:"#cdd6e6", padding:14, usePointStyle:true, pointStyle:"circle" } },
-        tooltip:{ ...TOOLTIP, callbacks:{ label:(c)=>` ${c.label}: ${fmt(c.parsed)} (${total?Math.round(c.parsed/total*100):0}%)` } }
-      } }
-  });
-}
-
 function render(m){
   const r=m.registered, a=m.active, mv=m.movements;
+  // Cinco KPI, no nueve. "Usuarios con registros hoy" y "Movimientos hoy" ya
+  // viven en el subtítulo de Activos y de Movimientos: repetirlos en tarjeta
+  // propia hacía que la fila no entrara de un vistazo, que es su único trabajo.
   $("kpis").innerHTML =
     kpi("Registrados", fmt(r.total), "cyan", `+${fmt(r.today)} hoy · +${fmt(r.d7)} 7d`) +
     kpi("Activos (7d)", fmt(a.d7), "green", `${fmt(a.today)} hoy · ${pct(a.total,r.total)}% activación`) +
-    kpi("Usuarios con registros hoy", fmt(a.today), "green", "ingresaron info hoy") +
     kpi("Movimientos", fmt(mv.total), "gold", `+${fmt(mv.today)} hoy · +${fmt(mv.d7)} 7d`) +
-    kpi("Movimientos hoy", fmt(mv.today), "cyan", "registrados hoy") +
-    kpi("WhatsApp vinculados", fmt(m.whatsapp_linked), "green") +
-    kpi("iOS / Android", `${fmt((m.platforms||{}).ios)} / ${fmt((m.platforms||{}).android)}`, "cyan",
-        (m.platforms&&m.platforms.unknown) ? `${fmt(m.platforms.unknown)} sin token de push` : "por token de push") +
-    kpi("Prom. mov/activo", a.total?(mv.total/a.total).toFixed(1):"0", "gold") +
-    kpi("En 'Otros'", fmt(m.otros_count), "pink", "por recategorizar");
+    kpi("WhatsApp vinculados", fmt(m.whatsapp_linked), "green", `${pct(m.whatsapp_linked, r.total)}% de la base`) +
+    kpi("Prom. mov/activo", a.total?(mv.total/a.total).toFixed(1):"0", "gold", "intensidad de uso");
+
+  // Plataforma y calidad del dato: importan, pero no todos los días.
+  const plat = m.platforms || {};
+  $("kpisExtra").innerHTML =
+    `iOS ${fmt(plat.ios)} · Android ${fmt(plat.android)}`
+    + (plat.unknown ? ` · ${fmt(plat.unknown)} sin token de push` : "")
+    + ` &nbsp;|&nbsp; ${fmt(m.otros_count)} movimientos en "Otros" por recategorizar`;
 
   lineChart("cSignups", m.signups_by_day, "#5bd6f0");
   lineChart("cMov", m.movements_by_day, "#4ade80");
   barChart("cCat", m.top_categories, true);
 
-  // Mood del asistente (light=Cariño, normal=Pana, rude=Sargento). Orden fijo y
-  // siempre los 3, aunque alguno sea 0.
-  const MOOD = { light:{label:"Cariño",color:"#ec9bc0"}, normal:{label:"Pana",color:"#d0a55c"}, rude:{label:"Sargento",color:"#f87171"} };
-  const moodData = ["light","normal","rude"].map(t => {
-    const row = (m.mood_distribution || []).find(x => x.tone === t);
-    return { label:MOOD[t].label, n: row ? row.n : 0, color:MOOD[t].color };
-  });
-  doughnutChart("cMood", moodData);
-
   $("recent").innerHTML = (m.recent_signups||[]).map(u=>{
     const d = new Date(u.at).toLocaleDateString("es-PE",{day:"2-digit",month:"short"});
     return `<tr><td>${u.name||"-"}</td><td>${u.email||"-"}</td><td>${d}</td></tr>`;
   }).join("") || `<tr><td colspan="3" class="muted">Sin datos</td></tr>`;
-
-  // Retención D1/D7/D30
-  const rt = m.retention || {};
-  const retCell = (label, o) => {
-    const p = (o && o.elig) ? Math.round(o.ret / o.elig * 100) : null;
-    const cls = p === null ? "" : (p >= 50 ? "teal" : p >= 25 ? "gold" : "pink");
-    return `<div class="ret"><div class="d">${label}</div>`
-      + `<div class="p ${cls}">${p === null ? "-" : p + "%"}</div>`
-      + `<div class="n">${o ? `${fmt(o.ret)}/${fmt(o.elig)} usuarios` : ""}</div></div>`;
-  };
-  $("retention").innerHTML = retCell("Día 1", rt.d1) + retCell("Día 7", rt.d7) + retCell("Día 30", rt.d30);
 
   // Movimientos por fuente
   const SRC = { whatsapp:"WhatsApp", manual:"Manual (app)", yape:"Yape", plin:"Plin", bcp:"BCP" };
@@ -582,29 +539,10 @@ function render(m){
   // Distribución de uso
   barChart("cDist", (m.movements_distribution || []).map(d => ({ c: d.b, n: d.n })));
 
-  // Ranking del mes: nivel según # de movimientos del mes
-  const tier = (mov) =>
-    mov >= 100 ? {e:"🥇",n:"Oro",c:"gold"} :
-    mov >= 50  ? {e:"🥈",n:"Plata",c:"silver"} :
-    mov >= 20  ? {e:"🥉",n:"Bronce",c:"bronze"} :
-    mov >= 10  ? {e:"⭐",n:"Estrella",c:"star"} :
-                 {e:"🐥",n:"Pollito",c:"chick"};
-  $("power").innerHTML = (m.power_users || []).map((u, i) => {
-    const t = tier(u.movements || 0);
-    const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "-";
-    return `<tr><td><span class="tier ${t.c}">${t.e} ${t.n}</span></td><td>${u.name||"-"}</td><td>${fmt(u.movements)}</td><td>${last}</td></tr>`;
-  }).join("") || `<tr><td colspan="4" class="muted">Sin movimientos este mes</td></tr>`;
-
   // Movimientos por canal de entrada
   const CH = { app:"App", wa_text:"WhatsApp texto", wa_voice:"WhatsApp voz",
                wa_photo:"WhatsApp foto", email:"Correo", desconocido:"Desconocido" };
   barChart("cChannel", (m.movements_by_channel || []).map(c => ({ c: CH[c.channel] || c.channel, n: c.n })), true);
-
-  // Desglose por usuario y canal
-  $("uchan").innerHTML = (m.users_by_channel || []).map(u =>
-    `<tr><td>${u.name||"-"}</td><td>${u.app||0}</td><td>${u.wa_text||0}</td>`
-    + `<td>${u.wa_voice||0}</td><td>${u.wa_photo||0}</td><td><b>${u.total||0}</b></td></tr>`
-  ).join("") || `<tr><td colspan="6" class="muted">Sin datos</td></tr>`;
 
   // Mapa de calor de uso. Ordenado por USUARIOS distintos, no por el total:
   // con una base chica, uno que abra cincuenta veces la misma pantalla la
