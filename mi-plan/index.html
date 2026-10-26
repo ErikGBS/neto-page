@@ -219,7 +219,10 @@ $("loginBtn").onclick = async (e) => {
     b.innerHTML = "No se pudo abrir Google. Reintentar";
   }
 };
-$("logoutBtn").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+$("logoutBtn").onclick = async () => {
+  try { await sb.auth.signOut(); } catch {}
+  location.href = "/";
+};
 
 async function api(path, opts){
   const { data:{ session } } = await sb.auth.getSession();
