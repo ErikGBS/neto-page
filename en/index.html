@@ -173,11 +173,21 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
 .logo-mark{width:34px;height:34px;flex:0 0 auto;filter:drop-shadow(0 0 10px rgba(208,165,92,.45))}
 .logo-img{height:46px;width:auto;border-radius:50%;flex:0 0 auto;object-fit:contain;filter:drop-shadow(0 0 14px rgba(208,165,92,.5))}
 .nav-links{display:flex;gap:34px;align-items:center}
-.nav-links a{color:var(--dim);text-decoration:none;font-size:.94rem;font-weight:500;transition:color .2s}
+.nav-links a{color:var(--dim);text-decoration:none;font-size:.94rem;font-weight:500;transition:color .2s;white-space:nowrap}
 .nav-links a:hover{color:var(--text)}
-.nav-login{color:var(--gold)!important;border:1px solid rgba(208,165,92,.45);border-radius:999px;
-  padding:7px 16px;font-weight:600;transition:.2s}
+.nav-login{display:inline-flex;align-items:center;color:var(--gold)!important;
+  border:1px solid rgba(208,165,92,.45);border-radius:999px;padding:8px 17px;
+  font-size:.88rem;font-weight:600;line-height:1;transition:.2s;flex:0 0 auto}
 .nav-login:hover{background:rgba(208,165,92,.12);border-color:var(--gold)}
+
+/* Entre el burger y el escritorio ancho el nav va apretado: se le quita aire al
+   gap y se guarda el distintivo de las tiendas, que es informativo y compite
+   con lo único que ahí es una acción. */
+@media(min-width:761px) and (max-width:1280px){
+  .nav-links{gap:22px}
+  .nav-links a{font-size:.89rem}
+  .pill:not(.lang){display:none}
+}
 .pill{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
   padding:7px 14px;border-radius:999px;border:1px solid var(--border-strong);color:var(--cyan);background:rgba(208,165,92,.07)}
 .burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:42px;height:42px;border-radius:11px;border:1px solid var(--border-strong);background:var(--surface);cursor:pointer;padding:0 11px}
