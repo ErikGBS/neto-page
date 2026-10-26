@@ -41,15 +41,26 @@ mod.mes.moneda = "PEN";
 mod.mes.total = mod.mes.dias.reduce((a, d) => a + d.total, 0);
 mod.mes.cargado = true;
 
+// Pila de etiquetas: vale para cualquier elemento, incluidos los filtros y
+// gradientes que el contador por lista de nombres se perdía.
+function balanceado(svg){
+  const pila = [];
+  for (const m of svg.matchAll(/<(\/?)([a-zA-Z][\w:-]*)\b([^>]*?)(\/?)>/g)){
+    const [, cierre, tag, , auto] = m;
+    if (auto) continue;
+    if (cierre){
+      if (pila.pop() !== tag) return `</${tag}> cierra algo que no estaba abierto`;
+    } else pila.push(tag);
+  }
+  return pila.length ? `quedó sin cerrar: <${pila.join(">, <")}>` : true;
+}
+
 let fallos = 0;
 const check = (cond, msg) => { if (!cond){ console.log("FALLA:", msg); fallos++; } };
 
 for (const [nombre, svg] of [["ancho", mod.anchoSVG(1000)], ["angosto", mod.angostoSVG(390)]]){
   check(!/undefined|NaN|Infinity/.test(svg), `${nombre}: hay undefined/NaN en el SVG`);
-  const abre = (svg.match(/<(svg|g|text|path|circle|rect|defs|radialGradient|stop)\b/g)||[]).length;
-  const cierra = (svg.match(/<\/(svg|g|text|path|circle|rect|defs|radialGradient|stop)>/g)||[]).length;
-  const auto = (svg.match(/\/>/g)||[]).length;
-  check(abre === cierra + auto, `${nombre}: etiquetas sin cerrar (${abre} vs ${cierra}+${auto})`);
+  check(balanceado(svg) === true, `${nombre}: ${balanceado(svg)}`);
   check(!/<text[^>]*>[^<]*<(?!\/text)/.test(svg), `${nombre}: HTML sin escapar dentro de un texto`);
   check(svg.includes("&lt;con&gt;") === false || true, "escape");
   check(/viewBox="0 0 \d+(\.\d+)? \d+(\.\d+)?"/.test(svg), `${nombre}: viewBox mal formado`);

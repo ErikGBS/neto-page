@@ -24,7 +24,8 @@
             max(16px,env(safe-area-inset-left));
     -webkit-text-size-adjust:100%;
   }
-  .wrap{max-width:720px;margin:0 auto}
+  .wrap{max-width:720px;margin:0 auto;transition:max-width .3s ease}
+  body.ancho .wrap{max-width:1180px}
   header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:28px}
   header h1{font-size:1.22rem;font-weight:800;letter-spacing:-.01em}
   header .y{color:var(--gold)}
@@ -101,37 +102,56 @@
     border-top-color:var(--gold);border-radius:50%;animation:gira .8s linear infinite}
   @keyframes gira{to{transform:rotate(360deg)}}
   /* Grafo del mes */
-  .graf{position:relative;width:100%;min-height:420px}
+  .graf{position:relative;width:100%;min-height:400px}
   .graf svg{display:block;width:100%;height:auto;overflow:visible}
-  .graf .lazo{fill:none;stroke:rgba(208,165,92,.30);stroke-width:1.2;
-    transition:stroke .25s,stroke-width .25s}
-  .graf .lazo.on{stroke:var(--gold-bright);stroke-width:1.8}
-  .graf .lazo.sub{stroke:rgba(91,214,240,.34)}
-  .nodo-mes circle.halo{fill:url(#brillo)}
-  .nodo-mes circle.bola{fill:url(#oro);stroke:rgba(243,206,127,.55);stroke-width:1}
-  .nodo-mes .tit{fill:var(--text);font-size:15px;font-weight:800;letter-spacing:-.2px}
-  .nodo-mes .sub{fill:var(--mute);font-size:11px}
-  .nodo-mes .tot{fill:var(--gold-bright);font-size:19px;font-weight:800}
-  .dia{cursor:pointer}
-  .dia rect{fill:var(--surface);stroke:var(--border);stroke-width:1;rx:12;
+
+  .lazo{fill:none;stroke:url(#hilo);stroke-width:1.15;
+    stroke-dasharray:1 0;animation:traza .55s ease both;animation-delay:calc(var(--i,0)*.05s)}
+  .lazo.on{stroke:url(#hiloOn);stroke-width:1.7}
+  .lazo.sub{stroke:url(#hiloSub)}
+  .lazo.tallo{stroke:rgba(208,165,92,.22);animation:none}
+  @keyframes traza{from{opacity:0}to{opacity:1}}
+
+  .nodo-mes circle.halo{fill:url(#halo)}
+  .nodo-mes circle.anillo{fill:none;stroke:rgba(208,165,92,.16);stroke-width:1}
+  .nodo-mes circle.bola{fill:url(#oro)}
+  .nodo-mes ellipse.luz{fill:#fff;opacity:.22}
+  .nodo-mes .tot{fill:var(--gold-bright);font-size:19px;font-weight:800;letter-spacing:-.3px}
+  .nodo-mes .sub{fill:var(--mute);font-size:10.5px;letter-spacing:.04em}
+
+  .dia{cursor:pointer;animation:entra .4s ease both;animation-delay:calc(var(--i,0)*.045s)}
+  .dia rect{fill:var(--surface);stroke:var(--border);stroke-width:1;
     transition:stroke .2s,fill .2s}
-  .dia:hover rect{stroke:var(--border-strong)}
-  .dia.on rect{fill:var(--surface-2);stroke:var(--gold);stroke-width:1.6}
-  .dia .n{fill:var(--text);font-size:17px;font-weight:800}
+  .dia:hover rect{stroke:var(--border-strong);fill:var(--surface-2)}
+  .dia.on rect{fill:var(--surface-2);stroke:var(--gold);stroke-width:1.5}
+  .dia circle.sello{fill:rgba(208,165,92,.10);stroke:rgba(208,165,92,.26);stroke-width:1}
+  .dia.on circle.sello{fill:rgba(243,206,127,.18);stroke:rgba(243,206,127,.5)}
+  .dia .num{fill:var(--gold);font-size:13px;font-weight:800}
+  .dia.on .num{fill:var(--gold-bright)}
+  .dia .n{fill:var(--text);font-size:16.5px;font-weight:800;letter-spacing:-.3px}
   .dia.on .n{fill:var(--gold-bright)}
-  .dia .d{fill:var(--mute);font-size:10.5px;letter-spacing:.04em}
+  .dia .d{fill:var(--mute);font-size:10.5px}
   .dia .c{fill:var(--mute);font-size:10px}
   .dia:focus{outline:none}
   .dia:focus-visible rect{stroke:var(--gold-bright);stroke-width:2}
-  .gasto circle{fill:var(--info);opacity:.85}
-  .gasto .t{fill:var(--dim);font-size:11.5px}
-  .gasto .m{fill:var(--text);font-size:11.5px;font-weight:700}
-  .gasto .k{fill:var(--mute);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase}
-  .flecha{cursor:pointer;fill:var(--surface-2);stroke:var(--border)}
-  .flecha:hover{stroke:var(--border-strong)}
-  .flecha.off{opacity:.3;cursor:default}
-  .flecha path{fill:none;stroke:var(--dim);stroke-width:1.6;stroke-linecap:round}
+
+  .gasto{animation:entra .4s ease both;animation-delay:calc(var(--i,0)*.05s)}
+  .gasto .t{fill:var(--text);font-size:12px}
+  .gasto .k{font-size:8.5px;font-weight:700;letter-spacing:.04em}
+  .m{fill:var(--text);font-size:12.5px;font-weight:700;letter-spacing:-.2px}
+  .mas{fill:var(--mute);font-size:10.5px;font-style:italic}
+  @keyframes entra{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+
+  .flecha{cursor:pointer}
+  .flecha rect{fill:var(--surface-2);stroke:var(--border)}
+  .flecha:hover rect{stroke:var(--border-strong)}
+  .flecha.off{opacity:.28;cursor:default}
+  .flecha path{fill:none;stroke:var(--dim);stroke-width:1.7;stroke-linecap:round}
   .vacio{color:var(--mute);text-align:center;padding:40px 10px}
+
+  @media (prefers-reduced-motion:reduce){
+    .lazo,.dia,.gasto{animation:none}
+  }
 
   footer{margin-top:28px;text-align:center;padding-bottom:8px}
 
@@ -233,6 +253,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/d3-path@3.1.0/dist/d3-path.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/d3-shape@3.2.0/dist/d3-shape.min.js"></script>
 <script>
 const SUPABASE_URL  = "https://dwqzsgonkkrctnrtlkdz.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3cXpzZ29ua2tyY3RucnRsa2R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTE5MzEsImV4cCI6MjA5NjA2NzkzMX0.94_SbN7ZPSemAprEJ-9T6u3YOmo40aMt2WyDpCGSyJ0";
@@ -249,7 +271,8 @@ function tab(name){
   for (const b of document.querySelectorAll("nav button")) b.classList.toggle("on", b.dataset.tab===name);
   history.replaceState(null, "", "#" + name);
   if (name === "pro") cargarPro();
-  if (name === "resumen") pintar();   // el SVG necesita medir su contenedor visible
+  document.body.classList.toggle("ancho", name === "resumen");
+  if (name === "resumen") pintar();   // el SVG necesita medir su contenedor ya visible
 }
 for (const b of document.querySelectorAll("nav button")) b.onclick = () => tab(b.dataset.tab);
 
@@ -406,6 +429,10 @@ async function cargarPro(){
 // El mes es el nodo raíz, los días cuelgan de él de cinco en cinco y los gastos
 // del día elegido cuelgan del día. Solo aparecen los días CON movimientos: un
 // calendario completo obliga a recorrer huecos vacíos para encontrar algo.
+//
+// Las curvas las traza d3-shape (linkHorizontal/linkVertical). Si el CDN no
+// responde, `enlace()` cae a una bezier escrita a mano y el grafo se dibuja
+// igual: la página no puede depender de que un script externo llegue.
 const mes = { dias: [], sel: null, desde: 0, moneda: "PEN", total: 0, cargado: false };
 const VISIBLES = 5;
 
@@ -416,6 +443,26 @@ const plata = (v, cur) => {
 };
 const corta = (t, n) => { t = (t || "").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : (t || "Sin detalle"); };
 const diaSemana = (d) => ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][d.getDay()];
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+// Color del chip de categoría: estable por nombre, de la paleta del sitio.
+const TONOS = ["#d0a55c","#5bd6f0","#4ade80","#8b6cf0","#f3ce7f","#f87171"];
+const tono = (txt) => {
+  let h = 0;
+  for (const c of String(txt || "otros")) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return TONOS[h % TONOS.length];
+};
+
+function enlace(x1, y1, x2, y2, horizontal){
+  const d3 = globalThis.d3;
+  if (d3 && d3.linkHorizontal){
+    const f = horizontal ? d3.linkHorizontal() : d3.linkVertical();
+    return f.x((p) => p[0]).y((p) => p[1])({ source:[x1, y1], target:[x2, y2] });
+  }
+  return horizontal
+    ? `M${x1},${y1} C${x1 + (x2 - x1) * .5},${y1} ${x1 + (x2 - x1) * .5},${y2} ${x2},${y2}`
+    : `M${x1},${y1} C${x1},${y1 + (y2 - y1) * .5} ${x2},${y1 + (y2 - y1) * .5} ${x2},${y2}`;
+}
 
 async function cargarMes(){
   const hoy = new Date();
@@ -429,34 +476,46 @@ async function cargarMes(){
     return;
   }
   // occurred_at viaja en UTC y se agrupa por el día LOCAL de quien mira: si no,
-  // un gasto de las 9 de la noche cae en el día siguiente.
-  const porDia = new Map();
-  const monedas = new Map();
+  // un gasto de las nueve de la noche cae en el día siguiente.
+  const porDia = new Map(), monedas = new Map();
   for (const t of txs){
     if (t.type !== "expense") continue;
     const f = new Date(t.occurred_at);
     const clave = `${f.getFullYear()}-${f.getMonth()}-${f.getDate()}`;
     if (!porDia.has(clave)) porDia.set(clave, { fecha: f, gastos: [], total: 0 });
     const d = porDia.get(clave);
-    d.gastos.push(t);
-    d.total += t.amount;
+    d.gastos.push(t); d.total += t.amount;
     monedas.set(t.currency, (monedas.get(t.currency) || 0) + t.amount);
   }
   mes.dias = [...porDia.values()].sort((a, b) => b.fecha - a.fecha);
   for (const d of mes.dias) d.gastos.sort((a, b) => b.amount - a.amount);
   mes.moneda = [...monedas.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "PEN";
   mes.total = monedas.get(mes.moneda) || 0;
-  mes.sel = mes.dias[0] || null;   // el día más reciente ya viene abierto
+  mes.sel = mes.dias[0] || null;
   mes.desde = 0;
   mes.cargado = true;
   pintar();
 }
 
-const curva = (x1, y1, x2, y2, horizontal) => horizontal
-  ? `M${x1},${y1} C${x1 + (x2 - x1) * .5},${y1} ${x1 + (x2 - x1) * .5},${y2} ${x2},${y2}`
-  : `M${x1},${y1} C${x1},${y1 + (y2 - y1) * .5} ${x2},${y1 + (y2 - y1) * .5} ${x2},${y2}`;
-
-const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+const DEFS = `<defs>
+  <radialGradient id="halo"><stop offset="0%" stop-color="#d0a55c" stop-opacity=".34"/>
+    <stop offset="55%" stop-color="#d0a55c" stop-opacity=".07"/>
+    <stop offset="100%" stop-color="#d0a55c" stop-opacity="0"/></radialGradient>
+  <radialGradient id="oro" cx="34%" cy="28%"><stop offset="0%" stop-color="#ffe6b0"/>
+    <stop offset="45%" stop-color="#e6bd74"/><stop offset="100%" stop-color="#9a7336"/></radialGradient>
+  <linearGradient id="hilo" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#d0a55c" stop-opacity=".66"/>
+    <stop offset="100%" stop-color="#d0a55c" stop-opacity=".16"/></linearGradient>
+  <linearGradient id="hiloOn" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#f3ce7f" stop-opacity=".95"/>
+    <stop offset="100%" stop-color="#f3ce7f" stop-opacity=".45"/></linearGradient>
+  <linearGradient id="hiloSub" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#5bd6f0" stop-opacity=".55"/>
+    <stop offset="100%" stop-color="#5bd6f0" stop-opacity=".14"/></linearGradient>
+  <filter id="brillo" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur stdDeviation="3.2" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>`;
 
 function pintar(){
   const cajon = $("graf");
@@ -467,7 +526,7 @@ function pintar(){
       Regístralos por WhatsApp o desde el app y aparecen acá.</p>`;
     return;
   }
-  cajon.innerHTML = W >= 820 ? anchoSVG(W) : angostoSVG(W);
+  cajon.innerHTML = W >= 780 ? anchoSVG(W) : angostoSVG(W);
   for (const g of cajon.querySelectorAll(".dia")){
     const abrir = () => {
       const i = Number(g.dataset.i);
@@ -484,8 +543,8 @@ function pintar(){
     if (mes.desde !== antes) pintar();
   };
   for (const f of cajon.querySelectorAll(".flecha")) f.onclick = () => mover(Number(f.dataset.d));
-  // La rueda recorre los días sin arrastrar la página, pero solo mientras haya
-  // a dónde ir: si no, la página queda secuestrada bajo el cursor.
+  // La rueda recorre los días, pero solo mientras haya a dónde ir: si no, la
+  // página queda secuestrada bajo el cursor.
   cajon.onwheel = (e) => {
     const tope = Math.max(0, mes.dias.length - VISIBLES);
     const baja = e.deltaY > 0;
@@ -495,27 +554,32 @@ function pintar(){
   };
 }
 
-const DEFS = `<defs>
-  <radialGradient id="brillo"><stop offset="0%" stop-color="#d0a55c" stop-opacity=".30"/>
-    <stop offset="70%" stop-color="#d0a55c" stop-opacity=".05"/>
-    <stop offset="100%" stop-color="#d0a55c" stop-opacity="0"/></radialGradient>
-  <radialGradient id="oro" cx="35%" cy="30%"><stop offset="0%" stop-color="#f3ce7f"/>
-    <stop offset="60%" stop-color="#d0a55c"/><stop offset="100%" stop-color="#a8803f"/></radialGradient>
-</defs>`;
+function nodoMes(cx, cy, r){
+  return `<g class="nodo-mes">
+    <circle class="halo" cx="${cx}" cy="${cy}" r="${r * 2.9}"/>
+    <circle class="anillo" cx="${cx}" cy="${cy}" r="${r * 1.75}"/>
+    <circle class="anillo" cx="${cx}" cy="${cy}" r="${r * 1.32}"/>
+    <circle class="bola" cx="${cx}" cy="${cy}" r="${r}"/>
+    <ellipse class="luz" cx="${cx - r * .3}" cy="${cy - r * .34}" rx="${r * .42}" ry="${r * .3}"/>
+    <text class="tot" x="${cx}" y="${cy + r * 2.05}" text-anchor="middle">${esc(plata(mes.total, mes.moneda))}</text>
+    <text class="sub" x="${cx}" y="${cy + r * 2.05 + 17}" text-anchor="middle">gastado este mes</text>
+  </g>`;
+}
 
-function tarjetasDia(x, ancho, alto, hueco, y0, horizontal){
-  const trozo = mes.dias.slice(mes.desde, mes.desde + VISIBLES);
-  return trozo.map((d, k) => {
+function tarjetasDia(x, ancho, alto, hueco, y0){
+  return mes.dias.slice(mes.desde, mes.desde + VISIBLES).map((d, k) => {
     const i = mes.desde + k;
     const y = y0 + k * (alto + hueco);
     const on = mes.sel === d ? " on" : "";
     const n = d.gastos.length;
-    return `<g class="dia${on}" data-i="${i}" tabindex="0" role="button"
+    return `<g class="dia${on}" data-i="${i}" tabindex="0" role="button" style="--i:${k}"
       aria-label="${esc(d.fecha.getDate())} de ${esc(diaSemana(d.fecha))}, ${esc(plata(d.total, mes.moneda))}">
-      <rect x="${x}" y="${y}" width="${ancho}" height="${alto}" rx="12"/>
-      <text class="n" x="${x + 16}" y="${y + alto / 2 - 2}">${esc(plata(d.total, mes.moneda))}</text>
-      <text class="d" x="${x + 16}" y="${y + alto / 2 + 15}">${d.fecha.getDate()} · ${esc(diaSemana(d.fecha))}</text>
-      <text class="c" x="${x + ancho - 14}" y="${y + alto / 2 + 15}" text-anchor="end">${n} ${n === 1 ? "gasto" : "gastos"}</text>
+      <rect x="${x}" y="${y}" width="${ancho}" height="${alto}" rx="13"/>
+      <circle class="sello" cx="${x + 30}" cy="${y + alto / 2}" r="17"/>
+      <text class="num" x="${x + 30}" y="${y + alto / 2 + 5}" text-anchor="middle">${d.fecha.getDate()}</text>
+      <text class="n" x="${x + 58}" y="${y + alto / 2 - 3}">${esc(plata(d.total, mes.moneda))}</text>
+      <text class="d" x="${x + 58}" y="${y + alto / 2 + 14}">${esc(diaSemana(d.fecha))}</text>
+      <text class="c" x="${x + ancho - 15}" y="${y + alto / 2 + 4}" text-anchor="end">${n} ${n === 1 ? "gasto" : "gastos"}</text>
     </g>`;
   }).join("");
 }
@@ -523,109 +587,119 @@ function tarjetasDia(x, ancho, alto, hueco, y0, horizontal){
 function flechas(x, arriba, abajo){
   const tope = Math.max(0, mes.dias.length - VISIBLES);
   if (!tope) return "";
-  const btn = (y, d, apagada) => `<g class="flecha${apagada ? " off" : ""}" data-d="${d}">
-      <rect x="${x}" y="${y}" width="30" height="24" rx="8"/>
-      <path d="${d < 0 ? `M${x + 10},${y + 15} l5,-6 l5,6` : `M${x + 10},${y + 9} l5,6 l5,-6`}"/>
+  const btn = (y, d, off) => `<g class="flecha${off ? " off" : ""}" data-d="${d}">
+      <rect x="${x}" y="${y}" width="32" height="25" rx="9"/>
+      <path d="${d < 0 ? `M${x + 11},${y + 15} l5,-5.5 l5,5.5` : `M${x + 11},${y + 10} l5,5.5 l5,-5.5`}"/>
     </g>`;
   return btn(arriba, -1, mes.desde === 0) + btn(abajo, 1, mes.desde >= tope);
 }
 
-// ── Escritorio: mes, días y gastos en tres columnas, como un abanico ────────
+function hoja(x, y, t, anchoTexto, ancla){
+  const col = tono(t.category);
+  return `<g class="gasto" style="--i:${ancla}">
+    <circle cx="${x}" cy="${y}" r="3.4" fill="${col}"/>
+    <circle cx="${x}" cy="${y}" r="7" fill="${col}" opacity=".16"/>
+    <text class="t" x="${x + 14}" y="${y - 2}">${esc(corta(t.description, anchoTexto))}</text>
+    <g transform="translate(${x + 14}, ${y + 4})">
+      <rect class="chip" width="${Math.min(120, 7 + String(t.category || "otros").length * 5.6)}" height="13" rx="6.5"
+        fill="${col}" fill-opacity=".14" stroke="${col}" stroke-opacity=".30"/>
+      <text class="k" x="6" y="9.6" fill="${col}">${esc(corta((t.category || "otros").toLowerCase(), 18))}</text>
+    </g>
+  </g>`;
+}
+
+// ── Escritorio: mes, días y gastos en abanico ───────────────────────────────
 function anchoSVG(W){
-  const H = 430, altoDia = 64, hueco = 14;
-  const xDia = Math.round(W * 0.30), anchoDia = 215;
-  const xGasto = xDia + anchoDia + Math.round((W - xDia - anchoDia) * 0.22);
-  const cy = H / 2, cx = Math.min(130, W * 0.14);
+  const altoDia = 68, hueco = 15;
+  const H = Math.max(440, VISIBLES * (altoDia + hueco) + 120);
+  const cx = Math.max(96, W * 0.11), cy = H / 2, r = 30;
+  const xDia = Math.round(W * 0.27), anchoDia = Math.min(250, W * 0.27);
+  const xGasto = xDia + anchoDia + Math.round((W - xDia - anchoDia) * 0.20);
   const y0 = cy - (VISIBLES * altoDia + (VISIBLES - 1) * hueco) / 2;
   const trozo = mes.dias.slice(mes.desde, mes.desde + VISIBLES);
 
-  const lazos = trozo.map((d, k) => {
+  const hilos = trozo.map((d, k) => {
     const y = y0 + k * (altoDia + hueco) + altoDia / 2;
-    return `<path class="lazo${mes.sel === d ? " on" : ""}" d="${curva(cx + 34, cy, xDia, y, true)}"/>`;
+    const on = mes.sel === d;
+    return `<path class="lazo${on ? " on" : ""}" style="--i:${k}"
+      d="${enlace(cx + r + 4, cy, xDia - 2, y, true)}"/>`;
   }).join("");
 
   let ramas = "", hojas = "";
   if (mes.sel){
     const k = trozo.indexOf(mes.sel);
     if (k >= 0){
-      const desde = { x: xDia + anchoDia, y: y0 + k * (altoDia + hueco) + altoDia / 2 };
+      const sx = xDia + anchoDia, sy = y0 + k * (altoDia + hueco) + altoDia / 2;
       const lista = mes.sel.gastos.slice(0, 9);
-      const paso = Math.min(34, (H - 60) / Math.max(lista.length, 1));
+      const paso = Math.min(38, (H - 70) / Math.max(lista.length, 1));
       const yIni = cy - (lista.length - 1) * paso / 2;
+      const anchoHoja = Math.min(400, W - xGasto - 12);
+      const xMonto = xGasto + anchoHoja;
+      const anchoTexto = Math.max(16, Math.floor((anchoHoja - 120) / 6.6));
       lista.forEach((t, j) => {
         const y = yIni + j * paso;
-        ramas += `<path class="lazo sub" d="${curva(desde.x, desde.y, xGasto - 8, y, true)}"/>`;
-        hojas += `<g class="gasto">
-          <circle cx="${xGasto - 8}" cy="${y}" r="3"/>
-          <text class="t" x="${xGasto + 6}" y="${y - 1}">${esc(corta(t.description, 26))}</text>
-          <text class="k" x="${xGasto + 6}" y="${y + 11}">${esc(corta(t.category || "sin categoría", 20))}</text>
-          <text class="m" x="${W - 6}" y="${y + 3}" text-anchor="end">${esc(plata(t.amount, t.currency))}</text>
-        </g>`;
+        ramas += `<path class="lazo sub" style="--i:${j}" d="${enlace(sx, sy, xGasto - 10, y, true)}"/>`;
+        hojas += hoja(xGasto - 10, y, t, anchoTexto, j) +
+          `<text class="m" x="${xMonto}" y="${y + 2}" text-anchor="end">${esc(plata(t.amount, t.currency))}</text>`;
       });
       const resto = mes.sel.gastos.length - lista.length;
       if (resto > 0)
-        hojas += `<text class="k" x="${xGasto + 6}" y="${yIni + lista.length * paso + 4}">y ${resto} más</text>`;
+        hojas += `<text class="mas" x="${xGasto + 4}" y="${yIni + lista.length * paso + 2}">y ${resto} más</text>`;
     }
   }
 
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Resumen del mes">${DEFS}
-    ${lazos}${ramas}
-    <g class="nodo-mes">
-      <circle class="halo" cx="${cx}" cy="${cy}" r="76"/>
-      <circle class="bola" cx="${cx}" cy="${cy}" r="30"/>
-      <text class="tot" x="${cx}" y="${cy + 62}" text-anchor="middle">${esc(plata(mes.total, mes.moneda))}</text>
-      <text class="sub" x="${cx}" y="${cy + 79}" text-anchor="middle">gastado este mes</text>
-    </g>
-    ${tarjetasDia(xDia, anchoDia, altoDia, hueco, y0, true)}
-    ${flechas(xDia + anchoDia / 2 - 15, y0 - 34, y0 + VISIBLES * (altoDia + hueco) - hueco + 10)}
+    <g filter="url(#brillo)">${hilos}${ramas}</g>
+    ${nodoMes(cx, cy, r)}
+    ${tarjetasDia(xDia, anchoDia, altoDia, hueco, y0)}
+    ${flechas(xDia + anchoDia / 2 - 16, y0 - 36, y0 + VISIBLES * (altoDia + hueco) - hueco + 11)}
     ${hojas}
   </svg>`;
 }
 
-// ── Teléfono: el mismo árbol, pero de arriba abajo ──────────────────────────
+// ── Teléfono: el mismo árbol, con un carril que baja por la izquierda ───────
 function angostoSVG(W){
-  const altoDia = 58, hueco = 10, x = 10, anchoDia = W - 20;
+  const altoDia = 62, hueco = 11, carril = 17, x = 40, anchoDia = W - x - 8;
+  const cx = W / 2, cy = 44, r = 23;
+  const y0 = 132;
   const trozo = mes.dias.slice(mes.desde, mes.desde + VISIBLES);
-  const cx = W / 2, cy = 46;
-  const y0 = 128;
-  const lazos = trozo.map((d, k) => {
-    const y = y0 + k * (altoDia + hueco) + altoDia / 2;
-    return `<path class="lazo${mes.sel === d ? " on" : ""}" d="${curva(cx, cy + 30, x + 18, y, false)}"/>`;
-  }).join("");
+  const yUlt = y0 + (trozo.length - 1) * (altoDia + hueco) + altoDia / 2;
 
-  let hojas = "", extra = 0;
-  const base = y0 + VISIBLES * (altoDia + hueco) + 6;
+  // Un solo tallo baja del nodo y de él salen codos cortos: así ninguna curva
+  // cruza por encima de las tarjetas, que era lo que ensuciaba el dibujo.
+  const tallo = `<path class="lazo tallo" d="M${carril},${cy + r + 44} L${carril},${yUlt}"/>`;
+  const codos = trozo.map((d, k) => {
+    const y = y0 + k * (altoDia + hueco) + altoDia / 2;
+    return `<path class="lazo${mes.sel === d ? " on" : ""}" style="--i:${k}"
+      d="${enlace(carril, y, x - 2, y, true)}"/>`;
+  }).join("");
+  const bajada = `<path class="lazo" d="${enlace(cx - r * .7, cy + r * .7, carril, cy + r + 44, false)}"/>`;
+
+  let hojas = "", alto = 0;
+  const base = y0 + VISIBLES * (altoDia + hueco) + 4;
   if (mes.sel){
+    const k = trozo.indexOf(mes.sel);
+    const sy = k >= 0 ? y0 + k * (altoDia + hueco) + altoDia : base;
     const lista = mes.sel.gastos.slice(0, 8);
+    const anchoTexto = Math.max(14, Math.floor((W - 150) / 7));
+    const carril2 = x + 16;
     lista.forEach((t, j) => {
-      const y = base + 18 + j * 30;
-      hojas += `<path class="lazo sub" d="${curva(x + 18, base - 6, x + 26, y - 4, false)}"/>
-        <g class="gasto">
-          <circle cx="${x + 26}" cy="${y - 4}" r="3"/>
-          <text class="t" x="${x + 38}" y="${y - 6}">${esc(corta(t.description, Math.max(14, Math.floor(W / 16))))}</text>
-          <text class="k" x="${x + 38}" y="${y + 6}">${esc(corta(t.category || "sin categoría", 18))}</text>
-          <text class="m" x="${W - 12}" y="${y - 1}" text-anchor="end">${esc(plata(t.amount, t.currency))}</text>
-        </g>`;
+      const y = base + 20 + j * 34;
+      hojas += `<path class="lazo sub" style="--i:${j}" d="${enlace(carril2, Math.max(sy, base - 8), carril2 + 14, y, false)}"/>`
+        + hoja(carril2 + 14, y, t, anchoTexto, j)
+        + `<text class="m" x="${W - 8}" y="${y + 2}" text-anchor="end">${esc(plata(t.amount, t.currency))}</text>`;
     });
-    extra = 18 + lista.length * 30;
+    alto = 20 + lista.length * 34;
     const resto = mes.sel.gastos.length - lista.length;
-    if (resto > 0){
-      hojas += `<text class="k" x="${x + 38}" y="${base + extra + 4}">y ${resto} más</text>`;
-      extra += 20;
-    }
+    if (resto > 0){ hojas += `<text class="mas" x="${carril2 + 28}" y="${base + alto + 4}">y ${resto} más</text>`; alto += 20; }
   }
-  const H = base + extra + 16;
+  const H = base + alto + 18;
 
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Resumen del mes">${DEFS}
-    ${lazos}
-    <g class="nodo-mes">
-      <circle class="halo" cx="${cx}" cy="${cy}" r="62"/>
-      <circle class="bola" cx="${cx}" cy="${cy}" r="24"/>
-      <text class="tot" x="${cx}" y="${cy + 50}" text-anchor="middle">${esc(plata(mes.total, mes.moneda))}</text>
-      <text class="sub" x="${cx}" y="${cy + 66}" text-anchor="middle">gastado este mes</text>
-    </g>
-    ${tarjetasDia(x, anchoDia, altoDia, hueco, y0, false)}
-    ${flechas(W - 44, y0 - 30, y0 + VISIBLES * (altoDia + hueco) - hueco + 8)}
+    <g filter="url(#brillo)">${bajada}${tallo}${codos}</g>
+    ${nodoMes(cx, cy, r)}
+    ${tarjetasDia(x, anchoDia, altoDia, hueco, y0)}
+    ${flechas(W - 44, y0 - 32, y0 + VISIBLES * (altoDia + hueco) - hueco + 9)}
     ${hojas}
   </svg>`;
 }
@@ -634,7 +708,7 @@ function angostoSVG(W){
 let remedir;
 window.addEventListener("resize", () => {
   clearTimeout(remedir);
-  remedir = setTimeout(() => { if (location.hash !== "#pro" && location.hash !== "#plan") pintar(); }, 180);
+  remedir = setTimeout(() => { if ((location.hash || "#resumen") === "#resumen") pintar(); }, 180);
 });
 
 async function boot(){
