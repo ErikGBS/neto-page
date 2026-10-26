@@ -643,8 +643,8 @@ async function boot(){
   show("app");
   await cargarPlan();
   cargarMes();
-  const h = location.hash.slice(1);
-  tab(h === "pro" ? "pro" : "plan");
+  // Al entrar se ve el mes. El enlace con #plan o #pro sigue llevando al suyo.
+  tab(location.hash.slice(1) || "resumen");
 }
 
 sb.auth.onAuthStateChange((_e, s) => { if (s) boot(); });
