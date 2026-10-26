@@ -381,11 +381,10 @@ const BACKEND = "https://finance-tracker-production-450d.up.railway.app";
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// Google y Apple vuelven a /mi-plan/, que es la URL registrada en los Redirect
-// URLs de Supabase; ese puente canjea el token y reenvía acá. En cuanto
-// https://yaltoque.com/app/ esté registrada también, esto pasa a ser
-// `location.origin + "/app/"` y el rodeo sobra.
-const VUELTA = location.origin + "/mi-plan/";
+// Se vuelve a esta misma página. Los Redirect URLs de Supabase tienen
+// `https://yaltoque.com/**`, un comodín que cubre cualquier ruta del dominio,
+// así que no hace falta registrar cada una ni dar vueltas por otra.
+const VUELTA = location.href.split("#")[0];
 const $ = (id) => document.getElementById(id);
 const show = (v) => { for (const x of ["login","app"]) $(x).style.display = (x===v ? "" : "none"); };
 
