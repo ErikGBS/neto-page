@@ -10,7 +10,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 const SALIDA = process.argv[2] || os.tmpdir();
-const html = fs.readFileSync(new URL("../mi-plan/index.html", import.meta.url), "utf8");
+const html = fs.readFileSync(new URL("../app/index.html", import.meta.url), "utf8");
 const src = html.slice(html.indexOf("// ── Resumen del mes"), html.indexOf("// Al girar el teléfono"));
 const css = html.slice(html.indexOf("  /* Grafo del mes */"), html.indexOf("  footer{margin-top:28px"));
 const vars = html.slice(html.indexOf(":root{"), html.indexOf("*,*::before"));

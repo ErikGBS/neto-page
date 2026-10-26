@@ -6,7 +6,7 @@
 // grafo que pinta "undefined" o deja etiquetas sin cerrar.
 import fs from "node:fs";
 
-const html = fs.readFileSync(new URL("../mi-plan/index.html", import.meta.url), "utf8");
+const html = fs.readFileSync(new URL("../app/index.html", import.meta.url), "utf8");
 const ini = html.indexOf("// \u2500\u2500 Resumen del mes");
 const fin = html.indexOf("// Al girar el tel\u00e9fono");
 if (ini < 0 || fin < 0){ console.log("FALLA: no encontr\u00e9 el bloque del grafo en mi-plan/index.html"); process.exit(1); }
