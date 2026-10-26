@@ -72,6 +72,21 @@
   #menu button:hover{background:rgba(255,255,255,.035);color:var(--text)}
   #menu button.on{background:rgba(208,165,92,.12);color:var(--gold-bright);font-weight:700}
   #menu button.on svg{stroke:var(--gold-bright)}
+  #menuAdmin{display:flex;flex-direction:column;gap:4px;margin-top:-8px}
+  #menuAdmin button{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    background:none;border:none;border-radius:11px;padding:11px 12px;color:var(--dim);
+    font-size:.93rem;font-weight:500}
+  #menuAdmin button:hover{background:rgba(255,255,255,.035);color:var(--text)}
+  #menuAdmin button.on{background:rgba(208,165,92,.12);color:var(--gold-bright);font-weight:700}
+  #menuAdmin svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;
+    stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .grupo{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);
+    padding:10px 12px 4px;font-weight:700}
+  #menuAdmin .pill{display:inline-block;min-width:19px;padding:1px 6px;border-radius:999px;
+    background:var(--red);color:#fff;font-size:.72rem;font-weight:700;text-align:center;
+    margin-left:auto}
+  .admin td{vertical-align:middle}
+  .admin table .muted{white-space:nowrap}
   #menu svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;
     stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 
@@ -222,6 +237,77 @@
 
   @media (prefers-reduced-motion:reduce){ .lazo,.dia,.gasto{animation:none} }
 
+  /* ── Panel de administración ────────────────────────────────────────────
+     Viene del que vivía en /dashboard/admin/. Cada regla va acotada a .admin
+     para que no pise la del portal: las dos páginas usaban .kpi, .side y
+     .muted para cosas distintas. */
+
+  .admin .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:13px;margin:0 0 12px}
+  .admin #kpisExtra{margin:0 0 20px;font-size:.8rem;line-height:1.6}
+  .admin .kpi .label{color:var(--mute);font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;font-weight:600}
+  .admin .kpi .val{font-size:1.95rem;font-weight:800;margin-top:5px;letter-spacing:-.5px;
+    font-variant-numeric:tabular-nums}
+  .admin .kpi .sub{color:var(--mute);font-size:.76rem;margin-top:3px}
+  .admin .kpi .val.green{color:var(--green)}
+  .admin .kpi .val.cyan{color:var(--info)}
+  .admin .kpi .val.gold{color:var(--gold-bright)}
+  .admin .kpi .val.pink{color:var(--red)}
+  .admin .kpi.green{--accent:var(--green)}
+  .admin .kpi.cyan{--accent:var(--info)}
+  .admin .kpi.gold{--accent:var(--gold)}
+  .admin .kpi.pink{--accent:var(--red)}
+  .admin .section{background:var(--surface);border:1px solid var(--border);border-radius:18px;
+    padding:20px;margin:13px 0;box-shadow:0 20px 50px -38px rgba(0,0,0,.8)}
+  .admin .section h3{font-size:.96rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+  .admin .section h3::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);
+    box-shadow:0 0 10px rgba(208,165,92,.6);flex:none}
+  .admin .row2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+  .admin .row2>*{min-width:0}
+  @media(max-width:900px){
+  .admin .row2{grid-template-columns:1fr}}
+  .admin .chartbox{position:relative;height:248px}
+  .admin #estado{margin-bottom:13px;padding:13px 16px;border:1px solid var(--border);
+    border-radius:12px;background:var(--surface);font-size:.86rem;color:var(--mute)}
+  .admin #estado.error{border-color:rgba(248,113,113,.45);color:var(--red)}
+  .admin table{width:100%;border-collapse:collapse;font-size:.86rem}
+  .admin th, .admin td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--border)}
+  .admin th{color:var(--mute);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+  .admin tbody tr{transition:background .15s}
+  .admin tbody tr:hover{background:rgba(120,150,210,.05)}
+  .admin tbody tr:last-child td{border-bottom:none}
+  .admin td b{color:var(--text)}
+  .admin .err{color:var(--red);text-align:center;margin:13vh auto;max-width:430px}
+  .admin .retgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;text-align:center}
+  .admin .ret{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:16px 8px}
+  .admin .ret .d{color:var(--mute);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}
+  .admin .ret .p{font-size:1.75rem;font-weight:800;margin-top:5px;font-variant-numeric:tabular-nums}
+  .admin .ret .p.teal{color:var(--green)}
+  .admin .ret .p.gold{color:var(--gold-bright)}
+  .admin .ret .p.pink{color:var(--red)}
+  .admin .ret .n{color:var(--mute);font-size:.72rem;margin-top:3px}
+  .admin .badge{font-size:.72rem;padding:4px 10px;border-radius:9px;white-space:nowrap;font-weight:600}
+  .admin .badge.never{background:rgba(248,113,113,.14);color:var(--red)}
+  .admin .badge.idle{background:rgba(208,165,92,.15);color:var(--gold-bright)}
+  .admin .pill{display:inline-block;min-width:19px;padding:1px 6px;border-radius:999px;
+    background:var(--red);color:#fff;font-size:.72rem;font-weight:700;text-align:center}
+  .admin .recibo{height:54px;border-radius:8px;border:1px solid var(--border);object-fit:cover;
+    cursor:zoom-in;background:var(--surface-2)}
+  .admin .acc{display:flex;gap:8px;flex-wrap:wrap}
+  .admin .acc button{padding:7px 13px;font-size:.86rem}
+  .admin button.danger{border-color:rgba(248,113,113,.4);color:var(--red)}
+  .admin button.danger:hover{border-color:var(--red)}
+  .admin .funnel{display:flex;flex-direction:column;gap:11px}
+  .admin .fn{position:relative;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;
+    overflow:hidden;height:50px;display:flex;align-items:center}
+  .admin .fn .fill{position:absolute;left:0;top:0;bottom:0;
+    background:linear-gradient(90deg,rgba(208,165,92,.42),rgba(208,165,92,.10));
+    border-right:2px solid var(--gold);transition:width .6s cubic-bezier(.2,.7,.2,1)}
+  .admin .fn .lbl{position:relative;padding:0 15px;font-size:.87rem;z-index:1;font-weight:500}
+  .admin .fn .val{position:relative;margin-left:auto;padding:0 15px;font-weight:700;z-index:1;
+    font-variant-numeric:tabular-nums}
+  .admin #adminAviso{margin:0 0 14px;color:var(--mute);font-size:.86rem}
+  .admin #adminAviso.err{color:var(--red)}
+
   /* ── Teléfono: la barra se guarda y se abre por encima ──────────────────── */
   @media (max-width:900px){
     .side{position:fixed;left:0;top:0;transform:translateX(-100%);
@@ -299,6 +385,30 @@
       </button>
     </nav>
 
+    <nav id="menuAdmin" style="display:none">
+      <div class="grupo">Administración</div>
+      <button data-tab="pagos">
+        <svg viewBox="0 0 24 24"><path d="M3 7h18v12H3z"/><path d="M7 11h4"/></svg>
+        Pagos <span id="navPagos" class="pill" style="display:none"></span>
+      </button>
+      <button data-tab="ad-resumen">
+        <svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
+        Métricas
+      </button>
+      <button data-tab="ad-crecimiento">
+        <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg>
+        Crecimiento
+      </button>
+      <button data-tab="ad-uso">
+        <svg viewBox="0 0 24 24"><path d="M12 3c1.5 4 5 5 5 9a5 5 0 01-10 0c0-4 3.5-5 5-9z"/></svg>
+        Uso
+      </button>
+      <button data-tab="ad-usuarios">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5 6-5s6 1.7 6 5"/><path d="M17 11a3 3 0 100-6"/><path d="M19 20c0-2.5-1-4-3-4.6"/></svg>
+        Usuarios
+      </button>
+    </nav>
+
     <div class="pie">
       <div class="mini" id="mini">
         <div class="t">Tu plan</div>
@@ -315,6 +425,7 @@
         <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
       <h1 id="titulo">Resumen</h1>
+      <span class="muted" id="gen"></span>
       <div class="der">
         <button class="primary" id="ctaPro" style="display:none">
           Activar Pro<span class="txt"> por S/ 5</span>
@@ -363,6 +474,120 @@
       </div>
     </section>
 
+    <div id="adminAviso" class="admin" style="display:none"></div>
+
+<section class="tab admin" id="tab-ad-resumen" style="display:none">
+    <div class="grid" id="adminKpis"></div>
+    <div class="muted" id="kpisExtra"></div>
+
+    <div class="row2">
+      <div class="section"><h3>Nuevos registros / día (30d)</h3><div class="chartbox"><canvas id="cSignups"></canvas></div></div>
+      <div class="section"><h3>Movimientos / día (30d)</h3><div class="chartbox"><canvas id="cMov"></canvas></div></div>
+    </div>
+  </section>
+
+<section class="tab admin" id="tab-ad-crecimiento" style="display:none">
+    <div class="row2">
+      <div class="section">
+        <h3>Retención <span class="muted" style="font-weight:400">· apagada a propósito</span></h3>
+        <div class="muted">
+          Lo que había acá no era retención: medía "alguna vez registró algo a
+          partir del día N", sin tope y sobre toda la base junta. Un usuario de
+          hace un año que anotó un gasto ayer contaba como retenido a D1, D7 y
+          D30 a la vez, así que el número subía solo con el paso del tiempo,
+          mejorara o no el producto. Vuelve cuando se calcule por cohorte de
+          registro, que obliga a tocar el SQL de la RPC.
+        </div>
+      </div>
+      <div class="section"><h3>Movimientos por fuente</h3><div class="chartbox"><canvas id="cSource"></canvas></div></div>
+    </div>
+
+    <div class="section">
+      <h3>¿Cuánta base está viva? <span class="muted" style="font-weight:400">· hace cuánto que cada usuario no registra</span></h3>
+      <div id="activityKpis" class="retgrid"></div>
+      <div class="chartbox"><canvas id="cActivity"></canvas></div>
+    </div>
+
+    <div class="section">
+      <h3>Embudo de activación <span class="muted" style="font-weight:400">· toda la base</span></h3>
+      <div id="funnel" class="funnel"></div>
+      <h3 style="margin-top:22px">Dentro de la app <span class="muted" style="font-weight:400">· dónde se traba el primer registro</span></h3>
+      <div id="funnelEvents"></div>
+      <h3 style="margin-top:22px">Versión de sistema <span class="muted" style="font-weight:400">· a quién deja fuera subir el mínimo</span></h3>
+      <div id="osList"></div>
+    </div>
+
+    <div class="section">
+      <h3>Usuarios dormidos / en riesgo <span class="muted" style="font-weight:400">· registrados ≥3d sin actividad en 7d</span></h3>
+      <table><thead><tr><th>Nombre</th><th>Correo</th><th>Última actividad</th><th>Estado</th></tr></thead>
+      <tbody id="dormant"></tbody></table>
+    </div>
+  </section>
+
+<section class="tab admin" id="tab-ad-uso" style="display:none">
+    <div class="row2">
+      <div class="section"><h3>Top categorías</h3><div class="chartbox"><canvas id="cCat"></canvas></div></div>
+      <div class="section"><h3>Movimientos por canal de entrada</h3><div class="chartbox"><canvas id="cChannel"></canvas></div></div>
+    </div>
+
+    <div class="row2">
+      <div class="section"><h3>Distribución de uso · movimientos por usuario</h3><div class="chartbox"><canvas id="cDist"></canvas></div></div>
+      <div class="section">
+        <h3>Mapa de calor · lo más tocado <span class="muted" style="font-weight:400">· últimos 30 días</span></h3>
+        <div id="usageTaps"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Dónde pasan el tiempo</h3>
+      <div id="usageScreens"></div>
+      <h3 style="margin-top:22px">Nadie lo tocó <span class="muted" style="font-weight:400">· candidatos a quitar</span></h3>
+      <div id="usageZero"></div>
+    </div>
+  </section>
+
+<section class="tab admin" id="tab-ad-usuarios" style="display:none">
+    <div class="row2">
+      <div class="section">
+        <h3>Países <span class="muted" style="font-weight:400">· usuarios que registran</span></h3>
+        <div class="chartbox"><canvas id="cCountry"></canvas></div>
+      </div>
+      <div class="section">
+        <h3>Detalle por país</h3>
+        <table><thead><tr><th>País</th><th>Usuarios</th><th>Movimientos</th><th>Promedio</th></tr></thead>
+        <tbody id="countries"></tbody></table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Últimos registros</h3>
+      <table><thead><tr><th>Nombre</th><th>Correo</th><th>Fecha</th></tr></thead>
+      <tbody id="recent"></tbody></table>
+    </div>
+  </section>
+
+<section class="tab admin" id="tab-pagos" style="display:none">
+    <div class="section">
+      <h3>Pagos por revisar <span class="muted" style="font-weight:400">· Yape, S/ 5 al mes</span></h3>
+      <p class="muted" style="margin-bottom:12px">
+        El usuario yapea y manda la captura al bot. Acá la miras y apruebas: aprobar
+        activa su Pro por 30 días y le avisa por WhatsApp.
+      </p>
+      <table>
+        <thead><tr><th>Usuario</th><th>Ref</th><th>Monto</th><th>Comprobante</th><th>Pedido</th><th></th></tr></thead>
+        <tbody id="pagos"></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h3>Últimos resueltos</h3>
+      <table>
+        <thead><tr><th>Usuario</th><th>Ref</th><th>Monto</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <tbody id="pagosHist"></tbody>
+      </table>
+    </div>
+  </section>
+
     <footer class="muted">
       <a href="/">Inicio</a> · <a href="/terminos.html">Términos</a> ·
       <a href="/privacidad.html">Privacidad</a>
@@ -388,19 +613,28 @@ const VUELTA = location.href.split("#")[0];
 const $ = (id) => document.getElementById(id);
 const show = (v) => { for (const x of ["login","app"]) $(x).style.display = (x===v ? "" : "none"); };
 
-const TABS = ["resumen","plan","pro"];
-const TITULO = { resumen:"Resumen", plan:"Mi plan", pro:"Activar Pro" };
+const TABS = ["resumen","plan","pro","pagos","ad-resumen","ad-crecimiento","ad-uso","ad-usuarios"];
+const TITULO = {
+  resumen:"Resumen", plan:"Mi plan", pro:"Activar Pro",
+  pagos:"Pagos por revisar", "ad-resumen":"Métricas", "ad-crecimiento":"Crecimiento",
+  "ad-uso":"Uso", "ad-usuarios":"Usuarios",
+};
 function tab(name){
   if (!TABS.includes(name)) name = "resumen";
   for (const t of TABS) $("tab-" + t).style.display = (t===name ? "" : "none");
-  for (const b of document.querySelectorAll("#menu button")) b.classList.toggle("on", b.dataset.tab===name);
+  for (const b of document.querySelectorAll("#menu button, #menuAdmin button"))
+    b.classList.toggle("on", b.dataset.tab===name);
   $("titulo").textContent = TITULO[name];
   history.replaceState(null, "", "#" + name);
   menu(false);                        // en el teléfono, elegir cierra la barra
   if (name === "pro") cargarPro();
   if (name === "resumen") pintar();   // el SVG necesita medir su contenedor ya visible
+  if (name === "pagos") cargarPagos();
+  if (name.startsWith("ad-")) cargarAdmin();
+  avisoAdmin("");
 }
-for (const b of document.querySelectorAll("#menu button")) b.onclick = () => tab(b.dataset.tab);
+for (const b of document.querySelectorAll("#menu button, #menuAdmin button"))
+  b.onclick = () => tab(b.dataset.tab);
 
 // La barra lateral se guarda en pantallas chicas y se abre por encima.
 const menu = (abrir) => {
@@ -957,6 +1191,370 @@ window.addEventListener("resize", () => {
   remedir = setTimeout(() => { if ((location.hash || "#resumen") === "#resumen") pintar(); }, 180);
 });
 
+// ── Panel de administración ────────────────────────────────────────────────
+// Lo que antes vivía en /dashboard/admin/. Solo lo ve quien pasa el filtro del
+// backend: `require_admin` compara el correo del token contra ADMIN_EMAIL, así
+// que esconder los botones es comodidad, no seguridad.
+let esAdmin = false;
+let charts = {};
+let adminPintado = false;
+
+// Chart.js son 200 KB y solo hacen falta si eres admin: se carga al abrir una
+// sección que los use, no en cada visita de cada usuario.
+let chartListo = null;
+function cargarChartJs(){
+  if (chartListo) return chartListo;
+  chartListo = new Promise((ok, fallo) => {
+    const t = document.createElement("script");
+    t.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js";
+    t.onload = () => {
+      Chart.defaults.font.family = "Satoshi,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
+      Chart.defaults.font.size = 11;
+      Chart.defaults.color = "#8893a6";
+      ok();
+    };
+    t.onerror = fallo;
+    document.head.appendChild(t);
+  });
+  return chartListo;
+}
+
+function avisoAdmin(texto, esError){
+  const c = $("adminAviso");
+  c.textContent = texto || "";
+  c.className = "admin" + (esError ? " err" : "");
+  c.style.display = texto ? "" : "none";
+}
+
+const GRID = "rgba(28,39,64,.55)";
+const PALETTE = ["#d0a55c","#5bd6f0","#4ade80","#8b6cf0","#f3ce7f","#f87171","#b3bccd"];
+const TOOLTIP = {
+  backgroundColor:"#111a2b", borderColor:"#1c2740", borderWidth:1,
+  titleColor:"#f3f5fa", bodyColor:"#b3bccd", padding:11, cornerRadius:11,
+  displayColors:false, titleFont:{weight:"600"}
+};
+// Degradado vertical para el relleno de las líneas.
+function areaFill(hex){
+  return (c) => {
+    const {ctx, chartArea} = c.chart;
+    if (!chartArea) return hex + "22";
+    const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+    g.addColorStop(0, hex + "55");
+    g.addColorStop(1, hex + "00");
+    return g;
+  };
+}
+
+
+// ── Secciones ───────────────────────────────────────────────────────────────
+
+
+
+function fmt(n){ return (n ?? 0).toLocaleString("es-PE"); }
+function pct(a,b){ return b ? Math.round((a/b)*100) : 0; }
+
+function kpi(label,val,cls,sub){
+  return `<div class="kpi ${cls||''}"><div class="label">${label}</div><div class="val ${cls||''}">${val}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>`;
+}
+
+function lineChart(canvasId, data, color){
+  if (charts[canvasId]) charts[canvasId].destroy();
+  charts[canvasId] = new Chart($(canvasId), {
+    type:"line",
+    data:{ labels:data.map(d=>d.d.slice(5)), datasets:[{
+      data:data.map(d=>d.n),
+      borderColor:color, borderWidth:2.5, tension:.35,
+      pointRadius:0, pointHoverRadius:5, pointHoverBackgroundColor:color,
+      pointHoverBorderColor:"#0d1320", pointHoverBorderWidth:2,
+      fill:true, backgroundColor:areaFill(color)
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      interaction:{intersect:false, mode:"index"},
+      plugins:{legend:{display:false}, tooltip:TOOLTIP},
+      scales:{
+        x:{ticks:{maxTicksLimit:8},grid:{display:false},border:{display:false}},
+        y:{ticks:{precision:0,maxTicksLimit:5},grid:{color:GRID},border:{display:false},beginAtZero:true}} }
+  });
+}
+function barChart(canvasId, data, multi){
+  if (charts[canvasId]) charts[canvasId].destroy();
+  const colors = multi ? data.map((_,i)=>PALETTE[i%PALETTE.length]) : "#d0a55c";
+  charts[canvasId] = new Chart($(canvasId), {
+    type:"bar",
+    data:{ labels:data.map(d=>d.c), datasets:[{
+      data:data.map(d=>d.n), backgroundColor:colors,
+      borderRadius:7, borderSkipped:false, maxBarThickness:34 }]},
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:"y",
+      plugins:{legend:{display:false}, tooltip:TOOLTIP},
+      scales:{
+        x:{ticks:{precision:0,maxTicksLimit:6},grid:{color:GRID},border:{display:false},beginAtZero:true},
+        y:{ticks:{color:"#cdd6e6"},grid:{display:false},border:{display:false}}} }
+  });
+}
+function pintarAdmin(m){
+  const r=m.registered, a=m.active, mv=m.movements;
+  // Cinco KPI, no nueve. "Usuarios con registros hoy" y "Movimientos hoy" ya
+  // viven en el subtítulo de Activos y de Movimientos: repetirlos en tarjeta
+  // propia hacía que la fila no entrara de un vistazo, que es su único trabajo.
+  $("adminKpis").innerHTML =
+    kpi("Registrados", fmt(r.total), "cyan", `+${fmt(r.today)} hoy · +${fmt(r.d7)} 7d`) +
+    kpi("Activos (7d)", fmt(a.d7), "green", `${fmt(a.today)} hoy · ${pct(a.total,r.total)}% activación`) +
+    kpi("Movimientos", fmt(mv.total), "gold", `+${fmt(mv.today)} hoy · +${fmt(mv.d7)} 7d`) +
+    kpi("WhatsApp vinculados", fmt(m.whatsapp_linked), "green", `${pct(m.whatsapp_linked, r.total)}% de la base`) +
+    kpi("Prom. mov/activo", a.total?(mv.total/a.total).toFixed(1):"0", "gold", "intensidad de uso");
+
+  // Plataforma y calidad del dato: importan, pero no todos los días.
+  const plat = m.platforms || {};
+  $("kpisExtra").innerHTML =
+    `iOS ${fmt(plat.ios)} · Android ${fmt(plat.android)}`
+    + (plat.unknown ? ` · ${fmt(plat.unknown)} sin token de push` : "")
+    + ` &nbsp;|&nbsp; ${fmt(m.otros_count)} movimientos en "Otros" por recategorizar`;
+
+  lineChart("cSignups", m.signups_by_day, "#5bd6f0");
+  lineChart("cMov", m.movements_by_day, "#4ade80");
+  barChart("cCat", m.top_categories, true);
+
+  $("recent").innerHTML = (m.recent_signups||[]).map(u=>{
+    const d = new Date(u.at).toLocaleDateString("es-PE",{day:"2-digit",month:"short"});
+    return `<tr><td>${u.name||"-"}</td><td>${u.email||"-"}</td><td>${d}</td></tr>`;
+  }).join("") || `<tr><td colspan="3" class="muted">Sin datos</td></tr>`;
+
+  // Movimientos por fuente
+  const SRC = { whatsapp:"WhatsApp", manual:"Manual (app)", yape:"Yape", plin:"Plin", bcp:"BCP" };
+  barChart("cSource", (m.movements_by_source || []).map(s => ({ c: SRC[s.source] || s.source, n: s.n })), true);
+
+  // Cuánta base está viva. La retención mira el arranque; esto mira el abandono.
+  const act = m.activity || {};
+  const cubos = act.buckets || [];
+  barChart("cActivity", cubos.map(b => ({ c: b.label, n: b.n })), true);
+  // OJO: no llamarla `pct`. Arriba hay una función global con ese nombre, y
+  // declararla acá la sombrea en TODO el ámbito de render(): la línea que la
+  // usa antes revienta con "Cannot access 'pct' before initialization" y el
+  // dashboard se cae entero. Pasó.
+  const pctBase = n => act.total ? Math.round((n / act.total) * 100) : 0;
+  // Mismo estilo que las celdas de retención (.ret .d/.p/.n). Rojo cuando la
+  // cifra es mala: acá "más alto" siempre es peor.
+  $("activityKpis").innerHTML = [
+    ["Abandonaron", act.churned_30d, "+1 mes sin volver"],
+    ["Nunca empezaron", act.never, "instalaron y no registraron"],
+    ["Sin usar la app", act.inactive_30d, `de ${act.total || 0} usuarios`],
+  ].map(([t, n, sub]) => {
+    const p = pctBase(n ?? 0);
+    const cls = p >= 50 ? "pink" : p >= 25 ? "gold" : "teal";
+    return `<div class="ret"><div class="d">${t}</div>`
+      + `<div class="p ${cls}">${n ?? "-"}</div>`
+      + `<div class="n">${p}% · ${sub}</div></div>`;
+  }).join("");
+
+  // Países de quienes registran. El dato sale de la zona horaria del
+  // dispositivo: el campo "país" del perfil lo llena casi nadie.
+  const paises = m.by_country || [];
+  barChart("cCountry", paises.map(p => ({ c: p.country, n: p.users })), true);
+  $("countries").innerHTML = paises.map(p => {
+    const prom = p.users ? (p.movements / p.users).toFixed(1) : "0";
+    const zonas = p.timezones ? ` <span class="muted">(${p.timezones.join(", ")})</span>` : "";
+    return `<tr><td>${p.country}${zonas}</td><td>${p.users}</td><td>${p.movements}</td><td>${prom}</td></tr>`;
+  }).join("") || `<tr><td colspan="4" class="muted">Todavía nadie registra movimientos</td></tr>`;
+
+  // Usuarios dormidos / en riesgo
+  $("dormant").innerHTML = (m.dormant || []).map(u => {
+    const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "-";
+    const badge = u.status === "nunca"
+      ? `<span class="badge never">Nunca registró</span>`
+      : `<span class="badge idle">${u.days_inactive}d inactivo</span>`;
+    return `<tr><td>${u.name||"-"}</td><td>${u.email||"-"}</td><td>${last}</td><td>${badge}</td></tr>`;
+  }).join("") || `<tr><td colspan="4" class="muted">Sin usuarios dormidos 🎉</td></tr>`;
+
+  // Embudo de activación. Antes se armaba acá con los KPIs sueltos y decía
+  // cuántos se pierden, no dónde: ahora lo calcula el backend
+  // (app/features/admin/funnel.py) y trae la caída de cada paso.
+  const paso = (s, tope) => {
+    const w = Math.round((s.n / (tope || 1)) * 100);
+    const caida = s.drop > 0 ? ` <span class="muted">· -${fmt(s.drop)}</span>` : "";
+    return `<div class="fn"><div class="fill" style="width:${w}%"></div>`
+      + `<span class="lbl">${s.label}${caida}</span>`
+      + `<span class="val">${fmt(s.n)} · ${s.pct}%</span></div>`;
+  };
+  const embudo = m.funnel || {};
+  const pasos = embudo.base || [];
+  $("funnel").innerHTML = pasos.length
+    ? pasos.map(s => paso(s, pasos[0].n)).join("")
+    : `<div class="muted">Sin datos</div>`;
+
+  // El embudo de dentro de la app necesita los eventos que manda la versión
+  // instrumentada, así que se muestra aparte y con su población a la vista:
+  // junto al otro daría pasos en cero que parecen fuga y son versión vieja.
+  const ev = embudo.events || {};
+  const evPasos = ev.steps || [];
+  $("funnelEvents").innerHTML = !ev.cohort
+    ? `<div class="muted">Todavía nadie con la versión que manda eventos. Aparece solo cuando se publique la 1.1.1.</div>`
+    : `<div class="muted" style="margin-bottom:9px">Sobre ${fmt(ev.cohort)} usuarios con la versión instrumentada</div>`
+      + `<div class="funnel">${evPasos.map(s => paso(s, evPasos[0].n)).join("")}</div>`;
+
+  // Versiones de sistema. Solo existe para quien tenga la app instrumentada,
+  // así que se dice: un cero acá es falta de datos, no falta de usuarios.
+  const os = m.by_os || [];
+  $("osList").innerHTML = os.length
+    ? `<table><thead><tr><th>Sistema</th><th>Versión</th><th>Usuarios</th></tr></thead><tbody>`
+      + os.map(o => `<tr><td>${o.platform === "ios" ? "iOS" : o.platform === "android" ? "Android" : o.platform}</td>`
+          + `<td>${o.os_version}</td><td>${fmt(o.users)}</td></tr>`).join("")
+      + `</tbody></table>`
+    : `<div class="muted">Todavía sin datos. Se llena cuando la gente actualice a la versión que reporta el sistema.</div>`;
+
+  // Distribución de uso
+  barChart("cDist", (m.movements_distribution || []).map(d => ({ c: d.b, n: d.n })));
+
+  // Movimientos por canal de entrada
+  const CH = { app:"App", wa_text:"WhatsApp texto", wa_voice:"WhatsApp voz",
+               wa_photo:"WhatsApp foto", email:"Correo", desconocido:"Desconocido" };
+  barChart("cChannel", (m.movements_by_channel || []).map(c => ({ c: CH[c.channel] || c.channel, n: c.n })), true);
+
+  // Mapa de calor de uso. Ordenado por USUARIOS distintos, no por el total:
+  // con una base chica, uno que abra cincuenta veces la misma pantalla la
+  // pondría primera él solo. Y se dice sobre cuántos usuarios se calcula, por
+  // la misma razón que en el embudo: un cero acá puede ser falta de versión.
+  const usoVacio = (texto) => `<div class="muted">${texto}</div>`;
+  const uso = m.usage || {};
+  const barra = (v, max) => `<div style="background:#2b3153;border-radius:4px;height:7px;width:100%">`
+    + `<div style="background:#6f7bf7;border-radius:4px;height:7px;width:${max ? Math.round((v/max)*100) : 0}%"></div></div>`;
+
+  const tabla = (filas, titulo, unidad) => {
+    if (!filas || !filas.length) return usoVacio("Todavía sin datos. Se llena cuando salga la versión que lo reporta.");
+    const max = Math.max(...filas.map(f => f.users));
+    return `<div class="muted" style="margin-bottom:9px">Sobre ${fmt(uso.cohort || 0)} usuarios con la versión instrumentada</div>`
+      + `<table><thead><tr><th>${titulo}</th><th>Usuarios</th><th>${unidad}</th><th style="width:28%"></th></tr></thead><tbody>`
+      + filas.map(f => `<tr><td>${f.label}</td><td>${fmt(f.users)}</td>`
+          + `<td>${unidad === "Minutos" ? fmt(Math.round(f.n / 60)) : fmt(f.n)}</td>`
+          + `<td>${barra(f.users, max)}</td></tr>`).join("")
+      + `</tbody></table>`;
+  };
+
+  $("usageTaps").innerHTML = tabla(uso.taps, "Elemento", "Toques");
+  $("usageScreens").innerHTML = tabla(uso.screens, "Pantalla", "Minutos");
+  $("usageZero").innerHTML = (uso.zero && uso.zero.length)
+    ? `<table><tbody>` + uso.zero.map(z => `<tr><td>${z.label}</td></tr>`).join("") + `</tbody></table>`
+    : usoVacio("Todo lo instrumentado se usó al menos una vez.");
+
+  $("gen").textContent = "Actualizado: " + new Date(m.generated_at).toLocaleString("es-PE");
+}
+
+
+const quien = (p) => p.email || (p.phone ? "+" + p.phone : (p.user_id || "").slice(0,8));
+const cuando = (iso) => iso ? new Date(iso).toLocaleString("es-PE",
+  { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" }) : "";
+
+function filaPago(p){
+  const img = p.receipt_url
+    ? `<a href="${p.receipt_url}" target="_blank" rel="noopener"><img class="recibo" src="${p.receipt_url}" alt="Comprobante"></a>`
+    : `<span class="muted">sin captura todavía</span>`;
+  // Sin captura no hay nada que mirar, así que aprobar queda deshabilitado:
+  // evita activar un Pro por un clic de más en una fila a medio llegar.
+  const falta = p.receipt_url ? "" : " disabled";
+  return `<tr>
+    <td>${quien(p)}</td>
+    <td class="muted">${p.reference || ""}</td>
+    <td>S/ ${Number(p.amount || 0).toFixed(0)}</td>
+    <td>${img}</td>
+    <td class="muted">${cuando(p.created_at)}</td>
+    <td><div class="acc">
+      <button class="primary" data-ok="${p.id}"${falta}>Aprobar</button>
+      <button class="danger" data-no="${p.id}">Rechazar</button>
+    </div></td>
+  </tr>`;
+}
+
+async function cargarPagos(){
+  const cuerpo = $("pagos"), badge = $("navPagos");
+  try{
+    const { items } = await api("/admin/payments?status=pending");
+    cuerpo.innerHTML = items.length
+      ? items.map(filaPago).join("")
+      : `<tr><td colspan="6" class="muted">No hay pagos por revisar.</td></tr>`;
+    badge.textContent = items.length || "";
+    badge.style.display = items.length ? "" : "none";
+    for (const b of cuerpo.querySelectorAll("[data-ok]")) b.onclick = () => resolver(b.dataset.ok, true, b);
+    for (const b of cuerpo.querySelectorAll("[data-no]")) b.onclick = () => resolver(b.dataset.no, false, b);
+  }catch(e){
+    cuerpo.innerHTML = `<tr><td colspan="6" class="muted">No se pudo cargar: ${e.message}</td></tr>`;
+  }
+  cargarHistorialPagos();
+}
+
+async function cargarHistorialPagos(){
+  const cuerpo = $("pagosHist");
+  try{
+    const vistas = await Promise.all(["confirmed","rejected"].map(st =>
+      api("/admin/payments?status=" + st).then(r => r.items.map(i => ({...i, status: st})))
+    ));
+    const filas = vistas.flat()
+      .sort((a,b) => (b.confirmed_at || b.created_at || "").localeCompare(a.confirmed_at || a.created_at || ""))
+      .slice(0, 25);
+    cuerpo.innerHTML = filas.length ? filas.map(p => `<tr>
+      <td>${quien(p)}</td>
+      <td class="muted">${p.reference || ""}</td>
+      <td>S/ ${Number(p.amount || 0).toFixed(0)}</td>
+      <td>${p.status === "confirmed" ? "✅ Aprobado" : "✖︎ Rechazado"}</td>
+      <td class="muted">${cuando(p.confirmed_at || p.created_at)}</td>
+    </tr>`).join("") : `<tr><td colspan="5" class="muted">Todavía nada.</td></tr>`;
+  }catch(e){
+    cuerpo.innerHTML = `<tr><td colspan="5" class="muted">No se pudo cargar: ${e.message}</td></tr>`;
+  }
+}
+
+async function resolver(id, aprobar, boton){
+  const pregunta = aprobar
+    ? "¿Confirmas que este Yape llegó? Le activo Pro por 30 días y le aviso por WhatsApp."
+    : "¿Rechazar este pago? Se le avisa por WhatsApp.";
+  if (!confirm(pregunta)) return;
+  const motivo = aprobar ? null : (prompt("Motivo (opcional, se lo mandamos tal cual):") || "");
+  boton.disabled = true;
+  try{
+    await api(`/admin/payments/${id}/` + (aprobar ? "approve" : "reject"), {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: aprobar ? null : JSON.stringify({ reason: motivo }),
+    });
+    cargarPagos();
+  }catch(e){
+    alert("No se pudo: " + e.message);
+    boton.disabled = false;
+  }
+}
+
+
+// Las métricas son siete lecturas completas de tablas en el backend: se piden
+// una vez y se repintan desde lo que ya se trajo.
+let metricas = null;
+async function cargarAdmin(forzado){
+  if (adminPintado && !forzado){ pintarAdmin(metricas); return; }
+  avisoAdmin("Cargando métricas...");
+  try{
+    await cargarChartJs();
+    metricas = await api("/admin/metrics");
+    // Chart.js mide el canvas al crearlo: dentro de una sección escondida nace
+    // 0x0 y sale en blanco. Se despliegan las cuatro, se pintan y se vuelven a
+    // esconder; como es síncrono, el navegador nunca dibuja el estado de en medio.
+    const vistas = ["ad-resumen","ad-crecimiento","ad-uso","ad-usuarios"];
+    const antes = vistas.map((t) => $("tab-" + t).style.display);
+    for (const t of vistas) $("tab-" + t).style.display = "";
+    try { pintarAdmin(metricas); avisoAdmin(""); }
+    finally { vistas.forEach((t, i) => { $("tab-" + t).style.display = antes[i]; }); }
+    adminPintado = true;
+  }catch(e){
+    avisoAdmin("No se pudieron cargar las métricas: " + e.message, true);
+  }
+}
+
+// Ser admin se pregunta al backend, que es quien manda. Una llamada barata.
+async function mirarSiEsAdmin(){
+  try{
+    await api("/admin/payments?status=pending");
+    esAdmin = true;
+    $("menuAdmin").style.display = "";
+    cargarPagos();            // para el contador del menú
+  }catch{ esAdmin = false; }
+}
+
 async function boot(){
   const { data:{ session } } = await sb.auth.getSession();
   if (!session){ show("login"); return; }
@@ -965,6 +1563,7 @@ async function boot(){
   await cargarPlan();
   cargarMes();
   cargarExtras();
+  mirarSiEsAdmin();
   // Al entrar se ve el mes. El enlace con #plan o #pro sigue llevando al suyo.
   tab(location.hash.slice(1) || "resumen");
 }
