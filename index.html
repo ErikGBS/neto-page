@@ -176,6 +176,9 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
 .nav-links{display:flex;gap:34px;align-items:center}
 .nav-links a{color:var(--dim);text-decoration:none;font-size:.94rem;font-weight:500;transition:color .2s}
 .nav-links a:hover{color:var(--text)}
+.nav-login{color:var(--gold)!important;border:1px solid rgba(208,165,92,.45);border-radius:999px;
+  padding:7px 16px;font-weight:600;transition:.2s}
+.nav-login:hover{background:rgba(208,165,92,.12);border-color:var(--gold)}
 .pill{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
   padding:7px 14px;border-radius:999px;border:1px solid var(--border-strong);color:var(--cyan);background:rgba(208,165,92,.07)}
 .burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:42px;height:42px;border-radius:11px;border:1px solid var(--border-strong);background:var(--surface);cursor:pointer;padding:0 11px}
@@ -189,9 +192,10 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
   .nav-links{position:absolute;top:72px;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;
     background:rgba(8,13,17,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);
     max-height:0;overflow:hidden;transition:max-height .35s ease}
-  .nav-links.open{max-height:280px}
+  .nav-links.open{max-height:340px}
   .nav-links a{padding:16px 26px;border-top:1px solid var(--border);font-size:1.02rem}
   .nav-links a:first-child{border-top:none}
+  .nav-login{border:none;border-top:1px solid var(--border)!important;border-radius:0;padding:16px 26px}
 }
 
 /* ---------- hero ---------- */
@@ -520,8 +524,9 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
     <div class="nav-links" id="navLinks">
       <a href="#producto">Producto</a>
       <a href="#como">Cómo funciona</a>
-      <a href="#precio">Gratis</a>
+      <a href="#precio">Precio</a>
       <a href="#privacidad">Privacidad</a>
+      <a class="nav-login" href="/mi-plan/">Iniciar sesión</a>
     </div>
     <a class="pill" href="#login" style="text-decoration:none"><span style="color:var(--teal)">●</span> Ya en iOS y Android</a>
     <span class="pill lang" aria-label="Idioma"><b style="color:var(--gold)">🇵🇪<span class="lc">&nbsp;ES</span></b><span class="lsep">&nbsp;·&nbsp;</span><a href="/en/" style="color:var(--mute);text-decoration:none">🇺🇸<span class="lc">&nbsp;EN</span></a><span class="lsep">&nbsp;·&nbsp;</span><a href="/pt/" style="color:var(--mute);text-decoration:none">🇧🇷<span class="lc">&nbsp;PT</span></a></span>
@@ -1054,7 +1059,8 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
     <div class="meta">
       <a href="#producto">Producto</a><br>
       <a href="#como">Cómo funciona</a><br>
-      <a href="#precio">Gratis</a><br>
+      <a href="#precio">Precio</a><br>
+      <a href="/mi-plan/">Mi plan</a><br>
       <a href="privacidad.html">Política de privacidad</a><br>
       <a href="mailto:marketing@yaltoque.com">marketing@yaltoque.com</a>
     </div>
