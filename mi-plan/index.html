@@ -100,6 +100,39 @@
   .spin{width:22px;height:22px;border:2.5px solid rgba(208,165,92,.25);
     border-top-color:var(--gold);border-radius:50%;animation:gira .8s linear infinite}
   @keyframes gira{to{transform:rotate(360deg)}}
+  /* Grafo del mes */
+  .graf{position:relative;width:100%;min-height:420px}
+  .graf svg{display:block;width:100%;height:auto;overflow:visible}
+  .graf .lazo{fill:none;stroke:rgba(208,165,92,.30);stroke-width:1.2;
+    transition:stroke .25s,stroke-width .25s}
+  .graf .lazo.on{stroke:var(--gold-bright);stroke-width:1.8}
+  .graf .lazo.sub{stroke:rgba(91,214,240,.34)}
+  .nodo-mes circle.halo{fill:url(#brillo)}
+  .nodo-mes circle.bola{fill:url(#oro);stroke:rgba(243,206,127,.55);stroke-width:1}
+  .nodo-mes .tit{fill:var(--text);font-size:15px;font-weight:800;letter-spacing:-.2px}
+  .nodo-mes .sub{fill:var(--mute);font-size:11px}
+  .nodo-mes .tot{fill:var(--gold-bright);font-size:19px;font-weight:800}
+  .dia{cursor:pointer}
+  .dia rect{fill:var(--surface);stroke:var(--border);stroke-width:1;rx:12;
+    transition:stroke .2s,fill .2s}
+  .dia:hover rect{stroke:var(--border-strong)}
+  .dia.on rect{fill:var(--surface-2);stroke:var(--gold);stroke-width:1.6}
+  .dia .n{fill:var(--text);font-size:17px;font-weight:800}
+  .dia.on .n{fill:var(--gold-bright)}
+  .dia .d{fill:var(--mute);font-size:10.5px;letter-spacing:.04em}
+  .dia .c{fill:var(--mute);font-size:10px}
+  .dia:focus{outline:none}
+  .dia:focus-visible rect{stroke:var(--gold-bright);stroke-width:2}
+  .gasto circle{fill:var(--info);opacity:.85}
+  .gasto .t{fill:var(--dim);font-size:11.5px}
+  .gasto .m{fill:var(--text);font-size:11.5px;font-weight:700}
+  .gasto .k{fill:var(--mute);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase}
+  .flecha{cursor:pointer;fill:var(--surface-2);stroke:var(--border)}
+  .flecha:hover{stroke:var(--border-strong)}
+  .flecha.off{opacity:.3;cursor:default}
+  .flecha path{fill:none;stroke:var(--dim);stroke-width:1.6;stroke-linecap:round}
+  .vacio{color:var(--mute);text-align:center;padding:40px 10px}
+
   footer{margin-top:28px;text-align:center;padding-bottom:8px}
 
   @media (max-width:560px){
@@ -151,9 +184,21 @@
     </header>
 
     <nav>
-      <button data-tab="plan" class="on">Mi plan</button>
+      <button data-tab="resumen" class="on">Resumen</button>
+      <button data-tab="plan">Mi plan</button>
       <button data-tab="pro">Activar Pro</button>
     </nav>
+
+    <section id="tab-resumen">
+      <div class="card">
+        <h2>Tu mes <span class="muted" id="mesTit" style="font-weight:400"></span></h2>
+        <p class="muted" style="margin-bottom:6px">
+          Toca un día para ver en qué se te fue. Solo salen los días con
+          movimientos, así que no hay huecos vacíos que recorrer.
+        </p>
+        <div class="graf" id="graf"><p class="muted" style="padding:30px 0">Cargando tu mes...</p></div>
+      </div>
+    </section>
 
     <section id="tab-plan">
       <div class="card" id="estadoCard">
@@ -197,11 +242,14 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const $ = (id) => document.getElementById(id);
 const show = (v) => { for (const x of ["login","app"]) $(x).style.display = (x===v ? "" : "none"); };
 
+const TABS = ["resumen","plan","pro"];
 function tab(name){
-  for (const t of ["plan","pro"]) $("tab-" + t).style.display = (t===name ? "" : "none");
+  if (!TABS.includes(name)) name = "resumen";
+  for (const t of TABS) $("tab-" + t).style.display = (t===name ? "" : "none");
   for (const b of document.querySelectorAll("nav button")) b.classList.toggle("on", b.dataset.tab===name);
   history.replaceState(null, "", "#" + name);
   if (name === "pro") cargarPro();
+  if (name === "resumen") pintar();   // el SVG necesita medir su contenedor visible
 }
 for (const b of document.querySelectorAll("nav button")) b.onclick = () => tab(b.dataset.tab);
 
@@ -354,11 +402,247 @@ async function cargarPro(){
   };
 }
 
+// ── Resumen del mes como grafo ──────────────────────────────────────────────
+// El mes es el nodo raíz, los días cuelgan de él de cinco en cinco y los gastos
+// del día elegido cuelgan del día. Solo aparecen los días CON movimientos: un
+// calendario completo obliga a recorrer huecos vacíos para encontrar algo.
+const mes = { dias: [], sel: null, desde: 0, moneda: "PEN", total: 0, cargado: false };
+const VISIBLES = 5;
+
+const plata = (v, cur) => {
+  try { return new Intl.NumberFormat("es-PE", { style:"currency", currency:cur || "PEN",
+    minimumFractionDigits: 2 }).format(v); }
+  catch { return (cur || "") + " " + v.toFixed(2); }
+};
+const corta = (t, n) => { t = (t || "").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : (t || "Sin detalle"); };
+const diaSemana = (d) => ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][d.getDay()];
+
+async function cargarMes(){
+  const hoy = new Date();
+  const m = hoy.getMonth() + 1, y = hoy.getFullYear();
+  $("mesTit").textContent = "· " + hoy.toLocaleDateString("es-PE", { month:"long", year:"numeric" });
+  let txs = [];
+  try{
+    txs = await api(`/transactions/?month=${m}&year=${y}`);
+  }catch(e){
+    $("graf").innerHTML = `<p class="vacio">No pudimos leer tus movimientos: ${e.message}</p>`;
+    return;
+  }
+  // occurred_at viaja en UTC y se agrupa por el día LOCAL de quien mira: si no,
+  // un gasto de las 9 de la noche cae en el día siguiente.
+  const porDia = new Map();
+  const monedas = new Map();
+  for (const t of txs){
+    if (t.type !== "expense") continue;
+    const f = new Date(t.occurred_at);
+    const clave = `${f.getFullYear()}-${f.getMonth()}-${f.getDate()}`;
+    if (!porDia.has(clave)) porDia.set(clave, { fecha: f, gastos: [], total: 0 });
+    const d = porDia.get(clave);
+    d.gastos.push(t);
+    d.total += t.amount;
+    monedas.set(t.currency, (monedas.get(t.currency) || 0) + t.amount);
+  }
+  mes.dias = [...porDia.values()].sort((a, b) => b.fecha - a.fecha);
+  for (const d of mes.dias) d.gastos.sort((a, b) => b.amount - a.amount);
+  mes.moneda = [...monedas.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "PEN";
+  mes.total = monedas.get(mes.moneda) || 0;
+  mes.sel = mes.dias[0] || null;   // el día más reciente ya viene abierto
+  mes.desde = 0;
+  mes.cargado = true;
+  pintar();
+}
+
+const curva = (x1, y1, x2, y2, horizontal) => horizontal
+  ? `M${x1},${y1} C${x1 + (x2 - x1) * .5},${y1} ${x1 + (x2 - x1) * .5},${y2} ${x2},${y2}`
+  : `M${x1},${y1} C${x1},${y1 + (y2 - y1) * .5} ${x2},${y1 + (y2 - y1) * .5} ${x2},${y2}`;
+
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+function pintar(){
+  const cajon = $("graf");
+  if (!cajon || !mes.cargado) return;
+  const W = Math.max(cajon.clientWidth || 0, 300);
+  if (!mes.dias.length){
+    cajon.innerHTML = `<p class="vacio">Todavía no hay gastos este mes.<br>
+      Regístralos por WhatsApp o desde el app y aparecen acá.</p>`;
+    return;
+  }
+  cajon.innerHTML = W >= 820 ? anchoSVG(W) : angostoSVG(W);
+  for (const g of cajon.querySelectorAll(".dia")){
+    const abrir = () => {
+      const i = Number(g.dataset.i);
+      mes.sel = (mes.sel === mes.dias[i]) ? null : mes.dias[i];
+      pintar();
+    };
+    g.onclick = abrir;
+    g.onkeydown = (e) => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); abrir(); } };
+  }
+  const mover = (n) => {
+    const tope = Math.max(0, mes.dias.length - VISIBLES);
+    const antes = mes.desde;
+    mes.desde = Math.min(tope, Math.max(0, mes.desde + n));
+    if (mes.desde !== antes) pintar();
+  };
+  for (const f of cajon.querySelectorAll(".flecha")) f.onclick = () => mover(Number(f.dataset.d));
+  // La rueda recorre los días sin arrastrar la página, pero solo mientras haya
+  // a dónde ir: si no, la página queda secuestrada bajo el cursor.
+  cajon.onwheel = (e) => {
+    const tope = Math.max(0, mes.dias.length - VISIBLES);
+    const baja = e.deltaY > 0;
+    if ((baja && mes.desde >= tope) || (!baja && mes.desde <= 0)) return;
+    e.preventDefault();
+    mover(baja ? 1 : -1);
+  };
+}
+
+const DEFS = `<defs>
+  <radialGradient id="brillo"><stop offset="0%" stop-color="#d0a55c" stop-opacity=".30"/>
+    <stop offset="70%" stop-color="#d0a55c" stop-opacity=".05"/>
+    <stop offset="100%" stop-color="#d0a55c" stop-opacity="0"/></radialGradient>
+  <radialGradient id="oro" cx="35%" cy="30%"><stop offset="0%" stop-color="#f3ce7f"/>
+    <stop offset="60%" stop-color="#d0a55c"/><stop offset="100%" stop-color="#a8803f"/></radialGradient>
+</defs>`;
+
+function tarjetasDia(x, ancho, alto, hueco, y0, horizontal){
+  const trozo = mes.dias.slice(mes.desde, mes.desde + VISIBLES);
+  return trozo.map((d, k) => {
+    const i = mes.desde + k;
+    const y = y0 + k * (alto + hueco);
+    const on = mes.sel === d ? " on" : "";
+    const n = d.gastos.length;
+    return `<g class="dia${on}" data-i="${i}" tabindex="0" role="button"
+      aria-label="${esc(d.fecha.getDate())} de ${esc(diaSemana(d.fecha))}, ${esc(plata(d.total, mes.moneda))}">
+      <rect x="${x}" y="${y}" width="${ancho}" height="${alto}" rx="12"/>
+      <text class="n" x="${x + 16}" y="${y + alto / 2 - 2}">${esc(plata(d.total, mes.moneda))}</text>
+      <text class="d" x="${x + 16}" y="${y + alto / 2 + 15}">${d.fecha.getDate()} · ${esc(diaSemana(d.fecha))}</text>
+      <text class="c" x="${x + ancho - 14}" y="${y + alto / 2 + 15}" text-anchor="end">${n} ${n === 1 ? "gasto" : "gastos"}</text>
+    </g>`;
+  }).join("");
+}
+
+function flechas(x, arriba, abajo){
+  const tope = Math.max(0, mes.dias.length - VISIBLES);
+  if (!tope) return "";
+  const btn = (y, d, apagada) => `<g class="flecha${apagada ? " off" : ""}" data-d="${d}">
+      <rect x="${x}" y="${y}" width="30" height="24" rx="8"/>
+      <path d="${d < 0 ? `M${x + 10},${y + 15} l5,-6 l5,6` : `M${x + 10},${y + 9} l5,6 l5,-6`}"/>
+    </g>`;
+  return btn(arriba, -1, mes.desde === 0) + btn(abajo, 1, mes.desde >= tope);
+}
+
+// ── Escritorio: mes, días y gastos en tres columnas, como un abanico ────────
+function anchoSVG(W){
+  const H = 430, altoDia = 64, hueco = 14;
+  const xDia = Math.round(W * 0.30), anchoDia = 215;
+  const xGasto = xDia + anchoDia + Math.round((W - xDia - anchoDia) * 0.22);
+  const cy = H / 2, cx = Math.min(130, W * 0.14);
+  const y0 = cy - (VISIBLES * altoDia + (VISIBLES - 1) * hueco) / 2;
+  const trozo = mes.dias.slice(mes.desde, mes.desde + VISIBLES);
+
+  const lazos = trozo.map((d, k) => {
+    const y = y0 + k * (altoDia + hueco) + altoDia / 2;
+    return `<path class="lazo${mes.sel === d ? " on" : ""}" d="${curva(cx + 34, cy, xDia, y, true)}"/>`;
+  }).join("");
+
+  let ramas = "", hojas = "";
+  if (mes.sel){
+    const k = trozo.indexOf(mes.sel);
+    if (k >= 0){
+      const desde = { x: xDia + anchoDia, y: y0 + k * (altoDia + hueco) + altoDia / 2 };
+      const lista = mes.sel.gastos.slice(0, 9);
+      const paso = Math.min(34, (H - 60) / Math.max(lista.length, 1));
+      const yIni = cy - (lista.length - 1) * paso / 2;
+      lista.forEach((t, j) => {
+        const y = yIni + j * paso;
+        ramas += `<path class="lazo sub" d="${curva(desde.x, desde.y, xGasto - 8, y, true)}"/>`;
+        hojas += `<g class="gasto">
+          <circle cx="${xGasto - 8}" cy="${y}" r="3"/>
+          <text class="t" x="${xGasto + 6}" y="${y - 1}">${esc(corta(t.description, 26))}</text>
+          <text class="k" x="${xGasto + 6}" y="${y + 11}">${esc(corta(t.category || "sin categoría", 20))}</text>
+          <text class="m" x="${W - 6}" y="${y + 3}" text-anchor="end">${esc(plata(t.amount, t.currency))}</text>
+        </g>`;
+      });
+      const resto = mes.sel.gastos.length - lista.length;
+      if (resto > 0)
+        hojas += `<text class="k" x="${xGasto + 6}" y="${yIni + lista.length * paso + 4}">y ${resto} más</text>`;
+    }
+  }
+
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Resumen del mes">${DEFS}
+    ${lazos}${ramas}
+    <g class="nodo-mes">
+      <circle class="halo" cx="${cx}" cy="${cy}" r="76"/>
+      <circle class="bola" cx="${cx}" cy="${cy}" r="30"/>
+      <text class="tot" x="${cx}" y="${cy + 62}" text-anchor="middle">${esc(plata(mes.total, mes.moneda))}</text>
+      <text class="sub" x="${cx}" y="${cy + 79}" text-anchor="middle">gastado este mes</text>
+    </g>
+    ${tarjetasDia(xDia, anchoDia, altoDia, hueco, y0, true)}
+    ${flechas(xDia + anchoDia / 2 - 15, y0 - 34, y0 + VISIBLES * (altoDia + hueco) - hueco + 10)}
+    ${hojas}
+  </svg>`;
+}
+
+// ── Teléfono: el mismo árbol, pero de arriba abajo ──────────────────────────
+function angostoSVG(W){
+  const altoDia = 58, hueco = 10, x = 10, anchoDia = W - 20;
+  const trozo = mes.dias.slice(mes.desde, mes.desde + VISIBLES);
+  const cx = W / 2, cy = 46;
+  const y0 = 128;
+  const lazos = trozo.map((d, k) => {
+    const y = y0 + k * (altoDia + hueco) + altoDia / 2;
+    return `<path class="lazo${mes.sel === d ? " on" : ""}" d="${curva(cx, cy + 30, x + 18, y, false)}"/>`;
+  }).join("");
+
+  let hojas = "", extra = 0;
+  const base = y0 + VISIBLES * (altoDia + hueco) + 6;
+  if (mes.sel){
+    const lista = mes.sel.gastos.slice(0, 8);
+    lista.forEach((t, j) => {
+      const y = base + 18 + j * 30;
+      hojas += `<path class="lazo sub" d="${curva(x + 18, base - 6, x + 26, y - 4, false)}"/>
+        <g class="gasto">
+          <circle cx="${x + 26}" cy="${y - 4}" r="3"/>
+          <text class="t" x="${x + 38}" y="${y - 6}">${esc(corta(t.description, Math.max(14, Math.floor(W / 16))))}</text>
+          <text class="k" x="${x + 38}" y="${y + 6}">${esc(corta(t.category || "sin categoría", 18))}</text>
+          <text class="m" x="${W - 12}" y="${y - 1}" text-anchor="end">${esc(plata(t.amount, t.currency))}</text>
+        </g>`;
+    });
+    extra = 18 + lista.length * 30;
+    const resto = mes.sel.gastos.length - lista.length;
+    if (resto > 0){
+      hojas += `<text class="k" x="${x + 38}" y="${base + extra + 4}">y ${resto} más</text>`;
+      extra += 20;
+    }
+  }
+  const H = base + extra + 16;
+
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Resumen del mes">${DEFS}
+    ${lazos}
+    <g class="nodo-mes">
+      <circle class="halo" cx="${cx}" cy="${cy}" r="62"/>
+      <circle class="bola" cx="${cx}" cy="${cy}" r="24"/>
+      <text class="tot" x="${cx}" y="${cy + 50}" text-anchor="middle">${esc(plata(mes.total, mes.moneda))}</text>
+      <text class="sub" x="${cx}" y="${cy + 66}" text-anchor="middle">gastado este mes</text>
+    </g>
+    ${tarjetasDia(x, anchoDia, altoDia, hueco, y0, false)}
+    ${flechas(W - 44, y0 - 30, y0 + VISIBLES * (altoDia + hueco) - hueco + 8)}
+    ${hojas}
+  </svg>`;
+}
+
+// Al girar el teléfono o cambiar el ancho, el grafo se vuelve a repartir.
+let remedir;
+window.addEventListener("resize", () => {
+  clearTimeout(remedir);
+  remedir = setTimeout(() => { if (location.hash !== "#pro" && location.hash !== "#plan") pintar(); }, 180);
+});
+
 async function boot(){
   const { data:{ session } } = await sb.auth.getSession();
   if (!session){ show("login"); return; }
   show("app");
   await cargarPlan();
+  cargarMes();
   const h = location.hash.slice(1);
   tab(h === "pro" ? "pro" : "plan");
 }
