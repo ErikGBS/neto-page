@@ -162,6 +162,8 @@
   .btn-google:hover{border-color:rgba(208,165,92,.68);box-shadow:0 6px 18px rgba(208,165,92,.2)}
   .btn-google svg{width:22px;height:22px;flex:none}
   .btn-google[disabled]{opacity:.65}
+  .btn-apple{margin-top:11px;border-color:rgba(255,255,255,.22)}
+  .btn-apple:hover{border-color:rgba(255,255,255,.42);box-shadow:0 6px 18px rgba(255,255,255,.07)}
   .spin{width:22px;height:22px;border:2.5px solid rgba(208,165,92,.25);
     border-top-color:var(--gold);border-radius:50%;animation:gira .8s linear infinite}
   @keyframes gira{to{transform:rotate(360deg)}}
@@ -256,10 +258,13 @@
       </svg>
       <span>Continuar con Google</span>
     </button>
-    <p class="muted" style="margin-top:18px">
-      ¿Entraste a la app con Apple? Escríbele <b>quiero pro</b> al asistente por
-      WhatsApp y te activa todo desde ahí.
-    </p>
+    <button class="btn-google btn-apple" id="loginApple">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M17.05 12.04c-.03-2.4 1.96-3.55 2.05-3.61-1.12-1.64-2.86-1.86-3.48-1.89-1.48-.15-2.89.87-3.64.87-.75 0-1.91-.85-3.14-.83-1.61.02-3.1.94-3.93 2.38-1.68 2.91-.43 7.22 1.2 9.58.8 1.16 1.75 2.46 3 2.41 1.21-.05 1.67-.78 3.13-.78 1.46 0 1.87.78 3.14.75 1.3-.02 2.12-1.18 2.91-2.34.92-1.34 1.3-2.64 1.32-2.71-.03-.01-2.53-.97-2.56-3.86zM14.63 5.16c.66-.8 1.11-1.92.99-3.03-.95.04-2.11.63-2.8 1.43-.61.71-1.15 1.85-1.01 2.94 1.06.08 2.15-.54 2.82-1.34z" fill="#fff"/>
+      </svg>
+      <span>Continuar con Apple</span>
+    </button>
+    <p class="muted" id="avisoApple" style="margin-top:14px;display:none"></p>
   </div>
 </div>
 
@@ -343,8 +348,8 @@
         <h2>Qué incluye</h2>
         <p class="muted" style="margin-bottom:12px">
           La app Y Altoque es gratis siempre, con todo adentro. El plan Pro es para
-          el asistente de WhatsApp: mensajes sin límite, fotos de vouchers y notas
-          de voz.
+          el asistente de WhatsApp: mensajes sin límite y fotos de vouchers, sin
+          tener que abrir el app.
         </p>
         <p class="muted">S/ 5 al mes. Se paga por Yape y se activa a mano, así que no
         guardamos ninguna tarjeta ni se renueva solo.</p>
@@ -375,6 +380,12 @@ const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const BACKEND = "https://finance-tracker-production-450d.up.railway.app";
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// Google y Apple vuelven a /mi-plan/, que es la URL registrada en los Redirect
+// URLs de Supabase; ese puente canjea el token y reenvía acá. En cuanto
+// https://yaltoque.com/app/ esté registrada también, esto pasa a ser
+// `location.origin + "/app/"` y el rodeo sobra.
+const VUELTA = location.origin + "/mi-plan/";
 const $ = (id) => document.getElementById(id);
 const show = (v) => { for (const x of ["login","app"]) $(x).style.display = (x===v ? "" : "none"); };
 
@@ -402,25 +413,48 @@ $("velo").onclick = () => menu(false);
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") menu(false); });
 $("ctaPro").onclick = () => tab("pro");
 
-$("loginBtn").onclick = async (e) => {
-  const b = e.currentTarget;
-  b.disabled = true;
-  b.innerHTML = '<span class="spin"></span><span>Abriendo Google...</span>';
-  // Google vuelve a /mi-plan/, que es la URL registrada en los Redirect URLs de
-  // Supabase; ese puente canjea el token y reenvía acá. En cuanto
-  // https://yaltoque.com/app/ esté registrado también, esto pasa a ser
-  // `location.href.split("#")[0]` y el rodeo sobra.
-  const VUELTA = location.origin + "/mi-plan/";
+// Supabase responde 400 ("missing OAuth secret") cuando un proveedor está
+// habilitado pero sin configurar, y ese error SÍ se puede leer desde acá
+// (manda cabeceras CORS). Así se comprueba antes de mandar a nadie a una
+// pantalla con un JSON de error, y el día que Apple quede configurado el botón
+// empieza a funcionar solo, sin tocar este archivo.
+async function proveedorListo(nombre){
+  try{
+    const r = await fetch(
+      `${SUPABASE_URL}/auth/v1/authorize?provider=${nombre}&redirect_to=${encodeURIComponent(VUELTA)}`,
+      { redirect:"manual" });
+    return r.type === "opaqueredirect" || r.status === 0 || r.status === 302;
+  }catch{
+    return true;   // si no se pudo comprobar, se intenta igual
+  }
+}
+
+async function entrar(boton, proveedor, etiqueta){
+  boton.disabled = true;
+  const antes = boton.innerHTML;
+  boton.innerHTML = `<span class="spin"></span><span>Abriendo ${etiqueta}...</span>`;
+  if (!(await proveedorListo(proveedor))){
+    boton.disabled = false;
+    boton.innerHTML = antes;
+    $("avisoApple").style.display = "";
+    $("avisoApple").innerHTML = `El acceso con ${etiqueta} todavía no está abierto. `
+      + `Escríbele <b>quiero pro</b> al asistente por WhatsApp y te activa todo desde ahí.`;
+    return;
+  }
   const { error } = await sb.auth.signInWithOAuth({
-    provider: "google",
+    provider: proveedor,
     options: { redirectTo: VUELTA },
   });
   // Si signInWithOAuth devuelve, el salto no ocurrió: hay que poder reintentar.
-  if (error) {
-    b.disabled = false;
-    b.innerHTML = "No se pudo abrir Google. Reintentar";
+  if (error){
+    boton.disabled = false;
+    boton.innerHTML = `No se pudo abrir ${etiqueta}. Reintentar`;
   }
-};
+}
+
+$("loginApple").onclick = (e) => entrar(e.currentTarget, "apple", "Apple");
+
+$("loginBtn").onclick = (e) => entrar(e.currentTarget, "google", "Google");
 $("logoutBtn").onclick = async () => {
   try { await sb.auth.signOut(); } catch {}
   location.href = "/";
