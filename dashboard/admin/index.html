@@ -157,6 +157,16 @@
   .badge.never{background:rgba(248,113,113,.14);color:var(--red)}
   .badge.idle{background:rgba(208,165,92,.15);color:var(--gold-bright)}
 
+  /* Cola de pagos Pro */
+  .pill{display:inline-block;min-width:19px;padding:1px 6px;border-radius:999px;
+    background:var(--red);color:#fff;font-size:.72rem;font-weight:700;text-align:center}
+  .recibo{height:54px;border-radius:8px;border:1px solid var(--border);object-fit:cover;
+    cursor:zoom-in;background:var(--surface-2)}
+  .acc{display:flex;gap:8px;flex-wrap:wrap}
+  .acc button{padding:7px 13px;font-size:.86rem}
+  button.danger{border-color:rgba(248,113,113,.4);color:var(--red)}
+  button.danger:hover{border-color:var(--red)}
+
   /* Embudo */
   .funnel{display:flex;flex-direction:column;gap:11px}
   .fn{position:relative;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;
@@ -222,6 +232,7 @@
       <button data-tab="crecimiento">📈 Crecimiento</button>
       <button data-tab="uso">🔥 Uso</button>
       <button data-tab="usuarios">👥 Usuarios</button>
+      <button data-tab="pagos">💸 Pagos <span id="navPagos" class="pill" style="display:none"></span></button>
     </nav>
     <div class="sidefoot" id="who"></div>
   </aside>
@@ -324,6 +335,29 @@
     </div>
   </section>
 
+  <!-- ── Pagos Pro ───────────────────────────────────────────────────────── -->
+  <section class="tab" id="tab-pagos" style="display:none">
+    <div class="section">
+      <h3>Pagos por revisar <span class="muted" style="font-weight:400">· Yape, S/ 5 al mes</span></h3>
+      <p class="muted" style="margin-bottom:12px">
+        El usuario yapea y manda la captura al bot. Acá la miras y apruebas: aprobar
+        activa su Pro por 30 días y le avisa por WhatsApp.
+      </p>
+      <table>
+        <thead><tr><th>Usuario</th><th>Ref</th><th>Monto</th><th>Comprobante</th><th>Pedido</th><th></th></tr></thead>
+        <tbody id="pagos"></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h3>Últimos resueltos</h3>
+      <table>
+        <thead><tr><th>Usuario</th><th>Ref</th><th>Monto</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <tbody id="pagosHist"></tbody>
+      </table>
+    </div>
+  </section>
+
   </main>
 </div>
 
@@ -364,7 +398,7 @@ function areaFill(hex){
 function show(view){ for (const v of ["login","forbidden","app"]) $(v).style.display = (v===view ? "" : "none"); }
 
 // ── Secciones ───────────────────────────────────────────────────────────────
-const TABS = ["resumen","crecimiento","uso","usuarios"];
+const TABS = ["resumen","crecimiento","uso","usuarios","pagos"];
 const tabEnHash = () => { const h = location.hash.slice(1); return TABS.includes(h) ? h : "resumen"; };
 
 function tab(name){
@@ -375,6 +409,9 @@ function tab(name){
   // replaceState y no location.hash: deja la pestaña en la URL (se puede
   // recargar o compartir) sin llenar el historial ni saltar el scroll.
   history.replaceState(null, "", "#" + name);
+  // Los pagos no vienen en /admin/metrics: se piden al abrir la pestaña, que es
+  // cuando importan, y no en cada carga del panel.
+  if (name === "pagos") cargarPagos();
 }
 for (const b of document.querySelectorAll("#sidenav button"))
   b.onclick = () => tab(b.dataset.tab);
@@ -580,6 +617,102 @@ function estado(texto, esError){
   el.textContent = texto || "";
 }
 
+// ── Pagos Pro ───────────────────────────────────────────────────────────────
+// La validación del Yape es humana a propósito: a S/5 un botón es más barato y
+// más confiable que una heurística de OCR, y nunca activa Pro por error.
+async function api(path, opts){
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session) throw new Error("sin sesión");
+  const res = await fetch(BACKEND + path, {
+    ...opts,
+    headers:{ ...(opts||{}).headers, Authorization:"Bearer " + session.access_token }
+  });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res.json();
+}
+
+const quien = (p) => p.email || (p.phone ? "+" + p.phone : (p.user_id || "").slice(0,8));
+const cuando = (iso) => iso ? new Date(iso).toLocaleString("es-PE",
+  { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" }) : "";
+
+function filaPago(p){
+  const img = p.receipt_url
+    ? `<a href="${p.receipt_url}" target="_blank" rel="noopener"><img class="recibo" src="${p.receipt_url}" alt="Comprobante"></a>`
+    : `<span class="muted">sin captura todavía</span>`;
+  // Sin captura no hay nada que mirar, así que aprobar queda deshabilitado:
+  // evita activar un Pro por un clic de más en una fila a medio llegar.
+  const falta = p.receipt_url ? "" : " disabled";
+  return `<tr>
+    <td>${quien(p)}</td>
+    <td class="muted">${p.reference || ""}</td>
+    <td>S/ ${Number(p.amount || 0).toFixed(0)}</td>
+    <td>${img}</td>
+    <td class="muted">${cuando(p.created_at)}</td>
+    <td><div class="acc">
+      <button class="primary" data-ok="${p.id}"${falta}>Aprobar</button>
+      <button class="danger" data-no="${p.id}">Rechazar</button>
+    </div></td>
+  </tr>`;
+}
+
+async function cargarPagos(){
+  const cuerpo = $("pagos"), badge = $("navPagos");
+  try{
+    const { items } = await api("/admin/payments?status=pending");
+    cuerpo.innerHTML = items.length
+      ? items.map(filaPago).join("")
+      : `<tr><td colspan="6" class="muted">No hay pagos por revisar.</td></tr>`;
+    badge.textContent = items.length || "";
+    badge.style.display = items.length ? "" : "none";
+    for (const b of cuerpo.querySelectorAll("[data-ok]")) b.onclick = () => resolver(b.dataset.ok, true, b);
+    for (const b of cuerpo.querySelectorAll("[data-no]")) b.onclick = () => resolver(b.dataset.no, false, b);
+  }catch(e){
+    cuerpo.innerHTML = `<tr><td colspan="6" class="muted">No se pudo cargar: ${e.message}</td></tr>`;
+  }
+  cargarHistorialPagos();
+}
+
+async function cargarHistorialPagos(){
+  const cuerpo = $("pagosHist");
+  try{
+    const vistas = await Promise.all(["confirmed","rejected"].map(st =>
+      api("/admin/payments?status=" + st).then(r => r.items.map(i => ({...i, status: st})))
+    ));
+    const filas = vistas.flat()
+      .sort((a,b) => (b.confirmed_at || b.created_at || "").localeCompare(a.confirmed_at || a.created_at || ""))
+      .slice(0, 25);
+    cuerpo.innerHTML = filas.length ? filas.map(p => `<tr>
+      <td>${quien(p)}</td>
+      <td class="muted">${p.reference || ""}</td>
+      <td>S/ ${Number(p.amount || 0).toFixed(0)}</td>
+      <td>${p.status === "confirmed" ? "✅ Aprobado" : "✖︎ Rechazado"}</td>
+      <td class="muted">${cuando(p.confirmed_at || p.created_at)}</td>
+    </tr>`).join("") : `<tr><td colspan="5" class="muted">Todavía nada.</td></tr>`;
+  }catch(e){
+    cuerpo.innerHTML = `<tr><td colspan="5" class="muted">No se pudo cargar: ${e.message}</td></tr>`;
+  }
+}
+
+async function resolver(id, aprobar, boton){
+  const pregunta = aprobar
+    ? "¿Confirmas que este Yape llegó? Le activo Pro por 30 días y le aviso por WhatsApp."
+    : "¿Rechazar este pago? Se le avisa por WhatsApp.";
+  if (!confirm(pregunta)) return;
+  const motivo = aprobar ? null : (prompt("Motivo (opcional, se lo mandamos tal cual):") || "");
+  boton.disabled = true;
+  try{
+    await api(`/admin/payments/${id}/` + (aprobar ? "approve" : "reject"), {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: aprobar ? null : JSON.stringify({ reason: motivo }),
+    });
+    cargarPagos();
+  }catch(e){
+    alert("No se pudo: " + e.message);
+    boton.disabled = false;
+  }
+}
+
 async function boot(forzado){
   const { data:{ session } } = await sb.auth.getSession();
   if (!session){ show("login"); return; }
@@ -609,6 +742,7 @@ async function boot(forzado){
     for (const t of TABS) $("tab-" + t).style.display = "";
     try { render(data); estado(""); }
     finally { tab(tabEnHash()); }
+    cargarPagos();   // para el contador del menú, aunque la pestaña esté cerrada
   }catch(e){
     estado("No se pudieron cargar las métricas: " + e.message, true);
   }

@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Mi plan · Y Altoque</title>
+<link rel="icon" type="image/png" href="/logo.png">
+<style>
+  :root{
+    --bg:#080b12; --surface:#0d1320; --surface-2:#111a2b;
+    --border:#1c2740; --border-strong:rgba(120,150,210,.30);
+    --gold:#d0a55c; --gold-bright:#f3ce7f;
+    --green:#4ade80; --red:#f87171; --info:#5bd6f0;
+    --text:#f3f5fa; --dim:#b3bccd; --mute:#8893a6; --ink:#1a1206;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.55;
+    min-height:100vh;padding:24px 16px;
+  }
+  .wrap{max-width:720px;margin:0 auto}
+  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:28px}
+  header h1{font-size:1.22rem;font-weight:800;letter-spacing:-.01em}
+  header .y{color:var(--gold)}
+  header .right{margin-left:auto}
+  .muted{color:var(--mute);font-size:.86rem}
+  a{color:var(--gold-bright)}
+
+  button{font:inherit;cursor:pointer;border-radius:11px;border:1px solid var(--border);
+    background:var(--surface-2);color:var(--text);padding:10px 16px;transition:.15s;
+    white-space:nowrap}
+  button:hover{border-color:var(--border-strong)}
+  button:active{transform:scale(.97)}
+  button.primary{background:linear-gradient(145deg,var(--gold-bright),var(--gold));
+    color:var(--ink);border-color:transparent;font-weight:700;
+    box-shadow:0 12px 28px -14px rgba(208,165,92,.7)}
+  button.primary:hover{filter:brightness(1.04)}
+  button[disabled]{opacity:.5;cursor:default}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  nav{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+  nav button{border-radius:999px;padding:8px 16px;font-size:.9rem}
+  nav button.on{background:linear-gradient(145deg,var(--gold-bright),var(--gold));
+    color:var(--ink);border-color:transparent;font-weight:700}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    padding:22px;margin-bottom:16px}
+  .card h2{font-size:1.02rem;font-weight:700;margin-bottom:14px;display:flex;
+    align-items:center;gap:9px}
+  .card h2::before{content:"";width:7px;height:7px;border-radius:50%;
+    background:var(--gold);flex:none}
+
+  .estado{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .estado .plan{font-size:1.75rem;font-weight:800;letter-spacing:-.02em}
+  .estado .plan.pro{color:var(--gold-bright)}
+  .chip{display:inline-block;padding:3px 11px;border-radius:999px;font-size:.76rem;
+    font-weight:700;background:var(--surface-2);border:1px solid var(--border)}
+  .chip.ok{color:var(--green);border-color:rgba(74,222,128,.35)}
+  .chip.wait{color:var(--info);border-color:rgba(91,214,240,.35)}
+
+  .barra{height:9px;border-radius:999px;background:var(--surface-2);overflow:hidden;
+    border:1px solid var(--border);margin:14px 0 8px}
+  .barra i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));
+    transition:width .6s cubic-bezier(.2,.7,.2,1)}
+  .barra.full i{background:linear-gradient(90deg,#b45c5c,var(--red))}
+
+  ol{margin:0 0 4px 20px} ol li{margin-bottom:10px}
+  .qr{display:block;width:210px;max-width:100%;margin:16px auto 10px;border-radius:14px;
+    border:1px solid var(--border);background:#fff;padding:10px}
+  .ref{display:block;text-align:center;font-size:1.3rem;font-weight:800;letter-spacing:.09em;
+    color:var(--gold-bright);margin:6px 0 2px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .acciones{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .aviso{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;
+    padding:13px 15px;font-size:.88rem;color:var(--dim);margin-top:16px}
+  .center{text-align:center}
+  .hero{text-align:center;padding:34px 22px}
+  .hero p{color:var(--dim);margin:10px auto 22px;max-width:46ch}
+  footer{margin-top:28px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ── Login ───────────────────────────────────────────────────────────── -->
+  <div id="login" style="display:none">
+    <div class="card hero">
+      <h1 style="font-size:1.5rem;font-weight:800"><span style="color:var(--gold)">Y</span> Altoque</h1>
+      <p>Entra con la misma cuenta de la app para ver tu plan y activar Pro.</p>
+      <button class="primary" id="loginBtn">Entrar con Google</button>
+      <p class="muted" style="margin-top:18px">
+        ¿Entraste a la app con Apple? Escríbele <b>quiero pro</b> al asistente por
+        WhatsApp y te activa todo desde ahí.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Portal ──────────────────────────────────────────────────────────── -->
+  <div id="app" style="display:none">
+    <header>
+      <h1><span class="y">Y</span> Altoque · Mi plan</h1>
+      <div class="right"><button id="logoutBtn">Salir</button></div>
+    </header>
+
+    <nav>
+      <button data-tab="plan" class="on">Mi plan</button>
+      <button data-tab="pro">Activar Pro</button>
+    </nav>
+
+    <section id="tab-plan">
+      <div class="card" id="estadoCard">
+        <h2>Tu plan</h2>
+        <div id="estado"><p class="muted">Cargando...</p></div>
+      </div>
+      <div class="card">
+        <h2>Qué incluye</h2>
+        <p class="muted" style="margin-bottom:12px">
+          La app Y Altoque es gratis siempre, con todo adentro. El plan Pro es para
+          el asistente de WhatsApp: mensajes sin límite, fotos de vouchers y notas
+          de voz.
+        </p>
+        <p class="muted">S/ 5 al mes. Se paga por Yape y se activa a mano, así que no
+        guardamos ninguna tarjeta ni se renueva solo.</p>
+      </div>
+    </section>
+
+    <section id="tab-pro" style="display:none">
+      <div class="card" id="proCard">
+        <h2>Activar Pro</h2>
+        <div id="pro"><p class="muted">Cargando...</p></div>
+      </div>
+    </section>
+
+    <footer class="muted">
+      <a href="/">Inicio</a> · <a href="/terminos.html">Términos</a> ·
+      <a href="/privacidad.html">Privacidad</a>
+    </footer>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL  = "https://dwqzsgonkkrctnrtlkdz.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3cXpzZ29ua2tyY3RucnRsa2R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTE5MzEsImV4cCI6MjA5NjA2NzkzMX0.94_SbN7ZPSemAprEJ-9T6u3YOmo40aMt2WyDpCGSyJ0";
+const BACKEND = "https://finance-tracker-production-450d.up.railway.app";
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const $ = (id) => document.getElementById(id);
+const show = (v) => { for (const x of ["login","app"]) $(x).style.display = (x===v ? "" : "none"); };
+
+function tab(name){
+  for (const t of ["plan","pro"]) $("tab-" + t).style.display = (t===name ? "" : "none");
+  for (const b of document.querySelectorAll("nav button")) b.classList.toggle("on", b.dataset.tab===name);
+  history.replaceState(null, "", "#" + name);
+  if (name === "pro") cargarPro();
+}
+for (const b of document.querySelectorAll("nav button")) b.onclick = () => tab(b.dataset.tab);
+
+$("loginBtn").onclick = () =>
+  sb.auth.signInWithOAuth({ provider:"google", options:{ redirectTo: location.href.split("#")[0] } });
+$("logoutBtn").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+async function api(path, opts){
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session) throw new Error("sin sesión");
+  const res = await fetch(BACKEND + path, {
+    ...opts,
+    headers:{ ...(opts||{}).headers, Authorization:"Bearer " + session.access_token }
+  });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  return res.json();
+}
+
+const fecha = (iso) => iso
+  ? new Date(iso).toLocaleDateString("es-PE", { day:"numeric", month:"long", year:"numeric" })
+  : "";
+
+let plan = null;
+
+async function cargarPlan(){
+  try{
+    plan = await api("/billing/plan");
+  }catch(e){
+    $("estado").innerHTML = `<p class="muted">No pudimos leer tu plan: ${e.message}</p>`;
+    return;
+  }
+  const { is_pro, renews_at, wa_used, wa_limit, pending_payment } = plan;
+  // wa_limit en 0 significa que el cupo todavía no está encendido: no tiene
+  // sentido mostrar una barra contra un tope que no existe.
+  const hayTope = wa_limit > 0;
+  const usado = Math.min(wa_used, hayTope ? wa_limit : wa_used);
+  const lleno = hayTope && wa_used >= wa_limit;
+  $("estado").innerHTML = `
+    <div class="estado">
+      <span class="plan ${is_pro ? "pro" : ""}">${is_pro ? "Pro" : "Gratis"}</span>
+      ${is_pro && renews_at ? `<span class="chip ok">activo hasta el ${fecha(renews_at)}</span>` : ""}
+      ${!is_pro && pending_payment ? `<span class="chip wait">pago en revisión</span>` : ""}
+    </div>
+    ${is_pro
+      ? `<p class="muted">Mensajes sin límite con el asistente de WhatsApp.</p>`
+      : hayTope
+        ? `<div class="barra ${lleno ? "full" : ""}"><i style="width:${Math.round(usado/wa_limit*100)}%"></i></div>
+           <p class="muted">${wa_used} de ${wa_limit} mensajes de WhatsApp este mes.
+           Se reinician el 1 del próximo mes.</p>`
+        : `<p class="muted">${wa_used} mensajes de WhatsApp este mes, sin límite por ahora.</p>`}
+    ${!is_pro && pending_payment
+      ? `<div class="aviso">Ya recibimos tu comprobante y lo estamos revisando.
+         Te avisamos por WhatsApp apenas quede activo.</div>`
+      : !is_pro
+        ? `<div class="acciones"><button class="primary" id="irPro">Activar Pro por S/ 5</button></div>`
+        : ""}
+  `;
+  if ($("irPro")) $("irPro").onclick = () => tab("pro");
+}
+
+async function cargarPro(){
+  if (plan && plan.is_pro){
+    $("pro").innerHTML = `<p>Ya tienes <b>Pro</b> activo${plan.renews_at ? ` hasta el ${fecha(plan.renews_at)}` : ""}. ¡Gracias! 🙌</p>`;
+    return;
+  }
+  let datos;
+  try{
+    // Pedirlo es idempotente: si ya hay un pago pendiente reusa la misma
+    // referencia, así que abrir esta pestaña dos veces no duplica nada.
+    datos = await api("/billing/upgrade", { method:"POST" });
+  }catch(e){
+    $("pro").innerHTML = e.message.includes("409")
+      ? `<p>Ya tienes <b>Pro</b> activo. ¡Gracias! 🙌</p>`
+      : `<p class="muted">No pudimos preparar tu pago: ${e.message}</p>`;
+    return;
+  }
+  const wa = datos.whatsapp_number;
+  const texto = encodeURIComponent(`Hola, ya pagué mi Pro. Mi referencia es ${datos.reference}`);
+  $("pro").innerHTML = `
+    <ol>
+      <li>Yapea <b>S/ ${Number(datos.amount).toFixed(0)}</b> ${datos.yape_qr_url ? "con este QR" : `al <b>${datos.yape_number}</b>`}.</li>
+      <li>Mándanos la <b>captura del Yape</b> por WhatsApp.</li>
+      <li>La revisamos y te activamos Pro por 30 días.</li>
+    </ol>
+    ${datos.yape_qr_url ? `<img class="qr" src="${datos.yape_qr_url}" alt="QR de Yape">` : ""}
+    <p class="muted center">Tu referencia</p>
+    <span class="ref">${datos.reference}</span>
+    <p class="muted center">Escríbela en el mensaje del Yape si puedes.</p>
+    <div class="acciones">
+      ${wa ? `<a href="https://wa.me/${wa}?text=${texto}" target="_blank" rel="noopener">
+        <button class="primary">Mandar la captura por WhatsApp</button></a>` : ""}
+      <button id="yaPague">Ya la mandé</button>
+    </div>
+    <div class="aviso">
+      La captura tiene que entrar por WhatsApp, que es donde el asistente la
+      reconoce. Se revisa a mano, así que no es automático: normalmente es rápido
+      y te avisamos por ahí mismo.
+    </div>
+  `;
+  if ($("yaPague")) $("yaPague").onclick = async () => { await cargarPlan(); tab("plan"); };
+}
+
+async function boot(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session){ show("login"); return; }
+  show("app");
+  await cargarPlan();
+  const h = location.hash.slice(1);
+  tab(h === "pro" ? "pro" : "plan");
+}
+
+sb.auth.onAuthStateChange((_e, s) => { if (s) boot(); });
+boot();
+</script>
+</body>
+</html>
