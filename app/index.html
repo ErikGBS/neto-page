@@ -298,6 +298,55 @@
     background:var(--surface-2);color:var(--text);font:inherit;font-size:.86rem}
   .admin .tscroll{overflow-x:auto}
   .admin td.num, .admin th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .admin table.rank td.fecha{white-space:nowrap}
+  /* En el teléfono once columnas no entran: cada fila del ranking es una tarjeta
+     con el puesto, el nombre y el total arriba y el resto en una grilla. */
+  @media (max-width:640px){
+    .admin table.rank thead{display:none}
+    .admin table.rank, .admin table.rank tbody{display:block}
+    .admin table.rank tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 10px;
+      padding:12px 2px;border-bottom:1px solid var(--border)}
+    .admin table.rank tr:last-child{border-bottom:none}
+    .admin table.rank td{padding:0;border:none;text-align:left}
+    .admin table.rank td[data-l]::before{content:attr(data-l);display:block;color:var(--mute);
+      font-size:.66rem;text-transform:uppercase;letter-spacing:.05em}
+    .admin table.rank td.pos{grid-column:1;grid-row:1;color:var(--gold-bright);font-weight:700}
+    .admin table.rank td.pos::before{content:"#"}
+    .admin table.rank td.nom{grid-column:1 / -1;grid-row:1;padding-left:34px;font-weight:600;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .admin table.rank td.tot{grid-column:1 / -1}
+    .admin table.rank td.tot::before{display:inline;margin-right:6px}
+    .admin table.rank td[colspan]{grid-column:1 / -1}
+  }
+  /* Pagos en el teléfono: tarjetas, para que Aprobar/Rechazar no queden fuera
+     de la pantalla. Las etiquetas salen del orden de las columnas del thead. */
+  @media (max-width:640px){
+    #tab-pagos table thead{display:none}
+    #tab-pagos table, #tab-pagos tbody{display:block}
+    #tab-pagos tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;
+      padding:12px 2px;border-bottom:1px solid var(--border)}
+    #tab-pagos tr:last-child{border-bottom:none}
+    #tab-pagos td{padding:0;border:none}
+    #tab-pagos td::before{display:block;color:var(--mute);font-size:.66rem;
+      text-transform:uppercase;letter-spacing:.05em}
+    #tab-pagos td:nth-child(1){grid-column:1 / -1;font-weight:600}
+    #tab-pagos td:nth-child(2)::before{content:"Ref"}
+    #tab-pagos td:nth-child(3)::before{content:"Monto"}
+    #pagos td:nth-child(4)::before{content:"Comprobante"}
+    #pagos td:nth-child(5)::before{content:"Pedido"}
+    #pagos td:nth-child(6){grid-column:1 / -1}
+    #pagosHist td:nth-child(4)::before{content:"Estado"}
+    #pagosHist td:nth-child(5)::before{content:"Fecha"}
+    #tab-pagos td[colspan]{grid-column:1 / -1}
+    #tab-pagos td[colspan]::before{content:none}
+  }
+  /* Las demás tablas (dormidos, países) no caben a 390px: se desplazan
+     dentro de su tarjeta en vez de ensanchar la página entera. */
+  @media (max-width:900px){
+    .admin .section{overflow-x:auto;padding:16px 14px}
+    .admin th, .admin td{padding:8px 6px}
+    .admin td{overflow-wrap:break-word}
+  }
   .admin .acc button{padding:7px 13px;font-size:.86rem}
   .admin button.danger{border-color:rgba(248,113,113,.4);color:var(--red)}
   .admin button.danger:hover{border-color:var(--red)}
@@ -539,8 +588,9 @@
           <option value="all">Total</option>
         </select>
       </div>
-      <div class="tscroll"><table><thead><tr><th class="num">#</th><th>Nombre</th><th class="num">Total</th>
-        <th class="num">App</th><th class="num">WhatsApp</th><th class="num">Apple Pay</th><th class="num">Correo</th><th class="num">Otros</th><th>Último</th></tr></thead>
+      <div class="tscroll"><table class="rank"><thead><tr><th class="num">#</th><th>Nombre</th><th class="num">Total</th>
+        <th class="num">App</th><th class="num">WhatsApp</th><th class="num">Apple Pay</th><th class="num">Correo</th><th class="num">Otros</th>
+        <th>Último</th><th>Registro</th><th>WhatsApp vinculado</th></tr></thead>
       <tbody id="ranking"></tbody></table></div>
       <div class="rankbar" style="margin:12px 0 0">
         <span class="muted" id="rankInfo"></span>
@@ -1572,23 +1622,33 @@ async function cargarAdmin(forzado){
 // Ranking de uso: va aparte de /admin/metrics porque se pagina y se filtra
 // por período sin volver a pedir todas las métricas.
 const RANK_TAM = 20;
+// Con año para registro y vinculación: el ranking total cruza años.
+const rankFecha = (iso, anio) => iso
+  ? new Date(iso).toLocaleDateString("es-PE", anio ? {day:"2-digit",month:"short",year:"2-digit"} : {day:"2-digit",month:"short"})
+  : "-";
 let rankPag = 1;
 async function cargarRanking(){
   const periodo = $("rankPeriodo").value;
   $("rankPrev").disabled = $("rankNext").disabled = true;
   try{
     const r = await api(`/admin/ranking?period=${periodo}&page=${rankPag}&page_size=${RANK_TAM}`);
-    $("ranking").innerHTML = (r.items || []).map(u => {
-      const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "-";
-      return `<tr><td class="num">${u.rank}</td><td>${esc(u.name || "Sin nombre")}</td><td class="num"><b>${fmt(u.total)}</b></td>`
-        + `<td class="num">${fmt(u.app)}</td><td class="num">${fmt(u.whatsapp)}</td><td class="num">${fmt(u.apple_pay)}</td><td class="num">${fmt(u.correo)}</td><td class="num">${fmt(u.otros)}</td><td class="muted">${last}</td></tr>`;
-    }).join("") || `<tr><td colspan="9" class="muted">Sin movimientos en este período</td></tr>`;
+    // data-l es la etiqueta que se ve cuando, en el teléfono, la fila se vuelve tarjeta.
+    $("ranking").innerHTML = (r.items || []).map(u => `<tr>`
+      + `<td class="num pos">${u.rank}</td><td class="nom">${esc(u.name || "Sin nombre")}</td>`
+      + `<td class="num tot" data-l="Total"><b>${fmt(u.total)}</b></td>`
+      + `<td class="num" data-l="App">${fmt(u.app)}</td><td class="num" data-l="WhatsApp">${fmt(u.whatsapp)}</td>`
+      + `<td class="num" data-l="Apple Pay">${fmt(u.apple_pay)}</td><td class="num" data-l="Correo">${fmt(u.correo)}</td>`
+      + `<td class="num" data-l="Otros">${fmt(u.otros)}</td>`
+      + `<td class="muted fecha" data-l="Último">${rankFecha(u.last_tx)}</td>`
+      + `<td class="muted fecha" data-l="Registro">${rankFecha(u.registered_at, true)}</td>`
+      + `<td class="muted fecha" data-l="WA vinculado">${u.wa_linked_at ? rankFecha(u.wa_linked_at, true) : "No vinculado"}</td>`
+      + `</tr>`).join("") || `<tr><td colspan="11" class="muted">Sin movimientos en este período</td></tr>`;
     const paginas = Math.max(1, Math.ceil((r.total_users || 0) / RANK_TAM));
     $("rankInfo").textContent = `Página ${rankPag} de ${paginas} · ${fmt(r.total_users)} usuarios`;
     $("rankPrev").disabled = rankPag <= 1;
     $("rankNext").disabled = rankPag >= paginas;
   }catch(e){
-    $("ranking").innerHTML = `<tr><td colspan="9" class="muted">No se pudo cargar el ranking: ${esc(e.message)}</td></tr>`;
+    $("ranking").innerHTML = `<tr><td colspan="11" class="muted">No se pudo cargar el ranking: ${esc(e.message)}</td></tr>`;
   }
 }
 $("rankPeriodo").addEventListener("change", () => { rankPag = 1; cargarRanking(); });
