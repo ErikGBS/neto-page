@@ -293,6 +293,11 @@
   .admin .recibo{height:54px;border-radius:8px;border:1px solid var(--border);object-fit:cover;
     cursor:zoom-in;background:var(--surface-2)}
   .admin .acc{display:flex;gap:8px;flex-wrap:wrap}
+  .admin .rankbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .admin .rankbar select{padding:7px 10px;border-radius:9px;border:1px solid var(--border);
+    background:var(--surface-2);color:var(--text);font:inherit;font-size:.86rem}
+  .admin .tscroll{overflow-x:auto}
+  .admin td.num, .admin th.num{text-align:right;font-variant-numeric:tabular-nums}
   .admin .acc button{padding:7px 13px;font-size:.86rem}
   .admin button.danger{border-color:rgba(248,113,113,.4);color:var(--red)}
   .admin button.danger:hover{border-color:var(--red)}
@@ -525,6 +530,24 @@
   </section>
 
 <section class="tab admin" id="tab-ad-uso" style="display:none">
+    <div class="section">
+      <div class="rankbar">
+        <h3 style="margin:0">Ranking de uso <span class="muted" style="font-weight:400">· movimientos registrados</span></h3>
+        <select id="rankPeriodo" aria-label="Período del ranking">
+          <option value="month">Este mes</option>
+          <option value="d30">Últimos 30 días</option>
+          <option value="all">Total</option>
+        </select>
+      </div>
+      <div class="tscroll"><table><thead><tr><th class="num">#</th><th>Nombre</th><th class="num">Total</th>
+        <th class="num">App</th><th class="num">WhatsApp</th><th class="num">Apple Pay</th><th class="num">Correo</th><th class="num">Otros</th><th>Último</th></tr></thead>
+      <tbody id="ranking"></tbody></table></div>
+      <div class="rankbar" style="margin:12px 0 0">
+        <span class="muted" id="rankInfo"></span>
+        <div class="acc"><button id="rankPrev">Anterior</button><button id="rankNext">Siguiente</button></div>
+      </div>
+    </div>
+
     <div class="row2">
       <div class="section"><h3>Top categorías</h3><div class="chartbox"><canvas id="cCat"></canvas></div></div>
       <div class="section"><h3>Movimientos por canal de entrada</h3><div class="chartbox"><canvas id="cChannel"></canvas></div></div>
@@ -1540,10 +1563,37 @@ async function cargarAdmin(forzado){
     try { pintarAdmin(metricas); avisoAdmin(""); }
     finally { vistas.forEach((t, i) => { $("tab-" + t).style.display = antes[i]; }); }
     adminPintado = true;
+    cargarRanking();
   }catch(e){
     avisoAdmin("No se pudieron cargar las métricas: " + e.message, true);
   }
 }
+
+// Ranking de uso: va aparte de /admin/metrics porque se pagina y se filtra
+// por período sin volver a pedir todas las métricas.
+const RANK_TAM = 20;
+let rankPag = 1;
+async function cargarRanking(){
+  const periodo = $("rankPeriodo").value;
+  $("rankPrev").disabled = $("rankNext").disabled = true;
+  try{
+    const r = await api(`/admin/ranking?period=${periodo}&page=${rankPag}&page_size=${RANK_TAM}`);
+    $("ranking").innerHTML = (r.items || []).map(u => {
+      const last = u.last_tx ? new Date(u.last_tx).toLocaleDateString("es-PE",{day:"2-digit",month:"short"}) : "-";
+      return `<tr><td class="num">${u.rank}</td><td>${esc(u.name || "Sin nombre")}</td><td class="num"><b>${fmt(u.total)}</b></td>`
+        + `<td class="num">${fmt(u.app)}</td><td class="num">${fmt(u.whatsapp)}</td><td class="num">${fmt(u.apple_pay)}</td><td class="num">${fmt(u.correo)}</td><td class="num">${fmt(u.otros)}</td><td class="muted">${last}</td></tr>`;
+    }).join("") || `<tr><td colspan="9" class="muted">Sin movimientos en este período</td></tr>`;
+    const paginas = Math.max(1, Math.ceil((r.total_users || 0) / RANK_TAM));
+    $("rankInfo").textContent = `Página ${rankPag} de ${paginas} · ${fmt(r.total_users)} usuarios`;
+    $("rankPrev").disabled = rankPag <= 1;
+    $("rankNext").disabled = rankPag >= paginas;
+  }catch(e){
+    $("ranking").innerHTML = `<tr><td colspan="9" class="muted">No se pudo cargar el ranking: ${esc(e.message)}</td></tr>`;
+  }
+}
+$("rankPeriodo").addEventListener("change", () => { rankPag = 1; cargarRanking(); });
+$("rankPrev").addEventListener("click", () => { rankPag--; cargarRanking(); });
+$("rankNext").addEventListener("click", () => { rankPag++; cargarRanking(); });
 
 // Ser admin se pregunta al backend, que es quien manda. Una llamada barata.
 async function mirarSiEsAdmin(){
