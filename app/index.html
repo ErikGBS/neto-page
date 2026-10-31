@@ -299,6 +299,13 @@
   .admin .tscroll{overflow-x:auto}
   .admin td.num, .admin th.num{text-align:right;font-variant-numeric:tabular-nums}
   .admin table.rank td.fecha{white-space:nowrap}
+  .admin table.rank th[data-sort]{cursor:pointer;user-select:none}
+  .admin table.rank th[data-sort]:hover{color:var(--text)}
+  .admin table.rank th.on{color:var(--gold-bright)}
+  .admin table.rank th.on::after{content:" ↓"}
+  .admin table.rank th.on.asc::after{content:" ↑"}
+  .admin .rankbar .acc{align-items:center}
+  .admin .rankbar #rankDir{padding:7px 12px;font-size:.86rem}
   /* En el teléfono once columnas no entran: cada fila del ranking es una tarjeta
      con el puesto, el nombre y el total arriba y el resto en una grilla. */
   @media (max-width:640px){
@@ -582,15 +589,32 @@
     <div class="section">
       <div class="rankbar">
         <h3 style="margin:0">Ranking de uso <span class="muted" style="font-weight:400">· movimientos registrados</span></h3>
-        <select id="rankPeriodo" aria-label="Período del ranking">
-          <option value="month">Este mes</option>
-          <option value="d30">Últimos 30 días</option>
-          <option value="all">Total</option>
-        </select>
+        <div class="acc">
+          <select id="rankPeriodo" aria-label="Período del ranking">
+            <option value="month">Este mes</option>
+            <option value="d30">Últimos 30 días</option>
+            <option value="all">Total</option>
+          </select>
+          <select id="rankOrden" aria-label="Ordenar por">
+            <option value="total">Total</option>
+            <option value="app">App</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="apple_pay">Apple Pay</option>
+            <option value="correo">Correo</option>
+            <option value="otros">Otros</option>
+            <option value="last_tx">Último movimiento</option>
+            <option value="registered_at">Registro</option>
+            <option value="wa_linked_at">WhatsApp vinculado</option>
+          </select>
+          <button id="rankDir" aria-label="Cambiar sentido del orden">Mayor a menor</button>
+        </div>
       </div>
-      <div class="tscroll"><table class="rank"><thead><tr><th class="num">#</th><th>Nombre</th><th class="num">Total</th>
-        <th class="num">App</th><th class="num">WhatsApp</th><th class="num">Apple Pay</th><th class="num">Correo</th><th class="num">Otros</th>
-        <th>Último</th><th>Registro</th><th>WhatsApp vinculado</th></tr></thead>
+      <div class="tscroll"><table class="rank"><thead><tr><th class="num">#</th><th>Nombre</th>
+        <th class="num" data-sort="total">Total</th><th class="num" data-sort="app">App</th>
+        <th class="num" data-sort="whatsapp">WhatsApp</th><th class="num" data-sort="apple_pay">Apple Pay</th>
+        <th class="num" data-sort="correo">Correo</th><th class="num" data-sort="otros">Otros</th>
+        <th data-sort="last_tx">Último</th><th data-sort="registered_at">Registro</th>
+        <th data-sort="wa_linked_at">WhatsApp vinculado</th></tr></thead>
       <tbody id="ranking"></tbody></table></div>
       <div class="rankbar" style="margin:12px 0 0">
         <span class="muted" id="rankInfo"></span>
@@ -1631,7 +1655,8 @@ async function cargarRanking(){
   const periodo = $("rankPeriodo").value;
   $("rankPrev").disabled = $("rankNext").disabled = true;
   try{
-    const r = await api(`/admin/ranking?period=${periodo}&page=${rankPag}&page_size=${RANK_TAM}`);
+    const orden = $("rankOrden").value;
+    const r = await api(`/admin/ranking?period=${periodo}&page=${rankPag}&page_size=${RANK_TAM}&sort=${orden}&dir=${rankDir}`);
     // data-l es la etiqueta que se ve cuando, en el teléfono, la fila se vuelve tarjeta.
     $("ranking").innerHTML = (r.items || []).map(u => `<tr>`
       + `<td class="num pos">${u.rank}</td><td class="nom">${esc(u.name || "Sin nombre")}</td>`
@@ -1651,6 +1676,27 @@ async function cargarRanking(){
     $("ranking").innerHTML = `<tr><td colspan="11" class="muted">No se pudo cargar el ranking: ${esc(e.message)}</td></tr>`;
   }
 }
+// El orden va al backend: con la página de 20, ordenar acá solo reordenaría esos 20.
+// En el escritorio se ordena tocando el encabezado (otra vez invierte el
+// sentido); en el teléfono el thead no se ve y lo hacen el selector y el botón.
+let rankDir = "desc";
+function ordenRanking(campo, dir){
+  $("rankOrden").value = campo;
+  rankDir = dir;
+  $("rankDir").textContent = dir === "desc" ? "Mayor a menor" : "Menor a mayor";
+  for (const th of document.querySelectorAll("table.rank th[data-sort]")){
+    th.classList.toggle("on", th.dataset.sort === campo);
+    th.classList.toggle("asc", th.dataset.sort === campo && dir === "asc");
+  }
+  rankPag = 1;
+  cargarRanking();
+}
+for (const th of document.querySelectorAll("table.rank th[data-sort]"))
+  th.onclick = () => ordenRanking(th.dataset.sort,
+    th.dataset.sort === $("rankOrden").value && rankDir === "desc" ? "asc" : "desc");
+$("rankOrden").addEventListener("change", () => ordenRanking($("rankOrden").value, "desc"));
+$("rankDir").addEventListener("click", () => ordenRanking($("rankOrden").value, rankDir === "desc" ? "asc" : "desc"));
+document.querySelector('table.rank th[data-sort="total"]').classList.add("on");
 $("rankPeriodo").addEventListener("change", () => { rankPag = 1; cargarRanking(); });
 $("rankPrev").addEventListener("click", () => { rankPag--; cargarRanking(); });
 $("rankNext").addEventListener("click", () => { rankPag++; cargarRanking(); });
