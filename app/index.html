@@ -601,6 +601,7 @@
             <option value="whatsapp">WhatsApp</option>
             <option value="apple_pay">Apple Pay</option>
             <option value="correo">Correo</option>
+            <option value="fijos">Gastos fijos</option>
             <option value="otros">Otros</option>
             <option value="last_tx">Último movimiento</option>
             <option value="registered_at">Registro</option>
@@ -612,7 +613,8 @@
       <div class="tscroll"><table class="rank"><thead><tr><th class="num">#</th><th>Nombre</th>
         <th class="num" data-sort="total">Total</th><th class="num" data-sort="app">App</th>
         <th class="num" data-sort="whatsapp">WhatsApp</th><th class="num" data-sort="apple_pay">Apple Pay</th>
-        <th class="num" data-sort="correo">Correo</th><th class="num" data-sort="otros">Otros</th>
+        <th class="num" data-sort="correo">Correo</th><th class="num" data-sort="fijos">Fijos</th>
+        <th class="num" data-sort="otros">Otros</th>
         <th data-sort="last_tx">Último</th><th data-sort="registered_at">Registro</th>
         <th data-sort="wa_linked_at">WhatsApp vinculado</th></tr></thead>
       <tbody id="ranking"></tbody></table></div>
@@ -1663,11 +1665,11 @@ async function cargarRanking(){
       + `<td class="num tot" data-l="Total"><b>${fmt(u.total)}</b></td>`
       + `<td class="num" data-l="App">${fmt(u.app)}</td><td class="num" data-l="WhatsApp">${fmt(u.whatsapp)}</td>`
       + `<td class="num" data-l="Apple Pay">${fmt(u.apple_pay)}</td><td class="num" data-l="Correo">${fmt(u.correo)}</td>`
-      + `<td class="num" data-l="Otros">${fmt(u.otros)}</td>`
+      + `<td class="num" data-l="Fijos">${fmt(u.fijos)}</td><td class="num" data-l="Otros">${fmt(u.otros)}</td>`
       + `<td class="muted fecha" data-l="Último">${rankFecha(u.last_tx)}</td>`
       + `<td class="muted fecha" data-l="Registro">${rankFecha(u.registered_at, true)}</td>`
       + `<td class="muted fecha" data-l="WA vinculado">${u.wa_linked_at ? rankFecha(u.wa_linked_at, true) : "No vinculado"}</td>`
-      + `</tr>`).join("") || `<tr><td colspan="11" class="muted">Sin movimientos en este período</td></tr>`;
+      + `</tr>`).join("") || `<tr><td colspan="12" class="muted">Sin movimientos en este período</td></tr>`;
     const paginas = Math.max(1, Math.ceil((r.total_users || 0) / RANK_TAM));
     $("rankInfo").textContent = `Página ${rankPag} de ${paginas} · ${fmt(r.total_users)} usuarios`;
     $("rankPrev").disabled = rankPag <= 1;
