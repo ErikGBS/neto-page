@@ -1422,7 +1422,11 @@ function angostoSVG(W){
   const bajada = `<path class="lazo" d="${enlace(cx - r * .7, cy + r * .7, carril, cy + r + 44, false)}"/>`;
 
   let hojas = "", alto = 0;
-  const base = y0 + VISIBLES * (altoDia + hueco) + 4;
+  // Los gastos empiezan bajo los días que SE VEN, no bajo los cinco lugares:
+  // con un mes de un solo día quedaban cuatro huecos vacíos en medio.
+  // Con más días que los visibles, la flecha de bajar va debajo de la última
+  // tarjeta: los gastos empiezan después de ella para no pisarla.
+  const base = y0 + trozo.length * (altoDia + hueco) + (mes.dias.length > VISIBLES ? 34 : 4);
   if (mes.sel){
     const k = trozo.indexOf(mes.sel);
     const sy = k >= 0 ? y0 + k * (altoDia + hueco) + altoDia : base;
