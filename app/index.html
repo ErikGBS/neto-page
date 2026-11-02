@@ -418,6 +418,26 @@
   .admin .fn .lbl{position:relative;padding:0 15px;font-size:.87rem;z-index:1;font-weight:500}
   .admin .fn .val{position:relative;margin-left:auto;padding:0 15px;font-weight:700;z-index:1;
     font-variant-numeric:tabular-nums}
+  .admin .wa2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  .admin .wa2>*{min-width:0}
+  @media(max-width:860px){.admin .wa2{grid-template-columns:1fr}}
+  .admin .wa2 tbody tr{cursor:pointer}
+  .admin .wa2 tbody tr.sel{background:rgba(208,165,92,.12)}
+  .admin .wahilo{background:var(--bg-2);border:1px solid var(--border);
+    border-radius:14px;padding:14px}
+  .admin #waHilo{max-height:360px;overflow-y:auto;display:flex;
+    flex-direction:column;gap:9px;font-size:.87rem}
+  .admin .burb{padding:8px 12px;border-radius:12px;max-width:85%;
+    word-break:break-word;white-space:pre-wrap}
+  .admin .burb.in{background:var(--surface);border:1px solid var(--border);
+    align-self:flex-start;border-bottom-left-radius:4px}
+  .admin .burb.out{background:rgba(208,165,92,.16);align-self:flex-end;
+    border-bottom-right-radius:4px}
+  .admin .burb .t{display:block;color:var(--mute);font-size:.68rem;margin-top:4px}
+  .admin #waTexto{width:100%;background:var(--surface);color:var(--text);
+    border:1px solid var(--border);border-radius:10px;padding:9px 11px;
+    font:inherit;font-size:.88rem;resize:vertical}
+  .admin #waTexto:disabled{opacity:.5}
   .admin #adminAviso{margin:0 0 14px;color:var(--mute);font-size:.86rem}
   .admin #adminAviso.err{color:var(--red)}
 
@@ -479,6 +499,10 @@
       <button data-tab="pagos">
         <svg viewBox="0 0 24 24"><path d="M3 7h18v12H3z"/><path d="M7 11h4"/></svg>
         Pagos <span id="navPagos" class="pill" style="display:none"></span>
+      </button>
+      <button data-tab="wa">
+        <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 01-13 8l-5 1 1-4.8A9 9 0 1121 12z"/></svg>
+        Bandeja
       </button>
       <button data-tab="ad-resumen">
         <svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
@@ -748,6 +772,34 @@
     </div>
   </section>
 
+<section class="tab admin" id="tab-wa" style="display:none">
+    <div class="section">
+      <h3>Bandeja de WhatsApp <span class="muted" style="font-weight:400">· lo que le escriben al bot</span></h3>
+      <p class="muted" style="margin-bottom:12px">
+        Meta solo entrega texto libre dentro de las 24 h desde el último mensaje
+        del usuario. Con la ventana cerrada no se puede contestar: hay que
+        esperar a que escriba.
+        <button id="waRefrescar" style="margin-left:10px">Actualizar</button>
+      </p>
+      <div class="wa2">
+        <table>
+          <thead><tr><th>Quién</th><th>Último mensaje</th><th>Cuándo</th></tr></thead>
+          <tbody id="waLista"></tbody>
+        </table>
+        <div class="wahilo">
+          <div id="waHilo" class="muted">Elige una conversación.</div>
+          <div id="waCaja" style="display:none">
+            <textarea id="waTexto" rows="3" placeholder="Escribe tu respuesta..."></textarea>
+            <div class="acc" style="margin-top:8px;align-items:center">
+              <button id="waEnviar">Enviar</button>
+              <span id="waAviso" class="muted"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
     <footer class="muted">
       <a href="/">Inicio</a> · <a href="/terminos.html">Términos</a> ·
       <a href="/privacidad.html">Privacidad</a>
@@ -836,10 +888,11 @@ const VUELTA = location.href.split("#")[0];
 const $ = (id) => document.getElementById(id);
 const show = (v) => { for (const x of ["login","app"]) $(x).style.display = (x===v ? "" : "none"); };
 
-const TABS = ["resumen","plan","pro","pagos","ad-resumen","ad-crecimiento","ad-uso","ad-usuarios"];
+const TABS = ["resumen","plan","pro","pagos","wa","ad-resumen","ad-crecimiento","ad-uso","ad-usuarios"];
 const TITULO = {
   resumen:"Resumen", plan:"Mi plan", pro:"Activar Pro",
-  pagos:"Pagos por revisar", "ad-resumen":"Métricas", "ad-crecimiento":"Crecimiento",
+  pagos:"Pagos por revisar", wa:"Bandeja de WhatsApp",
+  "ad-resumen":"Métricas", "ad-crecimiento":"Crecimiento",
   "ad-uso":"Uso", "ad-usuarios":"Usuarios",
 };
 function tab(name){
@@ -856,6 +909,7 @@ function tab(name){
   if (name === "pro") cargarPro();
   if (name === "resumen") pintar();   // el SVG necesita medir su contenedor ya visible
   if (name === "pagos") cargarPagos();
+  if (name === "wa") cargarBandeja();
   if (name.startsWith("ad-")) cargarAdmin();
   avisoAdmin("");
 }
@@ -1782,6 +1836,93 @@ async function resolver(id, aprobar, boton){
   }
 }
 
+
+// ── Bandeja de WhatsApp ──────────────────────────────────────────────────────
+// Lo que entra al bot lo atiende el NLU y nadie lo veía. Acá se lee y se
+// contesta desde el mismo número, siempre dentro de la ventana de 24 h.
+let waConvs = [], waActiva = null;
+
+async function cargarBandeja(){
+  const cuerpo = $("waLista");
+  try{
+    const { items } = await api("/admin/whatsapp/conversations");
+    waConvs = items;
+    cuerpo.innerHTML = items.length ? items.map((c, i) => `<tr data-i="${i}">
+      <td><b>${esc(quien(c))}</b>${c.pending_payment
+        ? `<br><span class="badge idle">pago ${esc(c.pending_payment)}</span>` : ""}</td>
+      <td class="muted">${esc(resumen(c))}</td>
+      <td class="muted">${cuando(c.last_at)}${c.window_open ? "" : "<br>ventana cerrada"}</td>
+    </tr>`).join("") : `<tr><td colspan="3" class="muted">Todavía nadie le ha escrito al bot.</td></tr>`;
+    for (const f of cuerpo.querySelectorAll("[data-i]"))
+      f.onclick = () => abrirHilo(Number(f.dataset.i));
+    if (waActiva){
+      const i = items.findIndex(c => c.phone === waActiva);
+      if (i >= 0) abrirHilo(i);
+    }
+  }catch(e){
+    cuerpo.innerHTML = `<tr><td colspan="3" class="muted">No se pudo cargar: ${esc(e.message)}</td></tr>`;
+  }
+}
+
+// De una foto o una nota de voz no hay texto que mostrar: se dice qué llegó.
+const ETIQUETA = { image:"(foto)", audio:"(nota de voz)", button:"(botón)", interactive:"(botón)" };
+const resumen = (c) => c.last_text || ETIQUETA[c.last_kind] || "(" + c.last_kind + ")";
+
+async function abrirHilo(i){
+  const conv = waConvs[i];
+  if (!conv) return;
+  waActiva = conv.phone;
+  for (const f of $("waLista").querySelectorAll("tr"))
+    f.classList.toggle("sel", f.dataset.i === String(i));
+
+  const hilo = $("waHilo");
+  hilo.textContent = "Cargando...";
+  $("waCaja").style.display = "";
+  $("waTexto").disabled = !conv.window_open;
+  $("waEnviar").disabled = !conv.window_open;
+  $("waAviso").textContent = conv.window_open
+    ? "Sale desde el número del bot."
+    : "Ventana cerrada: Meta no entregaría el mensaje.";
+
+  try{
+    const { items } = await api("/admin/whatsapp/conversations/" + encodeURIComponent(conv.phone));
+    hilo.innerHTML = items.length ? items.map(m => `<div class="burb ${m.direction}">${
+      esc(m.body || ETIQUETA[m.kind] || "")}<span class="t">${cuando(m.created_at)}</span></div>`).join("")
+      : `<div class="muted">Sin mensajes guardados.</div>`;
+    hilo.scrollTop = hilo.scrollHeight;
+  }catch(e){
+    hilo.textContent = "No se pudo cargar: " + e.message;
+  }
+}
+
+async function responder(){
+  const texto = $("waTexto").value.trim();
+  if (!texto || !waActiva) return;
+  const boton = $("waEnviar");
+  boton.disabled = true;
+  try{
+    await api(`/admin/whatsapp/conversations/${encodeURIComponent(waActiva)}/reply`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ text: texto }),
+    });
+    $("waTexto").value = "";
+    // Se reactiva acá y no en cargarBandeja: si la conversación no vuelve en la
+    // lista, el botón se quedaba muerto y parecía que la pantalla se colgó.
+    boton.disabled = false;
+    cargarBandeja();
+  }catch(e){
+    // La lista puede traer la ventana de hace un rato: el backend es quien
+    // decide, y si dice 409 es que se cerró entre medio.
+    alert(e.message.includes("409")
+      ? "La ventana de 24 h se cerró. Hay que esperar a que el usuario escriba."
+      : "No se pudo enviar: " + e.message);
+    boton.disabled = false;
+  }
+}
+
+$("waEnviar").onclick = responder;
+$("waRefrescar").onclick = cargarBandeja;
 
 // Las métricas son siete lecturas completas de tablas en el backend: se piden
 // una vez y se repintan desde lo que ya se trajo.
