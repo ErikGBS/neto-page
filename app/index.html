@@ -421,8 +421,23 @@
   .admin .wa2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
   .admin .wa2>*{min-width:0}
   @media(max-width:860px){.admin .wa2{grid-template-columns:1fr}}
-  .admin .wa2 tbody tr{cursor:pointer}
-  .admin .wa2 tbody tr.sel{background:rgba(208,165,92,.12)}
+  .admin .walista{display:flex;flex-direction:column;gap:9px;
+    max-height:430px;overflow-y:auto;padding-right:2px}
+  .admin .wacard{background:var(--surface);border:1px solid var(--border);
+    border-radius:14px;padding:12px 14px;cursor:pointer;
+    transition:border-color .15s,background .15s}
+  .admin .wacard:hover{border-color:rgba(208,165,92,.45)}
+  .admin .wacard.sel{border-color:var(--gold);background:rgba(208,165,92,.1)}
+  .admin .wacard .quien{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+  .admin .wacard .quien b{font-size:.9rem;min-width:0;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .admin .wacard .quien .badge{margin-left:auto;flex:none}
+  .admin .wacard .msg{color:var(--mute);font-size:.84rem;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .admin .wacard .pie{color:var(--mute);font-size:.73rem;margin-top:6px;
+    display:flex;flex-wrap:wrap;gap:4px 8px}
+  .admin .wacard .cerrada{color:var(--gold-bright)}
+  .admin .wavacio{color:var(--mute);font-size:.86rem;padding:10px 2px}
   .admin .wahilo{background:var(--bg-2);border:1px solid var(--border);
     border-radius:14px;padding:14px}
   .admin #waHilo{max-height:360px;overflow-y:auto;display:flex;
@@ -782,10 +797,7 @@
         <button id="waRefrescar" style="margin-left:10px">Actualizar</button>
       </p>
       <div class="wa2">
-        <table>
-          <thead><tr><th>Quién</th><th>Último mensaje</th><th>Cuándo</th></tr></thead>
-          <tbody id="waLista"></tbody>
-        </table>
+        <div id="waLista" class="walista"></div>
         <div class="wahilo">
           <div id="waHilo" class="muted">Elige una conversación.</div>
           <div id="waCaja" style="display:none">
@@ -1847,12 +1859,13 @@ async function cargarBandeja(){
   try{
     const { items } = await api("/admin/whatsapp/conversations");
     waConvs = items;
-    cuerpo.innerHTML = items.length ? items.map((c, i) => `<tr data-i="${i}">
-      <td><b>${esc(quien(c))}</b>${c.pending_payment
-        ? `<br><span class="badge idle">pago ${esc(c.pending_payment)}</span>` : ""}</td>
-      <td class="muted">${esc(resumen(c))}</td>
-      <td class="muted">${cuando(c.last_at)}${c.window_open ? "" : "<br>ventana cerrada"}</td>
-    </tr>`).join("") : `<tr><td colspan="3" class="muted">Todavía nadie le ha escrito al bot.</td></tr>`;
+    cuerpo.innerHTML = items.length ? items.map((c, i) => `<div class="wacard" data-i="${i}">
+      <div class="quien"><b>${esc(quien(c))}</b>${c.pending_payment
+        ? `<span class="badge idle">pago ${esc(c.pending_payment)}</span>` : ""}</div>
+      <div class="msg">${c.last_direction === "out" ? "↩ " : ""}${esc(resumen(c))}</div>
+      <div class="pie"><span>${cuando(c.last_at)}</span>${c.window_open
+        ? "" : `<span class="cerrada">ventana cerrada</span>`}</div>
+    </div>`).join("") : `<div class="wavacio">Todavía nadie le ha escrito al bot.</div>`;
     for (const f of cuerpo.querySelectorAll("[data-i]"))
       f.onclick = () => abrirHilo(Number(f.dataset.i));
     if (waActiva){
@@ -1860,7 +1873,7 @@ async function cargarBandeja(){
       if (i >= 0) abrirHilo(i);
     }
   }catch(e){
-    cuerpo.innerHTML = `<tr><td colspan="3" class="muted">No se pudo cargar: ${esc(e.message)}</td></tr>`;
+    cuerpo.innerHTML = `<div class="wavacio">No se pudo cargar: ${esc(e.message)}</div>`;
   }
 }
 
@@ -1872,7 +1885,7 @@ async function abrirHilo(i){
   const conv = waConvs[i];
   if (!conv) return;
   waActiva = conv.phone;
-  for (const f of $("waLista").querySelectorAll("tr"))
+  for (const f of $("waLista").querySelectorAll(".wacard"))
     f.classList.toggle("sel", f.dataset.i === String(i));
 
   const hilo = $("waHilo");
