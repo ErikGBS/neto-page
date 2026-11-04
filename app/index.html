@@ -830,7 +830,7 @@
     </div>
 
     <div class="section">
-      <h3>Últimos resueltos</h3>
+      <h3>Pagadores <span class="muted" style="font-weight:400">· lo último que le resolvimos a cada quien</span></h3>
       <table>
         <thead><tr><th>Usuario</th><th>Ref</th><th class="num">Monto</th><th>Estado</th><th>Fecha</th><th>Pro vence</th></tr></thead>
         <tbody id="pagosHist"></tbody>
@@ -1851,7 +1851,9 @@ const cuando = (iso) => iso ? new Date(iso).toLocaleString("es-PE",
 
 // Hasta cuándo le vale el Pro. El pago dice cuánto se cobró, no la vigencia:
 // esa vive en user_plans.renews_at y el endpoint la trae por pagador. Un Pro
-// caducado se queda con plan "pro", así que la fecha es la única señal.
+// caducado se queda con plan "pro", así que la fecha es la única señal. Solo
+// para quien tiene algún pago aprobado: con el trial de 30 días, un rechazado
+// también trae renews_at y parecería que le cobramos.
 function vigencia(p){
   if (!p.renews_at) return "";
   const dias = Math.ceil((new Date(p.renews_at) - Date.now()) / 86400000);
@@ -1909,25 +1911,28 @@ async function cargarHistorialPagos(){
       api("/admin/payments?status=" + st).then(r => r.items.map(i => ({...i, status: st})))
     ));
     const filas = vistas.flat()
-      .sort((a,b) => (b.confirmed_at || b.created_at || "").localeCompare(a.confirmed_at || a.created_at || ""))
-      .slice(0, 25);
-    // El vencimiento es del pagador, no del pago: pintarlo en cada cobro suyo
-    // hacía leer "quedan 22 d" encima de un Yape de junio, que no dio esos
-    // días. Va solo en el pago vigente de cada quien, el más reciente que le
-    // aprobamos (las filas ya vienen de la más nueva a la más vieja).
-    const yaTiene = new Set();
+      .sort((a,b) => (b.confirmed_at || b.created_at || "").localeCompare(a.confirmed_at || a.created_at || ""));
+
+    // Una fila por pagador, no por cobro: quien renovó tres veces salía tres
+    // veces y se leía como correos duplicados. Queda lo último que le
+    // resolvimos (las filas ya vienen de la más nueva a la más vieja) más
+    // cuántos Yapes suyos aprobamos, que es el conteo de renovaciones.
+    const porPagador = new Map();
     for (const p of filas){
-      if (p.status !== "confirmed" || yaTiene.has(p.user_id)) continue;
-      yaTiene.add(p.user_id);
-      p.esElVigente = true;
+      if (!porPagador.has(p.user_id)) porPagador.set(p.user_id, { ...p, pagos: 0 });
+      if (p.status === "confirmed") porPagador.get(p.user_id).pagos++;
     }
-    cuerpo.innerHTML = filas.length ? filas.map(p => `<tr>
-      <td>${quien(p)}</td>
+    const gente = [...porPagador.values()].slice(0, 25);
+
+    cuerpo.innerHTML = gente.length ? gente.map(p => `<tr>
+      <td>${quien(p)}${p.pagos > 1
+        ? ` <span class="muted" title="Activó y renovó ${p.pagos - 1} ${p.pagos === 2 ? "vez" : "veces"}">· ${p.pagos} pagos</span>`
+        : ""}</td>
       <td class="muted">${p.reference || ""}</td>
       <td class="num">S/ ${Number(p.amount || 0).toFixed(0)}</td>
       <td>${p.status === "confirmed" ? `<span class="badge ok">Aprobado</span>` : `<span class="badge never">Rechazado</span>`}</td>
       <td class="muted">${cuando(p.confirmed_at || p.created_at)}</td>
-      <td>${p.esElVigente ? vigencia(p) : ""}</td>
+      <td>${p.pagos ? vigencia(p) : ""}</td>
     </tr>`).join("") : `<tr><td colspan="6" class="muted">Todavía nada.</td></tr>`;
   }catch(e){
     cuerpo.innerHTML = `<tr><td colspan="6" class="muted">No se pudo cargar: ${e.message}</td></tr>`;
