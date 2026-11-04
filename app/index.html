@@ -832,7 +832,7 @@
     <div class="section">
       <h3>Últimos resueltos</h3>
       <table>
-        <thead><tr><th>Usuario</th><th>Ref</th><th class="num">Monto</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <thead><tr><th>Usuario</th><th>Ref</th><th class="num">Monto</th><th>Estado</th><th>Fecha</th><th>Pro vence</th></tr></thead>
         <tbody id="pagosHist"></tbody>
       </table>
     </div>
@@ -1849,6 +1849,20 @@ const quien = (p) => p.email || (p.phone ? "+" + p.phone : (p.user_id || "").sli
 const cuando = (iso) => iso ? new Date(iso).toLocaleString("es-PE",
   { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" }) : "";
 
+// Hasta cuándo le vale el Pro. El pago dice cuánto se cobró, no la vigencia:
+// esa vive en user_plans.renews_at y el endpoint la trae por pagador. Un Pro
+// caducado se queda con plan "pro", así que la fecha es la única señal.
+function vigencia(p){
+  if (p.status !== "confirmed" || !p.renews_at) return "";
+  const dias = Math.ceil((new Date(p.renews_at) - Date.now()) / 86400000);
+  // `dias <= 0` y no `< 0`: Math.ceil deja en -0 lo que caducó hace unas horas.
+  const clase = dias <= 0 ? "never" : (dias <= 7 ? "idle" : "ok");
+  const texto = dias <= 0 ? "Vencido" : "Quedan " + dias + " d";
+  const fecha = new Date(p.renews_at).toLocaleDateString("es-PE",
+    { day:"2-digit", month:"2-digit", year:"2-digit" });
+  return `<span class="badge ${clase}" title="${fecha}">${texto}</span>`;
+}
+
 function filaPago(p){
   const img = p.receipt_url
     ? `<a href="${p.receipt_url}" target="_blank" rel="noopener"><img class="recibo" src="${p.receipt_url}" width="54" height="54" loading="lazy" alt="Comprobante"></a>`
@@ -1903,9 +1917,10 @@ async function cargarHistorialPagos(){
       <td class="num">S/ ${Number(p.amount || 0).toFixed(0)}</td>
       <td>${p.status === "confirmed" ? `<span class="badge ok">Aprobado</span>` : `<span class="badge never">Rechazado</span>`}</td>
       <td class="muted">${cuando(p.confirmed_at || p.created_at)}</td>
-    </tr>`).join("") : `<tr><td colspan="5" class="muted">Todavía nada.</td></tr>`;
+      <td>${vigencia(p)}</td>
+    </tr>`).join("") : `<tr><td colspan="6" class="muted">Todavía nada.</td></tr>`;
   }catch(e){
-    cuerpo.innerHTML = `<tr><td colspan="5" class="muted">No se pudo cargar: ${e.message}</td></tr>`;
+    cuerpo.innerHTML = `<tr><td colspan="6" class="muted">No se pudo cargar: ${e.message}</td></tr>`;
   }
 }
 
