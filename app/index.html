@@ -188,6 +188,16 @@
   .ref{display:block;text-align:center;font-size:1.3rem;font-weight:800;letter-spacing:.09em;
     color:var(--gold-bright);margin:6px 0 2px;font-family:var(--tit);font-variant-numeric:tabular-nums}
   .acciones{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  /* Selector de plan: dos tarjetas que se tocan, no un desplegable. */
+  .planes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 4px}
+  .plan-op{display:flex;flex-direction:column;gap:4px;align-items:flex-start;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:14px;
+    padding:16px 18px;cursor:pointer;text-align:left;width:100%;
+    transition:border-color .18s,transform .18s}
+  .plan-op:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .plan-op .monto{font-family:var(--tit);font-weight:700;font-size:1.5rem;color:var(--text)}
+  .plan-op .que{font-size:.9rem;color:var(--dim)}
+  .plan-op .nota{font-size:.78rem;color:var(--mute)}
   .aviso{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;
     padding:13px 15px;font-size:.88rem;color:var(--dim);margin-top:16px}
   .center{text-align:center}
@@ -528,6 +538,7 @@
     .card{padding:18px 16px}
     .estado .plan{font-size:1.55rem}
     .acciones{flex-direction:column;gap:10px}
+    .planes{grid-template-columns:1fr}
     .acciones > *{width:100%}
     ol{margin-left:18px}
     .ref{font-size:1.15rem;letter-spacing:.06em;word-break:break-all}
@@ -632,7 +643,7 @@
       <span class="muted" id="gen"></span>
       <div class="der">
         <button class="primary" id="ctaPro" style="display:none">
-          Activar Pro<span class="txt"> por S/ 5</span>
+          Activar Pro<span class="txt" id="ctaProPrecio"></span>
         </button>
       </div>
     </div>
@@ -671,11 +682,12 @@
         <h2>Qué incluye</h2>
         <p class="muted" style="margin-bottom:12px">
           La app Y Altoque es gratis siempre, con todo adentro. El plan Pro es para
-          el asistente de WhatsApp: mensajes sin límite y fotos de vouchers, sin
-          tener que abrir el app.
+          el asistente de WhatsApp: registrar tu plata desde el chat y mandarle
+          fotos de vouchers sin abrir el app.
         </p>
-        <p class="muted">S/ 5 al mes. Se paga por Yape y se activa a mano, así que no
-        guardamos ninguna tarjeta ni se renueva solo.</p>
+        <div id="queIncluye" class="muted"></div>
+        <p class="muted" style="margin-top:12px">Se paga por Yape y se activa a mano,
+        así que no guardamos ninguna tarjeta ni se renueva solo.</p>
       </div>
     </section>
 
@@ -818,7 +830,7 @@
 
 <section class="tab admin" id="tab-pagos" style="display:none">
     <div class="section">
-      <h3>Pagos por revisar <span class="muted" style="font-weight:400">· Yape, S/ 5 al mes</span></h3>
+      <h3>Pagos por revisar <span class="muted" style="font-weight:400">· Yape, S/ 10 o S/ 20 al mes</span></h3>
       <p class="muted" style="margin-bottom:12px">
         El usuario yapea y manda la captura al bot. Acá la miras y apruebas: aprobar
         activa su Pro por 30 días y le avisa por WhatsApp.
@@ -1138,6 +1150,7 @@ async function cargarPlan(){
   // tope en 0 significa que el cupo todavía no está encendido: no tiene
   // sentido mostrar una barra contra un límite que no existe.
   const hayTope = tope > 0 && usados !== null;
+  const base = (plan.plans || [])[0];   // el plan más barato, para el botón
   const usado = hayTope ? Math.min(usados, tope) : usados;
   const lleno = hayTope && usados >= tope;
   $("estado").innerHTML = `
@@ -1146,20 +1159,19 @@ async function cargarPlan(){
       ${is_pro && renews_at ? `<span class="chip ok">activo hasta el ${fecha(renews_at)}</span>` : ""}
       ${!is_pro && pending_payment ? `<span class="chip wait">pago en revisión</span>` : ""}
     </div>
-    ${is_pro
-      ? `<p class="muted">Mensajes sin límite con el asistente de WhatsApp.</p>`
-      : hayTope
-        ? `<div class="barra ${lleno ? "full" : ""}"><i style="width:${Math.round(usado/tope*100)}%"></i></div>
-           <p class="muted">${usados} de ${tope} mensajes de WhatsApp este mes.
-           Se reinician el 1 del próximo mes.</p>`
-        : usados !== null
-          ? `<p class="muted">${usados} mensajes de WhatsApp este mes, sin límite por ahora.</p>`
-          : `<p class="muted">Mensajes de WhatsApp sin límite por ahora.</p>`}
+    ${hayTope
+      ? `<div class="barra ${lleno ? "full" : ""}"><i style="width:${Math.round(usado/tope*100)}%"></i></div>
+         <p class="muted">${usados} de ${tope} mensajes de WhatsApp este mes.
+         Se reinician el 1 del próximo mes.</p>`
+      : usados !== null
+        ? `<p class="muted">${usados} mensajes de WhatsApp este mes, sin tope.</p>`
+        : `<p class="muted">Mensajes de WhatsApp sin tope.</p>`}
     ${!is_pro && pending_payment
       ? `<div class="aviso">Ya recibimos tu comprobante y lo estamos revisando.
          Te avisamos por WhatsApp apenas quede activo.</div>`
       : !is_pro
-        ? `<div class="acciones"><button class="primary" id="irPro">Activar Pro por S/ 5</button></div>`
+        ? `<div class="acciones"><button class="primary" id="irPro">Activar Pro${
+             base ? ` desde S/ ${base.amount}` : ""}</button></div>`
         : ""}
   `;
   if ($("irPro")) $("irPro").onclick = () => tab("pro");
@@ -1180,21 +1192,56 @@ function pintarMini(){
     : "la app, completa y gratis";
   // El botón de la cabecera solo tiene sentido para quien puede comprar algo.
   $("ctaPro").style.display = (is_pro || pending_payment) ? "none" : "";
+  // Precios y topes salen del backend: viven en variables de entorno y no
+  // pueden quedar escritos a mano en dos repos distintos.
+  const planes = plan.plans || [];
+  if ($("ctaProPrecio") && planes[0]) $("ctaProPrecio").textContent = ` desde S/ ${planes[0].amount}`;
+  if ($("queIncluye")) $("queIncluye").innerHTML = planes.length
+    ? planes.map(p => `<p>· <b>S/ ${p.amount} al mes</b>: ${p.messages} mensajes con el asistente.</p>`).join("")
+    : "";
 }
 
 async function cargarPro(){
   if (plan && plan.is_pro){
+    const tope = Number(plan.wa_limit) || 0;
     $("pro").innerHTML = `<div class="logro"><img class="astro" src="astronauta.webp" width="320" height="334" alt="" aria-hidden="true"><div>
       <p class="plan pro">Pro activo</p>
-      <p>Mensajes sin límite con el asistente de WhatsApp${plan.renews_at ? ` hasta el ${fecha(plan.renews_at)}` : ""}.</p>
+      <p>${tope ? `${tope} mensajes al mes` : "Mensajes sin tope"} con el asistente de WhatsApp${plan.renews_at ? ` hasta el ${fecha(plan.renews_at)}` : ""}.</p>
       <p class="muted">¡Gracias por apoyar Y Altoque!</p></div></div>`;
     return;
   }
+  // Primero elige plan y recién después se abre el pago: el monto es lo que
+  // define cuántos mensajes incluye, así que pedir el QR antes de elegir
+  // abriría una fila en la cola por el plan equivocado.
+  const planes = (plan && plan.plans) || [];
+  if (planes.length > 1){
+    $("pro").innerHTML = `
+      <p class="muted">Elige tu plan. Los dos se pagan por Yape, duran 30 días
+      y no se renuevan solos.</p>
+      <div class="planes">
+        ${planes.map(p => `<button class="plan-op" data-monto="${p.amount}">
+            <span class="monto">S/ ${p.amount}</span>
+            <span class="que">${p.messages} mensajes al mes</span>
+            <span class="nota">con el asistente de WhatsApp</span>
+          </button>`).join("")}
+      </div>
+      <p class="muted">La app sigue gratis y sin límite: esto es solo el chat.</p>`;
+    for (const b of $("pro").querySelectorAll("[data-monto]")){
+      b.onclick = () => pedirPlan(Number(b.dataset.monto));
+    }
+    return;
+  }
+  pedirPlan(planes[0] && planes[0].amount);
+}
+
+async function pedirPlan(monto){
+  $("pro").innerHTML = `<p class="muted">Preparando tu pago…</p>`;
   let datos;
   try{
     // Pedirlo es idempotente: si ya hay un pago pendiente reusa la misma
-    // referencia, así que abrir esta pestaña dos veces no duplica nada.
-    datos = await api("/billing/upgrade", { method:"POST" });
+    // referencia, así que abrir esta pestaña dos veces no duplica nada. Si
+    // eligió otro plan, el backend mueve el monto de esa misma fila.
+    datos = await api("/billing/upgrade" + (monto ? `?amount=${monto}` : ""), { method:"POST" });
   }catch(e){
     $("pro").innerHTML = e.message.includes("409")
       ? `<p>Ya tienes <b>Pro</b> activo. ¡Gracias por apoyar Y Altoque!</p>`
@@ -1207,7 +1254,7 @@ async function cargarPro(){
     <ol>
       <li>Yapea <b>S/ ${Number(datos.amount).toFixed(0)}</b> ${datos.yape_qr_url ? "con este QR" : `al <b>${datos.yape_number}</b>`}.</li>
       <li>Mándanos la <b>captura del Yape</b> por WhatsApp.</li>
-      <li>La revisamos y te activamos Pro por 30 días.</li>
+      <li>La revisamos y te activamos Pro por 30 días${datos.messages ? `, con <b>${datos.messages} mensajes al mes</b>` : ""}.</li>
     </ol>
     ${datos.yape_qr_url ? `<div class="qr-wrap">
       <img class="qr" id="qrImg" src="${datos.yape_qr_url}" width="210" height="210" alt="QR de Yape para pagar"
@@ -1222,6 +1269,7 @@ async function cargarPro(){
       ${wa ? `<a class="btn primary" href="https://wa.me/${wa}?text=${texto}"
          target="_blank" rel="noopener">Mandar la captura por WhatsApp</a>` : ""}
       <button id="yaPague">Ya la mandé</button>
+      <button id="otroPlan">Cambiar de plan</button>
     </div>
     <div class="aviso">
       La captura tiene que entrar por WhatsApp, que es donde el asistente la
@@ -1230,6 +1278,7 @@ async function cargarPro(){
     </div>
   `;
   if ($("yaPague")) $("yaPague").onclick = async () => { await cargarPlan(); tab("plan"); };
+  if ($("otroPlan")) $("otroPlan").onclick = () => cargarPro();
   if ($("qrImg")) $("qrImg").onclick = () => window.open(datos.yape_qr_url, "_blank", "noopener");
   // `download` solo manda si la imagen es del mismo origen. Hoy lo es
   // (yaltoque.com), pero si mañana el QR se mueve a otro dominio el navegador
