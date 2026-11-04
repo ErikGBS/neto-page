@@ -269,6 +269,27 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
 .partners .set{display:flex;gap:14px;flex-wrap:wrap}
 .partner{display:inline-flex;align-items:center;gap:9px;padding:10px 18px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:.96rem}
 .partner .b{width:9px;height:9px;border-radius:50%}
+/* ---------- crecimiento (números en vivo del backend) ---------- */
+.growth{padding:54px 0;border-bottom:1px solid var(--border)}
+.growth .wrap{display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap}
+.growth .cifra{display:flex;flex-direction:column;gap:6px}
+.growth .n{font-family:var(--font-display);font-weight:800;font-size:clamp(2.6rem,7vw,4.2rem);
+  line-height:1;letter-spacing:-.03em;
+  background:linear-gradient(135deg,var(--gold-bright),var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.growth .que{font-size:1.05rem;font-weight:700}
+.growth .sub{color:var(--mute);font-size:.88rem}
+.growth .barras{display:flex;align-items:flex-end;gap:10px;height:104px}
+.growth .mes{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:46px}
+.growth .barra{width:28px;border-radius:7px 7px 3px 3px;
+  background:linear-gradient(180deg,var(--gold-bright),var(--gold));min-height:4px}
+.growth .et{color:var(--mute);font-size:.72rem;font-family:var(--font-mono)}
+@media(max-width:680px){
+  .growth .wrap{gap:26px}
+  .growth .barras{height:76px;gap:7px}
+  .growth .mes{min-width:36px}
+  .growth .barra{width:20px}
+}
 /* ---------- global / sin fronteras ---------- */
 .globe{position:relative;text-align:center;padding:96px 0;overflow:hidden}
 .globe::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 120% at 50% -10%,rgba(208,165,92,.10),transparent 60%);pointer-events:none}
@@ -626,6 +647,21 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
       <span class="partner"><i class="b" style="background:var(--cyan)"></i>Plin</span>
       <span class="partner"><i class="b" style="background:var(--teal)"></i>Todos los bancos</span>
       <span class="partner"><i class="b" style="background:#25D366"></i>WhatsApp</span>
+    </div>
+  </div>
+</section>
+
+<!-- CRECIMIENTO (se oculta solo si el backend no responde) -->
+<section class="growth" id="crecimiento" hidden>
+  <div class="wrap">
+    <div class="cifra reveal">
+      <span class="n" id="gN">&nbsp;</span>
+      <span class="que">cuentas creadas</span>
+      <span class="sub">gente que ya abrió su Y Altoque</span>
+    </div>
+    <div class="reveal" data-d="1">
+      <div class="et" style="margin-bottom:10px">Cuentas nuevas por mes</div>
+      <div class="barras" id="gBarras"></div>
     </div>
   </div>
 </section>
@@ -1403,6 +1439,32 @@ if(nForm)nForm.addEventListener('submit', async (ev)=>{
     if('IntersectionObserver' in window){ new IntersectionObserver(function(es){ visible=es[0].isIntersecting; if(visible&&!reduce) loop(); else frame(performance.now()); }).observe(canvas); }
     if(reduce){ frame(1500); } else { loop(); }
   }).catch(function(){});
+})();
+
+/* Crecimiento: conteos públicos del backend, sin datos de nadie. Si no
+   responde, la sección se queda oculta: un cero en la landing dice algo
+   peor que no decir nada. */
+(async () => {
+  const sec = document.getElementById("crecimiento");
+  if (!sec) return;
+  try {
+    const r = await fetch("https://finance-tracker-production-450d.up.railway.app/public/stats");
+    if (!r.ok) return;
+    const d = await r.json();
+    if (!d.registered_users) return;
+    document.getElementById("gN").textContent = d.registered_users.toLocaleString("es-PE");
+    const meses = (d.signups || []).slice(-6);
+    const tope = Math.max(1, ...meses.map(m => m.n));
+    const NOMBRES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+    document.getElementById("gBarras").innerHTML = meses.map(m => {
+      const alto = Math.max(4, Math.round(m.n / tope * 100));
+      const mm = Number(m.m.slice(5, 7)) - 1;
+      return `<div class="mes" title="${m.n} en ${m.m}">
+        <div class="barra" style="height:${alto}%"></div>
+        <span class="et">${NOMBRES[mm] || m.m}</span></div>`;
+    }).join("");
+    sec.hidden = false;
+  } catch (e) { /* la sección se queda oculta */ }
 })();
 </script>
 </body>
