@@ -278,16 +278,23 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
   -webkit-background-clip:text;background-clip:text;color:transparent}
 .growth .que{font-size:1.05rem;font-weight:700}
 .growth .sub{color:var(--mute);font-size:.88rem}
-.growth .barras{display:flex;align-items:flex-end;gap:10px;height:104px}
-.growth .mes{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:46px}
+.growth .barras{display:flex;align-items:flex-end;gap:10px}
+.growth .mes{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:46px}
+/* La pista tiene altura FIJA a propósito: el alto de la barra va en %, y un
+   porcentaje contra un padre de altura automática no resuelve (las barras
+   salían de 4px). */
+.growth .track{height:96px;display:flex;align-items:flex-end}
 .growth .barra{width:28px;border-radius:7px 7px 3px 3px;
-  background:linear-gradient(180deg,var(--gold-bright),var(--gold));min-height:4px}
+  background:linear-gradient(180deg,var(--gold-bright),var(--gold));min-height:5px}
+.growth .num{font-family:var(--font-display);font-weight:700;font-size:.84rem;color:var(--dim)}
 .growth .et{color:var(--mute);font-size:.72rem;font-family:var(--font-mono)}
 @media(max-width:680px){
   .growth .wrap{gap:26px}
-  .growth .barras{height:76px;gap:7px}
-  .growth .mes{min-width:36px}
+  .growth .barras{gap:7px}
+  .growth .track{height:70px}
+  .growth .mes{min-width:38px}
   .growth .barra{width:20px}
+  .growth .num{font-size:.76rem}
 }
 /* ---------- global / sin fronteras ---------- */
 .globe{position:relative;text-align:center;padding:96px 0;overflow:hidden}
@@ -1454,12 +1461,14 @@ if(nForm)nForm.addEventListener('submit', async (ev)=>{
     document.getElementById("gN").textContent = d.registered_users.toLocaleString("pt-BR");
     const meses = (d.signups || []).slice(-6);
     const tope = Math.max(1, ...meses.map(m => m.n));
+    const LOCALE = "pt-BR";
     const NOMBRES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
     document.getElementById("gBarras").innerHTML = meses.map(m => {
-      const alto = Math.max(4, Math.round(m.n / tope * 100));
+      const alto = Math.max(5, Math.round(m.n / tope * 100));
       const mm = Number(m.m.slice(5, 7)) - 1;
-      return `<div class="mes" title="${m.n} en ${m.m}">
-        <div class="barra" style="height:${alto}%"></div>
+      return `<div class="mes" title="${m.m}">
+        <span class="num">${m.n.toLocaleString(LOCALE)}</span>
+        <div class="track"><div class="barra" style="height:${alto}%"></div></div>
         <span class="et">${NOMBRES[mm] || m.m}</span></div>`;
     }).join("");
     sec.hidden = false;
