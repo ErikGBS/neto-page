@@ -573,6 +573,7 @@
 </head>
 <body>
 <canvas id="cielo" aria-hidden="true"></canvas>
+<canvas id="nebula" aria-hidden="true"></canvas>
 
 <div class="velo" id="velo"></div>
 
@@ -941,8 +942,6 @@
 
 <!-- ── Entrar ─────────────────────────────────────────────────────────────── -->
 <div id="login" class="entrar" style="display:none">
-  <canvas id="nebula" aria-hidden="true"></canvas>
-
   <div class="saludo" role="status">
     <span style="color:var(--gold)">Y</span> Altoque
     <small>Armando tu universo</small>
@@ -1023,6 +1022,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 // `https://yaltoque.com/**`, un comodín que cubre cualquier ruta del dominio,
 // así que no hace falta registrar cada una ni dar vueltas por otra.
 const VUELTA = location.href.split("#")[0];
+const DEL_PROVEEDOR = /(access_token|[?&]code)=/.test(location.hash + location.search);
 const $ = (id) => document.getElementById(id);
 const show = (v) => { for (const x of ["login","app"]) $(x).style.display = (x===v ? "" : "none"); };
 
@@ -2297,6 +2297,8 @@ const NEB = (() => {
   const CI = Math.cos(.42), SI = Math.sin(.42);          // inclinacion fija del eje
   const px = new Float32Array(N), py = new Float32Array(N),
         pz = new Float32Array(N), pe = new Float32Array(N);
+  // Dónde estaba cada punto en el cuadro anterior, para la estela del estallido.
+  const ax = new Float32Array(N), ay = new Float32Array(N);
   let W = 0, H = 0, R = 0, lazo = 0, t0 = 0, antes = 0, modo = "off", veloz = false;
 
   const medir = () => {
@@ -2316,8 +2318,10 @@ const NEB = (() => {
       k = suave(Math.min(1, t / (veloz ? .9 : 1.8)));
       if (k === 1) modo = "vive";
     } else if (modo === "sale"){
-      const e = Math.min(1, t / 1);
-      lejos = suave(e) * 1.9; opa = 1 - e * e;
+      const e = Math.min(1, t / .95);
+      // Arranca lento y acelera (al revés que la formación): así se ve salir
+      // a las estrellas en vez de encontrarlas ya lejos.
+      lejos = e * e * 2.6; opa = 1 - e ** 3;
     }
     const g = ms * .00009, cg = Math.cos(g), sg = Math.sin(g);
     const cxx = W / 2, cyy = H / 2, esc = 1 + lejos;
@@ -2328,6 +2332,7 @@ const NEB = (() => {
     halo.addColorStop(1, "rgba(91,214,240,0)");
     cx.fillStyle = halo; cx.fillRect(0, 0, W, H);
 
+    ax.set(px); ay.set(py);
     for (let i = 0; i < N; i++){
       const o = P[i], c = CAOS[i];
       const x = (c.x + (o.x - c.x) * k) * esc,
@@ -2360,9 +2365,20 @@ const NEB = (() => {
 
     for (let i = 0; i < N; i++){
       const o = P[i], br = (.2 + .8 * (pz[i] + 1) / 2) * o.br * opa;
-      cx.fillStyle = o.oro ? `rgba(243,206,127,${br.toFixed(3)})` : `rgba(186,231,247,${br.toFixed(3)})`;
+      const col = o.oro ? "243,206,127" : "186,231,247";
+      if (modo === "sale"){
+        cx.strokeStyle = `rgba(${col},${(br * .7).toFixed(3)})`;
+        cx.lineWidth = Math.min(3, 1.1 * pe[i]);
+        // La estela se estira 3 veces el salto del cuadro: con el salto a
+        // secas queda un rabito que no se lee a 33 cuadros por segundo.
+        cx.beginPath();
+        cx.moveTo(px[i] - (px[i] - ax[i]) * 3, py[i] - (py[i] - ay[i]) * 3);
+        cx.lineTo(px[i], py[i]); cx.stroke();
+      }
+      cx.fillStyle = `rgba(${col},${br.toFixed(3)})`;
       cx.beginPath(); cx.arc(px[i], py[i], (o.oro ? 1.8 : 1.3) * pe[i], 0, 7); cx.fill();
     }
+    if (modo === "sale" && t > 1.1) parar();
   };
 
   // ~33 cuadros por segundo alcanzan para el giro y no calientan el teléfono.
@@ -2389,7 +2405,7 @@ const NEB = (() => {
       medir(); veloz = true; modo = "forma"; t0 = performance.now(); correr();
       return new Promise((ok) => setTimeout(() => {
         modo = "sale"; t0 = performance.now();
-        setTimeout(() => { parar(); ok(); }, 1000);
+        setTimeout(ok, 700);
       }, 1150));
     },
   };
@@ -2404,22 +2420,29 @@ async function boot(){
   if (arrancando){ otraVez = true; return; }
   arrancando = true;
   try{
-    const { data:{ session } } = await sb.auth.getSession();
-    if (!session){ show("login"); NEB.arrancar(); return; }
-
-    // Safari con cookies bloqueadas lanza al tocar sessionStorage: sin marca
-    // se entra directo, que es mejor que quedarse con la pantalla en negro.
-    let marca = false;
+    // Dos señales de que se acaba de entrar, y basta cualquiera: la marca del
+    // botón y la URL con la que vuelve el proveedor. Safari con cookies
+    // bloqueadas lanza al tocar sessionStorage, por eso el try.
+    let marca = DEL_PROVEEDOR;
     try {
-      marca = !!sessionStorage.getItem("neto:entrando");
+      marca = marca || !!sessionStorage.getItem("neto:entrando");
       sessionStorage.removeItem("neto:entrando");
     } catch {}
 
+    // La secuencia arranca antes de preguntar por la sesión: esperar la
+    // respuesta mostraría primero la caja de acceso y el momento se perdería
+    // en ese parpadeo.
     let intro = null;
     if (marca){
       show("login");
       $("login").classList.add("entrando");
       intro = NEB.bienvenida();
+    }
+
+    const { data:{ session } } = await sb.auth.getSession();
+    if (!session){
+      if (intro){ await intro; $("login").classList.remove("entrando"); }
+      show("login"); NEB.arrancar(); return;
     }
 
     // Los datos se piden mientras corre la animación, no después: el portal
@@ -2431,9 +2454,12 @@ async function boot(){
     mirarSiEsAdmin();
 
     if (intro){ await intro; $("login").classList.remove("entrando"); }
-    NEB.parar();
+    else NEB.parar();
     show("app");
     $("app").classList.add("llega");
+    // Red de seguridad: la nébula se apaga sola al acabar el estallido, pero
+    // si la pestaña estuvo oculta en ese momento no llega a hacerlo.
+    setTimeout(NEB.parar, 1500);
 
     await plan;
     // Al entrar se ve el mes. El enlace con #plan o #pro sigue llevando al suyo.
