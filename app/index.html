@@ -6,6 +6,12 @@
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#080b12">
 <title>Y Altoque</title>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+}}
+</script>
 <link rel="icon" type="image/png" href="/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -325,6 +331,10 @@
   .cats h3{font-size:.95rem;font-weight:700;margin-bottom:12px}
   .cats ol{list-style:none;margin:0}
   .cats li{margin-bottom:14px}
+  .cats .fila-cat{display:block;width:100%;text-align:left;background:none;border:0;
+    padding:0;border-radius:8px;cursor:pointer}
+  .cats .fila-cat:hover .nom{color:var(--text)}
+  .cats .fila-cat:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
   .cats .fila{display:flex;align-items:baseline;gap:8px;font-size:.88rem}
   .cats .punto{width:8px;height:8px;border-radius:50%;flex:none;align-self:center}
   .cats .nom{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -340,57 +350,77 @@
     .cats{order:-1;margin-top:8px}
   }
 
-  /* ── Grafo del mes ──────────────────────────────────────────────────────── */
-  .graf{position:relative;width:100%;min-height:400px}
-  .graf svg{display:block;width:100%;height:auto;overflow:visible}
+  .cab-card{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+  .cab-card h2{margin:0}
+  #verTodo{margin-left:auto;flex:none;font-size:.84rem;padding:7px 13px;
+    border-color:rgba(208,165,92,.38);color:var(--gold-bright)}
 
-  .lazo{fill:none;stroke:url(#hilo);stroke-width:1.15;
-    stroke-dasharray:1 0;animation:traza .55s ease both;animation-delay:calc(var(--i,0)*.05s)}
-  .lazo.on{stroke:url(#hiloOn);stroke-width:1.7}
-  .lazo.sub{stroke:url(#hiloSub)}
-  .lazo.tallo{stroke:rgba(208,165,92,.22);animation:none}
-  @keyframes traza{from{opacity:0}to{opacity:1}}
+  /* ── El cerebro entero ──────────────────────────────────────────────── */
+  #dlgCerebro{width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;
+    border:0;border-radius:0;background:var(--bg);color:var(--text);overflow:hidden}
+  #dlgCerebro::backdrop{background:#000}
+  #dlgCerebro .cab{display:flex;align-items:center;gap:14px;padding:14px 20px;
+    border-bottom:1px solid var(--border)}
+  #dlgCerebro h3{font-family:var(--tit);font-size:1.05rem;font-weight:700}
+  #dlgCerebro .muted{margin-left:auto;text-align:right}
+  #reintentaMeses{font-size:.8rem;padding:4px 10px;margin-left:6px;
+    border-color:rgba(208,165,92,.38);color:var(--gold-bright)}
+  #cerebroCerrar{flex:none;width:36px;height:36px;padding:0;border-radius:10px;line-height:1}
+  #dlgCerebro .lienzos{position:relative;width:100%;height:calc(100dvh - 66px)}
+  #cerebroTodo,#cerebroTodo3d{position:absolute;inset:0;width:100%;height:100%;display:block}
+  #cerebroTodo{z-index:1;touch-action:manipulation}
+  #cerebroTodo3d{z-index:0;pointer-events:none}
+  @media (max-width:640px){ #dlgCerebro .cab{padding:12px 14px} #dlgCerebro h3{font-size:.95rem} }
 
-  .nodo-mes circle.halo{fill:url(#halo)}
-  .nodo-mes circle.anillo{fill:none;stroke:rgba(208,165,92,.16);stroke-width:1}
-  .nodo-mes circle.bola{fill:url(#oro)}
-  .nodo-mes ellipse.luz{fill:#fff;opacity:.22}
-  .nodo-mes .tot{fill:var(--gold-bright);font-size:19px;font-weight:700;letter-spacing:-.3px;
-    font-family:var(--tit)}
-  .nodo-mes .sub{fill:var(--mute);font-size:12px}
+  /* ── Previsualización de un nodo ────────────────────────────────────── */
+  #dlgNodo{margin:auto;border:1px solid var(--border);border-radius:18px;background:var(--surface);
+    color:var(--text);padding:0;width:min(560px,calc(100vw - 32px));max-height:82vh;
+    box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  #dlgNodo::backdrop{background:rgba(4,7,12,.72)}
+  #dlgNodo header{display:flex;align-items:center;gap:12px;padding:18px 20px 12px;
+    border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);
+    border-radius:18px 18px 0 0}
+  #dlgNodo h3{font-family:var(--tit);font-size:1.12rem;font-weight:700;flex:1;min-width:0}
+  #dlgNodo #dlgCerrar{margin-left:auto;flex:none;width:34px;height:34px;padding:0;
+    border-radius:10px;line-height:1}
+  #dlgCuerpo{padding:14px 20px 20px;overflow:auto;max-height:calc(82vh - 64px)}
+  #dlgCuerpo .cifra{font-family:var(--tit);font-size:1.7rem;font-weight:700;color:var(--gold-bright)}
+  #dlgCuerpo .pie{color:var(--mute);font-size:.84rem;margin-top:2px}
+  #dlgCuerpo ol{list-style:none;margin:16px 0 0}
+  #dlgCuerpo li{display:flex;align-items:baseline;gap:10px;padding:9px 0;
+    border-top:1px solid var(--border);font-size:.9rem}
+  #dlgCuerpo li .punto{width:8px;height:8px;border-radius:50%;flex:none;align-self:center}
+  #dlgCuerpo li .qu{flex:1;min-width:0;overflow-wrap:anywhere}
+  #dlgCuerpo li .cu{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  #dlgCuerpo .cuando{font-size:.74rem;color:var(--mute);display:block;
+    background:none;border:0;padding:0}
+  @media (max-width:640px){
+    /* En el teléfono se comporta como hoja inferior, que es donde llega el pulgar. */
+    #dlgNodo{width:100vw;max-width:none;margin:auto 0 0;border-radius:18px 18px 0 0;
+      max-height:85svh}
+    #dlgNodo header{border-radius:18px 18px 0 0}
+    #dlgCuerpo{max-height:calc(85svh - 64px)}
+  }
 
-  .dia{cursor:pointer;animation:entra .4s ease both;animation-delay:calc(var(--i,0)*.045s)}
-  .dia rect{fill:var(--surface);stroke:var(--border);stroke-width:1;
-    transition:stroke .2s,fill .2s}
-  .dia:hover rect{stroke:var(--border-strong);fill:var(--surface-2)}
-  .dia.on rect{fill:var(--surface-2);stroke:var(--gold);stroke-width:1.5}
-  .dia circle.sello{fill:rgba(208,165,92,.10);stroke:rgba(208,165,92,.26);stroke-width:1}
-  .dia.on circle.sello{fill:rgba(243,206,127,.18);stroke:rgba(243,206,127,.5)}
-  .dia .num{fill:var(--gold);font-size:13px;font-weight:700;font-family:var(--tit)}
-  .dia.on .num{fill:var(--gold-bright)}
-  .dia .n{fill:var(--text);font-size:16.5px;font-weight:700;letter-spacing:-.3px;
-    font-family:var(--tit)}
-  .dia.on .n{fill:var(--gold-bright)}
-  .dia .d{fill:var(--mute);font-size:12px}
-  .dia .c{fill:var(--mute);font-size:12px}
-  .dia:focus{outline:none}
-  .dia:focus-visible rect{stroke:var(--gold-bright);stroke-width:2}
-
-  .gasto{animation:entra .4s ease both;animation-delay:calc(var(--i,0)*.05s)}
-  .gasto .t{fill:var(--text);font-size:13px}
-  .gasto .k{font-size:11px;font-weight:600}
-  .m{fill:var(--text);font-size:12.5px;font-weight:700;letter-spacing:-.2px}
-  .mas{fill:var(--mute);font-size:12px}
-  @keyframes entra{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
-
-  .flecha{cursor:pointer}
-  .flecha rect{fill:var(--surface-2);stroke:var(--border)}
-  .flecha:hover rect{stroke:var(--border-strong)}
-  .flecha.off{opacity:.28;cursor:default}
-  .flecha path{fill:none;stroke:var(--dim);stroke-width:1.7;stroke-linecap:round}
+  /* ── El cerebro del mes ─────────────────────────────────────────────────
+     El canvas no tiene alto propio, así que se le da uno explícito: si se
+     deja en auto mide cero y no se dibuja nada. */
+  .graf{position:relative;width:100%}
+  #cerebro{display:block;width:100%;height:clamp(340px,46vw,540px);touch-action:manipulation;
+    position:relative;z-index:1}
+  #cerebro3d{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
   .vacio{color:var(--dim);text-align:center;padding:40px 10px}
 
-  @media (prefers-reduced-motion:reduce){ .lazo,.dia,.gasto,.astro{animation:none} }
+  /* La lista que usa el teclado y el lector de pantalla: existe para el foco,
+     no para la vista, así que se esconde sin sacarla del árbol. */
+  .solo-lectores{position:absolute;width:1px;height:1px;overflow:hidden;
+    clip-path:inset(50%);white-space:nowrap}
+  .solo-lectores button{position:static}
+  .solo-lectores button:focus-visible{position:fixed;left:16px;bottom:16px;z-index:30;
+    width:auto;height:auto;clip-path:none;white-space:normal;background:var(--surface-2);
+    border:1px solid var(--gold);color:var(--text);padding:8px 12px;border-radius:10px}
+
+  @media (prefers-reduced-motion:reduce){ .astro{animation:none} }
 
   /* ── Panel de administración ────────────────────────────────────────────
      Viene del que vivía en /dashboard/admin/. Cada regla va acotada a .admin
@@ -641,6 +671,30 @@
 
 <div class="velo" id="velo"></div>
 
+<!-- El cerebro entero, con los meses que se puedan traer. -->
+<dialog id="dlgCerebro" aria-label="Tu cerebro financiero">
+  <div class="cab">
+    <h3>Tu cerebro financiero</h3>
+    <span class="muted" id="cerebroEstado" aria-live="polite"></span>
+    <button type="button" id="cerebroCerrar" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="lienzos">
+    <canvas id="cerebroTodo3d" aria-hidden="true"></canvas>
+    <canvas id="cerebroTodo" aria-hidden="true"></canvas>
+  </div>
+  <ul class="solo-lectores" id="cerebroTodoLista"></ul>
+</dialog>
+
+<!-- Previsualización de un nodo del cerebro. Uno solo, reutilizado para el
+     mes, una categoría y un día: showModal() ya da foco atrapado y Escape. -->
+<dialog id="dlgNodo" aria-labelledby="dlgTit">
+  <header>
+    <h3 id="dlgTit"></h3>
+    <button type="button" id="dlgCerrar" aria-label="Cerrar">✕</button>
+  </header>
+  <div id="dlgCuerpo"></div>
+</dialog>
+
 <!-- ── Portal ─────────────────────────────────────────────────────────────── -->
 <div id="app" class="shell" style="display:none">
 
@@ -751,12 +805,19 @@
       </div>
 
       <div class="card">
-        <h2>En qué se te fue</h2>
-        <p class="muted" style="margin:-6px 0 6px">
-          Toca un día para ver sus gastos. Solo salen los días con movimientos.
-        </p>
+        <div class="cab-card">
+          <h2>En qué se te fue</h2>
+          <button type="button" id="verTodo">Ver todo el historial</button>
+        </div>
+        <p class="muted" id="grafNota" style="margin:-6px 0 10px">Cargando tu mes…</p>
         <div class="mes-grid">
-          <div class="graf" id="graf"><p class="muted" style="padding:30px 0">Cargando tu mes…</p></div>
+          <div class="graf" id="graf">
+            <!-- Modelo anatómico: NIH 3D, "Detailed Human Brain Model",
+                 CC BY 4.0, simplificado a 31k triángulos. -->
+            <canvas id="cerebro3d" aria-hidden="true"></canvas>
+            <canvas id="cerebro" aria-hidden="true"></canvas>
+            <ul class="solo-lectores" id="cerebroLista"></ul>
+          </div>
           <aside class="cats" id="cats" hidden>
             <h3>Top categorías del mes</h3>
             <ol id="catsLista"></ol>
@@ -999,7 +1060,9 @@
 
     <footer class="muted">
       <a href="/">Inicio</a> · <a href="/terminos.html">Términos</a> ·
-      <a href="/privacidad.html">Privacidad</a>
+      <a href="/privacidad.html">Privacidad</a><br>
+      <span style="font-size:.78rem">Modelo de cerebro:
+        <a href="https://3d.nih.gov/entries/21161" rel="noopener">NIH 3D</a>, CC BY 4.0</span>
     </footer>
   </main>
 
@@ -1041,6 +1104,7 @@
 // puntos de color. Con movimiento reducido se pinta una vez y queda quieto.
 (() => {
   const cv = document.getElementById("cielo"), cx = cv.getContext("2d");
+  window.CIELO = { pausado: false };     // lo apaga la vista del cerebro entero
   let azar = 7;
   const rnd = () => (azar = (azar * 16807) % 2147483647) / 2147483647;
   const COLORES = ["#ff6b6b","#4ade80","#f3ce7f","#5bd6f0","#8b6cf0","#ff79c2"];
@@ -1098,14 +1162,13 @@
   if (quieto) return pintar(0);
   // ~20 cuadros por segundo alcanzan para un titilar y no gastan batería.
   let antes = 0;
-  const ciclo = (t) => { if (!document.hidden && t - antes > 50){ antes = t; pintar(t); }
+  const ciclo = (t) => { if (!document.hidden && !window.CIELO.pausado && t - antes > 50){
+      antes = t; pintar(t); }
     requestAnimationFrame(ciclo); };
   requestAnimationFrame(ciclo);
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/d3-path@3.1.0/dist/d3-path.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/d3-shape@3.2.0/dist/d3-shape.min.js"></script>
 <script>
 const SUPABASE_URL  = "https://dwqzsgonkkrctnrtlkdz.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3cXpzZ29ua2tyY3RucnRsa2R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0OTE5MzEsImV4cCI6MjA5NjA2NzkzMX0.94_SbN7ZPSemAprEJ-9T6u3YOmo40aMt2WyDpCGSyJ0";
@@ -1446,30 +1509,38 @@ async function pedirPlan(monto){
 // El mes es el nodo raíz, los días cuelgan de él de cinco en cinco y los gastos
 // del día elegido cuelgan del día. Solo aparecen los días CON movimientos: un
 // calendario completo obliga a recorrer huecos vacíos para encontrar algo.
-//
-// Las curvas las traza d3-shape (linkHorizontal/linkVertical). Si el CDN no
-// responde, `enlace()` cae a una bezier escrita a mano y el grafo se dibuja
-// igual: la página no puede depender de que un script externo llegue.
-const mes = { dias: [], sel: null, desde: 0, moneda: "PEN", total: 0,
+const mes = { dias: [], moneda: "PEN", total: 0,
   gastado: 0, ingresos: 0, racha: null, rachaHoy: false, cargado: false };
-const VISIBLES = 5;
 
 const plata = (v, cur) => {
   try { return new Intl.NumberFormat("es-PE", { style:"currency", currency:cur || "PEN",
     minimumFractionDigits: 2 }).format(v); }
-  catch { return (cur || "") + " " + v.toFixed(2); }
+  catch { return esc((cur || "") + " " + v.toFixed(2)); }
 };
 const corta = (t, n) => { t = (t || "").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : (t || "Sin detalle"); };
 const diaSemana = (d) => ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][d.getDay()];
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
 
+// El día LOCAL de una fecha, en texto y con cero delante: es la clave con la
+// que se agrupan los gastos y con la que el cerebro nombra sus nodos.
+const claveDia = (f) => `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, "0")}`
+  + `-${String(f.getDate()).padStart(2, "0")}`;
+
+// El nombre de categoría, siempre igual: sin espacios y en minúscula. Si cada
+// sitio normaliza a su manera, "Comida" y "comida " son dos filas con dos
+// colores y dos totales en la misma tarjeta.
+const catNorm = (t) => (t.category || "").trim().toLowerCase() || "otros";
+
 // Color del chip de categoría: estable por nombre, de la paleta del sitio.
 const TONOS = ["#d0a55c","#5bd6f0","#4ade80","#b3bccd","#f3ce7f","#f87171"];
-const tono = (txt) => {
+const hash = (txt) => {
   let h = 0;
   for (const c of String(txt || "otros")) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return TONOS[h % TONOS.length];
+  return h;
 };
+// El color y el lóbulo del cerebro salen del mismo número: así una categoría
+// se ve siempre del mismo color y en el mismo sitio.
+const tono = (txt) => TONOS[hash(txt) % TONOS.length];
 
 // El gasto de cada día del mes, del 1 a hoy, en un trazo diminuto. Es SVG a
 // mano: treinta puntos no justifican traer una librería de gráficos, y los
@@ -1581,17 +1652,6 @@ async function cargarExtras(){
   }catch{}
 }
 
-function enlace(x1, y1, x2, y2, horizontal){
-  const d3 = globalThis.d3;
-  if (d3 && d3.linkHorizontal){
-    const f = horizontal ? d3.linkHorizontal() : d3.linkVertical();
-    return f.x((p) => p[0]).y((p) => p[1])({ source:[x1, y1], target:[x2, y2] });
-  }
-  return horizontal
-    ? `M${x1},${y1} C${x1 + (x2 - x1) * .5},${y1} ${x1 + (x2 - x1) * .5},${y2} ${x2},${y2}`
-    : `M${x1},${y1} C${x1},${y1 + (y2 - y1) * .5} ${x2},${y1 + (y2 - y1) * .5} ${x2},${y2}`;
-}
-
 async function cargarMes(){
   const hoy = new Date();
   const m = hoy.getMonth() + 1, y = hoy.getFullYear();
@@ -1600,7 +1660,7 @@ async function cargarMes(){
   try{
     txs = await api(`/transactions/?month=${m}&year=${y}`);
   }catch(e){
-    $("graf").innerHTML = `<p class="vacio">No pudimos leer tus movimientos: ${e.message}</p>`;
+    $("grafNota").textContent = "No pudimos leer tus movimientos: " + e.message;
     return;
   }
   // occurred_at viaja en UTC y se agrupa por el día LOCAL de quien mira: si no,
@@ -1614,7 +1674,7 @@ async function cargarMes(){
       continue;
     }
     const f = new Date(t.occurred_at);
-    const clave = `${f.getFullYear()}-${f.getMonth()}-${f.getDate()}`;
+    const clave = claveDia(f);
     if (!porDia.has(clave)) porDia.set(clave, { fecha: f, gastos: [], total: 0 });
     const d = porDia.get(clave);
     d.gastos.push(t); d.total += t.amount;
@@ -1629,12 +1689,144 @@ async function cargarMes(){
   mes.total = monedas.get(mes.moneda) || 0;
   mes.gastado = mes.total;
   mes.ingresos = entradas.get(mes.moneda) || 0;
-  mes.sel = mes.dias[0] || null;
-  mes.desde = 0;
   mes.cargado = true;
   pintarKpis();
   pintar();
   pintarCategorias();
+}
+
+// ── El cerebro financiero ─────────────────────────────────────────────────
+// Un nodo central (el mes), uno por categoría y uno por día con gasto. Las
+// transacciones NO son nodos: son lo que enseña el modal, así que el dibujo
+// no crece con el número de gastos y un mes son siempre ~45 nodos.
+// Función pura (ni DOM ni red) justamente para poder probarla: cerebroCheck().
+const TOPE_CATS = 9;
+
+function construirCerebro(txs, moneda){
+  const porCat = new Map(), porDia = new Map(), descartadas = new Map();
+  let total = 0, cuantos = 0;
+
+  for (const t of txs || []){
+    if (!t || t.type !== "expense") continue;
+    const monto = Number(t.amount) || 0;     // si la API mandara texto, sumaría concatenando
+    const suMoneda = t.currency || moneda;
+    if (suMoneda !== moneda){
+      // Nunca se mezclan monedas, pero tampoco se tiran en silencio: se
+      // cuentan para poder decirlo al pie del dibujo.
+      const d = descartadas.get(suMoneda) || { n: 0, total: 0 };
+      d.n++; d.total += monto;
+      descartadas.set(suMoneda, d);
+      continue;
+    }
+    const f = new Date(t.occurred_at);
+    if (isNaN(f.getTime())) continue;
+    const kd = claveDia(f), kc = catNorm(t);
+    total += monto; cuantos++;
+
+    let c = porCat.get(kc);
+    if (!c) porCat.set(kc, c = { cat: kc, total: 0, n: 0, gastos: [] });
+    c.total += monto; c.n++; c.gastos.push(t);
+
+    let d = porDia.get(kd);
+    if (!d) porDia.set(kd, d = { clave: kd, fecha: f, total: 0, n: 0, gastos: [], cats: new Map() });
+    d.total += monto; d.n++; d.gastos.push(t);
+    d.cats.set(kc, (d.cats.get(kc) || 0) + monto);
+  }
+
+  const nodos = [], idx = new Map();
+  const poner = (nodo) => { idx.set(nodo.k, nodos.length); nodos.push(nodo); return nodo; };
+  poner({ k: "centro", tipo: "centro", etiqueta: "Este mes", total, n: cuantos, moneda });
+
+  // Las mayores tienen nodo propio; el resto cae en uno solo, igual que la
+  // lista de al lado resume su cola en una línea.
+  const orden = [...porCat.values()].sort((a, b) => b.total - a.total);
+  const cae = new Map();                       // categoría -> clave del nodo que la recibe
+  for (const c of orden.slice(0, TOPE_CATS)){
+    cae.set(c.cat, "cat:" + c.cat);
+    poner({ k: "cat:" + c.cat, tipo: "cat", etiqueta: c.cat, cat: c.cat,
+            total: c.total, n: c.n, gastos: c.gastos, moneda });
+  }
+  const cola = orden.slice(TOPE_CATS);
+  if (cola.length){
+    for (const c of cola) cae.set(c.cat, "cat:otras");
+    const gastos = cola.flatMap((c) => c.gastos);
+    poner({ k: "cat:otras", tipo: "cat", etiqueta: `otras (${cola.length})`, cat: "otras",
+            total: cola.reduce((a, c) => a + c.total, 0), n: gastos.length, gastos,
+            agrupa: cola.map((c) => c.cat), moneda });
+  }
+
+  const dias = [...porDia.values()].sort((a, b) => b.fecha - a.fecha);
+  for (const d of dias){
+    const manda = [...d.cats.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+    poner({ k: "dia:" + d.clave, tipo: "dia", etiqueta: `${diaSemana(d.fecha)} ${d.fecha.getDate()}`,
+            fecha: d.fecha, total: d.total, n: d.n, gastos: d.gastos, moneda,
+            cat: cae.get(manda) ? manda : "otras" });   // vive en el lóbulo de su categoría
+  }
+
+  // El centro sostiene las categorías y cada categoría sus días. Un día con
+  // dos categorías cuelga de las dos: eso es lo que teje la malla.
+  const aristas = [];
+  for (const nodo of nodos)
+    if (nodo.tipo === "cat") aristas.push({ a: 0, b: idx.get(nodo.k), peso: nodo.total });
+  for (const d of dias){
+    const haciaNodo = new Map();
+    for (const [kc, v] of d.cats){
+      const kn = cae.get(kc);
+      haciaNodo.set(kn, (haciaNodo.get(kn) || 0) + v);
+    }
+    for (const [kn, v] of haciaNodo)
+      aristas.push({ a: idx.get(kn), b: idx.get("dia:" + d.clave), peso: v });
+  }
+
+  for (const n of nodos) n.deQue = total;     // el total del modelo al que pertenece
+  return { nodos, aristas, idx, total, moneda, descartadas };
+}
+
+// Comprobación del modelo, a mano porque el repo no tiene runner: se llama
+// desde la consola o desde headless y devuelve true si todo cuadra.
+function cerebroCheck(){
+  const fallos = [];
+  const ok = (cond, que) => { if (!cond) fallos.push(que); };
+  const tx = (amount, category, dia = 1, currency = "PEN", description = "x") =>
+    ({ type:"expense", amount, category, currency, description,
+       occurred_at: new Date(2026, 10, dia, 12).toISOString() });
+  const suma = (c, tipo) => c.nodos.filter((n) => n.tipo === tipo).reduce((a, n) => a + n.total, 0);
+
+  let c = construirCerebro([], "PEN");
+  ok(c.nodos.length === 1 && c.total === 0, "mes vacío deja solo el centro");
+
+  c = construirCerebro([tx(10, "Comida", 3)], "PEN");
+  ok(c.nodos.length === 3 && c.aristas.length === 2, "un gasto son centro, categoría y día");
+
+  c = construirCerebro([tx(10, "Comida", 3), tx(10, "Comida", 3)], "PEN");
+  ok(c.total === 20 && c.nodos.length === 3, "dos gastos idénticos suman, no se fusionan");
+
+  c = construirCerebro([tx(10, " Comida "), tx(5, "comida"), tx(5, null)]
+    .map((t, i) => ({ ...t, occurred_at: new Date(2026, 10, i + 1, 12).toISOString() })), "PEN");
+  ok(c.nodos.filter((n) => n.tipo === "cat").length === 2, "Comida, comida y nula son dos categorías");
+
+  c = construirCerebro([tx(10, "Comida", 3), tx(99, "Viaje", 3, "USD")], "PEN");
+  ok(c.total === 10 && c.descartadas.get("USD")?.n === 1, "la otra moneda no suma y se declara");
+
+  // 23:30 locales del último día: no puede fugarse al mes siguiente.
+  const f = new Date(2026, 10, 30, 23, 30);
+  c = construirCerebro([{ type:"expense", amount:1, currency:"PEN", category:"x",
+    occurred_at: f.toISOString() }], "PEN");
+  ok(c.nodos.some((n) => n.k === "dia:2026-11-30"), "el gasto nocturno se queda en su día");
+
+  c = construirCerebro(Array.from({ length: 14 }, (_, i) => tx(100 - i, "cat" + i, (i % 28) + 1)), "PEN");
+  const cats = c.nodos.filter((n) => n.tipo === "cat");
+  ok(cats.length === TOPE_CATS + 1 && cats.some((n) => n.cat === "otras"), "la cola cae en otras");
+  ok(Math.abs(suma(c, "cat") - c.total) < 1e-9, "las categorías suman el total");
+  ok(Math.abs(suma(c, "dia") - c.total) < 1e-9, "los días suman el total");
+  ok(new Set(c.nodos.map((n) => n.k)).size === c.nodos.length, "no hay claves repetidas");
+
+  c = construirCerebro([tx(-5, "Devolución", 2), tx(1e9, "Casa", 2)], "PEN");
+  ok(Number.isFinite(c.total), "importes negativos y enormes no rompen el total");
+
+  if (fallos.length) console.error("cerebroCheck:", fallos);
+  else console.log("cerebroCheck: todo cuadra");
+  return !fallos.length;
 }
 
 // Suma por categoría en la moneda principal del mes (nunca se mezclan
@@ -1643,7 +1835,7 @@ function pintarCategorias(){
   const suma = new Map();
   for (const d of mes.dias) for (const t of d.gastos){
     if (t.currency !== mes.moneda) continue;
-    const c = t.category || "otros";   // la misma clave que tono() usa en el grafo
+    const c = catNorm(t);              // la misma clave que usa el cerebro
     suma.set(c, (suma.get(c) || 0) + t.amount);
   }
   const filas = [...suma.entries()].sort((a, b) => b[1] - a[1]);
@@ -1653,234 +1845,840 @@ function pintarCategorias(){
   const nombre = (c) => { c = c.trim(); return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); };
   $("catsLista").innerHTML = top.map(([c, v]) => {
     const pct = mes.total ? Math.round(v / mes.total * 100) : 0;
-    return `<li><div class="fila"><span class="punto" style="background:${tono(c)}"></span>
+    return `<li><button type="button" class="fila-cat" data-cat="${esc(c)}">
+      <div class="fila"><span class="punto" style="background:${tono(c)}"></span>
       <span class="nom">${esc(nombre(c))}</span><span class="monto">${plata(v, mes.moneda)}</span>
       <span class="pct">${pct}%</span></div>
-      <div class="riel"><i style="width:${pct}%"></i></div></li>`;
+      <div class="riel"><i style="width:${pct}%"></i></div></button></li>`;
   }).join("") + (resto.length
     ? `<li class="resto">y ${resto.length} ${resto.length === 1 ? "categoría" : "categorías"} más · ${plata(resto.reduce((a, [, v]) => a + v, 0), mes.moneda)}</li>`
     : "");
-}
-
-const DEFS = `<defs>
-  <radialGradient id="halo"><stop offset="0%" stop-color="#d0a55c" stop-opacity=".34"/>
-    <stop offset="55%" stop-color="#d0a55c" stop-opacity=".07"/>
-    <stop offset="100%" stop-color="#d0a55c" stop-opacity="0"/></radialGradient>
-  <radialGradient id="oro" cx="34%" cy="28%"><stop offset="0%" stop-color="#ffe6b0"/>
-    <stop offset="45%" stop-color="#e6bd74"/><stop offset="100%" stop-color="#9a7336"/></radialGradient>
-  <linearGradient id="hilo" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stop-color="#d0a55c" stop-opacity=".66"/>
-    <stop offset="100%" stop-color="#d0a55c" stop-opacity=".16"/></linearGradient>
-  <linearGradient id="hiloOn" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stop-color="#f3ce7f" stop-opacity=".95"/>
-    <stop offset="100%" stop-color="#f3ce7f" stop-opacity=".45"/></linearGradient>
-  <linearGradient id="hiloSub" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stop-color="#5bd6f0" stop-opacity=".55"/>
-    <stop offset="100%" stop-color="#5bd6f0" stop-opacity=".14"/></linearGradient>
-  <filter id="brillo" x="-60%" y="-60%" width="220%" height="220%">
-    <feGaussianBlur stdDeviation="3.2" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-</defs>`;
-
-function pintar(){
-  const cajon = $("graf");
-  if (!cajon || !mes.cargado) return;
-  const W = Math.max(cajon.clientWidth || 0, 300);
-  if (!mes.dias.length){
-    cajon.innerHTML = `<p class="vacio">Todavía no hay gastos este mes.<br>
-      Regístralos por WhatsApp o desde el app y aparecen acá.</p>`;
-    return;
+  // La misma fila abre el mismo detalle que su neurona.
+  const modelo = modeloDelMes();
+  for (const b of $("catsLista").querySelectorAll(".fila-cat")){
+    const nodo = modelo.nodos.find((n) => n.tipo === "cat" && n.cat === b.dataset.cat);
+    if (!nodo){ b.disabled = true; continue; }
+    b.onclick = () => { CEREBRO?.acercar(nodo); abrirNodo(nodo); };
   }
-  // 680 en vez de 780: con la lista de categorías al lado el grafo tiene unos
-  // 720px, y el abanico todavía deja ~20 caracteres para cada gasto.
-  cajon.innerHTML = W >= 680 ? anchoSVG(W) : angostoSVG(W);
-  for (const g of cajon.querySelectorAll(".dia")){
-    const abrir = () => {
-      const i = Number(g.dataset.i);
-      mes.sel = (mes.sel === mes.dias[i]) ? null : mes.dias[i];
-      pintar();
-    };
-    g.onclick = abrir;
-    g.onkeydown = (e) => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); abrir(); } };
+}
+
+// ── El dibujo del cerebro ─────────────────────────────────────────────────
+// Canvas 2D y nada más. El contorno es un Path2D en una caja fija de 1000x1000
+// que sirve para dos cosas a la vez: trazar la silueta y sembrar dentro los
+// puntos (isPointInPath). Mismo patrón que crearNebula: mide con guard de
+// cero, se pausa cuando su caja no se ve, 33 cuadros por segundo y un cuadro
+// fijo con movimiento reducido.
+// ── El cerebro, en tres dimensiones ───────────────────────────────────────
+// Una radiografía no es un contorno: es densidad acumulada. Cada muestra de
+// tejido que la vista atraviesa suma brillo, y por eso los bordes (donde se
+// cruza más materia) encienden y el centro queda translúcido. Así que no se
+// dibujan líneas: se reparten decenas de miles de muestras por el volumen,
+// se acumulan en un buffer y ese buffer se convierte en luz.
+//
+// Las muestras van en un Float32Array y se pintan escribiendo píxeles a mano:
+// treinta mil llamadas a la API de canvas por cuadro no caben en el
+// presupuesto, treinta mil sumas a un array sí.
+function volumenCerebro(cuantas, semilla = 7){
+  let azar = semilla;
+  const rnd = () => (azar = (azar * 16807) % 2147483647) / 2147483647;
+  const P = new Float32Array(cuantas * 7);     // x, y, z, nx, ny, nz, peso
+  let i = 0;
+  const mete = (x, y, z, nx, ny, nz, w) => {
+    const m = Math.hypot(nx, ny, nz) || 1;
+    P[i++] = x; P[i++] = y; P[i++] = z;
+    P[i++] = nx / m; P[i++] = ny / m; P[i++] = nz / m; P[i++] = w;
+  };
+
+  const RX = .40, RY = .58, RZ = .80, SEP = .205;
+  const enCorteza = Math.round(cuantas * .72);
+  for (let k = 0; k < enCorteza; k++){
+    const lado = k % 2 ? 1 : -1;
+    const u = rnd() * Math.PI * 2, v = Math.acos(2 * rnd() - 1);
+    // La corteza es una cáscara con grosor, no una superficie: ese grosor es
+    // lo que da la masa. Hacia dentro, menos muestras.
+    // La cáscara necesita grosor de verdad: con poca, al girar se ve el hueco
+    // de dentro y el cerebro parece una rosquilla.
+    const hondo = 1 - Math.pow(rnd(), 1.5) * .62;
+    const pliegue = 1 + .055 * Math.sin(7.5 * u + 2.5 * v) * Math.sin(4.5 * v)
+                      + .026 * Math.sin(13 * v + 2 * u) + .015 * Math.sin(19 * u);
+    const f = hondo * pliegue;
+    const x = lado * SEP + lado * RX * Math.sin(v) * Math.cos(u) * f;
+    const y = RY * Math.cos(v) * f;
+    const z = RZ * Math.sin(v) * Math.sin(u) * f;
+    // La fisura se vacía descartando, no empujando: empujar amontonaba todas
+    // esas muestras en el mismo plano y salía una barra quemada.
+    if (lado * x < .035){ k--; continue; }
+    const surco = .3 + .7 * Math.pow(Math.abs(Math.sin(9 * u + 3 * v)), 1.6);
+    mete(x, y, z, (x - lado * SEP) / (RX * RX), y / (RY * RY), z / (RZ * RZ),
+      (.55 + .45 * hondo) * surco);
   }
-  const mover = (n) => {
-    const tope = Math.max(0, mes.dias.length - VISIBLES);
-    const antes = mes.desde;
-    mes.desde = Math.min(tope, Math.max(0, mes.desde + n));
-    if (mes.desde !== antes) pintar();
-  };
-  for (const f of cajon.querySelectorAll(".flecha")) f.onclick = () => mover(Number(f.dataset.d));
-  // La rueda recorre los días, pero solo mientras haya a dónde ir: si no, la
-  // página queda secuestrada bajo el cursor.
-  cajon.onwheel = (e) => {
-    const tope = Math.max(0, mes.dias.length - VISIBLES);
-    const baja = e.deltaY > 0;
-    if ((baja && mes.desde >= tope) || (!baja && mes.desde <= 0)) return;
-    e.preventDefault();
-    mover(baja ? 1 : -1);
-  };
+  const enCerebelo = Math.round(cuantas * .16);
+  for (let k = 0; k < enCerebelo; k++){
+    const u = rnd() * Math.PI * 2, v = Math.acos(2 * rnd() - 1);
+    const hondo = 1 - Math.pow(rnd(), 1.8) * .35;
+    const rug = 1 + .05 * Math.sin(30 * v);      // el rayado fino que lo delata
+    const cx2 = .33 * Math.sin(v) * Math.cos(u) * hondo * rug;
+    const cy2 = .19 * Math.cos(v) * hondo * rug;
+    const cz2 = .27 * Math.sin(v) * Math.sin(u) * hondo * rug;
+    mete(cx2, .46 + cy2, .40 + cz2, cx2 / .11, cy2 / .036, cz2 / .073,
+      .45 + .45 * Math.abs(Math.sin(16 * v)));
+  }
+  while (i < P.length){
+    const a = rnd() * Math.PI * 2, t = rnd(), r = (.095 - t * .03) * Math.sqrt(rnd());
+    mete(Math.cos(a) * r, .52 + t * .26, .26 + Math.sin(a) * r,
+      Math.cos(a), 0, Math.sin(a), .4);
+  }
+  return P;
 }
 
-function nodoMes(cx, cy, r){
-  return `<g class="nodo-mes">
-    <circle class="halo" cx="${cx}" cy="${cy}" r="${r * 2.9}"/>
-    <circle class="anillo" cx="${cx}" cy="${cy}" r="${r * 1.75}"/>
-    <circle class="anillo" cx="${cx}" cy="${cy}" r="${r * 1.32}"/>
-    <circle class="bola" cx="${cx}" cy="${cy}" r="${r}"/>
-    <ellipse class="luz" cx="${cx - r * .3}" cy="${cy - r * .34}" rx="${r * .42}" ry="${r * .3}"/>
-    <text class="tot" x="${cx}" y="${cy + r * 2.05}" text-anchor="middle">${esc(plata(mes.total, mes.moneda))}</text>
-    <text class="sub" x="${cx}" y="${cy + r * 2.05 + 17}" text-anchor="middle">gastado este mes</text>
-  </g>`;
-}
+// ── El cerebro de verdad, por GPU ─────────────────────────────────────────
+// Un modelo anatómico (NIH 3D, CC BY 4.0) con un material de radiografía: la
+// luz se SUMA capa sobre capa (mezcla aditiva, sin escribir profundidad) y
+// cada fragmento brilla según lo de canto que esté respecto a la cámara. Eso
+// es lo que no se puede imitar dibujando contornos en dos dimensiones.
+// Three.js se carga en diferido: si no llega, el dibujo 2D sigue solo.
 
-function tarjetasDia(x, ancho, alto, hueco, y0){
-  return mes.dias.slice(mes.desde, mes.desde + VISIBLES).map((d, k) => {
-    const i = mes.desde + k;
-    const y = y0 + k * (alto + hueco);
-    const on = mes.sel === d ? " on" : "";
-    const n = d.gastos.length;
-    return `<g class="dia${on}" data-i="${i}" tabindex="0" role="button" style="--i:${k}"
-      aria-label="${esc(d.fecha.getDate())} de ${esc(diaSemana(d.fecha))}, ${esc(plata(d.total, mes.moneda))}">
-      <rect x="${x}" y="${y}" width="${ancho}" height="${alto}" rx="13"/>
-      <circle class="sello" cx="${x + 30}" cy="${y + alto / 2}" r="17"/>
-      <text class="num" x="${x + 30}" y="${y + alto / 2 + 5}" text-anchor="middle">${d.fecha.getDate()}</text>
-      <text class="n" x="${x + 58}" y="${y + alto / 2 - 3}">${esc(plata(d.total, mes.moneda))}</text>
-      <text class="d" x="${x + 58}" y="${y + alto / 2 + 14}">${esc(diaSemana(d.fecha))}</text>
-      <text class="c" x="${x + ancho - 15}" y="${y + alto / 2 + 4}" text-anchor="end">${n} ${n === 1 ? "gasto" : "gastos"}</text>
-    </g>`;
-  }).join("");
-}
+// La librería y el modelo se piden una sola vez aunque haya dos vistas.
+let cargaTres = null;
+const pedirTres = () => cargaTres ||= (async () => {
+  const THREE = await import("three");
+  const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+  const glb = await new GLTFLoader().loadAsync("cerebro.glb");
+  return { THREE, modelo: glb.scene };
+})().catch((e) => { cargaTres = null; throw e; });   // sin red hoy, con red mañana
 
-function flechas(x, arriba, abajo){
-  const tope = Math.max(0, mes.dias.length - VISIBLES);
-  if (!tope) return "";
-  const btn = (y, d, off) => `<g class="flecha${off ? " off" : ""}" data-d="${d}">
-      <rect x="${x}" y="${y}" width="32" height="25" rx="9"/>
-      <path d="${d < 0 ? `M${x + 11},${y + 15} l5,-5.5 l5,5.5` : `M${x + 11},${y + 10} l5,5.5 l5,-5.5`}"/>
-    </g>`;
-  return btn(arriba, -1, mes.desde === 0) + btn(abajo, 1, mes.desde >= tope);
-}
+function crearTres(lienzo){
+  let listo = false, fallo = false, motivo = "", enVuelo = null;
+  let escena = null, camara = null, render = null, pivote = null;
 
-function hoja(x, y, t, anchoTexto, ancla){
-  const col = tono(t.category);
-  return `<g class="gasto" style="--i:${ancla}">
-    <circle cx="${x}" cy="${y}" r="3.4" fill="${col}"/>
-    <circle cx="${x}" cy="${y}" r="7" fill="${col}" opacity=".16"/>
-    <text class="t" x="${x + 14}" y="${y - 2}">${esc(corta(t.description, anchoTexto))}</text>
-    <g transform="translate(${x + 14}, ${y + 4})">
-      <rect class="chip" width="${Math.min(140, 12 + String(t.category || "otros").length * 6.4)}" height="16" rx="8"
-        fill="${col}" fill-opacity=".14"/>
-      <text class="k" x="6" y="11.6" fill="${col}">${esc(corta((t.category || "otros").toLowerCase(), 18))}</text>
-    </g>
-  </g>`;
-}
+  // La promesa se guarda: sin esto, cada repintado durante la descarga del
+  // modelo creaba su propio WebGLRenderer sobre el mismo canvas.
+  const arrancar = () => enVuelo ||= intentar();
 
-// ── Escritorio: mes, días y gastos en abanico ───────────────────────────────
-function anchoSVG(W){
-  const altoDia = 68, hueco = 15;
-  const H = Math.max(440, VISIBLES * (altoDia + hueco) + 120);
-  const cx = Math.max(96, W * 0.11), cy = H / 2, r = 30;
-  const xDia = Math.round(W * 0.27), anchoDia = Math.min(250, W * 0.27);
-  const xGasto = xDia + anchoDia + Math.round((W - xDia - anchoDia) * 0.20);
-  const y0 = cy - (VISIBLES * altoDia + (VISIBLES - 1) * hueco) / 2;
-  const trozo = mes.dias.slice(mes.desde, mes.desde + VISIBLES);
+  async function intentar(){
+    if (listo || fallo) return listo;
+    try{
+      const { THREE, modelo } = await pedirTres();
+      render = new THREE.WebGLRenderer({ canvas: lienzo, alpha: true, antialias: true });
+      render.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+      escena = new THREE.Scene();
+      camara = new THREE.PerspectiveCamera(32, 1, .1, 100);
+      camara.position.set(0, 0, 3.1);
 
-  const hilos = trozo.map((d, k) => {
-    const y = y0 + k * (altoDia + hueco) + altoDia / 2;
-    const on = mes.sel === d;
-    return `<path class="lazo${on ? " on" : ""}" style="--i:${k}"
-      d="${enlace(cx + r + 4, cy, xDia - 2, y, true)}"/>`;
-  }).join("");
-
-  let ramas = "", hojas = "";
-  if (mes.sel){
-    const k = trozo.indexOf(mes.sel);
-    if (k >= 0){
-      const sx = xDia + anchoDia, sy = y0 + k * (altoDia + hueco) + altoDia / 2;
-      const lista = mes.sel.gastos.slice(0, 9);
-      const paso = Math.min(38, (H - 70) / Math.max(lista.length, 1));
-      const yIni = cy - (lista.length - 1) * paso / 2;
-      const anchoHoja = Math.min(400, W - xGasto - 12);
-      const xMonto = xGasto + anchoHoja;
-      const anchoTexto = Math.max(16, Math.floor((anchoHoja - 120) / 6.6));
-      lista.forEach((t, j) => {
-        const y = yIni + j * paso;
-        ramas += `<path class="lazo sub" style="--i:${j}" d="${enlace(sx, sy, xGasto - 10, y, true)}"/>`;
-        hojas += hoja(xGasto - 10, y, t, anchoTexto, j) +
-          `<text class="m" x="${xMonto}" y="${y + 2}" text-anchor="end">${esc(plata(t.amount, t.currency))}</text>`;
+      const material = new THREE.ShaderMaterial({
+        uniforms: { tinte: { value: new THREE.Color(0x9fd2f2) }, fuerza: { value: .42 } },
+        vertexShader: `
+          varying vec3 vN; varying vec3 vV;
+          void main(){
+            vec4 mv = modelViewMatrix * vec4(position, 1.);
+            vN = normalize(normalMatrix * normal);
+            vV = normalize(-mv.xyz);
+            gl_Position = projectionMatrix * mv;
+          }`,
+        fragmentShader: `
+          uniform vec3 tinte; uniform float fuerza; varying vec3 vN; varying vec3 vV;
+          void main(){
+            // De canto, luz; de frente, casi nada: la pared fina del rayos X.
+            float canto = 1. - abs(dot(normalize(vN), normalize(vV)));
+            // Exponente alto: el interior casi no aporta y las neuronas mandan.
+            float i = pow(canto, 3.2) * .8 + .012;
+            gl_FragColor = vec4(tinte * i * fuerza, i * fuerza);
+          }`,
+        transparent: true, blending: THREE.AdditiveBlending,
+        depthWrite: false, side: THREE.DoubleSide,
       });
-      const resto = mes.sel.gastos.length - lista.length;
-      if (resto > 0)
-        hojas += `<text class="mas" x="${xGasto + 4}" y="${yIni + lista.length * paso + 2}">y ${resto} más</text>`;
+
+      // Cada vista tiene su copia: el modelo original se queda intacto para
+      // la siguiente, y así no se recarga el archivo.
+      const cuerpo = modelo.clone(true);
+      cuerpo.traverse((o) => { if (o.isMesh) o.material = material; });
+      const caja = new THREE.Box3().setFromObject(cuerpo);
+      const tam = caja.getSize(new THREE.Vector3()), centro = caja.getCenter(new THREE.Vector3());
+      const k = 1.75 / Math.max(tam.x, tam.y, tam.z);
+      cuerpo.scale.setScalar(k);
+      cuerpo.position.copy(centro).multiplyScalar(-k);
+      pivote = new THREE.Group();
+      pivote.add(cuerpo);
+      escena.add(pivote);
+      listo = true;
+      return true;
+    }catch(e){
+      fallo = true; motivo = e.message;   // sin CDN o sin WebGL: se sigue en 2D
+      return false;
     }
   }
 
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Resumen del mes">${DEFS}
-    <g filter="url(#brillo)">${hilos}${ramas}</g>
-    ${nodoMes(cx, cy, r)}
-    ${tarjetasDia(xDia, anchoDia, altoDia, hueco, y0)}
-    ${flechas(xDia + anchoDia / 2 - 16, y0 - 36, y0 + VISIBLES * (altoDia + hueco) - hueco + 11)}
-    ${hojas}
-  </svg>`;
+  return {
+    arrancar,
+    hay: () => listo,
+    porque: () => motivo,
+    // El 2D manda: le pasa su giro y su zoom para que las dos capas coincidan.
+    // r e inclina vienen del dibujo 2D: si cada capa usa su propia escala,
+    // las neuronas dejan de posarse sobre la corteza (y en móvil, por mucho).
+    pinta(w, h, giro, zoom, dx, dy, r, inclina){
+      if (!listo || !w || !h) return;
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      if (render.getPixelRatio() !== dpr) render.setPixelRatio(dpr);
+      if (render.domElement.width !== Math.round(w * dpr)
+        || render.domElement.height !== Math.round(h * dpr)) render.setSize(w, h, false);
+      camara.aspect = w / h;
+      // Distancia tal que una unidad del modelo mida los mismos r píxeles que
+      // en el canvas 2D: h / (2 r tan(fov/2)).
+      const tan = Math.tan(32 * Math.PI / 360);
+      camara.position.z = (h / (2 * r * tan)) / zoom;
+      // El 2D desplaza zoom*cam px; aquí el desplazamiento es directo en px.
+      camara.setViewOffset(w, h, dx * zoom, dy * zoom, w, h);
+      camara.updateProjectionMatrix();
+      pivote.rotation.y = giro;
+      pivote.rotation.x = inclina;
+      render.render(escena, camara);
+    },
+  };
 }
 
-// ── Teléfono: el mismo árbol, con un carril que baja por la izquierda ───────
-function angostoSVG(W){
-  const altoDia = 62, hueco = 11, carril = 17, x = 40, anchoDia = W - x - 8;
-  const cx = W / 2, cy = 44, r = 23;
-  const y0 = 132;
-  const trozo = mes.dias.slice(mes.desde, mes.desde + VISIBLES);
-  const yUlt = y0 + (trozo.length - 1) * (altoDia + hueco) + altoDia / 2;
+// Sitios de la corteza donde se posan las neuronas con datos// Sitios de la corteza donde se posan las neuronas con datos: repartidos por
+// los dos hemisferios para que una categoría caiga siempre en el mismo lugar.
+const ANCLAS = 14;
 
-  // Un solo tallo baja del nodo y de él salen codos cortos: así ninguna curva
-  // cruza por encima de las tarjetas, que era lo que ensuciaba el dibujo.
-  const tallo = `<path class="lazo tallo" d="M${carril},${cy + r + 44} L${carril},${yUlt}"/>`;
-  const codos = trozo.map((d, k) => {
-    const y = y0 + k * (altoDia + hueco) + altoDia / 2;
-    return `<path class="lazo${mes.sel === d ? " on" : ""}" style="--i:${k}"
-      d="${enlace(carril, y, x - 2, y, true)}"/>`;
-  }).join("");
-  const bajada = `<path class="lazo" d="${enlace(cx - r * .7, cy + r * .7, carril, cy + r + 44, false)}"/>`;
+function crearCerebro(cv, op = {}){
+  const cx = cv.getContext("2d");
+  const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let CUANTOS = op.puntos ?? (innerWidth < 760 ? 12000 : 22000);
+  let VOL = volumenCerebro(CUANTOS);
+  // Los anclajes son muestras de la propia corteza, repartidas: así cada
+  // categoría se posa siempre en el mismo sitio y gira con el tejido.
+  const SITIOS = Array.from({ length: ANCLAS }, (_, i) => {
+    const j = Math.floor((i + .5) / ANCLAS * CUANTOS * .72) * 7;
+    return { x: VOL[j] * 1.04, y: VOL[j + 1] * 1.04, z: VOL[j + 2] * 1.04 };
+  });
+  // El buffer donde se acumula la densidad, a media resolución: al estirarlo
+  // sobre el canvas, el propio suavizado del navegador hace de difuminado.
+  const lienzo = document.createElement("canvas");
+  const lcx = lienzo.getContext("2d");
+  let lw = 0, lh = 0, densidad = null, pixeles = null, imagen = null;
+  const TRES = crearTres($(op.lienzo3d || "cerebro3d"));
 
-  let hojas = "", alto = 0;
-  // Los gastos empiezan bajo los días que SE VEN, no bajo los cinco lugares:
-  // con un mes de un solo día quedaban cuatro huecos vacíos en medio.
-  // Con más días que los visibles, la flecha de bajar va debajo de la última
-  // tarjeta: los gastos empiezan después de ella para no pisarla.
-  const base = y0 + trozo.length * (altoDia + hueco) + (mes.dias.length > VISIBLES ? 34 : 4);
-  if (mes.sel){
-    const k = trozo.indexOf(mes.sel);
-    const sy = k >= 0 ? y0 + k * (altoDia + hueco) + altoDia : base;
-    const lista = mes.sel.gastos.slice(0, 8);
-    const anchoTexto = Math.max(14, Math.floor((W - 150) / 7));
-    const carril2 = x + 16;
-    lista.forEach((t, j) => {
-      const y = base + 20 + j * 34;
-      hojas += `<path class="lazo sub" style="--i:${j}" d="${enlace(carril2, Math.max(sy, base - 8), carril2 + 14, y, false)}"/>`
-        + hoja(carril2 + 14, y, t, anchoTexto, j)
-        + `<text class="m" x="${W - 8}" y="${y + 2}" text-anchor="end">${esc(plata(t.amount, t.currency))}</text>`;
-    });
-    alto = 20 + lista.length * 34;
-    const resto = mes.sel.gastos.length - lista.length;
-    if (resto > 0){ hojas += `<text class="mas" x="${carril2 + 28}" y="${base + alto + 4}">y ${resto} más</text>`; alto += 20; }
+  const CHISPA = document.createElement("canvas");
+  CHISPA.width = CHISPA.height = 64;
+  (() => {
+    const c = CHISPA.getContext("2d");
+    const g = c.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, "rgba(255,247,222,.98)");
+    g.addColorStop(.22, "rgba(243,206,127,.6)");
+    g.addColorStop(1, "rgba(208,165,92,0)");
+    c.fillStyle = g; c.fillRect(0, 0, 64, 64);
+  })();
+
+  let W = 0, H = 0, R = 1, lazo = 0, antes = 0, vivo = false, nacio = null, ultimo = 0;
+  let modelo = { nodos: [], aristas: [] }, puestos = [];
+  let aLaVista = true, encima = null, foco = null, alElegir = null;
+  let giro = 0, cam = { z: 1, x: 0, y: 0 }, meta = { z: 1, x: 0, y: 0 }, enfocado = null;
+  let pulsos = [], proximoPulso = 0, destello = null, proximoDestello = 0, esperaDetalle = 0;
+  // Si la máquina no da para tanto punto, el propio dibujo adelgaza. Medir
+  // aquí es más fiable que adivinar el teléfono por el ancho de pantalla.
+  let lentos = 0, recortes = 0, parado = false;
+
+  const medir = () => {
+    const d = Math.min(devicePixelRatio || 1, 2);
+    const w = cv.clientWidth, h = cv.clientHeight;
+    if (!w || !h) return;                 // en una sección oculta mide cero
+    W = w; H = h;
+    cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
+    R = Math.min(W * .34, H * .58);      // manda el alto: la caja es apaisada
+    // Buffer pequeño a propósito: con pocas muestras por píxel sale ruido de
+    // sal y pimienta, y además al estirarlo el navegador difumina por nosotros.
+    lw = Math.max(70, Math.round(W * .23)); lh = Math.max(60, Math.round(H * .23));
+    lienzo.width = lw; lienzo.height = lh;
+    densidad = new Float32Array(lw * lh);
+    imagen = lcx.createImageData(lw, lh);
+    pixeles = new Uint32Array(imagen.data.buffer);
+  };
+
+  // Gira sobre el eje vertical, con la cabeza algo inclinada, y proyecta.
+  const TILT = .34, CT = Math.cos(TILT), ST = Math.sin(TILT), DIST = 3.2;
+  function proyectar(p, ca, sa){
+    const x = p.x * ca + p.z * sa;
+    let z = p.z * ca - p.x * sa;
+    const y = p.y * CT - z * ST;
+    z = z * CT + p.y * ST;
+    const s = DIST / (DIST - z);
+    return { X: W / 2 + x * R * s, Y: H / 2 + y * R * s, Z: z, s };
   }
-  const H = base + alto + 18;
+  const normalZ = (p, ca, sa) => {
+    const z = p.nz * ca - p.nx * sa;
+    return z * CT + p.ny * ST;
+  };
 
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Resumen del mes">${DEFS}
-    <g filter="url(#brillo)">${bajada}${tallo}${codos}</g>
-    ${nodoMes(cx, cy, r)}
-    ${tarjetasDia(x, anchoDia, altoDia, hueco, y0)}
-    ${flechas(W - 44, y0 - 32, y0 + VISIBLES * (altoDia + hueco) - hueco + 9)}
-    ${hojas}
-  </svg>`;
+  function colocar(){
+    puestos = [];
+    if (!modelo.nodos.length) return;
+    const mayor = Math.max(...modelo.nodos.map((n) => n.total || 0), 1);
+    modelo.nodos.forEach((nodo, i) => {
+      const sitio = nodo.tipo === "centro"
+        ? { x: 0, y: -.06, z: 0, nx: 0, ny: -1, nz: 0 }      // en el medio
+        : SITIOS[hash(nodo.cat || nodo.etiqueta) % ANCLAS];
+      const prop = Math.sqrt(Math.max(0, nodo.total) / mayor);
+      puestos.push({ nodo, p: sitio, X: 0, Y: 0, Z: 0, s: 1,
+        r: nodo.tipo === "centro" ? 16 : Math.max(nodo.tipo === "cat" ? 7 : 5,
+          prop * (nodo.tipo === "cat" ? 17 : 12)),
+        color: nodo.tipo === "centro" ? "#f3ce7f" : tono(nodo.cat || nodo.etiqueta),
+        fase: (i * 97 % 628) / 100 });
+    });
+  }
+
+  // Las dendritas del nodo abierto: un arbolito que crece al acercarse, que es
+  // lo que se ve cuando la cámara entra en la corteza.
+  function dendrita(x, y, ang, largo, grosor, hondo, crece){
+    if (hondo <= 0 || largo < 3) return;
+    const fin = largo * crece;
+    const x2 = x + Math.cos(ang) * fin, y2 = y + Math.sin(ang) * fin;
+    cx.lineWidth = grosor;
+    cx.beginPath(); cx.moveTo(x, y);
+    cx.quadraticCurveTo(x + Math.cos(ang - .3) * fin * .6, y + Math.sin(ang - .3) * fin * .6, x2, y2);
+    cx.stroke();
+    if (crece < .35) return;
+    const sig = Math.max(0, (crece - .3) / .7);
+    dendrita(x2, y2, ang - .42 - hondo * .05, largo * .66, grosor * .66, hondo - 1, sig);
+    dendrita(x2, y2, ang + .46 + hondo * .04, largo * .62, grosor * .66, hondo - 1, sig);
+  }
+
+  function cuadro(t){
+    if (!W || !cam) return;
+    if (nacio === null) nacio = t;
+    const abre = quieto ? 1 : Math.min(1, (t - nacio) / 700);
+    const dt = Math.min(90, ultimo ? t - ultimo : 16);
+    ultimo = t;
+    if (TRES.hay() || dt <= 46) lentos = 0;       // solo cuentan los seguidos
+    else if (++lentos > 14 && recortes < 2){
+      lentos = 0; recortes++;
+      CUANTOS = Math.round(CUANTOS * .55);
+      VOL = volumenCerebro(CUANTOS);      // un array tipado no se recorta: se rehace
+    }
+    if (!quieto){
+      // Mientras se señala o se mira un nodo, el cerebro casi se detiene: con
+      // el giro a plena marcha, apuntar a una neurona es perseguirla.
+      const freno = (encima || enfocado) ? .12 : 1;
+      giro += dt * .00016 * freno;                // vuelta lenta, como el vídeo
+      const k = 1 - Math.pow(.004, dt / 1000);
+      cam.z += (meta.z - cam.z) * k;
+      cam.x += (meta.x - cam.x) * k;
+      cam.y += (meta.y - cam.y) * k;
+    } else { cam = { ...meta }; }
+    const ca = Math.cos(giro), sa = Math.sin(giro);
+
+    cx.clearRect(0, 0, W, H);
+    cx.save();
+    cx.translate(W / 2, H / 2);
+    cx.scale(cam.z, cam.z);
+    cx.translate(-W / 2 - cam.x, -H / 2 - cam.y);
+
+    // ── El tejido ────────────────────────────────────────────────────────
+    // Con el modelo cargado manda la GPU y aquí no se pinta nada. Lo de abajo
+    // es el respaldo: acumulación de densidad en 2D, por si el CDN no llega,
+    // no hay WebGL, o mientras el modelo está en camino.
+    if (TRES.hay()){
+      TRES.pinta(W, H, giro, cam.z, cam.x, cam.y, R, TILT);
+    } else {
+    densidad.fill(0);
+    const cxl = lw / 2, cyl = lh / 2, fac = lw / W;
+    for (let k = 0; k < VOL.length; k += 7){
+      const px = VOL[k], py = VOL[k + 1], pz = VOL[k + 2];
+      const x3 = px * ca + pz * sa;
+      let z3 = pz * ca - px * sa;
+      const y3 = py * CT - z3 * ST;
+      z3 = z3 * CT + py * ST;
+      const esc2 = DIST / (DIST - z3);
+      const X = cxl + x3 * R * esc2 * fac, Y = cyl + y3 * R * esc2 * fac;
+      const ix = X | 0, iy = Y | 0;
+      if (ix < 0 || iy < 0 || ix >= lw - 1 || iy >= lh - 1) continue;
+      // La muestra se reparte entre los cuatro píxeles que toca: sin esto,
+      // cada punto cae entero en uno y el tejido sale granulado.
+      const fx = X - ix, fy = Y - iy;
+      // El canto pesa: una muestra cuya normal apunta a la cámara aporta poco
+      // y una de perfil aporta mucho. De ahí el contorno encendido.
+      let nz3 = VOL[k + 5] * ca - VOL[k + 3] * sa;
+      nz3 = nz3 * CT + VOL[k + 4] * ST;
+      const canto = Math.pow(1 - Math.abs(nz3), 1.9);
+      const w = VOL[k + 6] * (.2 + 1.8 * canto) * (.8 + .4 * (z3 + 1) / 2);
+      const f = iy * lw + ix;
+      densidad[f] += w * (1 - fx) * (1 - fy);
+      densidad[f + 1] += w * fx * (1 - fy);
+      densidad[f + lw] += w * (1 - fx) * fy;
+      densidad[f + lw + 1] += w * fx * fy;
+    }
+    // Densidad a luz: la curva satura, así que el borde quema y el centro
+    // queda translúcido en vez de verse todo plano.
+    const gan = .92 * abre;
+    for (let i2 = 0; i2 < densidad.length; i2++){
+      const v = densidad[i2];
+      if (v <= 0){ pixeles[i2] = 0; continue; }
+      const a = 1 - Math.exp(-v * .14);      // satura despacio: deja gradiente
+      const lum = Math.min(235, 255 * a * gan) | 0;
+      // Azul muy claro: más cuerpo en azul y verde que en rojo.
+      pixeles[i2] = ((Math.min(255, lum * 1.06) | 0) << 24)
+        | (250 << 16) | (238 << 8) | 206;
+    }
+    lcx.putImageData(imagen, 0, 0);
+    cx.imageSmoothingEnabled = true;
+    cx.imageSmoothingQuality = "high";
+    cx.globalCompositeOperation = "lighter";
+    cx.drawImage(lienzo, 0, 0, W, H);             // estirar difumina y da el halo
+    cx.globalAlpha = .5;
+    cx.drawImage(lienzo, -2, -2, W + 4, H + 4);   // segunda pasada: resplandor
+    cx.globalAlpha = 1;
+    cx.globalCompositeOperation = "source-over";
+    }
+
+    if (!puestos.length){ cx.restore(); return; }
+
+    // Las neuronas con datos viajan con la corteza.
+    for (const q of puestos){
+      const pr = proyectar(q.p, ca, sa);
+      q.X = pr.X; q.Y = pr.Y; q.Z = pr.Z; q.s = pr.s;
+    }
+
+    // Axones entre ellas, más tenues cuanto más atrás quedan.
+    cx.lineWidth = 1;
+    for (let capa = 0; capa < 3; capa++){
+      cx.beginPath();
+      for (const ar of modelo.aristas){
+        const A = puestos[ar.a], B = puestos[ar.b];
+        if (!A || !B) continue;
+        const prof = Math.max(0, Math.min(2, (((A.Z + B.Z) / 2 + 1) * 1.5) | 0));
+        if (prof !== capa) continue;
+        const mx = (A.X + B.X) / 2 + (A.Y - B.Y) * .14, my = (A.Y + B.Y) / 2 + (B.X - A.X) * .14;
+        cx.moveTo(A.X, A.Y); cx.quadraticCurveTo(mx, my, B.X, B.Y);
+      }
+      cx.strokeStyle = `rgba(243,206,127,${((.06 + capa * .07) * abre).toFixed(3)})`;
+      cx.stroke();
+    }
+
+    if (!quieto && modelo.aristas.length){
+      if (t > proximoPulso){
+        pulsos.push({ ar: modelo.aristas[(Math.random() * modelo.aristas.length) | 0], t0: t });
+        proximoPulso = t + 380 + Math.random() * 620;
+      }
+      if (t > proximoDestello){
+        destello = { i: (Math.random() * puestos.length) | 0, t0: t };
+        proximoDestello = t + 800 + Math.random() * 1500;
+      }
+      pulsos = pulsos.filter((p) => t - p.t0 < 1100);
+    }
+
+    cx.globalCompositeOperation = "lighter";
+    for (const pul of pulsos){
+      const A = puestos[pul.ar.b], B = puestos[pul.ar.a];
+      if (!A || !B) continue;
+      const u = Math.min(1, (t - pul.t0) / 1100), v = 1 - u;
+      const mx = (A.X + B.X) / 2 + (A.Y - B.Y) * .14, my = (A.Y + B.Y) / 2 + (B.X - A.X) * .14;
+      const x = v * v * A.X + 2 * v * u * mx + u * u * B.X;
+      const y = v * v * A.Y + 2 * v * u * my + u * u * B.Y;
+      cx.globalAlpha = .8 * Math.sin(u * Math.PI) * abre;
+      cx.drawImage(CHISPA, x - 14, y - 14, 28, 28);
+    }
+    for (let i = 0; i < puestos.length; i++){
+      const q = puestos[i];
+      let late = quieto ? .6 : .55 + .45 * Math.sin(q.fase + t / 900);
+      if (destello && destello.i === i){
+        const u = (t - destello.t0) / 700;
+        if (u > 1) destello = null; else late += 1.5 * Math.sin(u * Math.PI);
+      }
+      const halo = q.r * q.s * (4 + late * 2.1);
+      cx.globalAlpha = Math.min(1, .6 + .5 * late) * abre * (.75 + .25 * (q.Z + 1) / 2);
+      cx.drawImage(CHISPA, q.X - halo, q.Y - halo, halo * 2, halo * 2);
+    }
+    cx.globalCompositeOperation = "source-over";
+
+    const elegido = encima || foco || enfocado;
+    for (const q of puestos){
+      cx.globalAlpha = abre * (.65 + .35 * (q.Z + 1) / 2);
+      cx.fillStyle = q.color;
+      cx.beginPath(); cx.arc(q.X, q.Y, q.r * q.s, 0, 7); cx.fill();
+      // Un filo oscuro las despega del tejido encendido de detrás.
+      cx.globalAlpha = abre * .5; cx.strokeStyle = "rgba(6,10,18,.9)"; cx.lineWidth = 1.5;
+      cx.beginPath(); cx.arc(q.X, q.Y, q.r * q.s + .8, 0, 7); cx.stroke();
+      if (elegido === q.nodo.k){
+        cx.globalAlpha = 1;
+        cx.strokeStyle = "#f3ce7f"; cx.lineWidth = 2;
+        cx.beginPath(); cx.arc(q.X, q.Y, q.r * q.s + 7, 0, 7); cx.stroke();
+      }
+    }
+
+    // Las ramas de cada neurona, siempre encendidas aunque tenues: son la
+    // imagen que se buscaba, no un premio por hacer zoom.
+    cx.lineCap = "round";
+    for (const q of puestos){
+      if (q.nodo.tipo === "dia" && q.r < 7) continue;        // las pequeñas, sin ramas
+      const late = quieto ? .6 : .5 + .5 * Math.sin(q.fase + t / 900);
+      const cuantas = q.nodo.tipo === "centro" ? 7 : 5;
+      cx.strokeStyle = `rgba(250,220,155,${(.34 + .42 * late).toFixed(2)})`;
+      for (let i = 0; i < cuantas; i++)
+        dendrita(q.X, q.Y, (i / cuantas) * 6.283 + q.fase + t / 11000,
+          (q.r * q.s) * 3.6, 1.4, 3, .85 + .15 * late);
+    }
+
+    // De cerca, la neurona abierta las abre del todo, una por gasto.
+    if (enfocado && cam.z > 1.3){
+      const q = puestos.find((p) => p.nodo.k === enfocado);
+      const cuantas = Math.min((q?.nodo.gastos || []).length || 3, 9);
+      const crece = Math.min(1, (cam.z - 1.3) / .9);
+      if (q){
+        cx.strokeStyle = `rgba(243,206,127,${(.75 * crece).toFixed(2)})`;
+        cx.lineCap = "round";
+        for (let i = 0; i < cuantas; i++)
+          dendrita(q.X, q.Y, (i / cuantas) * 6.283 + t / 9000,
+            46 + (i % 3) * 16, 1.6, 3, crece);
+      }
+    }
+    cx.globalAlpha = 1;
+    cx.restore();
+  }
+
+  const ciclo = (ms) => {
+    if (!vivo) return;
+    if (!document.hidden && aLaVista && ms - antes > 28){ antes = ms; cuadro(ms); }
+    lazo = requestAnimationFrame(ciclo);
+  };
+  if ("IntersectionObserver" in window)
+    new IntersectionObserver(([e]) => {
+      aLaVista = e.isIntersecting;
+      // Parado es parado: con el historial abierto, la tarjeta de debajo no
+      // tiene por qué repintarse al girar el teléfono.
+      if (aLaVista && !parado){ medir(); cuadro(performance.now()); }
+    }).observe(cv);
+  addEventListener("resize", () => {
+    if (!parado && (vivo || quieto) && aLaVista){ medir(); cuadro(performance.now()); }
+  });
+
+  // ponytail: hit-test lineal sobre decenas de nodos; rejilla si algún día son miles.
+  const buscar = (cliX, cliY) => {
+    const caja = cv.getBoundingClientRect();
+    const x = (cliX - caja.left - W / 2) / cam.z + W / 2 + cam.x;
+    const y = (cliY - caja.top - H / 2) / cam.z + H / 2 + cam.y;
+    const gordo = matchMedia("(pointer:coarse)").matches ? 20 : 13;
+    let mejor = null, dist = Infinity;
+    for (const q of puestos){
+      const d = (q.X - x) ** 2 + (q.Y - y) ** 2;
+      if (d < (q.r * q.s + gordo) ** 2 && d < dist){ dist = d; mejor = q; }
+    }
+    return mejor;
+  };
+
+  if (matchMedia("(pointer:fine)").matches)
+    cv.addEventListener("pointermove", (e) => {
+      const q = buscar(e.clientX, e.clientY);
+      const k = q ? q.nodo.k : null;
+      if (k !== encima){
+        encima = k; cv.style.cursor = k ? "pointer" : "default";
+        if (quieto) cuadro(0);
+      }
+    }, { passive: true });
+  cv.addEventListener("pointerleave", () => { encima = null; }, { passive: true });
+  cv.addEventListener("click", (e) => {
+    const q = buscar(e.clientX, e.clientY);
+    if (!q){ soltar(); return; }
+    acercar(q.nodo);
+    clearTimeout(esperaDetalle);
+    esperaDetalle = setTimeout(() => alElegir && alElegir(q.nodo), quieto ? 0 : 620);
+  });
+
+  function acercar(nodo){
+    const q = puestos.find((p) => p.nodo.k === nodo.k);
+    if (!q) return;
+    enfocado = nodo.k;
+    meta = { z: nodo.tipo === "centro" ? 1.8 : 2.5, x: q.X - W / 2, y: q.Y - H / 2 };
+  }
+  function soltar(){
+    clearTimeout(esperaDetalle);
+    enfocado = null;
+    meta = { z: 1, x: 0, y: 0 };
+  }
+
+  return {
+    datos(m){ modelo = m; nacio = null; medir(); colocar();
+      if (!vivo) this.arrancar(); else cuadro(performance.now()); },
+    arrancar(){
+      medir(); parado = false;
+      TRES.arrancar().then((ok) => { if (ok && !parado) cuadro(performance.now()); });
+      if (quieto){ vivo = false; return cuadro(0); }
+      if (vivo) return;
+      vivo = true; cancelAnimationFrame(lazo); lazo = requestAnimationFrame(ciclo);
+    },
+    parar(){ vivo = false; parado = true; cancelAnimationFrame(lazo); clearTimeout(esperaDetalle); },
+    alElegir(fn){ alElegir = fn; },
+    foco(k){ foco = k; if (quieto) cuadro(0); },
+    acercar, soltar,
+    nodos(){ return modelo.nodos; },
+  };
 }
 
-// Al girar el teléfono o cambiar el ancho, el grafo se vuelve a repartir.
-let remedir;
-window.addEventListener("resize", () => {
-  clearTimeout(remedir);
-  remedir = setTimeout(() => { if ((location.hash || "#resumen") === "#resumen") pintar(); }, 180);
-});
+const modeloDelMes = () =>
+  construirCerebro(mes.dias.flatMap((d) => d.gastos), mes.moneda);
+
+let CEREBRO = null;
+
+// Se conserva el nombre del dibujo anterior: lo llaman cargarMes(), tab() y el
+// arranque, y no hace falta tocar ninguno de los tres.
+function pintar(){
+  if (!CEREBRO) CEREBRO = crearCerebro($("cerebro"));
+  const nota = $("grafNota");
+  if (!mes.cargado){ nota.textContent = "Cargando tu mes…"; return; }
+  const m = modeloDelMes();
+  nota.innerHTML = mes.dias.length
+    ? notaDescartes(m)
+    : "Todavía no hay gastos este mes. En cuanto registres uno, su neurona se enciende.";
+  CEREBRO.datos(m);
+  CEREBRO.alElegir((nodo) => abrirNodo(nodo));
+  listaAccesible(m);
+}
+
+// Lo que no entra en el dibujo se dice, no se esconde: si hay gastos en otra
+// moneda, el total de arriba no cuadra con lo que el usuario recuerda.
+function notaDescartes(m){
+  const otras = [...m.descartadas.entries()];
+  if (!otras.length) return "Toca un nodo para ver su detalle: el centro es tu mes, los anillos tus categorías y sus días.";
+  const trozo = otras.map(([cur, d]) => `${d.n} ${d.n === 1 ? "gasto" : "gastos"} en ${esc(cur)}`).join(" y ");
+  return `Toca un nodo para ver su detalle. ${trozo} no ${otras.length === 1 && otras[0][1].n === 1 ? "entra" : "entran"} en este total, que va en ${esc(m.moneda)}.`;
+}
+
+// ── El cerebro entero ─────────────────────────────────────────────────────
+// Lo que ya se trajo, por mes. Se siembra con el mes en curso, que ya está en
+// memoria, así que abrir la vista enseña algo desde el primer cuadro.
+// ponytail: caché sin caducidad, muere al recargar la página.
+const HIST = new Map();
+const MESES_ATRAS = 12;
+
+// Safari no congela el fondo con showModal, así que lo hacemos a mano. Se
+// recalcula mirando los dos diálogos, nunca se escribe "a ciegas" desde uno.
+function ajustarFondo(){
+  document.body.style.overflow = ($("dlgNodo").open || $("dlgCerebro").open) ? "hidden" : "";
+}
+
+const claveMes = (f) => `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, "0")}`;
+
+async function cargarHistorialCerebro(alAvanzar){
+  const hoy = new Date();
+  HIST.set(claveMes(hoy), mes.dias.flatMap((d) => d.gastos));
+  const pedir = [];
+  for (let i = 1; i < MESES_ATRAS; i++){
+    const f = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+    if (!HIST.has(claveMes(f))) pedir.push({ f, m: f.getMonth() + 1, y: f.getFullYear() });
+  }
+  const fallidos = [];
+  let vacios = 0;
+  // De cuatro en cuatro: doce peticiones a la vez contra un backend chico es
+  // maltrato, y una detrás de otra son doce esperas encadenadas.
+  for (let i = 0; i < pedir.length; i += 4){
+    const lote = pedir.slice(i, i + 4);
+    const res = await Promise.allSettled(
+      lote.map((x) => api(`/transactions/?month=${x.m}&year=${x.y}`)));
+    res.forEach((r, j) => {
+      if (r.status !== "fulfilled"){ fallidos.push(lote[j]); return; }
+      const txs = r.value || [];
+      HIST.set(claveMes(lote[j].f), txs);
+      vacios = txs.length ? 0 : vacios + 1;
+    });
+    alAvanzar(HIST.size, fallidos.length);
+    if (vacios >= 3) break;         // tres meses seguidos en blanco: más atrás no hay nada
+  }
+  return fallidos;
+}
+
+// El modelo del periodo entero: el centro, un nodo por mes y uno por
+// categoría. Los días no entran: trescientos puntos sin nombre no dicen nada.
+function construirHistorial(){
+  const todo = [...HIST.values()].flat();
+  const gasto = todo.filter((t) => t && t.type === "expense");
+  // La moneda se decide sobre TODA la ventana, no mes a mes: si no, quedarían
+  // nodos en soles al lado de nodos en dólares, comparándose por tamaño.
+  const porMoneda = new Map();
+  for (const t of gasto) porMoneda.set(t.currency, (porMoneda.get(t.currency) || 0) + (Number(t.amount) || 0));
+  const moneda = [...porMoneda.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || mes.moneda;
+
+  const base = construirCerebro(gasto, moneda);        // centro y categorías, ya hechos
+  const nodos = base.nodos.filter((n) => n.tipo !== "dia");
+  const idx = new Map(nodos.map((n, i) => [n.k, i]));
+  const aristas = base.aristas.filter((a) =>
+    idx.has(base.nodos[a.a].k) && idx.has(base.nodos[a.b].k))
+    .map((a) => ({ a: idx.get(base.nodos[a.a].k), b: idx.get(base.nodos[a.b].k), peso: a.peso }));
+
+  // Un nodo por mes, colgado del centro, con sus propias categorías.
+  for (const [k, txs] of [...HIST.entries()].sort().reverse()){
+    const suyos = txs.filter((t) => t && t.type === "expense" && t.currency === moneda);
+    if (!suyos.length) continue;
+    const total = suyos.reduce((a, t) => a + (Number(t.amount) || 0), 0);
+    const f = new Date(Number(k.slice(0, 4)), Number(k.slice(5)) - 1, 1);
+    idx.set("mes:" + k, nodos.length);
+    nodos.push({ k: "mes:" + k, tipo: "mes", cat: k,
+      etiqueta: f.toLocaleDateString("es-PE", { month:"long", year:"numeric" }),
+      total, n: suyos.length, gastos: suyos, moneda, deQue: base.total });
+    aristas.push({ a: 0, b: idx.get("mes:" + k), peso: total });
+    // Y con las categorías en las que gastó ese mes.
+    const suyasCat = new Map();
+    for (const t of suyos){
+      const kc = "cat:" + catNorm(t);
+      const destino = idx.has(kc) ? kc : "cat:otras";
+      if (idx.has(destino)) suyasCat.set(destino, (suyasCat.get(destino) || 0) + (Number(t.amount) || 0));
+    }
+    for (const [kc, v] of suyasCat)
+      aristas.push({ a: idx.get("mes:" + k), b: idx.get(kc), peso: v });
+  }
+  return { nodos, aristas, idx, total: base.total, moneda, descartadas: base.descartadas };
+}
+
+let CEREBRO_TODO = null, turnoHistorial = 0;
+
+async function abrirCerebroEntero(){
+  const miTurno = ++turnoHistorial;      // si se reabre, la pasada vieja calla
+  const dlg = $("dlgCerebro");
+  if (!dlg.open) dlg.showModal();
+  ajustarFondo();
+  // Todo lo que queda debajo del fondo opaco se apaga: seguían pintando a
+  // treinta cuadros por segundo sin que nadie los viera.
+  window.CIELO.pausado = true;
+  ORBE.parar();
+  CEREBRO?.parar();
+  if (!CEREBRO_TODO)
+    CEREBRO_TODO = crearCerebro($("cerebroTodo"), { lienzo3d: "cerebroTodo3d" });
+  const pintarTodo = () => {
+    const m = construirHistorial();
+    CEREBRO_TODO.datos(m);
+    CEREBRO_TODO.alElegir((nodo) => abrirNodo(nodo));
+    listaAccesible(m, "cerebroTodoLista");
+    return m;
+  };
+  pintarTodo();
+  $("cerebroEstado").textContent = "trayendo tu historial…";
+  const fallidos = await cargarHistorialCerebro((hechos) => {
+    if (miTurno !== turnoHistorial) return;
+    $("cerebroEstado").textContent = `trayendo tu historial · ${hechos} de ${MESES_ATRAS} meses`;
+    if (dlg.open) pintarTodo();
+  });
+  // Se cerró mientras cargaba, o se reabrió y manda la pasada nueva.
+  if (!dlg.open || miTurno !== turnoHistorial) return;
+  const m = pintarTodo();
+  const conDatos = m.nodos.filter((n) => n.tipo === "mes").length;
+  const otras = [...m.descartadas.entries()];
+  $("cerebroEstado").innerHTML = `${conDatos} ${conDatos === 1 ? "mes" : "meses"} con movimientos`
+    + (otras.length ? (() => {
+        const n = otras.reduce((a, [, d]) => a + d.n, 0);
+        return ` · ${n} ${n === 1 ? "gasto" : "gastos"} en otra moneda fuera`;
+      })() : "")
+    + (fallidos.length
+      ? ` · <button type="button" id="reintentaMeses">${fallidos.length} no ${
+          fallidos.length === 1 ? "cargó" : "cargaron"}, reintentar</button>`
+      : "");
+  const re = $("reintentaMeses");
+  if (re) re.onclick = () => abrirCerebroEntero();
+}
+
+(() => {
+  const dlg = $("dlgCerebro");
+  $("verTodo").onclick = abrirCerebroEntero;
+  $("cerebroCerrar").onclick = () => { dlg.close(); ajustarFondo(); };
+  dlg.addEventListener("close", () => {
+    ajustarFondo();
+    window.CIELO.pausado = false;
+    ORBE.seguir();
+    CEREBRO_TODO?.parar();
+    CEREBRO?.arrancar();          // vuelve a la vista el de la tarjeta
+  });
+})();
+
+// La previsualización de un nodo. Un solo diálogo para los tres contenidos:
+// el mes entero, una categoría o un día.
+function abrirNodo(nodo){
+  const dlg = $("dlgNodo");
+  const fila = (color, que, chip, cuanto) => `<li>
+    <span class="punto" style="background:${color}"></span>
+    <span class="qu">${que}${chip ? `<span class="cuando">${chip}</span>` : ""}</span>
+    <span class="cu">${cuanto}</span></li>`;
+
+  let titulo = "", cuerpo = "";
+  if (nodo.tipo === "centro" || nodo.tipo === "mes"){
+    const m = nodo.tipo === "centro" ? modeloDelMes()
+      : construirCerebro(nodo.gastos, nodo.moneda);
+    const cats = m.nodos.filter((n) => n.tipo === "cat").sort((a, b) => b.total - a.total);
+    titulo = nodo.tipo === "centro" ? "Tu mes, por categorías"
+      : `${nombreCat(nodo.etiqueta)}, por categorías`;
+    cuerpo = `<div class="cifra">${plata(nodo.total, nodo.moneda)}</div>
+      <p class="pie">${nodo.n} ${nodo.n === 1 ? "gasto" : "gastos"} en ${cats.length}
+        ${cats.length === 1 ? "categoría" : "categorías"}</p>
+      <ol>` + cats.map((c) => fila(tono(c.cat), esc(nombreCat(c.etiqueta)),
+        `${c.n} ${c.n === 1 ? "gasto" : "gastos"} · ${nodo.total ? Math.round(c.total / nodo.total * 100) : 0}%`,
+        plata(c.total, c.moneda))).join("") + "</ol>";
+  } else {
+    const gastos = [...nodo.gastos].sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at));
+    const tope = gastos.slice(0, 40);
+    titulo = nodo.tipo === "cat" ? nombreCat(nodo.etiqueta)
+      : `${nombreCat(nodo.etiqueta)} de ${nodo.fecha.toLocaleDateString("es-PE", { month:"long" })}`;
+    const sobre = nodo.deQue || mes.total;
+    const pct = sobre ? Math.round(nodo.total / sobre * 100) : 0;
+    cuerpo = `<div class="cifra">${plata(nodo.total, nodo.moneda)}</div>
+      <p class="pie">${nodo.n} ${nodo.n === 1 ? "gasto" : "gastos"}${
+        nodo.tipo === "cat" ? ` · ${pct}% de tu mes` : ""}</p>
+      <ol>` + tope.map((t) => {
+        const cuando = new Date(t.occurred_at);
+        const dato = nodo.tipo === "cat"
+          ? `${diaSemana(cuando)} ${cuando.getDate()}`
+          : nombreCat(catNorm(t));
+        return fila(tono(catNorm(t)), esc(corta(t.description, 90)), esc(dato),
+          plata(Number(t.amount) || 0, t.currency));
+      }).join("") + "</ol>"
+      + (gastos.length > tope.length ? `<p class="pie">y ${gastos.length - tope.length} más</p>` : "");
+  }
+  $("dlgTit").textContent = titulo;
+  $("dlgCuerpo").innerHTML = cuerpo;
+  if (!dlg.open) dlg.showModal();        // showModal sobre uno ya abierto lanza
+  ajustarFondo();
+}
+
+const nombreCat = (c) => { c = String(c || "").trim(); return c.charAt(0).toUpperCase() + c.slice(1); };
+
+(() => {
+  const dlg = $("dlgNodo");
+  dlg.addEventListener("close", () => {
+    ajustarFondo();
+    CEREBRO?.soltar();
+    CEREBRO_TODO?.soltar();
+  });
+  $("dlgCerrar").onclick = () => { dlg.close(); ajustarFondo(); };
+  // Clic fuera: se compara contra la caja, que el target del diálogo también
+  // salta al soltar dentro tras arrastrar para seleccionar texto.
+  dlg.addEventListener("click", (e) => {
+    const c = dlg.getBoundingClientRect();
+    if (e.clientX < c.left || e.clientX > c.right || e.clientY < c.top || e.clientY > c.bottom)
+      dlg.close();
+  });
+})();
+
+// El canvas no existe para quien navega con teclado o lector: al lado va una
+// lista de botones de verdad, invisible, que abre los mismos detalles.
+function listaAccesible(m, destino = "cerebroLista"){
+  const donde = $(destino);
+  // Si el teclado está dentro de esta lista, se recuerda dónde para no tirar
+  // el foco al body en mitad de la navegación.
+  const teniaFoco = donde.contains(document.activeElement)
+    ? document.activeElement.dataset.n : null;
+  donde.innerHTML = m.nodos.map((n, i) => {
+    const q = n.tipo === "centro" ? `Todo el mes, ${plata(n.total, n.moneda)}, ${n.n} gastos`
+      : n.tipo === "cat" ? `Categoría ${esc(n.etiqueta)}, ${plata(n.total, n.moneda)}, ${n.n} gastos`
+      : n.tipo === "mes" ? `Mes de ${esc(n.etiqueta)}, ${plata(n.total, n.moneda)}, ${n.n} gastos`
+      : `${esc(n.etiqueta)}, ${plata(n.total, n.moneda)}, ${n.n} gastos`;
+    return `<li><button type="button" data-n="${i}">${q}</button></li>`;
+  }).join("");
+  const cual = destino === "cerebroLista" ? () => CEREBRO : () => CEREBRO_TODO;
+  for (const b of donde.querySelectorAll("button")){
+    const nodo = m.nodos[Number(b.dataset.n)];
+    b.onclick = () => { cual()?.acercar(nodo); abrirNodo(nodo); };
+    b.onfocus = () => cual()?.foco(nodo.k);
+    b.onblur = () => cual()?.foco(null);
+  }
+  if (teniaFoco !== null){
+    const vuelve = donde.querySelector(`button[data-n="${teniaFoco}"]`);
+    if (vuelve) vuelve.focus();
+  }
+}
 
 // ── Panel de administración ────────────────────────────────────────────────
 // Lo que antes vivía en /dashboard/admin/. Solo lo ve quien pasa el filtro del
@@ -2605,6 +3403,9 @@ function crearNebula(cv, op = {}){
       modo = "forma"; correr();
     },
     parar,
+    // Reanudar no es volver a nacer: sin esto, el orbe se rearmaba entero
+    // cada vez que se cerraba el cerebro grande.
+    seguir(){ if (modo !== "off") return; medir(); modo = "vive"; correr(); },
     // Se forma, estalla y se apaga. Resuelve cuando la pantalla ya está limpia.
     bienvenida(){
       if (quieto) return Promise.resolve();
