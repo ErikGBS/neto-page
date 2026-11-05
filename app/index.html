@@ -209,9 +209,34 @@
 
   /* ── Entrar ─────────────────────────────────────────────────────────────── */
   .entrar{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-  .entrar .caja{background:var(--surface);border:1px solid var(--border);border-radius:22px;
-    padding:38px 28px;text-align:center;max-width:390px;width:100%}
-  .entrar .astro{position:static;display:block;width:150px;margin:-96px auto 6px}
+  .entrar .caja{background:rgba(13,19,32,.56);border:1px solid var(--border);border-radius:22px;
+    padding:38px 28px;text-align:center;max-width:390px;width:100%;position:relative;z-index:1;
+    backdrop-filter:blur(18px) saturate(130%);-webkit-backdrop-filter:blur(18px) saturate(130%);
+    box-shadow:0 26px 80px rgba(0,0,0,.55)}
+  .entrar .astro{position:static;display:block;width:150px;margin:-96px auto 6px;
+    animation:flota 6s ease-in-out infinite}
+
+  /* La nébula: una esfera de puntos enlazados detrás de la caja de acceso.
+     Mientras se valida la sesión la caja se va y queda solo la esfera. */
+  #nebula{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  .saludo{display:none}
+  .entrar.entrando .caja{display:none}
+  .entrar.entrando .saludo{display:block;position:relative;z-index:1;text-align:center;
+    font-family:var(--tit);font-size:2.1rem;font-weight:700;letter-spacing:-.02em;
+    animation:asomar 2.15s ease-out both}
+  .entrar.entrando .saludo small{display:block;font-family:var(--cuerpo);font-size:.8rem;
+    font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-top:10px}
+  @keyframes asomar{
+    0%{opacity:0;transform:scale(.92);filter:blur(6px)}
+    30%{opacity:1;transform:none;filter:none}
+    72%{opacity:1;transform:none;filter:none}
+    100%{opacity:0;transform:scale(1.08);filter:blur(4px)}}
+  @keyframes llegada{from{opacity:0;transform:translateY(10px) scale(.995)}to{opacity:1;transform:none}}
+  .shell.llega{animation:llegada .55s cubic-bezier(.22,.9,.3,1) both}
+  @media (prefers-reduced-motion:reduce){
+    .entrar.entrando .saludo{animation:none;opacity:1}
+    .shell.llega{animation-duration:.01ms}
+  }
   .entrar h1{font-size:1.6rem;font-weight:700;margin-bottom:8px}
   .entrar p{color:var(--dim);margin-bottom:24px}
   .btn-google{display:flex;align-items:center;justify-content:center;gap:12px;
@@ -539,6 +564,7 @@
     .estado .plan{font-size:1.55rem}
     .acciones{flex-direction:column;gap:10px}
     .planes{grid-template-columns:1fr}
+    .entrar .caja{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(13,19,32,.82)}
     .acciones > *{width:100%}
     ol{margin-left:18px}
     .ref{font-size:1.15rem;letter-spacing:.06em;word-break:break-all}
@@ -915,6 +941,13 @@
 
 <!-- ── Entrar ─────────────────────────────────────────────────────────────── -->
 <div id="login" class="entrar" style="display:none">
+  <canvas id="nebula" aria-hidden="true"></canvas>
+
+  <div class="saludo" role="status">
+    <span style="color:var(--gold)">Y</span> Altoque
+    <small>Armando tu universo</small>
+  </div>
+
   <div class="caja">
     <img class="astro" src="astronauta.webp" width="320" height="334" alt="" aria-hidden="true">
     <h1><span style="color:var(--gold)">Y</span> Altoque</h1>
@@ -1059,12 +1092,16 @@ async function entrar(boton, proveedor, etiqueta){
       + `Escríbele <b>quiero pro</b> al asistente por WhatsApp y te activa todo desde ahí.`;
     return;
   }
+  // La vuelta del proveedor recarga la página: esta marca es la que dice que
+  // toca la secuencia de entrada y no un refresco cualquiera con sesión viva.
+  try { sessionStorage.setItem("neto:entrando", "1"); } catch {}
   const { error } = await sb.auth.signInWithOAuth({
     provider: proveedor,
     options: { redirectTo: VUELTA },
   });
   // Si signInWithOAuth devuelve, el salto no ocurrió: hay que poder reintentar.
   if (error){
+    try { sessionStorage.removeItem("neto:entrando"); } catch {}
     boton.disabled = false;
     boton.innerHTML = `No se pudo abrir ${etiqueta}. Reintentar`;
   }
@@ -2224,17 +2261,187 @@ async function mirarSiEsAdmin(){
   }catch{ esAdmin = false; }
 }
 
+// ── Nébula de la entrada ──────────────────────────────────────────────────
+// Una esfera de puntos enlazados dibujada en canvas 2D: sin Three.js y sin
+// dependencias. Se forma al abrir la pantalla de acceso y estalla cuando la
+// sesión ya está lista, justo antes de que aparezca el portal.
+const NEB = (() => {
+  const cv = $("nebula"), cx = cv.getContext("2d");
+  const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const N = innerWidth < 760 ? 480 : 1000;
+  let azar = 11;
+  const rnd = () => (azar = (azar * 16807) % 2147483647) / 2147483647;
+
+  // Puntos repartidos parejo con la espiral de Fibonacci y, para cada uno, el
+  // sitio disperso desde el que viaja hasta su lugar en la esfera.
+  const P = [], CAOS = [];
+  for (let i = 0; i < N; i++){
+    const y = 1 - (i + .5) / N * 2, r = Math.sqrt(Math.max(0, 1 - y * y)), a = i * 2.399963229;
+    const q = .93 + rnd() * .14;
+    P.push({ x: Math.cos(a) * r * q, y: y * q, z: Math.sin(a) * r * q,
+             oro: rnd() < .07, br: .45 + rnd() * .55 });
+    const u = rnd() * 6.2832, v = Math.acos(2 * rnd() - 1), d = 1.9 + rnd() * 2.4;
+    CAOS.push({ x: Math.sin(v) * Math.cos(u) * d, y: Math.cos(v) * d, z: Math.sin(v) * Math.sin(u) * d });
+  }
+
+  // Los enlaces (hasta dos vecinos cercanos por punto) se calculan una sola
+  // vez: cada cuadro solo recorre la lista, no vuelve a comparar distancias.
+  const E = [], lim = (4.2 / Math.sqrt(N)) ** 2;
+  for (let i = 0; i < N; i++){
+    for (let j = i + 1, n = 0; j < N && n < 2; j++){
+      const dx = P[i].x - P[j].x, dy = P[i].y - P[j].y, dz = P[i].z - P[j].z;
+      if (dx * dx + dy * dy + dz * dz < lim){ E.push(i, j); n++; }
+    }
+  }
+
+  const CI = Math.cos(.42), SI = Math.sin(.42);          // inclinacion fija del eje
+  const px = new Float32Array(N), py = new Float32Array(N),
+        pz = new Float32Array(N), pe = new Float32Array(N);
+  let W = 0, H = 0, R = 0, lazo = 0, t0 = 0, antes = 0, modo = "off", veloz = false;
+
+  const medir = () => {
+    const d = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
+    // En el teléfono la caja tapa el centro, así que la esfera se agranda para
+    // que el anillo de puntos se vea alrededor y no detrás.
+    R = Math.min(W, H) * (W < 760 ? .54 : .34);
+  };
+  const suave = (t) => 1 - (1 - t) ** 3;
+
+  const pintar = (ms) => {
+    const t = (ms - t0) / 1000;
+    let k = 1, lejos = 0, opa = 1;
+    if (modo === "forma"){
+      k = suave(Math.min(1, t / (veloz ? .9 : 1.8)));
+      if (k === 1) modo = "vive";
+    } else if (modo === "sale"){
+      const e = Math.min(1, t / 1);
+      lejos = suave(e) * 1.9; opa = 1 - e * e;
+    }
+    const g = ms * .00009, cg = Math.cos(g), sg = Math.sin(g);
+    const cxx = W / 2, cyy = H / 2, esc = 1 + lejos;
+
+    cx.clearRect(0, 0, W, H);
+    const halo = cx.createRadialGradient(cxx, cyy, 0, cxx, cyy, R * 1.9);
+    halo.addColorStop(0, `rgba(91,214,240,${(.085 * opa * k).toFixed(3)})`);
+    halo.addColorStop(1, "rgba(91,214,240,0)");
+    cx.fillStyle = halo; cx.fillRect(0, 0, W, H);
+
+    for (let i = 0; i < N; i++){
+      const o = P[i], c = CAOS[i];
+      const x = (c.x + (o.x - c.x) * k) * esc,
+            y = (c.y + (o.y - c.y) * k) * esc,
+            z = (c.z + (o.z - c.z) * k) * esc;
+      const X = x * cg + z * sg;
+      let Z = z * cg - x * sg;
+      const Y = y * CI - Z * SI;
+      Z = Z * CI + y * SI;
+      // El tope evita que un punto que pasa casí rozando la cámara (durante el
+      // estallido) se divida por cero y salte al otro lado de la pantalla.
+      const s = 3.2 / Math.max(.9, 3.2 - Z);
+      px[i] = cxx + X * R * s; py[i] = cyy + Y * R * s; pz[i] = Z; pe[i] = s;
+    }
+
+    // Enlaces en tres capas de profundidad: un trazo por capa, no uno por
+    // línea, que es lo que cuesta caro en canvas.
+    cx.lineWidth = 1;
+    for (let capa = 0; capa < 3; capa++){
+      cx.beginPath();
+      for (let e = 0; e < E.length; e += 2){
+        const a = E[e], b = E[e + 1];
+        const prof = Math.max(0, Math.min(2, ((pz[a] + pz[b] + 2) / 4 * 3) | 0));
+        if (prof !== capa) continue;
+        cx.moveTo(px[a], py[a]); cx.lineTo(px[b], py[b]);
+      }
+      cx.strokeStyle = `rgba(130,205,235,${((.085 + capa * .11) * opa * k).toFixed(3)})`;
+      cx.stroke();
+    }
+
+    for (let i = 0; i < N; i++){
+      const o = P[i], br = (.2 + .8 * (pz[i] + 1) / 2) * o.br * opa;
+      cx.fillStyle = o.oro ? `rgba(243,206,127,${br.toFixed(3)})` : `rgba(186,231,247,${br.toFixed(3)})`;
+      cx.beginPath(); cx.arc(px[i], py[i], (o.oro ? 1.8 : 1.3) * pe[i], 0, 7); cx.fill();
+    }
+  };
+
+  // ~33 cuadros por segundo alcanzan para el giro y no calientan el teléfono.
+  const ciclo = (ms) => {
+    if (modo === "off") return;
+    if (!document.hidden && ms - antes > 28){ antes = ms; pintar(ms); }
+    lazo = requestAnimationFrame(ciclo);
+  };
+  const correr = () => { cancelAnimationFrame(lazo); lazo = requestAnimationFrame(ciclo); };
+  const parar = () => { modo = "off"; cancelAnimationFrame(lazo); if (W) cx.clearRect(0, 0, W, H); };
+  addEventListener("resize", () => { if (modo !== "off"){ medir(); pintar(performance.now()); } });
+
+  return {
+    arrancar(){
+      medir(); veloz = false; t0 = performance.now();
+      // Con movimiento reducido se pinta la esfera ya formada y queda quieta.
+      if (quieto){ modo = "vive"; return pintar(t0); }
+      modo = "forma"; correr();
+    },
+    parar,
+    // Se forma, estalla y se apaga. Resuelve cuando la pantalla ya está limpia.
+    bienvenida(){
+      if (quieto) return Promise.resolve();
+      medir(); veloz = true; modo = "forma"; t0 = performance.now(); correr();
+      return new Promise((ok) => setTimeout(() => {
+        modo = "sale"; t0 = performance.now();
+        setTimeout(() => { parar(); ok(); }, 1000);
+      }, 1150));
+    },
+  };
+})();
+
+let arrancando = false, otraVez = false;
+
 async function boot(){
-  const { data:{ session } } = await sb.auth.getSession();
-  if (!session){ show("login"); return; }
-  show("app");
-  cargarPerfil();
-  await cargarPlan();
-  cargarMes();
-  cargarExtras();
-  mirarSiEsAdmin();
-  // Al entrar se ve el mes. El enlace con #plan o #pro sigue llevando al suyo.
-  tab(location.hash.slice(1) || "resumen");
+  // onAuthStateChange y la llamada inicial pueden coincidir: el cerrojo evita
+  // que la secuencia de entrada se vea dos veces, y otraVez evita perder el
+  // aviso de sesión que llegue mientras el cerrojo está tomado.
+  if (arrancando){ otraVez = true; return; }
+  arrancando = true;
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if (!session){ show("login"); NEB.arrancar(); return; }
+
+    // Safari con cookies bloqueadas lanza al tocar sessionStorage: sin marca
+    // se entra directo, que es mejor que quedarse con la pantalla en negro.
+    let marca = false;
+    try {
+      marca = !!sessionStorage.getItem("neto:entrando");
+      sessionStorage.removeItem("neto:entrando");
+    } catch {}
+
+    let intro = null;
+    if (marca){
+      show("login");
+      $("login").classList.add("entrando");
+      intro = NEB.bienvenida();
+    }
+
+    // Los datos se piden mientras corre la animación, no después: el portal
+    // aparece con el mes puesto y no con el esqueleto vacío.
+    cargarPerfil();
+    const plan = cargarPlan().catch(() => {});
+    cargarMes();
+    cargarExtras();
+    mirarSiEsAdmin();
+
+    if (intro){ await intro; $("login").classList.remove("entrando"); }
+    NEB.parar();
+    show("app");
+    $("app").classList.add("llega");
+
+    await plan;
+    // Al entrar se ve el mes. El enlace con #plan o #pro sigue llevando al suyo.
+    tab(location.hash.slice(1) || "resumen");
+  } finally {
+    arrancando = false;
+    if (otraVez){ otraVez = false; boot(); }
+  }
 }
 
 sb.auth.onAuthStateChange((_e, s) => { if (s) boot(); });
