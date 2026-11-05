@@ -373,34 +373,71 @@
   @media (max-width:640px){ #dlgCerebro .cab{padding:12px 14px} #dlgCerebro h3{font-size:.95rem} }
 
   /* ── Previsualización de un nodo ────────────────────────────────────── */
-  #dlgNodo{margin:auto;border:1px solid var(--border);border-radius:18px;background:var(--surface);
-    color:var(--text);padding:0;width:min(560px,calc(100vw - 32px));max-height:82vh;
-    box-shadow:0 30px 80px rgba(0,0,0,.6)}
-  #dlgNodo::backdrop{background:rgba(4,7,12,.72)}
-  #dlgNodo header{display:flex;align-items:center;gap:12px;padding:18px 20px 12px;
-    border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);
-    border-radius:18px 18px 0 0}
-  #dlgNodo h3{font-family:var(--tit);font-size:1.12rem;font-weight:700;flex:1;min-width:0}
-  #dlgNodo #dlgCerrar{margin-left:auto;flex:none;width:34px;height:34px;padding:0;
-    border-radius:10px;line-height:1}
-  #dlgCuerpo{padding:14px 20px 20px;overflow:auto;max-height:calc(82vh - 64px)}
-  #dlgCuerpo .cifra{font-family:var(--tit);font-size:1.7rem;font-weight:700;color:var(--gold-bright)}
-  #dlgCuerpo .pie{color:var(--mute);font-size:.84rem;margin-top:2px}
-  #dlgCuerpo ol{list-style:none;margin:16px 0 0}
-  #dlgCuerpo li{display:flex;align-items:baseline;gap:10px;padding:9px 0;
-    border-top:1px solid var(--border);font-size:.9rem}
-  #dlgCuerpo li .punto{width:8px;height:8px;border-radius:50%;flex:none;align-self:center}
-  #dlgCuerpo li .qu{flex:1;min-width:0;overflow-wrap:anywhere}
-  #dlgCuerpo li .cu{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-  #dlgCuerpo .cuando{font-size:.74rem;color:var(--mute);display:block;
+  /* El detalle de una neurona: cristal sobre el cerebro, no una ficha
+     opaca. El color de la propia categoría tiñe el borde, la cifra y los
+     rieles, así que cada nodo abre "su" panel. */
+  #dlgNodo{margin:auto;padding:0;color:var(--text);border:0;border-radius:22px;
+    width:min(540px,calc(100vw - 32px));max-height:84vh;overflow:hidden;
+    background:linear-gradient(180deg,rgba(16,24,40,.93),rgba(10,15,26,.95));
+    box-shadow:0 0 0 1px var(--filo),0 30px 90px rgba(0,0,0,.65),
+      0 0 70px -20px var(--brillo);
+    backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
+    animation:abreNodo .26s cubic-bezier(.2,.9,.25,1) both}
+  #dlgNodo::backdrop{background:radial-gradient(60% 60% at 50% 45%,
+    rgba(14,28,48,.55),rgba(3,6,12,.85));backdrop-filter:blur(3px)}
+  /* Nace desde donde está su neurona, no desde el centro de la pantalla. */
+  @keyframes abreNodo{from{opacity:0;transform:scale(.9) translateY(10px)}}
+
+  #dlgNodo header{display:flex;align-items:center;gap:11px;padding:18px 20px 14px;
+    position:relative}
+  /* La sinapsis que separa cabecera y cuerpo: se apaga hacia los lados. */
+  #dlgNodo header::after{content:"";position:absolute;left:20px;right:20px;bottom:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--filo) 18%,var(--filo) 82%,transparent)}
+  #dlgNodo .neurona{width:11px;height:11px;border-radius:50%;flex:none;
+    background:var(--tono);box-shadow:0 0 14px 2px var(--brillo)}
+  #dlgNodo h3{font-family:var(--tit);font-size:1.1rem;font-weight:700;flex:1;min-width:0;
+    letter-spacing:-.01em}
+  #dlgNodo #dlgCerrar{flex:none;width:34px;height:34px;padding:0;border-radius:11px;
+    line-height:1;background:rgba(255,255,255,.04);border-color:transparent;color:var(--dim)}
+  #dlgNodo #dlgCerrar:hover{background:rgba(255,255,255,.09);color:var(--text)}
+
+  /* El cuerpo se desvanece arriba y abajo en vez de cortarse a cuchillo. */
+  #dlgCuerpo{padding:16px 20px 22px;overflow:auto;max-height:calc(84vh - 66px);
+    scrollbar-width:thin;scrollbar-color:var(--filo) transparent;
+    mask-image:linear-gradient(180deg,transparent,#000 14px,#000 calc(100% - 16px),transparent)}
+  #dlgCuerpo .cifra{font-family:var(--tit);font-size:2rem;font-weight:700;letter-spacing:-.02em;
+    color:var(--tono);text-shadow:0 0 28px var(--brillo)}
+  #dlgCuerpo .pie{color:var(--mute);font-size:.84rem;margin-top:3px}
+
+  #dlgCuerpo ol{list-style:none;margin:18px 0 0;display:flex;flex-direction:column;gap:2px}
+  #dlgCuerpo li{display:grid;grid-template-columns:auto 1fr auto;align-items:center;
+    column-gap:11px;padding:10px 10px 11px;border-radius:12px;font-size:.92rem;
+    transition:background .15s ease}
+  #dlgCuerpo li:hover{background:rgba(255,255,255,.035)}
+  #dlgCuerpo li .punto{width:9px;height:9px;border-radius:50%;flex:none;
+    box-shadow:0 0 10px 1px currentColor}
+  #dlgCuerpo li .qu{min-width:0;overflow-wrap:anywhere;line-height:1.3}
+  #dlgCuerpo li .cu{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;
+    font-family:var(--tit)}
+  #dlgCuerpo .cuando{font-size:.75rem;color:var(--mute);display:block;margin-top:1px;
     background:none;border:0;padding:0}
+  /* El riel dice de un vistazo cuánto pesa cada fila dentro del total. */
+  #dlgCuerpo .riel{grid-column:2 / -1;height:3px;border-radius:2px;margin-top:7px;
+    background:rgba(255,255,255,.07);overflow:hidden}
+  #dlgCuerpo .riel i{display:block;height:100%;border-radius:2px;background:currentColor;
+    box-shadow:0 0 10px currentColor}
+
   @media (max-width:640px){
-    /* En el teléfono se comporta como hoja inferior, que es donde llega el pulgar. */
-    #dlgNodo{width:100vw;max-width:none;margin:auto 0 0;border-radius:18px 18px 0 0;
-      max-height:85svh}
-    #dlgNodo header{border-radius:18px 18px 0 0}
-    #dlgCuerpo{max-height:calc(85svh - 64px)}
+    #dlgNodo{width:100vw;max-width:none;margin:auto 0 0;border-radius:22px 22px 0 0;
+      max-height:86svh;animation-name:subeHoja}
+    #dlgCuerpo{max-height:calc(86svh - 76px)}
+    /* La agarradera avisa de que esto es una hoja que se cierra hacia abajo. */
+    #dlgNodo header::before{content:"";position:absolute;top:7px;left:50%;width:38px;height:4px;
+      margin-left:-19px;border-radius:2px;background:rgba(255,255,255,.18)}
+    #dlgNodo header{padding-top:22px}
   }
+  @keyframes subeHoja{from{opacity:0;transform:translateY(26px)}}
+  @media (prefers-reduced-motion:reduce){ #dlgNodo{animation-duration:.01ms} }
 
   /* ── El cerebro del mes ─────────────────────────────────────────────────
      El canvas no tiene alto propio, así que se le da uno explícito: si se
@@ -689,6 +726,7 @@
      mes, una categoría y un día: showModal() ya da foco atrapado y Escape. -->
 <dialog id="dlgNodo" aria-labelledby="dlgTit">
   <header>
+    <span class="neurona" aria-hidden="true"></span>
     <h3 id="dlgTit"></h3>
     <button type="button" id="dlgCerrar" aria-label="Cerrar">✕</button>
   </header>
@@ -2407,6 +2445,14 @@ function crearCerebro(cv, op = {}){
     foco(k){ foco = k; if (quieto) cuadro(0); },
     acercar, soltar,
     nodos(){ return modelo.nodos; },
+    // Dónde se ve una neurona ahora mismo, en coordenadas de la ventana.
+    dondeEsta(k){
+      const q = puestos.find((p) => p.nodo.k === k);
+      if (!q || !cv.isConnected || !cv.offsetParent) return null;
+      const caja = cv.getBoundingClientRect();
+      return { x: caja.left + (q.X - W / 2 - cam.x) * cam.z + W / 2,
+               y: caja.top + (q.Y - H / 2 - cam.y) * cam.z + H / 2 };
+    },
   };
 }
 
@@ -2587,10 +2633,14 @@ async function abrirCerebroEntero(){
 // el mes entero, una categoría o un día.
 function abrirNodo(nodo){
   const dlg = $("dlgNodo");
-  const fila = (color, que, chip, cuanto) => `<li>
+  // Cada fila lleva su riel: la proporción se ve, no se calcula leyendo.
+  const fila = (color, que, chip, cuanto, parte = 0) => `<li style="color:${color}">
     <span class="punto" style="background:${color}"></span>
-    <span class="qu">${que}${chip ? `<span class="cuando">${chip}</span>` : ""}</span>
-    <span class="cu">${cuanto}</span></li>`;
+    <span class="qu" style="color:var(--text)">${que}${
+      chip ? `<span class="cuando">${chip}</span>` : ""}</span>
+    <span class="cu" style="color:var(--text)">${cuanto}</span>
+    ${parte > 0 ? `<span class="riel"><i style="width:${Math.max(2, Math.min(100, parte))}%"></i></span>` : ""}
+  </li>`;
 
   let titulo = "", cuerpo = "";
   if (nodo.tipo === "centro" || nodo.tipo === "mes"){
@@ -2602,9 +2652,12 @@ function abrirNodo(nodo){
     cuerpo = `<div class="cifra">${plata(nodo.total, nodo.moneda)}</div>
       <p class="pie">${nodo.n} ${nodo.n === 1 ? "gasto" : "gastos"} en ${cats.length}
         ${cats.length === 1 ? "categoría" : "categorías"}</p>
-      <ol>` + cats.map((c) => fila(tono(c.cat), esc(nombreCat(c.etiqueta)),
-        `${c.n} ${c.n === 1 ? "gasto" : "gastos"} · ${nodo.total ? Math.round(c.total / nodo.total * 100) : 0}%`,
-        plata(c.total, c.moneda))).join("") + "</ol>";
+      <ol>` + cats.map((c) => {
+        const pct = nodo.total ? Math.round(c.total / nodo.total * 100) : 0;
+        return fila(tono(c.cat), esc(nombreCat(c.etiqueta)),
+          `${c.n} ${c.n === 1 ? "gasto" : "gastos"} · ${pct}%`,
+          plata(c.total, c.moneda), pct);
+      }).join("") + "</ol>";
   } else {
     const gastos = [...nodo.gastos].sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at));
     const tope = gastos.slice(0, 40);
@@ -2620,11 +2673,21 @@ function abrirNodo(nodo){
         const dato = nodo.tipo === "cat"
           ? `${diaSemana(cuando)} ${cuando.getDate()}`
           : nombreCat(catNorm(t));
+        const parte = nodo.total ? (Number(t.amount) || 0) / nodo.total * 100 : 0;
         return fila(tono(catNorm(t)), esc(corta(t.description, 90)), esc(dato),
-          plata(Number(t.amount) || 0, t.currency));
+          plata(Number(t.amount) || 0, t.currency), parte);
       }).join("") + "</ol>"
       + (gastos.length > tope.length ? `<p class="pie">y ${gastos.length - tope.length} más</p>` : "");
   }
+  const color = nodo.tipo === "centro" ? "#f3ce7f" : tono(nodo.cat || nodo.etiqueta);
+  dlg.style.setProperty("--tono", color);
+  dlg.style.setProperty("--brillo", color + "55");
+  dlg.style.setProperty("--filo", color + "33");
+  // El panel crece desde la neurona que lo abrió, no desde el centro.
+  const donde = (CEREBRO_TODO?.dondeEsta(nodo.k)) || CEREBRO?.dondeEsta(nodo.k);
+  dlg.style.transformOrigin = donde
+    ? `${(donde.x / innerWidth * 100).toFixed(1)}% ${(donde.y / innerHeight * 100).toFixed(1)}%`
+    : "50% 50%";
   $("dlgTit").textContent = titulo;
   $("dlgCuerpo").innerHTML = cuerpo;
   if (!dlg.open) dlg.showModal();        // showModal sobre uno ya abierto lanza
