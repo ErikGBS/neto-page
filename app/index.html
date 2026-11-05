@@ -1605,10 +1605,14 @@ async function cargarMes(){
   }
   // occurred_at viaja en UTC y se agrupa por el día LOCAL de quien mira: si no,
   // un gasto de las nueve de la noche cae en el día siguiente.
-  const porDia = new Map(), monedas = new Map();
-  mes.ingresos = 0;
+  const porDia = new Map(), monedas = new Map(), entradas = new Map();
   for (const t of txs){
-    if (t.type !== "expense"){ mes.ingresos += t.amount; continue; }
+    // Los ingresos también se guardan por moneda: sumarlos todos juntos daba
+    // una cifra que no existe, y encima el balance la restaba del gasto.
+    if (t.type !== "expense"){
+      entradas.set(t.currency, (entradas.get(t.currency) || 0) + t.amount);
+      continue;
+    }
     const f = new Date(t.occurred_at);
     const clave = `${f.getFullYear()}-${f.getMonth()}-${f.getDate()}`;
     if (!porDia.has(clave)) porDia.set(clave, { fecha: f, gastos: [], total: 0 });
@@ -1618,9 +1622,13 @@ async function cargarMes(){
   }
   mes.dias = [...porDia.values()].sort((a, b) => b.fecha - a.fecha);
   for (const d of mes.dias) d.gastos.sort((a, b) => b.amount - a.amount);
-  mes.moneda = [...monedas.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "PEN";
+  // La moneda del mes es la de más gasto; si el mes no tuvo gastos, la de más
+  // ingreso, que si no un mes de puros ingresos caería al soles por defecto.
+  const manda = monedas.size ? monedas : entradas;
+  mes.moneda = [...manda.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "PEN";
   mes.total = monedas.get(mes.moneda) || 0;
   mes.gastado = mes.total;
+  mes.ingresos = entradas.get(mes.moneda) || 0;
   mes.sel = mes.dias[0] || null;
   mes.desde = 0;
   mes.cargado = true;
