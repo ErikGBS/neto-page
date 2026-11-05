@@ -136,11 +136,13 @@
   /* La tarjeta del mes: el saludo, la frase y las cifras juntas, con el
      astronauta en su cohete saliendo por la esquina, como la tarjeta del
      ranking en la pantalla Universo de la app. */
-  .mision{position:relative;background:var(--surface);border:1px solid var(--border);
+  .mision{position:relative;background:rgba(13,19,32,.66);border:1px solid var(--border);
     border-radius:var(--radio);padding:26px 28px 0;margin:46px 0 22px}
   .saludo{max-width:calc(100% - 190px);min-height:96px}
   .saludo h2{font-size:1.3rem;font-weight:700;letter-spacing:-.01em;line-height:1.25}
   .saludo p{color:var(--dim);max-width:62ch;margin-top:6px}
+  .mision .orbe{position:absolute;right:-10px;top:-38px;width:300px;height:230px;
+    pointer-events:none}
   .astro{position:absolute;right:18px;top:-46px;width:170px;height:auto;
     pointer-events:none;animation:flota 6s ease-in-out infinite}
   @keyframes flota{0%,100%{transform:translateY(0)}25%{transform:translateY(5px)}
@@ -154,6 +156,11 @@
     letter-spacing:-.02em;margin-top:2px;white-space:nowrap;overflow:hidden;
     text-overflow:ellipsis;font-variant-numeric:tabular-nums}
   .kpi .sub{display:block;font-size:.8rem;color:var(--mute);margin-top:2px}
+  .kpi .chispa{display:block;width:100%;height:28px;margin-top:10px}
+  .kpi .riel{display:block;height:5px;border-radius:3px;margin-top:13px;
+    background:rgba(255,255,255,.07);overflow:hidden}
+  .kpi .riel i{display:block;height:100%;border-radius:3px;
+    background:linear-gradient(90deg,var(--info),var(--gold-bright))}
   .kpi.rojo .val{color:#ffb4b4}
   .kpi.verde .val{color:#9df0c0}
   .kpi.oro .val{color:var(--gold-bright)}
@@ -163,7 +170,7 @@
     .kpi:nth-child(n+3){border-top:1px solid var(--border)}
   }
 
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radio);
+  .card{background:rgba(13,19,32,.66);border:1px solid var(--border);border-radius:var(--radio);
     padding:24px;margin-bottom:16px}
   .card h2{font-size:1.06rem;font-weight:700;margin-bottom:14px}
 
@@ -233,9 +240,10 @@
     100%{opacity:0;transform:scale(1.08);filter:blur(4px)}}
   @keyframes llegada{from{opacity:0;transform:translateY(10px) scale(.995)}to{opacity:1;transform:none}}
   .shell.llega{animation:llegada .55s cubic-bezier(.22,.9,.3,1) both}
+  .hoja section.entra{animation:llegada .3s cubic-bezier(.22,.9,.3,1) both}
   @media (prefers-reduced-motion:reduce){
     .entrar.entrando .saludo{animation:none;opacity:1}
-    .shell.llega{animation-duration:.01ms}
+    .shell.llega,.hoja section.entra{animation-duration:.01ms}
   }
   .entrar h1{font-size:1.6rem;font-weight:700;margin-bottom:8px}
   .entrar p{color:var(--dim);margin-bottom:24px}
@@ -258,7 +266,7 @@
      que la detalla por día. Barra dorada a la proporción real del gasto. */
   .mes-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;align-items:start}
   .mes-grid > *{min-width:0}
-  .cats{background:var(--surface-2);border-radius:14px;padding:18px 18px 8px;margin-top:14px}
+  .cats{background:rgba(17,26,43,.62);border-radius:14px;padding:18px 18px 8px;margin-top:14px}
   .cats h3{font-size:.95rem;font-weight:700;margin-bottom:12px}
   .cats ol{list-style:none;margin:0}
   .cats li{margin-bottom:14px}
@@ -554,6 +562,7 @@
     .hoja{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
     .hoja{padding:16px 16px 28px}
     .mision{padding:22px 18px 0;margin-top:54px}
+    .mision .orbe{display:none}
     .saludo{max-width:none;min-height:0;padding-top:64px}
     .astro{width:132px;right:8px;top:-54px}
     .kpis{margin:18px -18px 0}
@@ -677,6 +686,7 @@
 
     <section id="tab-resumen">
       <div class="mision">
+        <canvas class="orbe" id="nebulaMes" aria-hidden="true"></canvas>
         <img class="astro" src="astronauta.webp" width="320" height="334" alt="" aria-hidden="true">
         <div class="saludo">
           <h2 id="hola">Tu mes <span class="muted" id="mesTit" style="font-weight:400"></span></h2>
@@ -1036,6 +1046,10 @@ const TITULO = {
 function tab(name){
   if (!TABS.includes(name)) name = "resumen";
   for (const t of TABS) $("tab-" + t).style.display = (t===name ? "" : "none");
+  // El fundido se reinicia a mano: sin quitar la clase y forzar el reflujo, la
+  // animación no vuelve a correr al cambiar de pestaña.
+  const vista = $("tab-" + name);
+  vista.classList.remove("entra"); void vista.offsetWidth; vista.classList.add("entra");
   for (const b of document.querySelectorAll("#menu button, #menuAdmin button, #barra button[data-tab]"))
     b.classList.toggle("on", b.dataset.tab===name);
   // Las pestañas de admin viven detrás de "Más": se marca ese botón.
@@ -1369,18 +1383,57 @@ const tono = (txt) => {
   return TONOS[h % TONOS.length];
 };
 
+// El gasto de cada día del mes, del 1 a hoy, en un trazo diminuto. Es SVG a
+// mano: treinta puntos no justifican traer una librería de gráficos, y los
+// días sin movimientos valen cero para que el dibujo no mienta.
+function chispaDelMes(){
+  const hoy = new Date(), ultimo = hoy.getDate();
+  if (ultimo < 3 || !mes.dias.length) return "";
+  // Solo la moneda del KPI, porque el total del día mezcla las que haya, y
+  // solo los días de este mes: por la zona horaria puede colarse un día del
+  // mes vecino que, indexado por número, pisaría al suyo.
+  const total = new Map();
+  for (const d of mes.dias){
+    if (d.fecha.getMonth() !== hoy.getMonth() || d.fecha.getFullYear() !== hoy.getFullYear()) continue;
+    let suma = 0;
+    for (const t of d.gastos) if (t.currency === mes.moneda) suma += t.amount;
+    total.set(d.fecha.getDate(), suma);
+  }
+  if (!total.size) return "";
+  const serie = Array.from({ length: ultimo }, (_, i) => total.get(i + 1) || 0);
+  const W = 100, H = 28, tope = Math.max(...serie) || 1;
+  const px = (i) => (i / (serie.length - 1) * W).toFixed(2);
+  const py = (v) => (H - 3 - v / tope * (H - 7)).toFixed(2);
+  const linea = serie.map((v, i) => `${i ? "L" : "M"}${px(i)} ${py(v)}`).join(" ");
+  return `<svg class="chispa" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+    <defs><linearGradient id="chispaFondo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f87171" stop-opacity=".30"/>
+      <stop offset="1" stop-color="#f87171" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${linea} L${W} ${H} L0 ${H} Z" fill="url(#chispaFondo)"/>
+    <path d="${linea}" fill="none" stroke="#ffb4b4" stroke-width="1.5"
+      stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+  </svg>`;
+}
+
 function pintarKpis(){
   const { gastado, ingresos, moneda } = mes;
   const balance = ingresos - gastado;
   const dias = mes.dias.length;
+  // Cuánto del mes llevas andado: sin esto, el balance no dice si vas
+  // adelantado o si es que el mes recién empieza.
+  const hoy = new Date();
+  const delMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
+  const avance = Math.round(hoy.getDate() / delMes * 100);
   const tarjeta = (cls, lbl, val, sub) => `<div class="kpi ${cls}">
     <span class="lbl">${lbl}</span><span class="val">${val}</span>
     <span class="sub">${sub}</span></div>`;
   let html = tarjeta("rojo", "Gastado", plata(gastado, moneda),
-      `${dias} ${dias === 1 ? "día" : "días"} con movimientos`)
+      `${dias} ${dias === 1 ? "día" : "días"} con movimientos` + chispaDelMes())
     + tarjeta("verde", "Ingresos", plata(ingresos, moneda), "registrados este mes")
     + tarjeta(balance >= 0 ? "oro" : "rojo", "Balance", plata(balance, moneda),
-      balance >= 0 ? "te queda a favor" : "gastaste de más");
+      `${balance >= 0 ? "te queda a favor" : "gastaste de más"} · día ${hoy.getDate()} de ${delMes}`
+      + `<span class="riel"><i style="width:${avance}%"></i></span>`);
   if (mes.racha != null)
     html += tarjeta("cyan", "Racha", mes.racha + (mes.racha === 1 ? " día" : " días"),
       mes.rachaHoy ? "hoy ya registraste" : "registra hoy para no cortarla");
@@ -2265,10 +2318,13 @@ async function mirarSiEsAdmin(){
 // Una esfera de puntos enlazados dibujada en canvas 2D: sin Three.js y sin
 // dependencias. Se forma al abrir la pantalla de acceso y estalla cuando la
 // sesión ya está lista, justo antes de que aparezca el portal.
-const NEB = (() => {
-  const cv = $("nebula"), cx = cv.getContext("2d");
+function crearNebula(cv, op = {}){
+  const cx = cv.getContext("2d");
+  // Pantalla completa para la entrada; dentro de su caja para el orbe del mes.
+  const pantalla = op.pantalla !== false;
+  const ALFA = op.alfa ?? 1;
   const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const N = innerWidth < 760 ? 480 : 1000;
+  const N = op.puntos ?? (innerWidth < 760 ? 480 : 1000);
   let azar = 11;
   const rnd = () => (azar = (azar * 16807) % 2147483647) / 2147483647;
 
@@ -2303,11 +2359,14 @@ const NEB = (() => {
 
   const medir = () => {
     const d = Math.min(devicePixelRatio || 1, 2);
-    W = innerWidth; H = innerHeight;
+    const w = pantalla ? innerWidth : cv.clientWidth;
+    const h = pantalla ? innerHeight : cv.clientHeight;
+    if (!w || !h) return;             // dentro de una sección oculta mide cero
+    W = w; H = h;
     cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
     // En el teléfono la caja tapa el centro, así que la esfera se agranda para
     // que el anillo de puntos se vea alrededor y no detrás.
-    R = Math.min(W, H) * (W < 760 ? .54 : .34);
+    R = Math.min(W, H) * (op.radio ?? (W < 760 ? .54 : .34));
   };
   const suave = (t) => 1 - (1 - t) ** 3;
 
@@ -2323,12 +2382,12 @@ const NEB = (() => {
       // a las estrellas en vez de encontrarlas ya lejos.
       lejos = e * e * 2.6; opa = 1 - e ** 3;
     }
-    const g = ms * .00009, cg = Math.cos(g), sg = Math.sin(g);
+    const g = ms * (op.giro ?? .00009), cg = Math.cos(g), sg = Math.sin(g);
     const cxx = W / 2, cyy = H / 2, esc = 1 + lejos;
 
     cx.clearRect(0, 0, W, H);
     const halo = cx.createRadialGradient(cxx, cyy, 0, cxx, cyy, R * 1.9);
-    halo.addColorStop(0, `rgba(91,214,240,${(.085 * opa * k).toFixed(3)})`);
+    halo.addColorStop(0, `rgba(91,214,240,${(.085 * opa * k * ALFA).toFixed(3)})`);
     halo.addColorStop(1, "rgba(91,214,240,0)");
     cx.fillStyle = halo; cx.fillRect(0, 0, W, H);
 
@@ -2359,12 +2418,12 @@ const NEB = (() => {
         if (prof !== capa) continue;
         cx.moveTo(px[a], py[a]); cx.lineTo(px[b], py[b]);
       }
-      cx.strokeStyle = `rgba(130,205,235,${((.085 + capa * .11) * opa * k).toFixed(3)})`;
+      cx.strokeStyle = `rgba(130,205,235,${((.085 + capa * .11) * opa * k * ALFA).toFixed(3)})`;
       cx.stroke();
     }
 
     for (let i = 0; i < N; i++){
-      const o = P[i], br = (.2 + .8 * (pz[i] + 1) / 2) * o.br * opa;
+      const o = P[i], br = (.2 + .8 * (pz[i] + 1) / 2) * o.br * opa * ALFA;
       const col = o.oro ? "243,206,127" : "186,231,247";
       if (modo === "sale"){
         cx.strokeStyle = `rgba(${col},${(br * .7).toFixed(3)})`;
@@ -2382,17 +2441,29 @@ const NEB = (() => {
   };
 
   // ~33 cuadros por segundo alcanzan para el giro y no calientan el teléfono.
+  let aLaVista = true;
+  if (!pantalla && "IntersectionObserver" in window)
+    new IntersectionObserver(([e]) => {
+      aLaVista = e.isIntersecting;
+      if (!aLaVista) return;
+      medir();
+      if (modo !== "off") pintar(performance.now());   // medir borra el bitmap
+    }).observe(cv);
+
   const ciclo = (ms) => {
     if (modo === "off") return;
-    if (!document.hidden && ms - antes > 28){ antes = ms; pintar(ms); }
+    if (!document.hidden && aLaVista && ms - antes > 28){ antes = ms; pintar(ms); }
     lazo = requestAnimationFrame(ciclo);
   };
   const correr = () => { cancelAnimationFrame(lazo); lazo = requestAnimationFrame(ciclo); };
   const parar = () => { modo = "off"; cancelAnimationFrame(lazo); if (W) cx.clearRect(0, 0, W, H); };
-  addEventListener("resize", () => { if (modo !== "off"){ medir(); pintar(performance.now()); } });
+  addEventListener("resize", () => {
+    if (modo !== "off" && aLaVista){ medir(); pintar(performance.now()); }
+  });
 
   return {
     arrancar(){
+      if (modo === "forma" || modo === "vive") return;
       medir(); veloz = false; t0 = performance.now();
       // Con movimiento reducido se pinta la esfera ya formada y queda quieta.
       if (quieto){ modo = "vive"; return pintar(t0); }
@@ -2409,7 +2480,13 @@ const NEB = (() => {
       }, 1150));
     },
   };
-})();
+}
+
+const NEB = crearNebula($("nebula"));
+// El orbe del Resumen: la misma nébula, pequeña, lenta y tenue, detrás del
+// astronauta. Pocos puntos porque comparte pantalla con el resto del panel.
+const ORBE = crearNebula($("nebulaMes"),
+  { pantalla:false, puntos:230, radio:.38, giro:.00005, alfa:.85 });
 
 let arrancando = false, otraVez = false;
 
@@ -2457,6 +2534,7 @@ async function boot(){
     else NEB.parar();
     show("app");
     $("app").classList.add("llega");
+    ORBE.arrancar();
     // Red de seguridad: la nébula se apaga sola al acabar el estallido, pero
     // si la pestaña estuvo oculta en ese momento no llega a hacerlo.
     setTimeout(NEB.parar, 1500);
