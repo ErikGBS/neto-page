@@ -439,6 +439,22 @@
   @keyframes subeHoja{from{opacity:0;transform:translateY(26px)}}
   @media (prefers-reduced-motion:reduce){ #dlgNodo{animation-duration:.01ms} }
 
+  /* ── Preguntarle al cerebro ─────────────────────────────────────────── */
+  .consulta{display:flex;gap:8px;margin:0 0 12px;max-width:560px}
+  .consulta input{flex:1;min-width:0;font:inherit;font-size:.94rem;color:var(--text);
+    background:rgba(13,19,32,.72);border:1px solid var(--border);border-radius:13px;
+    padding:11px 14px;transition:border-color .18s ease,box-shadow .18s ease}
+  .consulta input::placeholder{color:var(--mute)}
+  .consulta input:hover{border-color:var(--border-strong)}
+  .consulta input:focus{outline:none;border-color:rgba(208,165,92,.55);
+    box-shadow:0 0 0 3px rgba(208,165,92,.12)}
+  .consulta button{flex:none;width:44px;padding:0;border-radius:13px;
+    background:var(--surface-2);border:1px solid var(--border);display:grid;place-items:center}
+  .consulta button:hover{border-color:rgba(208,165,92,.45)}
+  .consulta button svg{width:18px;height:18px;fill:none;stroke:var(--gold-bright);
+    stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .consulta.pensando input{opacity:.7}
+
   /* ── El cerebro del mes ─────────────────────────────────────────────────
      El canvas no tiene alto propio, así que se le da uno explícito: si se
      deja en auto mide cero y no se dibuja nada. */
@@ -847,7 +863,23 @@
           <h2>En qué se te fue</h2>
           <button type="button" id="verTodo">Ver todo el historial</button>
         </div>
-        <p class="muted" id="grafNota" style="margin:-6px 0 10px">Cargando tu mes…</p>
+        <p class="muted" id="grafNota" role="status" aria-live="polite"
+          style="margin:-6px 0 10px">Cargando tu mes…</p>
+        <form class="consulta" id="consulta" autocomplete="off">
+          <input id="qCerebro" type="search" list="ideasCerebro" enterkeyhint="search"
+            aria-label="Pregúntale a tu cerebro"
+            placeholder="Pregúntale a tu cerebro: ¿cuánto gasté en comida?">
+          <button type="submit" aria-label="Preguntar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h12M13 6l6 6-6 6"/></svg>
+          </button>
+        </form>
+        <datalist id="ideasCerebro">
+          <option value="¿cuánto gasté en comida este mes?"></option>
+          <option value="¿cuánto gasté en pasaje?"></option>
+          <option value="¿en qué gasté más?"></option>
+          <option value="mi día más caro"></option>
+          <option value="¿cuánto gasté el mes pasado?"></option>
+        </datalist>
         <div class="mes-grid">
           <div class="graf" id="graf">
             <!-- Modelo anatómico: NIH 3D, "Detailed Human Brain Model",
@@ -2109,6 +2141,7 @@ function crearCerebro(cv, op = {}){
   let modelo = { nodos: [], aristas: [] }, puestos = [];
   let aLaVista = true, encima = null, foco = null, alElegir = null;
   let giro = 0, cam = { z: 1, x: 0, y: 0 }, meta = { z: 1, x: 0, y: 0 }, enfocado = null;
+  let marca = null;                      // claves que responden a la consulta
   let pulsos = [], proximoPulso = 0, destello = null, proximoDestello = 0, esperaDetalle = 0;
   // Si la máquina no da para tanto punto, el propio dibujo adelgaza. Medir
   // aquí es más fiable que adivinar el teléfono por el ancho de pantalla.
@@ -2285,11 +2318,12 @@ function crearCerebro(cv, op = {}){
         const mx = (A.X + B.X) / 2 + (A.Y - B.Y) * .14, my = (A.Y + B.Y) / 2 + (B.X - A.X) * .14;
         cx.moveTo(A.X, A.Y); cx.quadraticCurveTo(mx, my, B.X, B.Y);
       }
-      cx.strokeStyle = `rgba(243,206,127,${((.06 + capa * .07) * abre).toFixed(3)})`;
+      cx.strokeStyle = `rgba(243,206,127,${((.06 + capa * .07) * abre * (marca ? .35 : 1)).toFixed(3)})`;
       cx.stroke();
     }
 
-    if (!quieto && modelo.aristas.length){
+    if (marca) pulsos = [];
+    if (!quieto && !marca && modelo.aristas.length){
       if (t > proximoPulso){
         pulsos.push({ ar: modelo.aristas[(Math.random() * modelo.aristas.length) | 0], t0: t });
         proximoPulso = t + 380 + Math.random() * 620;
@@ -2320,14 +2354,16 @@ function crearCerebro(cv, op = {}){
         if (u > 1) destello = null; else late += 1.5 * Math.sin(u * Math.PI);
       }
       const halo = q.r * q.s * (4 + late * 2.1);
-      cx.globalAlpha = Math.min(1, .6 + .5 * late) * abre * (.75 + .25 * (q.Z + 1) / 2);
+      const vis = !marca || marca.has(q.nodo.k) ? 1 : .12;
+      cx.globalAlpha = Math.min(1, .6 + .5 * late) * abre * (.75 + .25 * (q.Z + 1) / 2) * vis;
       cx.drawImage(CHISPA, q.X - halo, q.Y - halo, halo * 2, halo * 2);
     }
     cx.globalCompositeOperation = "source-over";
 
     const elegido = encima || foco || enfocado;
     for (const q of puestos){
-      cx.globalAlpha = abre * (.65 + .35 * (q.Z + 1) / 2);
+      const vis = !marca || marca.has(q.nodo.k) ? 1 : .12;
+      cx.globalAlpha = abre * (.65 + .35 * (q.Z + 1) / 2) * vis;
       cx.fillStyle = q.color;
       cx.beginPath(); cx.arc(q.X, q.Y, q.r * q.s, 0, 7); cx.fill();
       // Un filo oscuro las despega del tejido encendido de detrás.
@@ -2347,7 +2383,8 @@ function crearCerebro(cv, op = {}){
       if (q.nodo.tipo === "dia" && q.r < 7) continue;        // las pequeñas, sin ramas
       const late = quieto ? .6 : .5 + .5 * Math.sin(q.fase + t / 900);
       const cuantas = q.nodo.tipo === "centro" ? 7 : 5;
-      cx.strokeStyle = `rgba(250,220,155,${(.34 + .42 * late).toFixed(2)})`;
+      const vis = !marca || marca.has(q.nodo.k) ? 1 : .12;
+      cx.strokeStyle = `rgba(250,220,155,${((.34 + .42 * late) * vis).toFixed(2)})`;
       for (let i = 0; i < cuantas; i++)
         dendrita(q.X, q.Y, (i / cuantas) * 6.283 + q.fase + t / 11000,
           (q.r * q.s) * 3.6, 1.4, 3, .85 + .15 * late);
@@ -2426,12 +2463,12 @@ function crearCerebro(cv, op = {}){
   }
   function soltar(){
     clearTimeout(esperaDetalle);
-    enfocado = null;
+    enfocado = null; marca = null;       // salir del detalle deshace el filtro
     meta = { z: 1, x: 0, y: 0 };
   }
 
   return {
-    datos(m){ modelo = m; nacio = null; medir(); colocar();
+    datos(m){ modelo = m; nacio = null; marca = null; medir(); colocar();
       if (!vivo) this.arrancar(); else cuadro(performance.now()); },
     arrancar(){
       medir(); parado = false;
@@ -2444,6 +2481,11 @@ function crearCerebro(cv, op = {}){
     alElegir(fn){ alElegir = fn; },
     foco(k){ foco = k; if (quieto) cuadro(0); },
     acercar, soltar,
+    // Deja encendidas solo esas claves. Sin argumento, vuelve todo a la vista.
+    resaltar(claves){
+      marca = claves && claves.length ? new Set(claves) : null;
+      if (quieto) cuadro(0);
+    },
     nodos(){ return modelo.nodos; },
     // Dónde se ve una neurona ahora mismo, en coordenadas de la ventana.
     dondeEsta(k){
@@ -2509,20 +2551,20 @@ async function cargarHistorialCerebro(alAvanzar){
     if (!HIST.has(claveMes(f))) pedir.push({ f, m: f.getMonth() + 1, y: f.getFullYear() });
   }
   const fallidos = [];
-  let vacios = 0;
+  let vacios = 0, hechos = 0;
   // De cuatro en cuatro: doce peticiones a la vez contra un backend chico es
   // maltrato, y una detrás de otra son doce esperas encadenadas.
   for (let i = 0; i < pedir.length; i += 4){
     const lote = pedir.slice(i, i + 4);
-    const res = await Promise.allSettled(
-      lote.map((x) => api(`/transactions/?month=${x.m}&year=${x.y}`)));
+    const res = await Promise.allSettled(lote.map((x) => pedirMes(claveMes(x.f))));
     res.forEach((r, j) => {
       if (r.status !== "fulfilled"){ fallidos.push(lote[j]); return; }
-      const txs = r.value || [];
-      HIST.set(claveMes(lote[j].f), txs);
-      vacios = txs.length ? 0 : vacios + 1;
+      vacios = (HIST.get(claveMes(lote[j].f)) || []).length ? 0 : vacios + 1;
     });
-    alAvanzar(HIST.size, fallidos.length);
+    hechos += lote.length;
+    // Se cuenta lo pedido aquí, no el tamaño de la caché: una consulta pudo
+    // dejar dentro meses que esta vista nunca pidió.
+    alAvanzar(Math.min(MESES_ATRAS, hechos + 1), fallidos.length);
     if (vacios >= 3) break;         // tres meses seguidos en blanco: más atrás no hay nada
   }
   return fallidos;
@@ -2531,7 +2573,14 @@ async function cargarHistorialCerebro(alAvanzar){
 // El modelo del periodo entero: el centro, un nodo por mes y uno por
 // categoría. Los días no entran: trescientos puntos sin nombre no dicen nada.
 function construirHistorial(){
-  const todo = [...HIST.values()].flat();
+  // La caché la comparten las consultas, que pueden haber traído años: esta
+  // vista enseña solo sus doce meses.
+  const suyos = [];
+  const hoy = new Date();
+  for (let i = 0; i < MESES_ATRAS; i++)
+    suyos.push(claveMes(new Date(hoy.getFullYear(), hoy.getMonth() - i, 1)));
+  const dentro = new Set(suyos);
+  const todo = [...HIST.entries()].filter(([k]) => dentro.has(k)).flatMap(([, v]) => v);
   const gasto = todo.filter((t) => t && t.type === "expense");
   // La moneda se decide sobre TODA la ventana, no mes a mes: si no, quedarían
   // nodos en soles al lado de nodos en dólares, comparándose por tamaño.
@@ -2547,7 +2596,7 @@ function construirHistorial(){
     .map((a) => ({ a: idx.get(base.nodos[a.a].k), b: idx.get(base.nodos[a.b].k), peso: a.peso }));
 
   // Un nodo por mes, colgado del centro, con sus propias categorías.
-  for (const [k, txs] of [...HIST.entries()].sort().reverse()){
+  for (const [k, txs] of [...HIST.entries()].filter(([k]) => dentro.has(k)).sort().reverse()){
     const suyos = txs.filter((t) => t && t.type === "expense" && t.currency === moneda);
     if (!suyos.length) continue;
     const total = suyos.reduce((a, t) => a + (Number(t.amount) || 0), 0);
@@ -2629,6 +2678,441 @@ async function abrirCerebroEntero(){
   });
 })();
 
+// ── Preguntarle al cerebro ────────────────────────────────────────────────
+// El intérprete vive aquí, en el navegador: casi todas las preguntas
+// ("cuánto gasté en comida", "pasaje este mes") salen con cuatro reglas
+// sobre las categorías que el usuario YA tiene cargadas, sin red y sin
+// gastar un token. Lo que no entienda se manda a la IA, que devuelve el
+// mismo filtro: la cifra la calcula siempre este archivo, nunca el modelo.
+
+const normaliza = (s) => String(s || "").toLowerCase()
+  .normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim();
+
+// Parecido por bigramas (Dice): aguanta plurales y dedazos como "trasnporte"
+// en seis líneas. Levenshtein cuesta más y aquí no acierta mejor.
+function parecido(a, b){
+  a = normaliza(a); b = normaliza(b);
+  if (a === b) return 1;
+  if (a.length < 2 || b.length < 2) return 0;
+  const pares = (s) => {
+    const m = new Map();
+    for (let i = 0; i < s.length - 1; i++){
+      const par = s.slice(i, i + 2);
+      m.set(par, (m.get(par) || 0) + 1);
+    }
+    return m;
+  };
+  const A = pares(a), B = pares(b);
+  let comunes = 0;
+  for (const [par, n] of A) comunes += Math.min(n, B.get(par) || 0);
+  return 2 * comunes / (a.length - 1 + b.length - 1);
+}
+
+// Pistas, no categorías: la palabra del usuario lleva a un término que luego
+// se busca entre las categorías REALES, que cada quien nombra a su manera.
+const SINONIMOS = {
+  transporte: "pasaje pasajes taxi taxis uber combi micro bus buses metro tren gasolina grifo peaje",
+  comida: "almuerzo almuerzos cena cenas desayuno desayunos menu restaurante restaurantes comer delivery",
+  mercado: "mercado supermercado verduras abarrotes",
+  servicios: "luz agua internet recibo recibos cable telefono celular",
+  salud: "medicina medicinas farmacia clinica doctor dentista",
+  educacion: "universidad colegio matricula pension curso cursos libros",
+  entretenimiento: "cine juegos salida fiesta streaming",
+  hogar: "alquiler renta muebles limpieza",
+  ropa: "zapatos zapatillas",
+};
+const pistaDe = (palabra) => {
+  const p = normaliza(palabra);
+  for (const pista of Object.keys(SINONIMOS))
+    if (SINONIMOS[pista].split(" ").includes(p)) return pista;
+  return null;
+};
+
+// El vocabulario sale de los propios gastos: no hace falta preguntarle al
+// backend cómo se llaman las categorías de este usuario.
+function catsConocidas(){
+  const set = new Set();
+  for (const d of mes.dias) for (const t of d.gastos) set.add(catNorm(t));
+  for (const txs of HIST.values())
+    for (const t of txs) if (t && t.type === "expense") set.add(catNorm(t));
+  return [...set];
+}
+
+// La palabra del usuario a una categoría suya. Escalera: gana la primera.
+function buscarCat(palabra, cats = catsConocidas()){
+  const q = normaliza(palabra);
+  if (!q || !cats.length) return null;
+  const exacta = cats.find((c) => normaliza(c) === q);
+  if (exacta) return { cat: exacta, como: "exacto" };
+  const dentro = cats.find((c) => normaliza(c).includes(q) || q.includes(normaliza(c)));
+  if (dentro) return { cat: dentro, como: "exacto" };
+  const pista = pistaDe(q);
+  if (pista){
+    const porPista = cats.find((c) => normaliza(c).includes(pista) || pista.includes(normaliza(c)));
+    if (porPista) return { cat: porPista, como: "sinonimo" };
+  }
+  // Por parecido solo si gana con holgura: un empate es una ambigüedad, y
+  // adivinar cuando se habla de dinero se paga caro.
+  const puntos = cats.map((c) => [c, parecido(c, q)]).sort((a, b) => b[1] - a[1]);
+  if (puntos[0][1] >= .6 && puntos[0][1] - (puntos[1]?.[1] || 0) >= .12)
+    return { cat: puntos[0][0], como: "parecido" };
+  return null;
+}
+
+const MESES_NOMBRE = ["enero","febrero","marzo","abril","mayo","junio","julio",
+  "agosto","septiembre","octubre","noviembre","diciembre"];
+
+// Qué tramo de tiempo pide la frase. Todo en fechas locales, que es como se
+// agrupan los días en el resto del archivo (occurred_at viaja en UTC).
+function leerPeriodo(txt, hoy = new Date()){
+  const t = normaliza(txt);
+  const dia0 = (f) => new Date(f.getFullYear(), f.getMonth(), f.getDate());
+  const finDia = (f) => new Date(f.getFullYear(), f.getMonth(), f.getDate(), 23, 59, 59, 999);
+  const mesEntero = (y, m, etiqueta) => ({
+    desde: new Date(y, m, 1), hasta: finDia(new Date(y, m + 1, 0)),
+    etiqueta: etiqueta || MESES_NOMBRE[m] + (y !== hoy.getFullYear() ? " de " + y : ""),
+  });
+
+  if (/\bhoy\b/.test(t)) return { desde: dia0(hoy), hasta: finDia(hoy), etiqueta: "hoy" };
+  if (/\bayer\b/.test(t)){
+    const a = new Date(hoy); a.setDate(a.getDate() - 1);
+    return { desde: dia0(a), hasta: finDia(a), etiqueta: "ayer" };
+  }
+  if (/semana pasada|ultima semana/.test(t)){
+    const fin = new Date(hoy); fin.setDate(fin.getDate() - ((hoy.getDay() + 6) % 7) - 1);
+    const ini = new Date(fin); ini.setDate(ini.getDate() - 6);
+    return { desde: dia0(ini), hasta: finDia(fin), etiqueta: "la semana pasada" };
+  }
+  if (/esta semana/.test(t)){
+    const ini = new Date(hoy); ini.setDate(ini.getDate() - ((hoy.getDay() + 6) % 7));
+    return { desde: dia0(ini), hasta: finDia(hoy), etiqueta: "esta semana" };
+  }
+  if (/mes pasado|mes anterior/.test(t)){
+    const f = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
+    return mesEntero(f.getFullYear(), f.getMonth(), "el mes pasado");
+  }
+  if (/este mes/.test(t)) return mesEntero(hoy.getFullYear(), hoy.getMonth(), "este mes");
+  if (/este a[nñ]o/.test(t))
+    return { desde: new Date(hoy.getFullYear(), 0, 1), hasta: finDia(hoy), etiqueta: "este año" };
+  const ult = t.match(/ultim[oa]s?\s+(\d{1,3})\s*(dias?|semanas?|meses)/);
+  if (ult){
+    const n = Math.min(730, Number(ult[1]) || 1);
+    const atras = ult[2].startsWith("semana") ? n * 7 : ult[2].startsWith("mes") ? n * 30 : n;
+    const ini = new Date(hoy); ini.setDate(ini.getDate() - atras + 1);
+    return { desde: dia0(ini), hasta: finDia(hoy), etiqueta: `los últimos ${n} ${ult[2]}` };
+  }
+  const nom = t.match(new RegExp(`\\b(${MESES_NOMBRE.join("|")})\\b(?:\\s+de)?\\s*(\\d{4})?`));
+  if (nom){
+    const m = MESES_NOMBRE.indexOf(nom[1]);
+    // Sin año, un mes que aún no llegó es del año pasado, no del futuro.
+    const y = nom[2] ? Number(nom[2]) : (m > hoy.getMonth() ? hoy.getFullYear() - 1 : hoy.getFullYear());
+    return mesEntero(y, m);
+  }
+  const anio = t.match(/\b(20\d{2})\b/);
+  if (anio) return { desde: new Date(Number(anio[1]), 0, 1),
+    hasta: finDia(new Date(Number(anio[1]), 11, 31)), etiqueta: "en " + anio[1] };
+  return { ...mesEntero(hoy.getFullYear(), hoy.getMonth(), "este mes"), pordefecto: true };
+}
+
+function leerIntencion(txt){
+  const t = normaliza(txt);
+  if (/en que (gaste|se me fue|se fue) mas|mayor gasto|categoria mas cara|donde gaste mas/.test(t)) return "rank_cat";
+  if (/dia mas caro|que dia gaste|dia que mas/.test(t)) return "rank_dia";
+  if (/cuant[ao]s (veces|gastos|compras)/.test(t)) return "cuenta";
+  return "suma";
+}
+
+// Lo que no era periodo, intención ni categoría: el nombre de un comercio o
+// un trozo de descripción.
+const VACIAS = new Set(("cuanto cuanta cuantos cuantas gaste gasto gastos gastado en el la los las "
+  + "le me mi de del a al por para y o un una es fue mas se te pague pagado este esta "
+  + "mes semana dia dias ano año hoy ayer total que donde veces caro cara mayor menor "
+  + "ultimo ultima ultimos ultimas pasado pasada anterior").split(" "));
+function restoTexto(txt, cat){
+  const fuera = new Set([...(cat ? normaliza(cat).split(" ") : []), ...MESES_NOMBRE]);
+  return normaliza(txt).split(" ")
+    .filter((w) => w && !VACIAS.has(w) && !fuera.has(w) && !/^\d+$/.test(w) && !pistaDe(w))
+    .join(" ").trim();
+}
+
+// Devuelve el filtro, o null cuando no se entiende: esa es la señal para
+// preguntarle a la IA.
+function interpretarLocal(txt, hoy = new Date()){
+  const t = normaliza(txt);
+  if (!t) return null;
+  // Lo que el cerebro no sabe responder, se dice sin gastar una petición:
+  // son proyecciones y cobros, no gastos.
+  if (/cuanto me queda|me alcanza|ahorr|presupuest|me deben|yo debo|sueldo|ingreso/.test(t))
+    return { intencion: "fuera", etiqueta: "" };
+  if (t.split(" ").length > 12) return null;      // frase larga: no es nuestra gramática
+
+  const intencion = leerIntencion(t);
+  const periodo = leerPeriodo(t, hoy);
+  const cats = catsConocidas();
+  let cat = null;
+  for (const palabra of t.split(" ")){
+    if (VACIAS.has(palabra)) continue;
+    const hallada = buscarCat(palabra, cats);
+    if (hallada){ cat = hallada.cat; break; }
+  }
+  const sobra = restoTexto(t, cat);
+  const texto = (cat || intencion === "rank_cat" || intencion === "rank_dia") ? null : sobra;
+  if (!cat && !texto && intencion === "suma" && periodo.pordefecto) return null;
+  return { intencion, cat, texto: texto || null, ...periodo, origen: "local" };
+}
+
+// Comprobación del intérprete, a mano porque el repo no tiene runner.
+function pruebaConsultas(){
+  const fallos = [];
+  const ok = (cond, que) => { if (!cond) fallos.push(que); };
+  const hoy = new Date(2026, 10, 5);              // 5 de noviembre de 2026
+  const cats = ["comida", "transporte", "educación", "servicios"];
+  const con = (txt) => {
+    const guarda = mes.dias;
+    mes.dias = [{ fecha: hoy, total: 0,
+      gastos: cats.map((c) => ({ type:"expense", category:c, amount:1, currency:"PEN" })) }];
+    const r = interpretarLocal(txt, hoy);
+    mes.dias = guarda;
+    return r;
+  };
+
+  let r = con("cuánto gasté en pasaje este mes");
+  ok(r && r.cat === "transporte" && r.etiqueta === "este mes", "pasaje es transporte, este mes");
+
+  r = con("cuánto en comida");
+  ok(r && r.cat === "comida" && r.pordefecto, "comida sin periodo cae en el mes en curso");
+
+  r = con("en qué gasté más");
+  ok(r && r.intencion === "rank_cat", "en qué gasté más es un ranking");
+
+  r = con("mi día más caro del mes pasado");
+  ok(r && r.intencion === "rank_dia" && r.desde.getMonth() === 9, "día más caro, octubre");
+
+  r = con("Netflix");
+  ok(r && r.texto === "netflix" && !r.cat, "una marca suelta es texto, no categoría");
+
+  r = con("cuánto le pagué a Graciela en octubre");
+  ok(r && r.texto === "graciela" && r.desde.getMonth() === 9, "comercio y mes por nombre");
+
+  r = con("gastos de los últimos 7 días");
+  ok(r && r.desde.getDate() === 30 && r.desde.getMonth() === 9, "últimos 7 días cruza el mes");
+
+  r = con("transprte");                           // dedazo
+  ok(r && r.cat === "transporte", "un dedazo todavía encuentra la categoría");
+
+  r = con("en qué gasté más");
+  ok(r && !r.texto, "un ranking no arrastra texto de filtro");
+  r = con("mi día más caro");
+  ok(r && r.intencion === "rank_dia" && !r.texto, "el día más caro tampoco");
+  r = con("cuántas veces gasté en comida");
+  ok(r && r.intencion === "cuenta" && r.cat === "comida" && !r.texto,
+    "contar en una categoría no filtra además por texto");
+
+  ok(con("cuánto me queda")?.intencion === "fuera", "lo que no es gasto se declara fuera");
+  ok(con("") === null, "vacío no es una consulta");
+  ok(con("hola qué tal cómo estás amigo mío qué bonito día hace hoy aquí") === null,
+    "una frase larga se manda a la IA");
+
+  // Y el camino del dinero, que es el que produce la cifra que se lee.
+  const tx = (amount, category, dia, currency = "PEN", type = "expense", hora = 12) =>
+    ({ type, amount, category, currency, description: "x",
+       occurred_at: new Date(2026, 10, dia, hora).toISOString() });
+  const filtroMes = { desde: new Date(2026, 10, 1), hasta: new Date(2026, 10, 30, 23, 59, 59, 999) };
+
+  let c = calcular(filtroMes, [tx(100, "comida", 3), tx(50, "comida", 4, "USD")]);
+  ok(c.total === 100 && c.moneda === "PEN" && c.otras.length === 1,
+    "la moneda minoritaria no entra en el total y se declara");
+
+  c = calcular(filtroMes, [tx(100, "comida", 3), tx(999, "sueldo", 3, "PEN", "income")]);
+  ok(c.total === 100, "los ingresos no cuentan como gasto");
+
+  c = calcular(filtroMes, [tx(10, "comida", 30, "PEN", "expense", 23), tx(10, "comida", 1, "PEN", "expense", 0)]);
+  ok(c.n === 2, "los gastos de los bordes del rango, a las 23 y a las 0, entran");
+
+  c = calcular({ ...filtroMes, cat: "comida" }, [tx(10, "comida", 3), tx(90, "taxi", 3)]);
+  ok(c.total === 10 && c.n === 1, "el filtro por categoría deja fuera el resto");
+
+  if (fallos.length) console.error("pruebaConsultas:", fallos);
+  else console.log("pruebaConsultas: todo cuadra");
+  return !fallos.length;
+}
+
+const enVueloMeses = new Map();
+function pedirMes(k){
+  if (HIST.has(k)) return Promise.resolve();
+  if (enVueloMeses.has(k)) return enVueloMeses.get(k);
+  const [y, m] = k.split("-").map(Number);
+  const p = api(`/transactions/?month=${m}&year=${y}`)
+    .then((txs) => { HIST.set(k, txs || []); })
+    .finally(() => enVueloMeses.delete(k));
+  enVueloMeses.set(k, p);
+  return p;
+}
+// De cuatro en cuatro: doce peticiones a la vez contra un backend chico es
+// maltrato, y es justo lo que el historial del cerebro ya evita.
+async function traerMeses(claves){
+  for (let i = 0; i < claves.length; i += 4)
+    await Promise.allSettled(claves.slice(i, i + 4).map(pedirMes));
+}
+
+// ── Responder la consulta ─────────────────────────────────────────────────
+// Las transacciones salen de lo más barato que haya: la memoria primero.
+const mesesDelRango = (desde, hasta) => {
+  const out = [];
+  const f = new Date(desde.getFullYear(), desde.getMonth(), 1);
+  while (f <= hasta){ out.push(claveMes(f)); f.setMonth(f.getMonth() + 1); }
+  return out;
+};
+
+function txsEnMemoria(filtro){
+  const ahora = claveMes(new Date());
+  let txs = [];
+  const faltan = [];
+  for (const k of mesesDelRango(filtro.desde, filtro.hasta)){
+    if (HIST.has(k)) txs = txs.concat(HIST.get(k));
+    else if (k === ahora && mes.cargado) txs = txs.concat(mes.dias.flatMap((d) => d.gastos));
+    else faltan.push(k);
+  }
+  return { txs, faltan };
+}
+
+// La cifra se calcula aquí, siempre, con las transacciones de verdad. La IA
+// (cuando entra) solo dice qué filtrar, nunca cuánto suma.
+function calcular(filtro, txs){
+  const aguja = filtro.texto ? normaliza(filtro.texto) : null;
+  const dentro = txs.filter((t) => {
+    if (!t || t.type !== "expense") return false;
+    const f = new Date(t.occurred_at);
+    if (isNaN(f.getTime()) || f < filtro.desde || f > filtro.hasta) return false;
+    if (filtro.cat && catNorm(t) !== filtro.cat) return false;
+    if (aguja && !normaliza(`${t.description || ""} ${t.counterpart || ""} ${t.category || ""}`)
+      .includes(aguja)) return false;
+    return true;
+  });
+  // Manda la moneda de más peso y las otras se declaran aparte: nunca se suman.
+  const porMoneda = new Map();
+  for (const t of dentro){
+    const cur = t.currency || mes.moneda;
+    porMoneda.set(cur, (porMoneda.get(cur) || 0) + (Number(t.amount) || 0));
+  }
+  const orden = [...porMoneda.entries()].sort((a, b) => b[1] - a[1]);
+  const moneda = orden[0]?.[0] || mes.moneda;
+  const suyos = dentro.filter((t) => (t.currency || mes.moneda) === moneda);
+  const porCat = new Map(), porDia = new Map();
+  for (const t of suyos){
+    const monto = Number(t.amount) || 0;
+    porCat.set(catNorm(t), (porCat.get(catNorm(t)) || 0) + monto);
+    const k = claveDia(new Date(t.occurred_at));
+    porDia.set(k, (porDia.get(k) || 0) + monto);
+  }
+  return {
+    total: suyos.reduce((a, t) => a + (Number(t.amount) || 0), 0),
+    moneda, n: suyos.length, gastos: suyos,
+    porCat: [...porCat.entries()].sort((a, b) => b[1] - a[1]),
+    porDia: [...porDia.entries()].sort((a, b) => b[1] - a[1]),
+    otras: orden.slice(1),
+  };
+}
+
+// Qué neuronas tiene que encender el resultado.
+function clavesDe(filtro, cuenta){
+  const claves = ["centro"];
+  if (filtro.intencion === "rank_dia" && cuenta.porDia.length) claves.push("dia:" + cuenta.porDia[0][0]);
+  else if (filtro.intencion === "rank_cat" && cuenta.porCat.length) claves.push("cat:" + cuenta.porCat[0][0]);
+  else {
+    for (const [c] of cuenta.porCat) claves.push("cat:" + c);
+    for (const [d] of cuenta.porDia) claves.push("dia:" + d);
+  }
+  return claves;
+}
+
+let turnoConsulta = 0;
+const QUE_PASO = (txt) => { $("grafNota").textContent = txt; };
+
+async function responderConsulta(pregunta){
+  const mio = ++turnoConsulta;
+  const filtro = interpretarLocal(pregunta);
+  if (!filtro){
+    limpiarConsulta(true);
+    return QUE_PASO("No entendí la pregunta. Prueba con algo como \"cuánto gasté en comida este mes\".");
+  }
+  if (filtro.intencion === "fuera"){
+    limpiarConsulta(true);
+    return QUE_PASO("Por ahora solo sé de tus gastos: pregúntame por una categoría, un comercio o un periodo.");
+  }
+
+  const enGrande = $("dlgCerebro").open;
+  let { txs, faltan } = txsEnMemoria(filtro);
+  if (faltan.length){
+    QUE_PASO("Buscando en tu historial…");
+    await traerMeses(faltan);
+    // Llegó otra pregunta, se limpió la barra, o se abrió o cerró el diálogo:
+    // esta respuesta ya no es la que el usuario está mirando.
+    if (mio !== turnoConsulta || enGrande !== $("dlgCerebro").open) return;
+    ({ txs, faltan } = txsEnMemoria(filtro));
+  }
+
+  const cuenta = calcular(filtro, txs);
+  const donde = filtro.cat ? "en " + nombreCat(filtro.cat)
+    : filtro.texto ? `en "${filtro.texto}"` : "";
+  const cuando = filtro.etiqueta ? " " + filtro.etiqueta : "";
+
+  if (!cuenta.n){
+    limpiarConsulta(true);
+    return QUE_PASO(`No encontré gastos ${donde}${cuando}.`.replace("  ", " "));
+  }
+
+  let frase;
+  if (filtro.intencion === "rank_cat"){
+    const [c, v] = cuenta.porCat[0];
+    const pct = cuenta.total ? Math.round(v / cuenta.total * 100) : 0;
+    frase = `Donde más gastaste${cuando} fue ${nombreCat(c)}: ${plata(v, cuenta.moneda)}, el ${pct}% del total.`;
+  } else if (filtro.intencion === "rank_dia"){
+    const [d, v] = cuenta.porDia[0];
+    const f = new Date(d + "T12:00:00");
+    frase = `Tu día más caro${cuando} fue el ${f.getDate()} de ${MESES_NOMBRE[f.getMonth()]}: ${plata(v, cuenta.moneda)}.`;
+  } else if (filtro.intencion === "cuenta"){
+    frase = `Tienes ${cuenta.n} ${cuenta.n === 1 ? "gasto" : "gastos"} ${donde}${cuando}, ${plata(cuenta.total, cuenta.moneda)} en total.`;
+  } else {
+    frase = `${donde ? donde[0].toUpperCase() + donde.slice(1) : "En total"}${cuando} gastaste `
+      + `${plata(cuenta.total, cuenta.moneda)} en ${cuenta.n} ${cuenta.n === 1 ? "gasto" : "gastos"}.`;
+  }
+  if (cuenta.otras.length)
+    frase += cuenta.otras.length === 1 ? " Hay otra moneda que no entra en ese total."
+      : " Hay otras monedas que no entran en ese total.";
+  if (faltan.length) frase += " Faltan meses que no pude traer.";
+
+  // El cerebro se filtra, y si la respuesta es una sola neurona se acerca.
+  const cual = enGrande ? CEREBRO_TODO : CEREBRO;
+  // Solo se pueden encender neuronas que existan en ESE cerebro: con claves
+  // de fuera, el filtro apagaría el dibujo entero.
+  const hay = new Set((cual?.nodos() || []).map((n) => n.k));
+  const claves = clavesDe(filtro, cuenta).filter((k) => hay.has(k));
+  if (claves.length > 1) cual?.resaltar(claves);
+  else frase += " No puedo señalarlo en este cerebro: pruébalo en todo el historial.";
+  QUE_PASO(frase);
+  const solo = claves.filter((k) => k !== "centro");
+  if (solo.length === 1){
+    const nodo = cual?.nodos().find((n) => n.k === solo[0]);
+    if (nodo) cual.acercar(nodo);
+  }
+  listaAccesible(enGrande ? construirHistorial() : modeloDelMes(),
+    enGrande ? "cerebroTodoLista" : "cerebroLista", claves.length > 1 ? claves : null);
+}
+
+// Volver al estado normal. El cerebro y la lista se restauran SIEMPRE: si una
+// respuesta deja el filtro puesto, el dibujo y el texto se contradicen.
+function limpiarConsulta(soloEstado){
+  ++turnoConsulta;                       // lo que venga de camino ya no manda
+  for (const c of [CEREBRO, CEREBRO_TODO]){ c?.resaltar(null); c?.soltar(); }
+  const m = modeloDelMes();
+  listaAccesible(m);
+  if (soloEstado) return;
+  $("qCerebro").value = "";
+  $("grafNota").innerHTML = mes.dias.length ? notaDescartes(m)
+    : "Todavía no hay gastos este mes. En cuanto registres uno, su neurona se enciende.";
+}
+
 // La previsualización de un nodo. Un solo diálogo para los tres contenidos:
 // el mes entero, una categoría o un día.
 function abrirNodo(nodo){
@@ -2696,6 +3180,21 @@ function abrirNodo(nodo){
 
 const nombreCat = (c) => { c = String(c || "").trim(); return c.charAt(0).toUpperCase() + c.slice(1); };
 
+// La barra: enviar pregunta, y vaciarla devuelve el cerebro entero.
+(() => {
+  const form = $("consulta"), caja = $("qCerebro");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const txt = caja.value.trim();
+    if (!txt) return limpiarConsulta();
+    form.classList.add("pensando");
+    if (matchMedia("(pointer:coarse)").matches) caja.blur();   // que se vea el cerebro
+    try { await responderConsulta(txt); } finally { form.classList.remove("pensando"); }
+  });
+  caja.addEventListener("input", () => { if (!caja.value.trim()) limpiarConsulta(); });
+  caja.addEventListener("keydown", (e) => { if (e.key === "Escape"){ caja.value = ""; limpiarConsulta(); } });
+})();
+
 (() => {
   const dlg = $("dlgNodo");
   dlg.addEventListener("close", () => {
@@ -2715,13 +3214,16 @@ const nombreCat = (c) => { c = String(c || "").trim(); return c.charAt(0).toUppe
 
 // El canvas no existe para quien navega con teclado o lector: al lado va una
 // lista de botones de verdad, invisible, que abre los mismos detalles.
-function listaAccesible(m, destino = "cerebroLista"){
+function listaAccesible(m, destino = "cerebroLista", claves = null){
   const donde = $(destino);
+  const filtro = claves ? new Set(claves) : null;
   // Si el teclado está dentro de esta lista, se recuerda dónde para no tirar
   // el foco al body en mitad de la navegación.
   const teniaFoco = donde.contains(document.activeElement)
     ? document.activeElement.dataset.n : null;
-  donde.innerHTML = m.nodos.map((n, i) => {
+  donde.innerHTML = m.nodos.map((n, i) => [n, i])
+    .filter(([n]) => !filtro || filtro.has(n.k))
+    .map(([n, i]) => {
     const q = n.tipo === "centro" ? `Todo el mes, ${plata(n.total, n.moneda)}, ${n.n} gastos`
       : n.tipo === "cat" ? `Categoría ${esc(n.etiqueta)}, ${plata(n.total, n.moneda)}, ${n.n} gastos`
       : n.tipo === "mes" ? `Mes de ${esc(n.etiqueta)}, ${plata(n.total, n.moneda)}, ${n.n} gastos`
