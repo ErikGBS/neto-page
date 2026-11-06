@@ -1236,15 +1236,15 @@
           <button class="wacola" data-filtro="revisar" aria-pressed="false"
                   title="Mandaron su captura del Yape y esperan que la apruebes">
             <span class="n" id="waNRevisar">0</span><span class="l">Por revisar</span></button>
-          <button class="wacola" data-filtro="captura" aria-pressed="false"
-                  title="Pidieron Pro y todavía no mandan la captura: son los posibles pagos">
-            <span class="n" id="waNCaptura">0</span><span class="l">Falta captura</span></button>
           <button class="wacola" data-filtro="pendientes" aria-pressed="false"
                   title="Su último mensaje es el que nadie contestó">
             <span class="n" id="waNPend">0</span><span class="l">Sin responder</span></button>
           <button class="wacola" data-filtro="vencen" aria-pressed="false"
                   title="Les quedan menos de 4 h de la ventana de 24 h de Meta">
             <span class="n" id="waNVencen">0</span><span class="l">Por vencer</span></button>
+          <button class="wacola" data-filtro="pro" aria-pressed="false"
+                  title="Pro vigente hoy. Un Pro vencido no cuenta acá">
+            <span class="n" id="waNPro">0</span><span class="l">Pro activos</span></button>
           <button class="wacola" data-filtro="cerradas" aria-pressed="false"
                   title="Pasaron 24 h desde su último mensaje: Meta ya no entrega texto libre">
             <span class="n" id="waNCerradas">0</span><span class="l">Ventana cerrada</span></button>
@@ -3892,17 +3892,17 @@ const dormido = (c) => DORMIDAS.includes(((c.usage || {}).cohort) || "");
 const COLAS = {
   todas: () => true,
   revisar: (c) => proEstado(c) === "por_revisar",
-  captura: (c) => ["falta_captura", "pedido_caducado"].includes(proEstado(c)),
   pendientes: sinResponder,
   vencen: porVencer,
+  pro: (c) => !!(c.plan || {}).is_pro,
   cerradas: (c) => !ventanaViva(c),
   dormidos: dormido,
   // Con cuenta pero sin un solo movimiento. Los que ni siquiera vincularon se
   // ven por su marca, y mezclarlos acá taparía a estos.
   nunca: (c) => !!c.user_id && (c.usage || {}).cohort === "nunca",
 };
-const CUENTA_ID = { todas:"waNTodas", revisar:"waNRevisar", captura:"waNCaptura",
-  pendientes:"waNPend", vencen:"waNVencen", cerradas:"waNCerradas",
+const CUENTA_ID = { todas:"waNTodas", revisar:"waNRevisar",
+  pendientes:"waNPend", vencen:"waNVencen", pro:"waNPro", cerradas:"waNCerradas",
   dormidos:"waNDormidos", nunca:"waNNunca" };
 
 function contarColas(){
@@ -3920,8 +3920,6 @@ function contarColas(){
   const partes = [];
   if (n.revisar) partes.push(`<b>${n.revisar}</b> ${
     n.revisar === 1 ? "comprobante espera" : "comprobantes esperan"} que lo revises`);
-  if (n.captura) partes.push(`<b>${n.captura}</b> ${
-    n.captura === 1 ? "pidió Pro y no manda" : "pidieron Pro y no mandan"} su captura`);
   if (n.pendientes) partes.push(`<b>${n.pendientes}</b> sin responder`);
   if (n.vencen) partes.push(`a <b>${n.vencen}</b> se le cierra la ventana hoy`);
   $("waHallazgo").innerHTML = partes.length
