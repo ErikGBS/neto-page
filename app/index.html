@@ -2686,7 +2686,9 @@ async function abrirCerebroEntero(){
 // mismo filtro: la cifra la calcula siempre este archivo, nunca el modelo.
 
 const normaliza = (s) => String(s || "").toLowerCase()
-  .normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim();
+  .normalize("NFD").replace(/[̀-ͯ]/g, "")
+  .replace(/[¿?¡!.,;:()"'`]/g, " ")      // "icloud ?" no es el nombre de nada
+  .replace(/\s+/g, " ").trim();
 
 // Parecido por bigramas (Dice): aguanta plurales y dedazos como "trasnporte"
 // en seis líneas. Levenshtein cuesta más y aquí no acierta mejor.
@@ -2888,6 +2890,9 @@ function pruebaConsultas(){
   r = con("mi día más caro del mes pasado");
   ok(r && r.intencion === "rank_dia" && r.desde.getMonth() === 9, "día más caro, octubre");
 
+  r = con("cuánto gasté en iCloud?");
+  ok(r && r.texto === "icloud", "los signos de interrogación no entran en la búsqueda");
+
   r = con("Netflix");
   ok(r && r.texto === "netflix" && !r.cat, "una marca suelta es texto, no categoría");
 
@@ -3026,6 +3031,29 @@ function clavesDe(filtro, cuenta){
   return claves;
 }
 
+// Buscar un texto en todo el historial: lo resuelve el backend, que es quien
+// puede descifrar las descripciones.
+async function buscarEnTodo(texto){
+  let datos;
+  try { datos = await api(`/transactions/search?q=${encodeURIComponent(texto)}&limit=200`); }
+  catch { return null; }
+  const gastos = (datos?.results || []).filter((t) => t && t.type === "expense");
+  if (!gastos.length) return null;
+  const porMoneda = new Map();
+  for (const t of gastos){
+    const cur = t.currency || mes.moneda;
+    porMoneda.set(cur, (porMoneda.get(cur) || 0) + (Number(t.amount) || 0));
+  }
+  const moneda = [...porMoneda.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  const suyos = gastos.filter((t) => (t.currency || mes.moneda) === moneda);
+  const fechas = suyos.map((t) => new Date(t.occurred_at)).filter((f) => !isNaN(f.getTime()));
+  return {
+    total: suyos.reduce((a, t) => a + (Number(t.amount) || 0), 0),
+    moneda, n: suyos.length, gastos: suyos,
+    desde: new Date(Math.min(...fechas)),
+  };
+}
+
 let turnoConsulta = 0;
 const QUE_PASO = (txt) => { $("grafNota").textContent = txt; };
 
@@ -3057,6 +3085,21 @@ async function responderConsulta(pregunta){
     : filtro.texto ? `en "${filtro.texto}"` : "";
   const cuando = filtro.etiqueta ? " " + filtro.etiqueta : "";
 
+  if (!cuenta.n && filtro.texto && filtro.pordefecto){
+    QUE_PASO(`No lo encontré este mes, buscando en tu historial…`);
+    const hallado = await buscarEnTodo(filtro.texto);
+    if (mio !== turnoConsulta) return;
+    limpiarConsulta(true);
+    if (!hallado) return QUE_PASO(`No encontré gastos ${donde} en tu historial.`);
+    const { total, moneda, n, gastos, desde } = hallado;
+    QUE_PASO(`${donde[0].toUpperCase() + donde.slice(1)} no hay nada este mes, pero desde `
+      + `${MESES_NOMBRE[desde.getMonth()]} de ${desde.getFullYear()} llevas `
+      + `${plata(total, moneda)} en ${n} ${n === 1 ? "gasto" : "gastos"}.`);
+    // El detalle se enseña en el panel de siempre, con un nodo de mentira que
+    // solo existe para esta respuesta.
+    return abrirNodo({ tipo: "cat", etiqueta: filtro.texto, cat: filtro.texto,
+      total, n, gastos, moneda, sinPct: true });
+  }
   if (!cuenta.n){
     limpiarConsulta(true);
     return QUE_PASO(`No encontré gastos ${donde}${cuando}.`.replace("  ", " "));
@@ -3151,7 +3194,7 @@ function abrirNodo(nodo){
     const pct = sobre ? Math.round(nodo.total / sobre * 100) : 0;
     cuerpo = `<div class="cifra">${plata(nodo.total, nodo.moneda)}</div>
       <p class="pie">${nodo.n} ${nodo.n === 1 ? "gasto" : "gastos"}${
-        nodo.tipo === "cat" ? ` · ${pct}% de tu mes` : ""}</p>
+        nodo.tipo === "cat" && !nodo.sinPct ? ` · ${pct}% de tu mes` : ""}</p>
       <ol>` + tope.map((t) => {
         const cuando = new Date(t.occurred_at);
         const dato = nodo.tipo === "cat"
