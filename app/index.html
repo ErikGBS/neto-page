@@ -633,7 +633,7 @@
     /* En el teléfono se tocan con el pulgar: 44px, aunque en el escritorio
        estos mismos controles vivan cómodos en 34. */
     .admin button.chico, .admin #waBuscar, .admin .fpaso .acc button,
-    .admin .waenviar button{min-height:44px}
+    .admin .waenviar button, .admin #waBot{min-height:44px}
     .admin .wa2{grid-template-columns:minmax(0,1fr)}
     .admin .wa2 > *{height:auto}
     .admin .walista{max-height:420px}
@@ -857,6 +857,8 @@
   .admin button.primario:disabled{background:var(--surface-2);color:var(--mute);
     border-color:var(--border);cursor:not-allowed}
   .admin .wapersona .acc button, .admin .waenviar button{min-height:36px}
+  /* Mientras el equipo atiende, el bot calla: el botón lo dice y lo deshace. */
+  .admin #waBot.pausado{border-color:rgba(208,165,92,.45);color:var(--gold-bright)}
   .admin #adminAviso{margin:0 0 14px;color:var(--mute);font-size:.86rem}
   .admin #adminAviso.err{color:var(--red)}
 
@@ -1287,6 +1289,7 @@
           <textarea id="waTexto" rows="2" placeholder="Escribe tu respuesta..."></textarea>
           <div class="waenviar">
             <span id="waAviso" class="muted"></span>
+            <button id="waBot" class="chico" style="display:none"></button>
             <button id="waPush" class="chico" style="display:none">Avisar por push</button>
             <button id="waEnviar" class="primario">Enviar</button>
           </div>
@@ -4251,6 +4254,58 @@ function vista(cual){
     b.classList.toggle("on", b.dataset.vista === cual);
 }
 
+// Hasta cuándo manda el humano en esta conversación, si es que manda.
+function pausaViva(conv){
+  const hasta = conv && conv.bot_paused_until;
+  return hasta && new Date(hasta) > new Date() ? new Date(hasta) : null;
+}
+
+// Qué se puede hacer con esta conversación ahora mismo, en una frase.
+function avisoDeCaja(conv){
+  const pausa = pausaViva(conv);
+  if (!ventanaViva(conv))
+    return sinChat(conv)
+      ? "Todavía no te ha escrito: hasta entonces solo le llega el push."
+      : "Meta no entregaría el mensaje: queda el push o esperar a que escriba.";
+  if (pausa) return "Contestas tú: el bot no le responde hasta las " +
+    pausa.toLocaleTimeString("es-PE", { hour:"numeric", minute:"2-digit" }) + ".";
+  return "Sale desde el número del bot.";
+}
+
+function pintarBot(conv){
+  const boton = $("waBot"), pausa = pausaViva(conv);
+  // En la vista App no hay conversación que pausar: ahí se abre por cuenta.
+  boton.style.display = waModo === "app" ? "none" : "";
+  boton.classList.toggle("pausado", !!pausa);
+  // Corto, que la cabecera comparte sitio con el nombre: el detalle va en el
+  // title y, completo, bajo la caja de respuesta.
+  const hora = pausa && pausa.toLocaleTimeString("es-PE", { hour:"numeric", minute:"2-digit" });
+  boton.textContent = pausa ? "Bot en pausa" : "Pausar bot";
+  boton.title = pausa
+    ? "El bot no le contesta hasta las " + hora + ". Toca para devolvérsela."
+    : "Mientras converses tú, el bot no le responde. Se reactiva solo en 2 h.";
+  $("waAviso").textContent = avisoDeCaja(conv);
+}
+
+async function cambiarBot(){
+  const conv = waConvs.find(c => c.phone === telefonoAbierto());
+  if (!conv) return;
+  const boton = $("waBot");
+  boton.disabled = true;
+  try{
+    const r = await api(`/admin/whatsapp/conversations/${
+      encodeURIComponent(conv.phone)}/bot`, {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ paused: !pausaViva(conv) }),
+    });
+    conv.bot_paused_until = r.until;
+    pintarBot(conv);
+  }catch(e){
+    alert("No se pudo: " + e.message);
+  }
+  boton.disabled = false;
+}
+
 async function abrirHilo(phone){
   const conv = waConvs.find(c => c.phone === phone);
   if (!conv) return;
@@ -4289,10 +4344,9 @@ async function abrirHilo(phone){
   // El push es la única salida con la ventana cerrada, y solo sirve si la
   // conversación es de alguien con cuenta.
   $("waPush").style.display = (!viva && conv.user_id) ? "" : "none";
-  $("waAviso").textContent = viva ? "Sale desde el número del bot."
-    : sinChat(conv) ? "Todavía no te ha escrito: hasta entonces solo le llega el push."
-    : "Meta no entregaría el mensaje: queda el push o esperar a que escriba.";
+  $("waAviso").textContent = avisoDeCaja(conv);
 
+  pintarBot(conv);   // después del aviso de la caja, que lo completa
   cargarFicha(conv);
   try{
     const { items } = await api("/admin/whatsapp/conversations/" + encodeURIComponent(conv.phone));
@@ -4321,6 +4375,7 @@ async function abrirUsuario(uid){
   $("waCabSub").textContent = [u.email, u.phone ? telefono(u.phone) : null]
     .filter(Boolean).join(" · ");
 
+  $("waBot").style.display = "none";
   const marca = $("waCabVentana");
   const est = u.status || {};
   marca.style.display = "";
@@ -4724,12 +4779,16 @@ async function responder(){
   const boton = $("waEnviar");
   boton.disabled = true;
   try{
-    await api(`/admin/whatsapp/conversations/${encodeURIComponent(tel)}/reply`, {
+    const r = await api(`/admin/whatsapp/conversations/${encodeURIComponent(tel)}/reply`, {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({ text: texto }),
     });
     $("waTexto").value = "";
+    // Contestar a mano deja la conversación en manos del humano: el backend
+    // pausa el bot y la cabecera lo enseña sin esperar a la recarga.
+    const conv = waConvs.find(c => c.phone === tel);
+    if (conv){ conv.bot_paused_until = r.bot_paused_until; pintarBot(conv); }
     // Se reactiva acá y no en cargarBandeja: si la conversación no vuelve en la
     // lista, el botón se quedaba muerto y parecía que la pantalla se colgó.
     boton.disabled = false;
@@ -4832,6 +4891,7 @@ async function avisarPush(){
 
 $("waEnviar").onclick = responder;
 $("waPush").onclick = avisarPush;
+$("waBot").onclick = cambiarBot;
 $("waAvisar").onclick = avisarGrupo;
 $("waRefrescar").onclick = cargarBandeja;
 $("waBuscar").oninput = () => { waBusca = $("waBuscar").value; pintarLista(); };
