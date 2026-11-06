@@ -719,6 +719,14 @@
   .admin .ava.t3{background:rgba(74,222,128,.13);color:var(--green)}
   .admin .ava.t4{background:rgba(139,108,240,.18);color:#b9a3ff}
   .admin .ava.grande{width:52px;height:52px;font-size:1.02rem}
+  .admin .ava{position:relative}
+  .admin .ava img{position:absolute;inset:0;width:100%;height:100%;
+    border-radius:50%;object-fit:cover}
+  /* Las imágenes que subió el usuario, en miniatura. */
+  .admin .fotos{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px}
+  .admin .fotos a{display:block;aspect-ratio:1;border-radius:9px;overflow:hidden;
+    border:1px solid var(--border);background:var(--surface-2)}
+  .admin .fotos img{width:100%;height:100%;object-fit:cover}
 
   /* ── Quién es: lo primero que se lee del hilo ──────────────────────────── */
   .admin .wapersona{display:flex;align-items:center;gap:14px;padding:18px 20px 16px}
@@ -3610,9 +3618,9 @@ function pintarAdmin(m){
   // Mismo estilo que las celdas de retención (.ret .d/.p/.n). Rojo cuando la
   // cifra es mala: acá "más alto" siempre es peor.
   $("activityKpis").innerHTML = [
-    ["Abandonaron", act.churned_30d, "+1 mes sin volver"],
+    ["Abandonaron", act.zombies ?? act.churned_30d, "+20 días sin volver"],
     ["Nunca empezaron", act.never, "instalaron y no registraron"],
-    ["Sin usar la app", act.inactive_30d, `de ${act.total || 0} usuarios`],
+    ["Sin usar la app", act.inactivos ?? act.inactive_30d, `de ${act.total || 0} usuarios`],
   ].map(([t, n, sub]) => {
     const p = pctBase(n ?? 0);
     const cls = p >= 50 ? "pink" : p >= 25 ? "gold" : "teal";
@@ -3919,9 +3927,9 @@ const porVencer = (c) => {
 };
 // El trámite de Pro lo decide el backend y llega hecho: acá solo se agrupa.
 const proEstado = (c) => (c.pro || {}).estado || "sin_pedido";
-// Dormido es quien registró alguna vez y lleva más de un mes sin volver, que
-// es la definición que ya usa el dashboard. "Nunca registró" es otra cosa.
-const DORMIDAS = ["m1_2", "m2_3", "m3_mas"];
+// Los mismos cortes que el dashboard: 7 días dormido, 20 zombie. "Nunca
+// registró" es otra cosa y tiene su propia cola.
+const DORMIDAS = ["dormido", "zombie", "d7_30", "m1_2", "m2_3", "m3_mas"];
 const dormido = (c) => DORMIDAS.includes(((c.usage || {}).cohort) || "");
 
 // La pantalla atiende dos públicos: quien le escribe al bot y quien usa la
@@ -3976,7 +3984,7 @@ const AYUDA_WA = {
   vencen: "Les quedan menos de 4 h de la ventana de 24 h de Meta",
   pro: "Pro vigente hoy. Un Pro vencido no cuenta acá",
   cerradas: "Pasaron 24 h desde su último mensaje: Meta ya no entrega texto libre",
-  dormidos: "Registraron alguna vez y llevan más de un mes sin anotar nada",
+  dormidos: "Registraron alguna vez y llevan 7 días o más sin anotar nada",
   nunca: "Tienen cuenta vinculada y no han registrado ni un movimiento",
 };
 
@@ -4057,11 +4065,15 @@ function espera(c){
 // app. El color se gasta solo en lo que hay que mirar.
 const USO = {
   activos_7d: ["Activo", ""],
-  d7_30: ["Hace 7 a 30 d", ""],
-  m1_2: ["Dormido", "ojo"],
-  m2_3: ["Dormido", "ojo"],
-  m3_mas: ["Dormido", "ojo"],
+  dormido: ["Dormido", "ojo"],
+  zombie: ["Zombie", "ojo"],
   nunca: ["Nunca registró", "ojo"],
+  // Las de antes de alinear los cortes: el backend puede tardar unos minutos
+  // en salir y sin esto las tarjetas se quedan sin su marca de uso.
+  d7_30: ["Dormido", "ojo"],
+  m1_2: ["Zombie", "ojo"],
+  m2_3: ["Zombie", "ojo"],
+  m3_mas: ["Zombie", "ojo"],
 };
 
 function marcas(c){
@@ -4114,7 +4126,7 @@ function tarjetaUsuario(u){
   marcas.push([est.label || "", CLASE_USO[est.clave] || ""]);
 
   return `<button class="wacard" data-uid="${esc(u.user_id)}" type="button">
-    <span class="ava ${tinte(u)}">${esc(iniciales(u))}</span>
+    <span class="ava ${tinte(u)}">${caraDe(u)}</span>
     <span class="txt">
       <span class="f1"><b>${esc(nombreCorto(u))}</b><time>${esc(cuando)}</time></span>
       <span class="msg">${fmt(movs.total || 0)} ${
@@ -4151,6 +4163,12 @@ function telefono(p){
   return d.length === 11 ? `+${d.slice(0,2)} ${d.slice(2,5)} ${d.slice(5,8)} ${d.slice(8)}` : "+" + d;
 }
 
+// La foto de perfil si la tiene, y si no sus iniciales.
+// Las iniciales van siempre debajo: la foto se pone encima y, si no carga
+// (el bucket borra las anteriores al cambiarla), se quita y quedan ellas.
+const caraDe = (c) => esc(iniciales(c)) + (c.avatar_url
+  ? `<img src="${esc(c.avatar_url)}" alt="" loading="lazy" onerror="this.remove()">` : "");
+
 function iniciales(c){
   if (c.email){
     const partes = c.email.split("@")[0].split(/[._-]+/).filter(Boolean);
@@ -4179,7 +4197,7 @@ const breve = (iso) => {
 function tarjeta(c){
   const [que, clase, nivel] = espera(c);
   return `<button class="wacard" data-tel="${esc(c.phone)}" type="button">
-    <span class="ava ${tinte(c)}">${esc(iniciales(c))}</span>
+    <span class="ava ${tinte(c)}">${caraDe(c)}</span>
     <span class="txt">
       <span class="f1"><b>${esc(nombreCorto(c))}</b><time>${breve(c.last_at)}</time></span>
       <span class="msg">${c.last_direction === "out" ? "↩ " : ""}${esc(ultimoTexto(c))}</span>
@@ -4230,7 +4248,7 @@ async function abrirHilo(phone){
   $("waCab").style.display = "";
   $("waVistas").style.display = "";
   const ava = $("waCabAva");
-  ava.textContent = iniciales(conv);
+  ava.innerHTML = caraDe(conv);
   ava.className = "ava grande " + tinte(conv);
   $("waCabQuien").textContent = nombreCorto(conv);
   // La subcabecera se completa con la ficha; hasta que llegue, lo que ya se sabe.
@@ -4282,7 +4300,7 @@ async function abrirUsuario(uid){
   marcarElegida();
 
   const ava = $("waCabAva");
-  ava.textContent = iniciales(u);
+  ava.innerHTML = caraDe(u);
   ava.className = "ava grande " + tinte(u);
   $("waCab").style.display = "";
   $("waVistas").style.display = "";
@@ -4489,6 +4507,8 @@ function bloquePerfil(movs){
     ${dato("Días con registros, último mes",
             movs.days_30 === undefined ? "" : fmt(movs.days_30))}
     ${cats.map(c => dato(c.category, fmt(c.n), true)).join("")}
+    ${movs.parcial ? `<div class="muted" style="font-size:.73rem;margin-top:6px">
+      Calculado sobre sus últimos 500 movimientos.</div>` : ""}
   </div>`;
 }
 
@@ -4504,6 +4524,18 @@ function bloqueMes(mes){
       <div class="lado"><div class="k">Ingresos ${esc(cur)}</div>
         <div class="v ingreso">${plata(v.ingresos, cur)}</div></div>
     </div>`).join("")}
+  </div>`;
+}
+
+// Las únicas imágenes que se guardan son los vouchers del Atajo de iPhone:
+// lo que llega por WhatsApp y lo que escanea la app se lee con OCR y se tira.
+function bloqueImagenes(imgs){
+  if (!imgs || !imgs.length) return "";
+  return `<div class="fgrupo">
+    <h4>Sus vouchers</h4>
+    <div class="fotos">${imgs.map(i => `<a href="${esc(i.url)}" target="_blank"
+      rel="noopener" title="${esc(cuando(i.created_at))}"><img src="${
+      esc(i.url)}" loading="lazy" alt="Voucher del ${esc(cuando(i.created_at))}"></a>`).join("")}</div>
   </div>`;
 }
 
@@ -4524,6 +4556,11 @@ function bloqueAvisos(f){
 
 // La subcabecera del hilo: quién es en una línea, con lo que la ficha trajo.
 function subcabecera(f, conv){
+  const foto = (f.prefs || {}).avatar_url;
+  if (foto && !conv.avatar_url){
+    conv.avatar_url = foto;
+    $("waCabAva").innerHTML = caraDe(conv);
+  }
   if (waActiva !== (waModo === "app" ? conv.user_id : conv.phone)) return;
   const plan = f.plan, prefs = f.prefs || {}, movs = f.movements || {};
   const partes = [f.email || conv.email || (conv.phone ? telefono(conv.phone) : "")];
@@ -4551,6 +4588,7 @@ function pintarFicha(f){
                        : bloqueSemanas(movs.by_week, movs.week_parcial)}
     ${bloquePerfil(movs)}
     ${bloqueMes(movs.month)}
+    ${bloqueImagenes(f.images)}
     <div class="fgrupo">
       <h4>Movimientos</h4>
       ${dato("Total", movs.total === undefined ? "" : fmt(movs.total))}
