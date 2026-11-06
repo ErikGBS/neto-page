@@ -3895,7 +3895,7 @@ const COLAS = {
   pendientes: sinResponder,
   vencen: porVencer,
   pro: (c) => !!(c.plan || {}).is_pro,
-  cerradas: (c) => !ventanaViva(c),
+  cerradas: (c) => !sinChat(c) && !ventanaViva(c),
   dormidos: dormido,
   // Con cuenta pero sin un solo movimiento. Los que ni siquiera vincularon se
   // ven por su marca, y mezclarlos acá taparía a estos.
@@ -3923,14 +3923,16 @@ function contarColas(){
   if (n.pendientes) partes.push(`<b>${n.pendientes}</b> sin responder`);
   if (n.vencen) partes.push(`a <b>${n.vencen}</b> se le cierra la ventana hoy`);
   $("waHallazgo").innerHTML = partes.length
-    ? partes.join(" · ") + `. De <b>${n.todas}</b> conversaciones de los últimos 30 días.`
-    : `Nada pendiente. <b>${n.todas}</b> conversaciones en los últimos 30 días.`;
+    ? partes.join(" · ") + `. De <b>${n.todas}</b> clientes en la lista.`
+    : `Nada pendiente. <b>${n.todas}</b> clientes en la lista.`;
 }
 
 // Qué espera esta persona, en palabras del oficio: es lo que decide si se abre
 // o no, y se lee antes que el nivel.
 function espera(c){
   const paso = proEstado(c);
+  // Cliente sin conversación: está en la lista por su plan, no por un chat.
+  if (sinChat(c)) return ["Sin conversación", "", "", 4];
   if (paso === "por_revisar") return ["Comprobante por revisar", "never", "Alta", 0];
   if (paso === "falta_captura") return ["Pidió Pro, falta su captura", "idle", "Media", 1];
   if (sinResponder(c) && ventanaViva(c))
@@ -3983,7 +3985,9 @@ function listaVisible(){
 // Una inicial estable y un tinte propio de la paleta: con 145 números que
 // empiezan en 51, el avatar con la primera cifra los hacía idénticos.
 const ETIQUETA = { image:"(foto)", audio:"(nota de voz)", button:"(botón)", interactive:"(botón)" };
-const ultimoTexto = (c) => c.last_text || ETIQUETA[c.last_kind] || "(" + c.last_kind + ")";
+const sinChat = (c) => !c.last_at;
+const ultimoTexto = (c) => sinChat(c) ? "Todavía no te ha escrito"
+  : c.last_text || ETIQUETA[c.last_kind] || "(" + c.last_kind + ")";
 
 // El correo entero no cabe ni dice nada: "rosa.quispe@gmail.com" llega a la
 // tarjeta como "Rosa Quispe" y el correo completo vive en la ficha.
@@ -4084,6 +4088,7 @@ async function abrirHilo(phone){
     : telefono(conv.phone);
 
   const marca = $("waCabVentana");
+  marca.style.display = sinChat(conv) ? "none" : "";
   marca.textContent = viva
     ? (quedan !== null && quedan <= AVISO_H
         ? "Quedan " + Math.max(1, Math.round(quedan)) + " h"
@@ -4101,8 +4106,8 @@ async function abrirHilo(phone){
   // El push es la única salida con la ventana cerrada, y solo sirve si la
   // conversación es de alguien con cuenta.
   $("waPush").style.display = (!viva && conv.user_id) ? "" : "none";
-  $("waAviso").textContent = viva
-    ? "Sale desde el número del bot."
+  $("waAviso").textContent = viva ? "Sale desde el número del bot."
+    : sinChat(conv) ? "Todavía no te ha escrito: hasta entonces solo le llega el push."
     : "Meta no entregaría el mensaje: queda el push o esperar a que escriba.";
 
   cargarFicha(conv);
