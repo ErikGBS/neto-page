@@ -1252,7 +1252,8 @@
     </div>
     <div class="wabar">
       <p id="waHallazgo">Cargando...</p>
-      <button id="waRefrescar" class="chico" style="margin-left:auto">Actualizar</button>
+      <button id="waAvisar" class="chico" style="margin-left:auto;display:none"></button>
+      <button id="waRefrescar" class="chico">Actualizar</button>
     </div>
 
     <div class="wa2">
@@ -4015,6 +4016,7 @@ function pintarColas(){
   }).join("");
   for (const b of $("waFiltros").querySelectorAll("[data-filtro]"))
     b.onclick = () => { waFiltro = b.dataset.filtro; pintarColas(); pintarLista(); };
+  pintarAvisar();
 }
 
 function contarColas(){
@@ -4742,6 +4744,64 @@ async function responder(){
   }
 }
 
+// Los empujones a un grupo. El texto se puede ajustar antes de mandarlo, y
+// el número de la confirmación sale de un ensayo contra el backend: el grupo
+// entero no es lo mismo que a cuántos les llega de verdad.
+const AVISO_GRUPO = {
+  dormidos: { segmento: "dormido", quienes: "dormidos",
+    titulo: "Nada que ponerse al día",
+    cuerpo: "Anota lo último que gastaste y sigues donde lo dejaste. Lo de atrás no importa." },
+  zombies: { segmento: "zombie", quienes: "zombies",
+    titulo: "Tu mes te está esperando",
+    cuerpo: "Un gasto de hoy y vuelves a ver en qué se te va la plata." },
+  nunca: { segmento: "nunca", quienes: "los que nunca registraron",
+    titulo: "Tu primer gasto, en 10 s",
+    cuerpo: "Anota lo último que gastaste, aunque sea el pasaje. Con eso ya empiezas." },
+};
+
+function pintarAvisar(){
+  const boton = $("waAvisar"), aviso = waModo === "app" && AVISO_GRUPO[waFiltro];
+  boton.style.display = aviso ? "" : "none";
+  if (aviso) boton.textContent = "Avisar a los " + aviso.quienes;
+}
+
+async function avisarGrupo(){
+  const aviso = AVISO_GRUPO[waFiltro];
+  if (!aviso) return;
+  const boton = $("waAvisar");
+  const cuerpo = (prompt("Mensaje para " + aviso.quienes + ":", aviso.cuerpo) || "").trim();
+  if (!cuerpo) return;
+
+  boton.disabled = true;
+  try{
+    const manda = (extra) => api("/admin/push", {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ segment: aviso.segmento, title: aviso.titulo,
+                             body: cuerpo, ...extra }),
+    });
+    // Primero el ensayo: el número que se pregunta tiene que ser el real.
+    const prueba = await manda({ dry_run: true });
+    if (!prueba.con_app){
+      alert("Ninguno de los " + prueba.en_el_grupo + " tiene la app con notificaciones activas.");
+      boton.disabled = false;
+      return;
+    }
+    const ok = confirm(
+      "Se enviará a " + prueba.con_app + " personas de las " + prueba.en_el_grupo +
+      " que están en esta cola (el resto no tiene notificaciones activas).\n\n" +
+      aviso.titulo + "\n" + cuerpo + "\n\n¿Lo mando?");
+    if (!ok){ boton.disabled = false; return; }
+
+    const r = await manda({});
+    alert(!r.configured ? "Falta configurar Firebase en el servidor."
+      : "Enviado: lo recibieron " + r.ok + " de " + r.tokens + " dispositivos."
+        + (r.failed ? " " + r.failed + " fallaron." : ""));
+  }catch(e){
+    alert("No se pudo: " + e.message);
+  }
+  boton.disabled = false;
+}
+
 async function avisarPush(){
   const quien = abierto();
   const uid = quien && (quien.user_id || null);
@@ -4772,6 +4832,7 @@ async function avisarPush(){
 
 $("waEnviar").onclick = responder;
 $("waPush").onclick = avisarPush;
+$("waAvisar").onclick = avisarGrupo;
 $("waRefrescar").onclick = cargarBandeja;
 $("waBuscar").oninput = () => { waBusca = $("waBuscar").value; pintarLista(); };
 for (const b of $("waModos").querySelectorAll("[data-modo]"))
