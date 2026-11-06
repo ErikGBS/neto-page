@@ -4149,7 +4149,11 @@ const ultimoTexto = (c) => sinChat(c) ? "Todavía no te ha escrito"
 // El correo entero no cabe ni dice nada: "rosa.quispe@gmail.com" llega a la
 // tarjeta como "Rosa Quispe" y el correo completo vive en la ficha.
 function nombreCorto(c){
+  // En orden: como se llamó al registrarse, como se llama en WhatsApp (que es
+  // lo único de su perfil que Meta entrega, y lo manda ella al escribir), su
+  // correo, y si no hay nada, el número.
   if (c.name) return c.name;
+  if (c.profile_name) return c.profile_name;
   if (c.email){
     const local = c.email.split("@")[0];
     return local.split(/[._-]+/).filter(Boolean)
@@ -4170,6 +4174,13 @@ const caraDe = (c) => esc(iniciales(c)) + (c.avatar_url
   ? `<img src="${esc(c.avatar_url)}" alt="" loading="lazy" onerror="this.remove()">` : "");
 
 function iniciales(c){
+  // De donde salga el nombre: primero el suyo, luego el correo, y solo si no
+  // hay nada, las dos últimas cifras del número.
+  const nombre = c.name || c.profile_name;
+  if (nombre){
+    const partes = nombre.trim().split(/\s+/).filter(Boolean);
+    return ((partes[0] || "")[0] + ((partes[1] || "")[0] || "")).toUpperCase();
+  }
   if (c.email){
     const partes = c.email.split("@")[0].split(/[._-]+/).filter(Boolean);
     return ((partes[0] || "")[0] + ((partes[1] || "")[0] || "")).toUpperCase();
@@ -4602,6 +4613,7 @@ function pintarFicha(f){
       ${dato("Correo", f.email, true)}
       ${dato("Moneda", (f.prefs || {}).currency, true)}
       ${dato("Se registró", f.registered_at ? fecha(f.registered_at) : "", true)}
+      ${dato("Nombre en WhatsApp", wa.profile_name, true)}
       ${dato("WhatsApp desde", wa.linked_at ? fecha(wa.linked_at) : "", true)}
     </div>
     ${entrega ? `<div class="fgrupo">
