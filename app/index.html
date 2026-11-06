@@ -3913,11 +3913,12 @@ async function cargarBandeja(){
 async function cargarApp(){
   const cuerpo = $("waLista");
   try{
-    const { items } = await api("/admin/app-users");
-    appUsers = items;
+    const r = await api("/admin/app-users");
+    appUsers = r.items;
+    pushLocks = r.push_locks || {};
     contarColas();
     pintarLista();
-    if (waActiva && items.some(u => u.user_id === waActiva)) abrirUsuario(waActiva);
+    if (waActiva && appUsers.some(u => u.user_id === waActiva)) abrirUsuario(waActiva);
   }catch(e){
     $("waHallazgo").textContent = "No se pudieron cargar las cuentas.";
     cuerpo.innerHTML = `<div class="wavacio">No se pudo cargar: ${esc(e.message)}</div>`;
@@ -3983,6 +3984,9 @@ const dormido = (c) => DORMIDAS.includes(((c.usage || {}).cohort) || "");
 // app. Son listas distintas, con colas distintas, en la misma pantalla.
 let waModo = "wa";
 let appUsers = [];
+// Hasta cuándo no se puede volver a avisar a cada grupo. Lo decide el
+// servidor: en el navegador bastaría recargar para saltárselo.
+let pushLocks = {};
 
 const estadoUso = (u) => (u.status || {}).clave || "nunca";
 // Quien está abierto ahora, sea cual sea el modo, y su teléfono si lo tiene.
@@ -4863,13 +4867,13 @@ async function responder(){
 // el número de la confirmación sale de un ensayo contra el backend: el grupo
 // entero no es lo mismo que a cuántos les llega de verdad.
 const AVISO_GRUPO = {
-  dormidos: { segmento: "dormido", quienes: "dormidos",
+  dormidos: { segmento: "dormido", quienes: "dormidos", verbo: "Despertar a los",
     titulo: "Nada que ponerse al día",
     cuerpo: "Anota lo último que gastaste y sigues donde lo dejaste. Lo de atrás no importa." },
-  zombies: { segmento: "zombie", quienes: "zombies",
+  zombies: { segmento: "zombie", quienes: "zombies", verbo: "Despertar a los",
     titulo: "Tu mes te está esperando",
     cuerpo: "Un gasto de hoy y vuelves a ver en qué se te va la plata." },
-  nunca: { segmento: "nunca", quienes: "los que nunca registraron",
+  nunca: { segmento: "nunca", quienes: "los que nunca registraron", verbo: "Avisar a",
     titulo: "Tu primer gasto, en 10 s",
     cuerpo: "Anota lo último que gastaste, aunque sea el pasaje. Con eso ya empiezas." },
 };
@@ -4877,7 +4881,19 @@ const AVISO_GRUPO = {
 function pintarAvisar(){
   const boton = $("waAvisar"), aviso = waModo === "app" && AVISO_GRUPO[waFiltro];
   boton.style.display = aviso ? "" : "none";
-  if (aviso) boton.textContent = "Avisar a los " + aviso.quienes;
+  if (!aviso) return;
+  const hasta = pushLocks[aviso.segmento] && new Date(pushLocks[aviso.segmento]);
+  const bloqueado = hasta && hasta > new Date();
+  boton.disabled = !!bloqueado;
+  if (bloqueado){
+    const horas = Math.max(1, Math.round((hasta - Date.now()) / 3600000));
+    boton.textContent = "Enviado · faltan " + horas + " h";
+    boton.title = "Ya recibieron un empujón hoy. Se puede volver a mandar a las "
+      + hasta.toLocaleTimeString("es-PE", { hour:"numeric", minute:"2-digit" }) + ".";
+  } else {
+    boton.textContent = (aviso.verbo || "Avisar a") + " " + aviso.quienes;
+    boton.title = "Un empujón al día por grupo: son personas de verdad.";
+  }
 }
 
 async function avisarGrupo(){
@@ -4896,6 +4912,15 @@ async function avisarGrupo(){
     });
     // Primero el ensayo: el número que se pregunta tiene que ser el real.
     const prueba = await manda({ dry_run: true });
+    if (prueba.locked_until){
+      pushLocks[aviso.segmento] = prueba.locked_until;
+      pintarAvisar();
+      alert("Ya recibieron un empujón hoy. Se puede volver a mandar a las "
+        + new Date(prueba.locked_until).toLocaleTimeString("es-PE",
+            { hour:"numeric", minute:"2-digit" }) + ".");
+      boton.disabled = true;
+      return;
+    }
     if (!prueba.con_app){
       alert("Ninguno de los " + prueba.en_el_grupo + " tiene la app con notificaciones activas.");
       boton.disabled = false;
@@ -4908,13 +4933,17 @@ async function avisarGrupo(){
     if (!ok){ boton.disabled = false; return; }
 
     const r = await manda({});
+    if (r.locked_until) pushLocks[aviso.segmento] = r.locked_until;
+    pintarAvisar();
     alert(!r.configured ? "Falta configurar Firebase en el servidor."
       : "Enviado: lo recibieron " + r.ok + " de " + r.tokens + " dispositivos."
         + (r.failed ? " " + r.failed + " fallaron." : ""));
   }catch(e){
-    alert("No se pudo: " + e.message);
+    alert(e.message.includes("429")
+      ? "Ya recibieron un empujón hoy: hay que esperar 24 h entre envíos."
+      : "No se pudo: " + e.message);
   }
-  boton.disabled = false;
+  pintarAvisar();   // deja el botón como toque, bloqueado o no
 }
 
 async function avisarPush(){
