@@ -3134,10 +3134,30 @@ async function responderConsulta(pregunta){
   if (claves.length > 1) cual?.resaltar(claves);
   else frase += " No puedo señalarlo en este cerebro: pruébalo en todo el historial.";
   QUE_PASO(frase);
-  const solo = claves.filter((k) => k !== "centro");
-  if (solo.length === 1){
-    const nodo = cual?.nodos().find((n) => n.k === solo[0]);
+  // A qué neurona mirar: el día si la respuesta cabe en uno, si no su
+  // categoría, y si tampoco, el centro.
+  const unDia = cuenta.porDia.length === 1 && hay.has("dia:" + cuenta.porDia[0][0])
+    ? "dia:" + cuenta.porDia[0][0] : null;
+  const unaCat = cuenta.porCat.length === 1 && hay.has("cat:" + cuenta.porCat[0][0])
+    ? "cat:" + cuenta.porCat[0][0] : null;
+  const mirar = unDia || unaCat || (filtro.intencion === "rank_cat" && claves[1]) || null;
+  if (mirar){
+    const nodo = cual?.nodos().find((n) => n.k === mirar);
     if (nodo) cual.acercar(nodo);
+  }
+
+  // Y el detalle, cuando la pregunta iba por algo concreto. Para un total del
+  // mes a secas no se abre: sesenta filas no son una respuesta.
+  if (filtro.cat || filtro.texto || filtro.intencion !== "suma"){
+    const titulo = filtro.cat ? nombreCat(filtro.cat)
+      : filtro.texto ? filtro.texto
+      : filtro.intencion === "rank_dia" ? "Tu día más caro" : "Donde más gastaste";
+    setTimeout(() => {
+      if (mio !== turnoConsulta) return;        // la pregunta ya no es esta
+      abrirNodo({ tipo: "cat", etiqueta: titulo, cat: filtro.cat || filtro.texto || "otros",
+        total: cuenta.total, n: cuenta.n, gastos: cuenta.gastos, moneda: cuenta.moneda,
+        sinPct: !filtro.cat || !filtro.pordefecto, deQue: mes.total });
+    }, mirar ? 620 : 0);                        // deja ver el acercamiento
   }
   listaAccesible(enGrande ? construirHistorial() : modeloDelMes(),
     enGrande ? "cerebroTodoLista" : "cerebroLista", claves.length > 1 ? claves : null);
@@ -3197,8 +3217,13 @@ function abrirNodo(nodo){
         nodo.tipo === "cat" && !nodo.sinPct ? ` · ${pct}% de tu mes` : ""}</p>
       <ol>` + tope.map((t) => {
         const cuando = new Date(t.occurred_at);
+        const hoyM = new Date();
+        const esteMes = cuando.getMonth() === hoyM.getMonth()
+          && cuando.getFullYear() === hoyM.getFullYear();
         const dato = nodo.tipo === "cat"
           ? `${diaSemana(cuando)} ${cuando.getDate()}`
+            + (esteMes ? "" : ` de ${MESES_NOMBRE[cuando.getMonth()]}`)
+            + (nodo.sinPct ? ` · ${nombreCat(catNorm(t))}` : "")
           : nombreCat(catNorm(t));
         const parte = nodo.total ? (Number(t.amount) || 0) / nodo.total * 100 : 0;
         return fila(tono(catNorm(t)), esc(corta(t.description, 90)), esc(dato),
