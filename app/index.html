@@ -607,13 +607,13 @@
   .admin .wabar p{color:var(--dim);font-size:.9rem;margin:0}
   .admin .wabar b{color:var(--text);font-variant-numeric:tabular-nums}
   .admin .wa2{display:grid;
-    grid-template-columns:minmax(0,300px) minmax(0,1fr) minmax(0,316px);
+    grid-template-columns:minmax(0,336px) minmax(0,1fr) minmax(0,330px);
     gap:16px;align-items:stretch}
   .admin .wa2 > *{height:clamp(540px,calc(100vh - 230px),760px)}
   /* La ficha baja primero: el hilo necesita el ancho más que ella. Abajo, a lo
      ancho, sus bloques se reparten en columnas en vez de hacer una tira larga. */
   @media(max-width:1280px){
-    .admin .wa2{grid-template-columns:minmax(0,290px) minmax(0,1fr)}
+    .admin .wa2{grid-template-columns:minmax(0,310px) minmax(0,1fr)}
     .admin .waficha{grid-column:1 / -1;height:auto}
     .admin .waficha .cuerpo{display:grid;align-content:start;
       grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px 28px}
@@ -621,6 +621,10 @@
   /* La cola y el hilo se apilan solo cuando dos columnas ya no caben: a 768 una
      lista de 700px de ancho deja un hueco entre el nombre y su hora. */
   @media(max-width:720px){
+    /* En el teléfono se tocan con el pulgar: 44px, aunque en el escritorio
+       estos mismos controles vivan cómodos en 34. */
+    .admin button.chico, .admin #waBuscar, .admin .fpaso .acc button,
+    .admin .waenviar button{min-height:44px}
     .admin .wa2{grid-template-columns:minmax(0,1fr)}
     .admin .wa2 > *{height:auto}
     .admin .walista{max-height:420px}
@@ -639,15 +643,15 @@
   .admin .wacab button.chico{margin-left:auto}
 
   /* ── Las colas: un solo bloque partido por hilos, y son los filtros ────── */
-  .admin .wacolas{display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  .admin .wacolas{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
     background:var(--border);border-bottom:1px solid var(--border)}
   .admin .wacola{position:relative;display:flex;flex-direction:column;align-items:flex-start;
-    gap:1px;background:var(--surface);border:0;border-radius:0;padding:11px 14px 12px;
-    text-align:left;min-height:62px}
+    gap:1px;background:var(--surface);border:0;border-radius:0;padding:10px 11px 11px;
+    text-align:left;min-height:66px}
   .admin .wacola:hover{background:var(--surface-2)}
   .admin .wacola .n{font-family:var(--tit);font-size:1.35rem;font-weight:700;
     line-height:1.05;font-variant-numeric:tabular-nums}
-  .admin .wacola .l{color:var(--mute);font-size:.73rem;line-height:1.2}
+  .admin .wacola .l{color:var(--mute);font-size:.71rem;line-height:1.22}
   .admin .wacola.on{background:var(--surface-2)}
   .admin .wacola.on::after{content:"";position:absolute;left:0;right:0;bottom:0;
     height:2px;background:var(--gold)}
@@ -676,10 +680,15 @@
      mensaje se cortaba a sangre contra el borde del panel. */
   .admin .wacard .msg{display:block;color:var(--dim);font-size:.81rem;margin-top:3px;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .admin .wacard .f2{display:flex;align-items:center;gap:8px;margin-top:7px;min-height:20px}
-  .admin .wacard .f2 .que{color:var(--mute);font-size:.74rem;min-width:0;
+  .admin .wacard .f2{display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:wrap}
+  .admin .wacard .f3{display:flex;align-items:center;gap:8px;margin-top:5px;min-height:20px}
+  .admin .wacard .f2 .marca{flex:none;font-size:.68rem;padding:2px 7px;border-radius:7px;
+    background:var(--surface-2);color:var(--mute);white-space:nowrap}
+  .admin .wacard .f2 .marca.pro{color:var(--gold-bright)}
+  .admin .wacard .f2 .marca.ojo{color:var(--red)}
+  .admin .wacard .f3 .que{color:var(--mute);font-size:.74rem;min-width:0;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .admin .wacard .f2 .badge{margin-left:auto;flex:none;font-size:.68rem;padding:2px 8px}
+  .admin .wacard .f3 .badge{margin-left:auto;flex:none;font-size:.68rem;padding:2px 8px}
   .admin .walista .wavacio{color:var(--mute);font-size:.85rem;padding:28px 16px;text-align:center}
 
   /* ── Identidad: cada persona con su inicial y su tinte, de la paleta ───── */
@@ -764,6 +773,40 @@
   .admin .fpago .acc{display:flex;gap:8px;margin-top:12px}
   .admin .fpago .acc button{flex:1;height:36px;padding:0 10px;font-size:.83rem}
   .admin .ferror{color:var(--red);font-size:.8rem;word-break:break-word}
+
+  /* ── El trámite de Pro: en qué paso está y qué toca hacer ─────────────── */
+  .admin .fpaso{background:var(--surface-2);border:1px solid var(--border);
+    border-radius:14px;padding:13px 14px}
+  .admin .fpaso.urge{border-color:rgba(208,165,92,.32)}
+  .admin .fpaso .k{color:var(--mute);font-size:.74rem}
+  .admin .fpaso .que{font-size:.92rem;font-weight:600;margin-top:3px}
+  .admin .fpaso .det{color:var(--dim);font-size:.8rem;margin-top:3px}
+
+  /* ── Cupo: una barra con sus dos extremos escritos ────────────────────── */
+  .admin .fbarra{margin-top:8px}
+  .admin .fbarra .pista{height:8px;border-radius:999px;background:var(--surface-2);
+    overflow:hidden}
+  .admin .fbarra .lleno{height:100%;background:var(--gold);border-radius:999px}
+  .admin .fbarra .lleno.tope{background:var(--red)}
+  .admin .fbarra .pies{display:flex;justify-content:space-between;color:var(--mute);
+    font-size:.72rem;margin-top:5px;font-variant-numeric:tabular-nums}
+
+  /* ── Uso semana a semana ──────────────────────────────────────────────── */
+  .admin .fsemanas{margin-top:4px}
+  .admin .fsemanas .barras{display:flex;align-items:flex-end;gap:3px;height:74px}
+  .admin .fsemanas .barras span{flex:1;min-height:2px;border-radius:2px 2px 0 0;
+    background:var(--border)}
+  .admin .fsemanas .barras span.viva{background:var(--gold)}
+  .admin .fsemanas .pies{display:flex;justify-content:space-between;color:var(--mute);
+    font-size:.72rem;margin-top:5px}
+
+  /* ── El mes, por moneda ───────────────────────────────────────────────── */
+  .admin .fmes{display:flex;gap:18px;flex-wrap:wrap}
+  .admin .fmes .lado .k{color:var(--mute);font-size:.73rem}
+  .admin .fmes .lado .v{font-family:var(--tit);font-size:1.05rem;font-weight:700;
+    font-variant-numeric:tabular-nums;margin-top:1px}
+  .admin .fmes .lado .v.gasto{color:var(--red)}
+  .admin .fmes .lado .v.ingreso{color:var(--green)}
   /* La carga enseña el sitio que ocupará cada dato, no un texto que salta. */
   .admin .cargando span{display:block;height:11px;border-radius:3px;
     background:var(--surface-2);margin-bottom:11px}
@@ -1183,13 +1226,21 @@
         <div class="wacolas" id="waFiltros" role="group" aria-label="Filtrar conversaciones">
           <button class="wacola on" data-filtro="todas" aria-pressed="true">
             <span class="n" id="waNTodas">0</span><span class="l">Todas</span></button>
-          <button class="wacola" data-filtro="pendientes" aria-pressed="false">
-            <span class="n" id="waNPend">0</span><span class="l">Por responder</span></button>
-          <button class="wacola" data-filtro="pagos" aria-pressed="false"
-                  title="Solo los de quien además le escribió al bot. El total está en Pagos.">
-            <span class="n" id="waNPagos">0</span><span class="l">Pago por revisar</span></button>
-          <button class="wacola" data-filtro="vencen" aria-pressed="false">
-            <span class="n" id="waNVencen">0</span><span class="l">Ventana por vencer</span></button>
+          <button class="wacola" data-filtro="revisar" aria-pressed="false"
+                  title="Mandaron su captura del Yape y esperan que la apruebes">
+            <span class="n" id="waNRevisar">0</span><span class="l">Por revisar</span></button>
+          <button class="wacola" data-filtro="captura" aria-pressed="false"
+                  title="Pidieron Pro y todavía no mandan la captura: son los posibles pagos">
+            <span class="n" id="waNCaptura">0</span><span class="l">Falta captura</span></button>
+          <button class="wacola" data-filtro="pendientes" aria-pressed="false"
+                  title="Su último mensaje es el que nadie contestó">
+            <span class="n" id="waNPend">0</span><span class="l">Sin responder</span></button>
+          <button class="wacola" data-filtro="vencen" aria-pressed="false"
+                  title="Les quedan menos de 4 h de la ventana de 24 h de Meta">
+            <span class="n" id="waNVencen">0</span><span class="l">Por vencer</span></button>
+          <button class="wacola" data-filtro="dormidos" aria-pressed="false"
+                  title="Registraron alguna vez y llevan más de un mes sin anotar nada">
+            <span class="n" id="waNDormidos">0</span><span class="l">Dormidos</span></button>
         </div>
         <div class="wabusca">
           <input id="waBuscar" type="search" autocomplete="off"
@@ -1207,7 +1258,6 @@
           </div>
           <div class="acc">
             <span class="badge" id="waCabVentana"></span>
-            <button id="waPush" class="chico" style="display:none">Avisar por push</button>
           </div>
         </header>
         <div class="wavistas" id="waVistas" style="display:none">
@@ -1220,6 +1270,7 @@
           <textarea id="waTexto" rows="2" placeholder="Escribe tu respuesta..."></textarea>
           <div class="waenviar">
             <span id="waAviso" class="muted"></span>
+            <button id="waPush" class="chico" style="display:none">Avisar por push</button>
             <button id="waEnviar" class="primario">Enviar</button>
           </div>
         </div>
@@ -3818,13 +3869,23 @@ const porVencer = (c) => {
   const h = horasRestantes(c);
   return ventanaViva(c) && h !== null && h <= AVISO_H;
 };
+// El trámite de Pro lo decide el backend y llega hecho: acá solo se agrupa.
+const proEstado = (c) => (c.pro || {}).estado || "sin_pedido";
+// Dormido es quien registró alguna vez y lleva más de un mes sin volver, que
+// es la definición que ya usa el dashboard. "Nunca registró" es otra cosa.
+const DORMIDAS = ["m1_2", "m2_3", "m3_mas"];
+const dormido = (c) => DORMIDAS.includes(((c.usage || {}).cohort) || "");
+
 const COLAS = {
   todas: () => true,
+  revisar: (c) => proEstado(c) === "por_revisar",
+  captura: (c) => ["falta_captura", "pedido_caducado"].includes(proEstado(c)),
   pendientes: sinResponder,
-  pagos: (c) => !!c.pending_payment,
   vencen: porVencer,
+  dormidos: dormido,
 };
-const CUENTA_ID = { todas:"waNTodas", pendientes:"waNPend", pagos:"waNPagos", vencen:"waNVencen" };
+const CUENTA_ID = { todas:"waNTodas", revisar:"waNRevisar", captura:"waNCaptura",
+  pendientes:"waNPend", vencen:"waNVencen", dormidos:"waNDormidos" };
 
 function contarColas(){
   const n = {};
@@ -3839,7 +3900,10 @@ function contarColas(){
   // El hallazgo del día, no una descripción de la pantalla: con qué hay que
   // hacer algo ahora mismo.
   const partes = [];
-  if (n.pagos) partes.push(`<b>${n.pagos}</b> ${n.pagos === 1 ? "pago espera" : "pagos esperan"} que lo revises`);
+  if (n.revisar) partes.push(`<b>${n.revisar}</b> ${
+    n.revisar === 1 ? "comprobante espera" : "comprobantes esperan"} que lo revises`);
+  if (n.captura) partes.push(`<b>${n.captura}</b> ${
+    n.captura === 1 ? "pidió Pro y no manda" : "pidieron Pro y no mandan"} su captura`);
   if (n.pendientes) partes.push(`<b>${n.pendientes}</b> sin responder`);
   if (n.vencen) partes.push(`a <b>${n.vencen}</b> se le cierra la ventana hoy`);
   $("waHallazgo").innerHTML = partes.length
@@ -3850,12 +3914,42 @@ function contarColas(){
 // Qué espera esta persona, en palabras del oficio: es lo que decide si se abre
 // o no, y se lee antes que el nivel.
 function espera(c){
-  if (c.pending_payment) return ["Pago por revisar", "never", "Alta", 0];
+  const paso = proEstado(c);
+  if (paso === "por_revisar") return ["Comprobante por revisar", "never", "Alta", 0];
+  if (paso === "falta_captura") return ["Pidió Pro, falta su captura", "idle", "Media", 1];
   if (sinResponder(c) && ventanaViva(c))
-    return [porVencer(c) ? "Se le cierra la ventana" : "Esperando respuesta", "idle", "Media", 1];
-  if (sinResponder(c)) return ["Escribió, ventana cerrada", "", "", 2];
-  if (!c.user_id) return ["Sin cuenta vinculada", "", "", 3];
-  return ["Contestado", "", "", 3];
+    return [porVencer(c) ? "Se le cierra la ventana" : "Esperando respuesta", "idle", "Media", 2];
+  if (paso === "pedido_caducado") return ["Pidió Pro y lo dejó", "", "", 3];
+  if (sinResponder(c)) return ["Escribió, ventana cerrada", "", "", 3];
+  if (!c.user_id) return ["Sin cuenta vinculada", "", "", 4];
+  return ["Contestado", "", "", 4];
+}
+
+// Las dos marcas de la tarjeta: en qué plan está y hace cuánto que no usa la
+// app. El color se gasta solo en lo que hay que mirar.
+const USO = {
+  activos_7d: ["Activo", ""],
+  d7_30: ["Hace 7 a 30 d", ""],
+  m1_2: ["Dormido", "ojo"],
+  m2_3: ["Dormido", "ojo"],
+  m3_mas: ["Dormido", "ojo"],
+  nunca: ["Nunca registró", "ojo"],
+};
+
+function marcas(c){
+  const fuera = [];
+  if (!c.user_id) fuera.push(["Sin vincular", "", "Le escribió al bot sin vincular la app"]);
+  else if ((c.plan || {}).is_pro) fuera.push(["Pro", "pro", "Pro vigente"]);
+  else if ((c.trial || {}).activa) fuera.push(["En prueba", "", "En los 30 días de prueba de WhatsApp"]);
+  else if ((c.plan || {}).tier === "pro") fuera.push(["Pro vencido", "ojo", "Se le venció el Pro"]);
+  else fuera.push(["Free", "", "Sin Pro"]);
+
+  const uso = USO[(c.usage || {}).cohort];
+  // El title de cada marca es el suyo: el de uso llevaba la etiqueta de la
+  // cohorte pegada también a la marca del plan.
+  if (uso && c.user_id) fuera.push([uso[0], uso[1], (c.usage || {}).label || uso[0]]);
+  return fuera.map(([txt, cls, ayuda]) => `<span class="marca ${cls}" title="${
+    esc(ayuda || txt)}">${esc(txt)}</span>`).join("");
 }
 
 function listaVisible(){
@@ -3923,7 +4017,8 @@ function tarjeta(c){
     <span class="txt">
       <span class="f1"><b>${esc(nombreCorto(c))}</b><time>${breve(c.last_at)}</time></span>
       <span class="msg">${c.last_direction === "out" ? "↩ " : ""}${esc(ultimoTexto(c))}</span>
-      <span class="f2"><span class="que">${esc(que)}</span>${
+      <span class="f2">${marcas(c)}</span>
+      <span class="f3"><span class="que">${esc(que)}</span>${
         nivel ? `<span class="badge ${clase}">${nivel}</span>` : ""}</span>
     </span>
   </button>`;
@@ -3975,7 +4070,7 @@ async function abrirHilo(phone){
   const marca = $("waCabVentana");
   marca.textContent = viva
     ? (quedan !== null && quedan <= AVISO_H
-        ? "Quedan " + Math.max(1, Math.round(quedan)) + " h de ventana"
+        ? "Quedan " + Math.max(1, Math.round(quedan)) + " h"
         : "Ventana abierta")
     : "Ventana cerrada";
   marca.className = "badge " + (viva ? (porVencer(conv) ? "idle" : "ok") : "never");
@@ -4018,7 +4113,7 @@ const dato = (k, v, tenue) => (v === null || v === undefined || v === "") ? ""
       tenue ? " tenue" : ""}">${esc(String(v))}</span></div>`;
 
 function chipsPlan(f){
-  const plan = f.plan, prefs = f.prefs || {};
+  const plan = f.plan, prefs = f.prefs || {}, uso = f.usage || {}, cupo = f.quota || {};
   const chips = [];
   // `null` es que la lectura falló, no que sea gratuito: enseñar "Free" a un
   // Pro vigente es el error caro de esta pantalla.
@@ -4026,25 +4121,133 @@ function chipsPlan(f){
   else if (plan.is_pro) chips.push(`<span class="badge ok">Pro</span>`, vigencia(plan));
   else if (plan.tier === "pro") chips.push(`<span class="badge never">Pro vencido</span>`);
   else chips.push(`<span class="badge cerrada">Free</span>`);
+  // La prueba se enseña además del plan, nunca en su lugar: quien paga dentro
+  // de su prueba es Pro, y es lo que hay que ver.
+  if (cupo.en_prueba) chips.push(`<span class="badge ok">En prueba</span>`);
+  const corto = USO[uso.cohort];
+  if (corto) chips.push(`<span class="badge ${
+    DORMIDAS.includes(uso.cohort) || uso.cohort === "nunca" ? "never" : "cerrada"
+    }" title="${esc(uso.label || "")}">${esc(corto[0])}</span>`);
   if (prefs.country) chips.push(`<span class="badge cerrada">${esc(prefs.country)}</span>`);
   return `<div class="fchips">${chips.join("")}</div>`;
 }
 
+// En qué paso del trámite de Pro está, con lo que toca hacer. El estado lo
+// decide el backend (la misma regla que usa la cola), acá solo se cuenta.
+const PASO = {
+  por_revisar: ["Comprobante por revisar", "Mira la captura y resuélvelo.", true],
+  falta_captura: ["Pidió Pro, falta su captura", "Ya tiene el QR: recuérdale que yapee y mande la foto.", true],
+  pedido_caducado: ["Pidió Pro y lo dejó", "Pasaron más de 24 h: el bot ya no lee su foto como comprobante.", false],
+  confirmed: ["Pago aprobado", "", false],
+  rejected: ["Pago rechazado", "", false],
+};
+
 function bloquePago(p){
-  if (!p) return "";
+  if (!p || p.estado === "sin_pedido") return "";
+  const paso = PASO[p.estado];
+  if (!paso) return "";
+  const [titulo, pie, urge] = paso;
+  const monto = p.amount ? `S/ ${Number(p.amount).toFixed(0)}` : "";
   const img = p.receipt_url
     ? `<a href="${esc(p.receipt_url)}" target="_blank" rel="noopener"><img class="recibo" src="${
         esc(p.receipt_url)}" loading="lazy" alt="Comprobante"></a>`
-    : `<div class="muted" style="font-size:.78rem;margin-top:9px">Sin captura todavía</div>`;
-  return `<div class="fpago">
-    <div class="k">Pago por revisar</div>
-    <div class="monto">S/ ${Number(p.amount || 0).toFixed(0)}</div>
-    <div class="ref">${esc(p.reference || "sin referencia")} · ${cuando(p.created_at)}</div>
+    : "";
+  const acciones = p.estado === "por_revisar" ? `<div class="acc">
+      <button class="primario" data-ok="${esc(p.payment_id)}">Aprobar</button>
+      <button class="danger" data-no="${esc(p.payment_id)}">Rechazar</button>
+    </div>` : ["falta_captura", "pedido_caducado"].includes(p.estado) ? `<div class="acc">
+      <button class="danger" data-no="${esc(p.payment_id)}">Cerrar el pedido</button>
+    </div>` : "";
+  return `<div class="fpaso${urge ? " urge" : ""}">
+    <div class="k">Plan Pro</div>
+    <div class="que">${esc(titulo)}</div>
+    <div class="det">${[monto, esc(p.reference || ""), cuando(p.created_at)]
+      .filter(Boolean).join(" · ")}</div>
+    ${p.reject_reason ? `<div class="det">Motivo: ${esc(p.reject_reason)}</div>` : ""}
+    ${pie ? `<div class="det">${esc(pie)}</div>` : ""}
     ${img}
-    <div class="acc">
-      <button class="primario" data-ok="${esc(p.id)}"${p.receipt_url ? "" : " disabled"}>Aprobar</button>
-      <button class="danger" data-no="${esc(p.id)}">Rechazar</button>
+    ${acciones}
+  </div>`;
+}
+
+// Cuántos mensajes lleva este mes. Con el muro apagado no hay barra que
+// dibujar: decir "0 de 0" se leería como que ya no puede escribir.
+function bloqueCupo(q){
+  if (!q) return "";
+  const dias = q.trial_ends_at
+    ? Math.ceil((new Date(q.trial_ends_at) - Date.now()) / 86400000) : null;
+  if (!q.tope){
+    return `<div class="fgrupo">
+      <h4>Mensajes de WhatsApp</h4>
+      ${dato("Este mes", fmt(q.usados_mes || 0))}
+      ${q.en_prueba && dias > 0 ? dato("Prueba", "le quedan " + dias + " d", true) : ""}
+      <div class="muted" style="font-size:.73rem;margin-top:6px">Sin tope: el cupo está apagado.</div>
+    </div>`;
+  }
+  const parte = Math.min(1, (q.usados_mes || 0) / q.tope);
+  return `<div class="fgrupo">
+    <h4>Mensajes de WhatsApp</h4>
+    <div class="fbarra">
+      <div class="pista"><div class="lleno${parte >= 1 ? " tope" : ""}" style="width:${
+        Math.round(parte * 100)}%"></div></div>
+      <div class="pies"><span>${fmt(q.usados_mes || 0)} usados</span><span>${
+        fmt(q.tope)} ${q.en_prueba ? "de la prueba" : "este mes"}</span></div>
     </div>
+    ${q.en_prueba && dias > 0 ? dato("La prueba termina en", dias + " d", true) : ""}
+  </div>`;
+}
+
+// Doce semanas de uso. Son doce barras: un gráfico de verdad pesa menos que
+// cargar Chart.js para esto, y así respeta los colores del panel.
+function bloqueSemanas(semanas, parcial){
+  if (!semanas || !semanas.length) return "";
+  const tope = Math.max(1, ...semanas.map(s => s.n));
+  const barras = semanas.map(s => `<span class="${s.n ? "viva" : ""}" style="height:${
+    s.n ? Math.max(6, Math.round((s.n / tope) * 92)) : 2}%" title="${
+    esc(rotuloSemana(s.week))}: ${s.n}"></span>`).join("");
+  return `<div class="fgrupo">
+    <h4>Uso de las últimas ${semanas.length} semanas</h4>
+    <div class="fsemanas">
+      <div class="barras" role="img"
+           aria-label="Movimientos por semana, el máximo es ${tope}">${barras}</div>
+      <div class="pies"><span>${esc(rotuloSemana(semanas[0].week))}</span>
+        <span>${semanas.some(s => s.n) ? "máx " + tope : "sin movimientos"}</span>
+        <span>esta semana</span></div>
+      ${parcial ? `<div class="muted" style="font-size:.73rem;margin-top:6px">
+        Con más de 500 movimientos, una semana puede salir corta.</div>` : ""}
+    </div>
+  </div>`;
+}
+const rotuloSemana = (iso) => new Date(iso + "T00:00:00")
+  .toLocaleDateString("es-PE", { day:"numeric", month:"short" });
+
+// El mes en curso, cada moneda por su lado (nunca se suman).
+function bloqueMes(mes){
+  const monedas = Object.entries(mes || {});
+  if (!monedas.length) return "";
+  return `<div class="fgrupo">
+    <h4>Este mes</h4>
+    ${monedas.map(([cur, v]) => `<div class="fmes">
+      <div class="lado"><div class="k">Gastos ${esc(cur)}</div>
+        <div class="v gasto">${plata(v.gastos, cur)}</div></div>
+      <div class="lado"><div class="k">Ingresos ${esc(cur)}</div>
+        <div class="v ingreso">${plata(v.ingresos, cur)}</div></div>
+    </div>`).join("")}
+  </div>`;
+}
+
+// Lo que el sistema ya le mandó solo: para no escribirle encima.
+const NUDGE = { d1:"Primer empujón (día 1)", d3:"Empujón del día 3",
+  d7:"Último empujón (día 7)", w2:"Rescate de dos semanas", m1:"Rescate del mes" };
+
+function bloqueAvisos(f){
+  const n = f.nudges || {}, alertas = f.alerts || [];
+  if (!n.last && !n.daily_reminder_on && !alertas.length) return "";
+  return `<div class="fgrupo">
+    <h4>Lo que ya le escribimos</h4>
+    ${n.last ? dato(NUDGE[n.last] || n.last, n.last_on ? fecha(n.last_on) : "", true) : ""}
+    ${n.daily_reminder_on ? dato("Recordatorio diario", fecha(n.daily_reminder_on), true) : ""}
+    ${alertas.map(a => dato(a.alert_key, cuando(a.sent_at), true)).join("")}
   </div>`;
 }
 
@@ -4072,14 +4275,9 @@ function pintarFicha(f){
   caja.innerHTML = `
     ${chipsPlan(f)}
     ${bloquePago(f.pending_payment)}
-    <div class="fgrupo">
-      <h4>Cuenta</h4>
-      ${dato("Correo", f.email, true)}
-      ${dato("Moneda", (f.prefs || {}).currency, true)}
-      ${dato("Se registró", f.registered_at ? fecha(f.registered_at) : "", true)}
-      ${dato("WhatsApp desde", wa.linked_at ? fecha(wa.linked_at) : "", true)}
-      ${dato("Mensajes WA al mes", (f.plan || {}).wa_monthly_messages)}
-    </div>
+    ${bloqueCupo(f.quota)}
+    ${bloqueSemanas(movs.by_week, movs.week_parcial)}
+    ${bloqueMes(movs.month)}
     <div class="fgrupo">
       <h4>Movimientos</h4>
       ${dato("Total", movs.total === undefined ? "" : fmt(movs.total))}
@@ -4088,13 +4286,21 @@ function pintarFicha(f){
         El desglose cuenta los últimos 500.</div>` : ""}
       ${dato("Último", movs.last_at ? cuando(movs.last_at) : "sin movimientos", true)}
     </div>
+    <div class="fgrupo">
+      <h4>Cuenta</h4>
+      ${dato("Correo", f.email, true)}
+      ${dato("Moneda", (f.prefs || {}).currency, true)}
+      ${dato("Se registró", f.registered_at ? fecha(f.registered_at) : "", true)}
+      ${dato("WhatsApp desde", wa.linked_at ? fecha(wa.linked_at) : "", true)}
+    </div>
     ${entrega ? `<div class="fgrupo">
       <h4>Entrega de WhatsApp</h4>
       ${dato("Entregados", fmt(entrega.entregados || 0), true)}
       ${dato("Leídos", fmt(entrega.leidos || 0), true)}
       ${dato("Fallidos", fmt(entrega.fallidos || 0), true)}
       ${entrega.last_error ? `<div class="ferror">${esc(entrega.last_error)}</div>` : ""}
-    </div>` : ""}`;
+    </div>` : ""}
+    ${bloqueAvisos(f)}`;
 
   // Se resuelve acá mismo y se refresca todo: el contador del menú, la cola de
   // pagos y la ficha, que es donde el admin está mirando.
@@ -4133,9 +4339,18 @@ function pintarHechos(f, conv){
     mas((f.whatsapp || {}).linked_at, "Vinculó su WhatsApp", true);
     mas((f.movements || {}).first_at, "Su primer movimiento", true);
     mas((f.movements || {}).last_at, "Su último movimiento");
-    if (f.pending_payment)
-      mas(f.pending_payment.created_at,
-          "Mandó un comprobante de S/ " + Number(f.pending_payment.amount || 0).toFixed(0), true);
+    const pago = f.pending_payment;
+    if (pago){
+      // Pedir el QR y mandar la captura son dos momentos distintos: contar
+      // siempre "mandó un comprobante" contradice al bloque de arriba.
+      const monto = " de S/ " + Number(pago.amount || 0).toFixed(0);
+      const dicho = { por_revisar: "Mandó un comprobante" + monto,
+        falta_captura: "Pidió Pro" + monto + " y aún no manda la captura",
+        pedido_caducado: "Pidió Pro" + monto + " y lo dejó",
+        confirmed: "Le aprobamos el pago" + monto,
+        rejected: "Le rechazamos el pago" + monto }[pago.estado];
+      if (dicho) mas(pago.created_at, dicho, true);
+    }
     if ((f.plan || {}).renews_at)
       mas(f.plan.renews_at, f.plan.is_pro ? "Se le vence el Pro" : "Se le venció el Pro");
   }
