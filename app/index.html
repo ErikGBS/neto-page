@@ -603,6 +603,15 @@
      Tres campos: la cola y la ficha sobre el fondo de la página, el hilo un
      paso más claro, que es donde se lee. Sin cabecera decorativa: la pantalla
      responde a quién está esperando, y eso tiene que verse sin bajar. */
+  .admin .wamodos{display:flex;gap:4px;margin:0 0 14px;
+    border-bottom:1px solid var(--border)}
+  .admin .wamodos button{position:relative;background:none;border:0;border-radius:0;
+    padding:0 2px 11px;margin-right:20px;min-height:40px;font-size:.92rem;color:var(--mute);
+    white-space:normal}
+  .admin .wamodos button:hover{color:var(--dim)}
+  .admin .wamodos button.on{color:var(--text);font-weight:600}
+  .admin .wamodos button.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;
+    height:2px;background:var(--gold)}
   .admin .wabar{display:flex;align-items:center;gap:16px;margin:0 0 16px}
   .admin .wabar p{color:var(--dim);font-size:.9rem;margin:0}
   .admin .wabar b{color:var(--text);font-variant-numeric:tabular-nums}
@@ -643,9 +652,15 @@
   .admin .wacab button.chico{margin-left:auto}
 
   /* ── Las colas: un solo bloque partido por hilos, y son los filtros ────── */
-  .admin .wacolas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;
+  /* Las columnas van por clase y no en el atributo style: un inline gana a la
+     media query y en el teléfono se quedaban cuatro celdas de 90px. */
+  .admin .wacolas{display:grid;gap:1px;grid-template-columns:repeat(4,minmax(0,1fr));
     background:var(--border);border-bottom:1px solid var(--border)}
-  @media(max-width:860px){.admin .wacolas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .admin .wacolas.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .admin .wacolas.cols4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  @media(max-width:860px){
+    .admin .wacolas, .admin .wacolas.cols3, .admin .wacolas.cols4{
+      grid-template-columns:repeat(2,minmax(0,1fr))}}
   /* `white-space:normal` porque el button base del sitio trae nowrap: sin esto
      el rótulo de la cola se sale de su celda en vez de pasar de línea. */
   .admin .wacola{position:relative;display:flex;flex-direction:column;align-items:stretch;
@@ -1223,38 +1238,18 @@
   </section>
 
 <section class="tab admin" id="tab-wa" style="display:none">
+    <div class="wamodos" id="waModos" role="tablist">
+      <button class="on" data-modo="wa" role="tab">WhatsApp</button>
+      <button data-modo="app" role="tab">App</button>
+    </div>
     <div class="wabar">
-      <p id="waHallazgo">Cargando la bandeja...</p>
+      <p id="waHallazgo">Cargando...</p>
       <button id="waRefrescar" class="chico" style="margin-left:auto">Actualizar</button>
     </div>
 
     <div class="wa2">
       <div class="wapanel walado">
-        <div class="wacolas" id="waFiltros" role="group" aria-label="Filtrar conversaciones">
-          <button class="wacola on" data-filtro="todas" aria-pressed="true">
-            <span class="n" id="waNTodas">0</span><span class="l">Todas</span></button>
-          <button class="wacola" data-filtro="revisar" aria-pressed="false"
-                  title="Mandaron su captura del Yape y esperan que la apruebes">
-            <span class="n" id="waNRevisar">0</span><span class="l">Por revisar</span></button>
-          <button class="wacola" data-filtro="pendientes" aria-pressed="false"
-                  title="Su último mensaje es el que nadie contestó">
-            <span class="n" id="waNPend">0</span><span class="l">Sin responder</span></button>
-          <button class="wacola" data-filtro="vencen" aria-pressed="false"
-                  title="Les quedan menos de 4 h de la ventana de 24 h de Meta">
-            <span class="n" id="waNVencen">0</span><span class="l">Por vencer</span></button>
-          <button class="wacola" data-filtro="pro" aria-pressed="false"
-                  title="Pro vigente hoy. Un Pro vencido no cuenta acá">
-            <span class="n" id="waNPro">0</span><span class="l">Pro activos</span></button>
-          <button class="wacola" data-filtro="cerradas" aria-pressed="false"
-                  title="Pasaron 24 h desde su último mensaje: Meta ya no entrega texto libre">
-            <span class="n" id="waNCerradas">0</span><span class="l">Ventana cerrada</span></button>
-          <button class="wacola" data-filtro="dormidos" aria-pressed="false"
-                  title="Registraron alguna vez y llevan más de un mes sin anotar nada">
-            <span class="n" id="waNDormidos">0</span><span class="l">Dormidos</span></button>
-          <button class="wacola" data-filtro="nunca" aria-pressed="false"
-                  title="Tienen cuenta vinculada y no han registrado ni un movimiento">
-            <span class="n" id="waNNunca">0</span><span class="l">Nunca registró</span></button>
-        </div>
+        <div class="wacolas" id="waFiltros" role="group" aria-label="Filtrar"></div>
         <div class="wabusca">
           <input id="waBuscar" type="search" autocomplete="off"
                  placeholder="Buscar por nombre, correo o número" aria-label="Buscar conversación">
@@ -3844,6 +3839,7 @@ async function resolver(id, aprobar, boton, despues){
 let waConvs = [], waActiva = null, waFiltro = "todas", waBusca = "", waVista = "chat";
 
 async function cargarBandeja(){
+  if (waModo === "app") return cargarApp();
   const cuerpo = $("waLista");
   try{
     const { items } = await api("/admin/whatsapp/conversations");
@@ -3857,6 +3853,45 @@ async function cargarBandeja(){
     $("waHallazgo").textContent = "No se pudo cargar la bandeja.";
     cuerpo.innerHTML = `<div class="wavacio">No se pudo cargar: ${esc(e.message)}</div>`;
   }
+}
+
+async function cargarApp(){
+  const cuerpo = $("waLista");
+  try{
+    const { items } = await api("/admin/app-users");
+    appUsers = items;
+    contarColas();
+    pintarLista();
+    if (waActiva && items.some(u => u.user_id === waActiva)) abrirUsuario(waActiva);
+  }catch(e){
+    $("waHallazgo").textContent = "No se pudieron cargar las cuentas.";
+    cuerpo.innerHTML = `<div class="wavacio">No se pudo cargar: ${esc(e.message)}</div>`;
+  }
+}
+
+function cambiarModo(nuevo){
+  if (nuevo === waModo) return;
+  waModo = nuevo;
+  waActiva = null;
+  waBusca = "";
+  $("waBuscar").value = "";
+  waFiltro = modo().inicial;
+  for (const b of $("waModos").querySelectorAll("[data-modo]"))
+    b.classList.toggle("on", b.dataset.modo === nuevo);
+  // Hasta que lleguen los datos, la pantalla no puede seguir enseñando a la
+  // persona del otro modo.
+  $("waCab").style.display = "none";
+  $("waVistas").style.display = "none";
+  $("waCaja").style.display = "none";
+  $("waHilo").style.display = "";
+  $("waHilo").className = "wavacio";
+  $("waHilo").textContent = "Elige a alguien de la izquierda.";
+  $("waHechos").style.display = "none";
+  $("waFicha").className = "wavacio";
+  $("waFicha").textContent = "Abre a alguien para ver quién es.";
+  $("waLista").innerHTML = "";
+  $("waHallazgo").textContent = "Cargando...";
+  cargarBandeja();
 }
 
 // ── Las colas ───────────────────────────────────────────────────────────────
@@ -3889,6 +3924,36 @@ const proEstado = (c) => (c.pro || {}).estado || "sin_pedido";
 const DORMIDAS = ["m1_2", "m2_3", "m3_mas"];
 const dormido = (c) => DORMIDAS.includes(((c.usage || {}).cohort) || "");
 
+// La pantalla atiende dos públicos: quien le escribe al bot y quien usa la
+// app. Son listas distintas, con colas distintas, en la misma pantalla.
+let waModo = "wa";
+let appUsers = [];
+
+const estadoUso = (u) => (u.status || {}).clave || "nunca";
+// Quien está abierto ahora, sea cual sea el modo, y su teléfono si lo tiene.
+const abierto = () => waModo === "app"
+  ? appUsers.find(u => u.user_id === waActiva)
+  : waConvs.find(c => c.phone === waActiva);
+const telefonoAbierto = () => (abierto() || {}).phone || null;
+const COLAS_APP = {
+  todos: () => true,
+  activos: (u) => estadoUso(u) === "activo",
+  dormidos: (u) => estadoUso(u) === "dormido",
+  zombies: (u) => estadoUso(u) === "zombie",
+  nunca: (u) => estadoUso(u) === "nunca",
+  pro: (u) => !!(u.plan || {}).is_pro,
+};
+const ROTULO_APP = { todos:"Todos", activos:"Activos", dormidos:"Dormidos",
+  zombies:"Zombies", nunca:"Nunca registró", pro:"Pro" };
+const AYUDA_APP = {
+  todos: "Todas las cuentas de la app",
+  activos: "Registraron algo en los últimos 7 días",
+  dormidos: "Entre 7 y 19 días sin registrar nada",
+  zombies: "Más de 20 días sin registrar nada",
+  nunca: "Se registraron y no han anotado ni un movimiento",
+  pro: "Pro vigente hoy",
+};
+
 const COLAS = {
   todas: () => true,
   revisar: (c) => proEstado(c) === "por_revisar",
@@ -3901,30 +3966,75 @@ const COLAS = {
   // ven por su marca, y mezclarlos acá taparía a estos.
   nunca: (c) => !!c.user_id && (c.usage || {}).cohort === "nunca",
 };
-const CUENTA_ID = { todas:"waNTodas", revisar:"waNRevisar",
-  pendientes:"waNPend", vencen:"waNVencen", pro:"waNPro", cerradas:"waNCerradas",
-  dormidos:"waNDormidos", nunca:"waNNunca" };
+const ROTULO_WA = { todas:"Todas", revisar:"Por revisar", pendientes:"Sin responder",
+  vencen:"Por vencer", pro:"Pro activos", cerradas:"Ventana cerrada",
+  dormidos:"Dormidos", nunca:"Nunca registró" };
+const AYUDA_WA = {
+  todas: "Conversaciones de los últimos 30 días, más tus Pro y los que están en prueba",
+  revisar: "Mandaron su captura del Yape y esperan que la apruebes",
+  pendientes: "Su último mensaje es el que nadie contestó",
+  vencen: "Les quedan menos de 4 h de la ventana de 24 h de Meta",
+  pro: "Pro vigente hoy. Un Pro vencido no cuenta acá",
+  cerradas: "Pasaron 24 h desde su último mensaje: Meta ya no entrega texto libre",
+  dormidos: "Registraron alguna vez y llevan más de un mes sin anotar nada",
+  nunca: "Tienen cuenta vinculada y no han registrado ni un movimiento",
+};
+
+// Lo que cambia entre un modo y otro, en un sitio.
+const MODO = {
+  wa: { colas: () => COLAS, rotulos: ROTULO_WA, ayudas: AYUDA_WA,
+        datos: () => waConvs, inicial: "todas", clave: (c) => c.phone },
+  app: { colas: () => COLAS_APP, rotulos: ROTULO_APP, ayudas: AYUDA_APP,
+         datos: () => appUsers, inicial: "todos", clave: (u) => u.user_id },
+};
+const modo = () => MODO[waModo];
+
+function pintarColas(){
+  const m = modo(), colas = m.colas(), datos = m.datos();
+  const cuantas = Object.keys(colas).length;
+  // Las columnas se eligen por cuántas colas hay: con ocho son cuatro, con
+  // seis son tres. Un grid fijo dejaba dos celdas vacías.
+  $("waFiltros").classList.toggle("cols4", cuantas % 4 === 0);
+  $("waFiltros").classList.toggle("cols3", cuantas % 4 !== 0);
+  $("waFiltros").innerHTML = Object.keys(colas).map(cola => {
+    const n = datos.filter(colas[cola]).length;
+    const activa = cola === waFiltro;
+    return `<button class="wacola${activa ? " on" : ""}${
+      cola !== m.inicial && n ? " urge" : ""}" data-filtro="${cola}"
+      aria-pressed="${activa}" title="${esc(m.ayudas[cola] || "")}">
+      <span class="n">${fmt(n)}</span><span class="l">${esc(m.rotulos[cola])}</span>
+    </button>`;
+  }).join("");
+  for (const b of $("waFiltros").querySelectorAll("[data-filtro]"))
+    b.onclick = () => { waFiltro = b.dataset.filtro; pintarColas(); pintarLista(); };
+}
 
 function contarColas(){
-  const n = {};
-  for (const cola in CUENTA_ID){
-    n[cola] = waConvs.filter(COLAS[cola]).length;
-    $(CUENTA_ID[cola]).textContent = n[cola];
-    const boton = $("waFiltros").querySelector(`[data-filtro="${cola}"]`);
-    boton.classList.toggle("on", cola === waFiltro);
-    boton.classList.toggle("urge", cola !== "todas" && n[cola] > 0);
-    boton.setAttribute("aria-pressed", String(cola === waFiltro));
-  }
+  pintarColas();
+  const n = (cola) => waConvs.filter(COLAS[cola]).length;
   // El hallazgo del día, no una descripción de la pantalla: con qué hay que
   // hacer algo ahora mismo.
+  if (waModo === "app"){
+    const act = appUsers.filter(COLAS_APP.activos).length;
+    const nunca = appUsers.filter(COLAS_APP.nunca).length;
+    const zomb = appUsers.filter(COLAS_APP.zombies).length;
+    const partes = [];
+    if (act) partes.push(`<b>${fmt(act)}</b> ${act === 1 ? "activo" : "activos"} esta semana`);
+    if (nunca) partes.push(`<b>${fmt(nunca)}</b> sin registrar nada todavía`);
+    if (zomb) partes.push(`<b>${fmt(zomb)}</b> ${zomb === 1 ? "lleva" : "llevan"} más de 20 días sin volver`);
+    $("waHallazgo").innerHTML = partes.length
+      ? partes.join(" · ") + `. De <b>${fmt(appUsers.length)}</b> cuentas.`
+      : `<b>${fmt(appUsers.length)}</b> cuentas en la app.`;
+    return;
+  }
   const partes = [];
-  if (n.revisar) partes.push(`<b>${n.revisar}</b> ${
-    n.revisar === 1 ? "comprobante espera" : "comprobantes esperan"} que lo revises`);
-  if (n.pendientes) partes.push(`<b>${n.pendientes}</b> sin responder`);
-  if (n.vencen) partes.push(`a <b>${n.vencen}</b> se le cierra la ventana hoy`);
+  if (n("revisar")) partes.push(`<b>${n("revisar")}</b> ${
+    n("revisar") === 1 ? "comprobante espera" : "comprobantes esperan"} que lo revises`);
+  if (n("pendientes")) partes.push(`<b>${n("pendientes")}</b> sin responder`);
+  if (n("vencen")) partes.push(`a <b>${n("vencen")}</b> se le cierra la ventana hoy`);
   $("waHallazgo").innerHTML = partes.length
-    ? partes.join(" · ") + `. De <b>${n.todas}</b> clientes en la lista.`
-    : `Nada pendiente. <b>${n.todas}</b> clientes en la lista.`;
+    ? partes.join(" · ") + `. De <b>${fmt(waConvs.length)}</b> clientes en la lista.`
+    : `Nada pendiente. <b>${fmt(waConvs.length)}</b> clientes en la lista.`;
 }
 
 // Qué espera esta persona, en palabras del oficio: es lo que decide si se abre
@@ -3971,14 +4081,49 @@ function marcas(c){
 }
 
 function listaVisible(){
-  const q = waBusca.trim().toLowerCase();
+  const q = waBusca.trim().toLowerCase(), m = modo();
+  const cola = m.colas()[waFiltro] || (() => true);
+  const busca = (x) => !q || [nombreCorto(x), x.phone, x.email, x.name, x.last_text]
+    .some(v => (v || "").toLowerCase().includes(q));
+  if (waModo === "app")
+    // Ya vienen del backend por los más frecuentes primero, que es el orden
+    // que se quiere mirar.
+    return appUsers.filter(u => cola(u) && busca(u));
   return waConvs
-    .filter(c => COLAS[waFiltro](c) && (!q ||
-      [nombreCorto(c), c.phone, c.email, c.last_text].some(v => (v || "").toLowerCase().includes(q))))
+    .filter(c => cola(c) && busca(c))
     // Primero lo que hay que resolver y, dentro de cada nivel, lo más reciente:
     // un pago de hace tres días no puede quedar debajo de un "gracias" de hoy.
     .sort((a, b) => espera(a)[3] - espera(b)[3] ||
       String(b.last_at || "").localeCompare(String(a.last_at || "")));
+}
+
+// ── La tarjeta de quien usa la app ──────────────────────────────────────────
+const CLASE_USO = { activo:"", dormido:"ojo", zombie:"ojo", nunca:"ojo" };
+
+function tarjetaUsuario(u){
+  const movs = u.movements || {}, est = u.status || {};
+  const cuando = movs.last_at
+    ? "hace " + (est.dias === 0 ? "nada" : est.dias + (est.dias === 1 ? " día" : " días"))
+    : "sin movimientos";
+  const marcas = [];
+  if ((u.plan || {}).is_pro) marcas.push(["Pro", "pro"]);
+  else if ((u.trial || {}).activa) marcas.push(["En prueba", ""]);
+  else if ((u.plan || {}).tier === "pro") marcas.push(["Pro vencido", "ojo"]);
+  else marcas.push(["Free", ""]);
+  if (u.phone) marcas.push(["WhatsApp", ""]);
+  marcas.push([est.label || "", CLASE_USO[est.clave] || ""]);
+
+  return `<button class="wacard" data-uid="${esc(u.user_id)}" type="button">
+    <span class="ava ${tinte(u)}">${esc(iniciales(u))}</span>
+    <span class="txt">
+      <span class="f1"><b>${esc(nombreCorto(u))}</b><time>${esc(cuando)}</time></span>
+      <span class="msg">${fmt(movs.total || 0)} ${
+        movs.total === 1 ? "movimiento" : "movimientos"} · ${fmt(movs.days || 0)} ${
+        movs.days === 1 ? "día con registros" : "días con registros"}</span>
+      <span class="f2">${marcas.filter(x => x[0]).map(([txt, cls]) =>
+        `<span class="marca ${cls}">${esc(txt)}</span>`).join("")}</span>
+    </span>
+  </button>`;
 }
 
 // ── Quién es cada quien ─────────────────────────────────────────────────────
@@ -3992,6 +4137,7 @@ const ultimoTexto = (c) => sinChat(c) ? "Todavía no te ha escrito"
 // El correo entero no cabe ni dice nada: "rosa.quispe@gmail.com" llega a la
 // tarjeta como "Rosa Quispe" y el correo completo vive en la ficha.
 function nombreCorto(c){
+  if (c.name) return c.name;
   if (c.email){
     const local = c.email.split("@")[0];
     return local.split(/[._-]+/).filter(Boolean)
@@ -4046,18 +4192,22 @@ function tarjeta(c){
 
 function marcarElegida(){
   for (const f of $("waLista").querySelectorAll(".wacard"))
-    f.classList.toggle("sel", f.dataset.tel === waActiva);
+    f.classList.toggle("sel", (f.dataset.tel || f.dataset.uid) === waActiva);
 }
 
 function pintarLista(){
-  const cuerpo = $("waLista"), items = listaVisible();
-  cuerpo.innerHTML = items.length ? items.map(tarjeta).join("")
-    : `<div class="wavacio">${!waConvs.length ? "Todavía nadie le ha escrito al bot."
+  const cuerpo = $("waLista"), items = listaVisible(), app = waModo === "app";
+  const hay = app ? appUsers.length : waConvs.length;
+  cuerpo.innerHTML = items.length
+    ? items.map(app ? tarjetaUsuario : tarjeta).join("")
+    : `<div class="wavacio">${!hay ? "Todavía no hay nada que mirar acá."
         : waBusca.trim() ? "Nada con esa búsqueda." : "Nada en esta cola."}</div>`;
-  // El teléfono y no el índice: con filtros y búsqueda, la posición en la
-  // lista pintada deja de coincidir con la del lote.
+  // La clave y no el índice: con filtros y búsqueda, la posición en la lista
+  // pintada deja de coincidir con la del lote.
   for (const f of cuerpo.querySelectorAll("[data-tel]"))
     f.onclick = () => abrirHilo(f.dataset.tel);
+  for (const f of cuerpo.querySelectorAll("[data-uid]"))
+    f.onclick = () => abrirUsuario(f.dataset.uid);
   marcarElegida();
 }
 
@@ -4099,6 +4249,8 @@ async function abrirHilo(phone){
   const hilo = $("waHilo");
   hilo.classList.remove("wavacio");
   hilo.innerHTML = `<div class="cargando"><span></span><span></span><span></span></div>`;
+  // La vista App la esconde cuando alguien no tiene WhatsApp: acá siempre hay.
+  $("waVistas").querySelector('[data-vista="chat"]').style.display = "";
   vista("chat");
   $("waCaja").style.display = "";
   $("waTexto").disabled = !viva;
@@ -4121,6 +4273,60 @@ async function abrirHilo(phone){
   }catch(e){
     hilo.innerHTML = `<div class="ferror">No se pudo cargar el hilo: ${esc(e.message)}</div>`;
   }
+}
+
+async function abrirUsuario(uid){
+  const u = appUsers.find(x => x.user_id === uid);
+  if (!u) return;
+  waActiva = uid;
+  marcarElegida();
+
+  const ava = $("waCabAva");
+  ava.textContent = iniciales(u);
+  ava.className = "ava grande " + tinte(u);
+  $("waCab").style.display = "";
+  $("waVistas").style.display = "";
+  $("waCabQuien").textContent = nombreCorto(u);
+  $("waCabSub").textContent = [u.email, u.phone ? telefono(u.phone) : null]
+    .filter(Boolean).join(" · ");
+
+  const marca = $("waCabVentana");
+  const est = u.status || {};
+  marca.style.display = "";
+  marca.textContent = est.label || "";
+  marca.className = "badge " + (est.clave === "activo" ? "ok"
+    : est.clave === "dormido" ? "idle" : "never");
+
+  // Sin WhatsApp no hay hilo que leer: se abre directo en Actividad y la caja
+  // de respuesta no aparece, porque no habría por dónde contestar.
+  const conv = u.phone ? waConvs.find(c => c.phone === u.phone) : null;
+  $("waCaja").style.display = conv ? "" : "none";
+  if (conv){
+    $("waTexto").disabled = !ventanaViva(conv);
+    $("waEnviar").disabled = !ventanaViva(conv);
+    $("waPush").style.display = ventanaViva(conv) ? "none" : "";
+    $("waAviso").textContent = ventanaViva(conv)
+      ? "Sale desde el número del bot."
+      : "Meta no entregaría el mensaje: queda el push.";
+  }
+  $("waVistas").querySelector('[data-vista="chat"]').style.display = conv ? "" : "none";
+  vista(conv ? "chat" : "hechos");
+  if (conv){
+    const hilo = $("waHilo");
+    hilo.classList.remove("wavacio");
+    hilo.innerHTML = `<div class="cargando"><span></span><span></span><span></span></div>`;
+    api("/admin/whatsapp/conversations/" + encodeURIComponent(u.phone)).then(({ items }) => {
+      if (waActiva !== uid) return;
+      hilo.innerHTML = items.length ? items.map(m => `<div class="burb ${m.direction}">${
+        esc(m.body || ETIQUETA[m.kind] || "")}<span class="t">${cuando(m.created_at)}</span></div>`).join("")
+        : `<div class="muted">Sin mensajes guardados.</div>`;
+      hilo.scrollTop = hilo.scrollHeight;
+    }).catch(() => { hilo.textContent = "No se pudo cargar el hilo."; });
+  }
+
+  cargarFicha({ user_id: uid, phone: u.phone,
+                last_at: conv ? conv.last_at : null,
+                last_direction: conv ? conv.last_direction : null });
 }
 
 // ── La ficha ────────────────────────────────────────────────────────────────
@@ -4242,6 +4448,50 @@ function bloqueSemanas(semanas, parcial){
 const rotuloSemana = (iso) => new Date(iso + "T00:00:00")
   .toLocaleDateString("es-PE", { day:"numeric", month:"short" });
 
+// Día a día del mes: dice si es hábito o un arranque suelto. Treinta cajas,
+// la de hoy a la derecha.
+function bloqueDias(dias, parcial){
+  if (!dias || !dias.length) return "";
+  const tope = Math.max(1, ...dias.map(d => d.n));
+  const barras = dias.map(d => `<span class="${d.n ? "viva" : ""}" style="height:${
+    d.n ? Math.max(6, Math.round((d.n / tope) * 92)) : 2}%" title="${
+    esc(rotuloDia(d.day))}: ${d.n}"></span>`).join("");
+  const conAlgo = dias.filter(d => d.n).length;
+  return `<div class="fgrupo">
+    <h4>Ritmo de los últimos ${dias.length} días</h4>
+    <div class="fsemanas">
+      <div class="barras" role="img" aria-label="Movimientos por día, el máximo es ${tope}">${barras}</div>
+      <div class="pies"><span>${esc(rotuloDia(dias[0].day))}</span>
+        <span>${conAlgo} ${conAlgo === 1 ? "día con registros" : "días con registros"}</span>
+        <span>hoy</span></div>
+      ${parcial ? `<div class="muted" style="font-size:.73rem;margin-top:6px">
+        Con más de 500 movimientos, un día puede salir corto.</div>` : ""}
+    </div>
+  </div>`;
+}
+const rotuloDia = (iso) => new Date(iso + "T00:00:00")
+  .toLocaleDateString("es-PE", { day:"numeric", month:"short" });
+
+// A qué hora registra y en qué gasta: con eso se sabe a quién se le escribe y
+// cuándo tiene sentido hacerlo.
+const FRANJA = { madrugada:"Madrugada", "mañana":"Mañana", tarde:"Tarde", noche:"Noche" };
+
+function bloquePerfil(movs){
+  const horas = Object.entries(movs.by_hour || {}).filter(([, n]) => n);
+  const cats = movs.top_categories || [];
+  if (!horas.length && !cats.length) return "";
+  horas.sort((a, b) => b[1] - a[1]);
+  const total = horas.reduce((t, [, n]) => t + n, 0) || 1;
+  return `<div class="fgrupo">
+    <h4>Perfil</h4>
+    ${horas.length ? dato("Registra sobre todo", `${FRANJA[horas[0][0]]} (${
+      Math.round((horas[0][1] / total) * 100)}%)`, true) : ""}
+    ${dato("Días con registros, último mes",
+            movs.days_30 === undefined ? "" : fmt(movs.days_30))}
+    ${cats.map(c => dato(c.category, fmt(c.n), true)).join("")}
+  </div>`;
+}
+
 // El mes en curso, cada moneda por su lado (nunca se suman).
 function bloqueMes(mes){
   const monedas = Object.entries(mes || {});
@@ -4274,10 +4524,10 @@ function bloqueAvisos(f){
 
 // La subcabecera del hilo: quién es en una línea, con lo que la ficha trajo.
 function subcabecera(f, conv){
-  if (waActiva !== conv.phone) return;
+  if (waActiva !== (waModo === "app" ? conv.user_id : conv.phone)) return;
   const plan = f.plan, prefs = f.prefs || {}, movs = f.movements || {};
-  const partes = [conv.email || telefono(conv.phone)];
-  if (conv.email) partes.push(telefono(conv.phone));
+  const partes = [f.email || conv.email || (conv.phone ? telefono(conv.phone) : "")];
+  if ((f.email || conv.email) && conv.phone) partes.push(telefono(conv.phone));
   if (plan) partes.push(plan.is_pro ? "Pro" : plan.tier === "pro" ? "Pro vencido" : "Free");
   if (prefs.country) partes.push(prefs.country);
   if (movs.total !== undefined)
@@ -4297,7 +4547,9 @@ function pintarFicha(f){
     ${chipsPlan(f)}
     ${bloquePago(f.pending_payment)}
     ${bloqueCupo(f.quota)}
-    ${bloqueSemanas(movs.by_week, movs.week_parcial)}
+    ${waModo === "app" ? bloqueDias(movs.by_day, movs.parcial)
+                       : bloqueSemanas(movs.by_week, movs.week_parcial)}
+    ${bloquePerfil(movs)}
     ${bloqueMes(movs.month)}
     <div class="fgrupo">
       <h4>Movimientos</h4>
@@ -4388,6 +4640,9 @@ function pintarHechos(f, conv){
 
 async function cargarFicha(conv){
   const caja = $("waFicha");
+  // Quién está abierto se identifica distinto en cada modo: comparar siempre
+  // contra el teléfono dejaba la ficha cargando para siempre en la vista App.
+  const clave = waModo === "app" ? conv.user_id : conv.phone;
   if (!conv.user_id){
     // Pasa de verdad: se puede escribir al bot sin haber vinculado la app.
     fichaSinCuenta(conv);
@@ -4399,7 +4654,7 @@ async function cargarFicha(conv){
     <span></span><span></span><span></span></div>`;
   try{
     const f = await api("/admin/users/" + encodeURIComponent(conv.user_id));
-    if (waActiva !== conv.phone) return;
+    if (waActiva !== clave) return;
     pintarFicha(f);
     subcabecera(f, conv);
     pintarHechos(f, conv);
@@ -4412,11 +4667,12 @@ async function cargarFicha(conv){
 // ── Contestar ───────────────────────────────────────────────────────────────
 async function responder(){
   const texto = $("waTexto").value.trim();
-  if (!texto || !waActiva) return;
+  const tel = telefonoAbierto();
+  if (!texto || !tel) return;
   const boton = $("waEnviar");
   boton.disabled = true;
   try{
-    await api(`/admin/whatsapp/conversations/${encodeURIComponent(waActiva)}/reply`, {
+    await api(`/admin/whatsapp/conversations/${encodeURIComponent(tel)}/reply`, {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({ text: texto }),
@@ -4437,8 +4693,9 @@ async function responder(){
 }
 
 async function avisarPush(){
-  const conv = waConvs.find(c => c.phone === waActiva);
-  if (!conv || !conv.user_id) return;
+  const quien = abierto();
+  const uid = quien && (quien.user_id || null);
+  if (!uid) return;
   const texto = (prompt("¿Qué le decimos? Le llega como notificación de la app.") || "").trim();
   if (!texto) return;
   const boton = $("waPush");
@@ -4447,7 +4704,7 @@ async function avisarPush(){
     const r = await api("/admin/push", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ user_id: conv.user_id, title: "Y Altoque", body: texto }),
+      body: JSON.stringify({ user_id: uid, title: "Y Altoque", body: texto }),
     });
     // `tokens` es a cuántos se intentó; `ok` es a cuántos llegó. Con la ventana
     // cerrada el push es la única salida: cantar un envío que falló es peor que
@@ -4467,8 +4724,9 @@ $("waEnviar").onclick = responder;
 $("waPush").onclick = avisarPush;
 $("waRefrescar").onclick = cargarBandeja;
 $("waBuscar").oninput = () => { waBusca = $("waBuscar").value; pintarLista(); };
-for (const b of $("waFiltros").querySelectorAll("[data-filtro]"))
-  b.onclick = () => { waFiltro = b.dataset.filtro; contarColas(); pintarLista(); };
+for (const b of $("waModos").querySelectorAll("[data-modo]"))
+  b.onclick = () => cambiarModo(b.dataset.modo);
+pintarColas();
 for (const b of $("waVistas").querySelectorAll("[data-vista]"))
   b.onclick = () => vista(b.dataset.vista);
 
