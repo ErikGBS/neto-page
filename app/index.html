@@ -2120,6 +2120,13 @@ function cerebroCheck(){
   c = construirCerebro([tx(-5, "Devolución", 2), tx(1e9, "Casa", 2)], "PEN");
   ok(Number.isFinite(c.total), "importes negativos y enormes no rompen el total");
 
+  // El cerebro es el lienzo: ningún anclaje puede quedar fuera de la silueta,
+  // y con margen, porque encima le crecen ramas.
+  const V = volumenCerebro(2000);
+  ok(anclasDe(V, 2000).every((a) => Number.isFinite(a.x)
+      && (a.x / CAJA.x) ** 2 + (a.y / CAJA.y) ** 2 + (a.z / CAJA.z) ** 2 < .8),
+    "los anclajes caen dentro de la silueta");
+
   if (fallos.length) console.error("cerebroCheck:", fallos);
   else console.log("cerebroCheck: todo cuadra");
   return !fallos.length;
@@ -2336,17 +2343,26 @@ function crearTres(lienzo){
 // los dos hemisferios para que una categoría caiga siempre en el mismo lugar.
 const ANCLAS = 14;
 
+// El cerebro es el lienzo: las neuronas viven DENTRO. CAJA son los semiejes
+// del modelo de la GPU ya escalado (medidos de cerebro.glb) y DENTRO la
+// fracción del volumen a la que se posan los anclajes. A flor de corteza se
+// salían de la silueta al girar: la perspectiva agranda lo que viene de
+// frente y el modelo no tiene la misma forma que el volumen de respaldo.
+const CAJA = { x: .643, y: .68, z: .875 }, DENTRO = .75;
+
+// Muestras de la corteza, repartidas y encogidas hacia el centro: cada
+// categoría se posa siempre en el mismo sitio y gira con el tejido.
+const anclasDe = (VOL, cuantos) => Array.from({ length: ANCLAS }, (_, i) => {
+  const j = Math.floor((i + .5) / ANCLAS * cuantos * .72) * 7;
+  return { x: VOL[j] * DENTRO, y: VOL[j + 1] * DENTRO, z: VOL[j + 2] * DENTRO };
+});
+
 function crearCerebro(cv, op = {}){
   const cx = cv.getContext("2d");
   const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let CUANTOS = op.puntos ?? (innerWidth < 760 ? 12000 : 22000);
   let VOL = volumenCerebro(CUANTOS);
-  // Los anclajes son muestras de la propia corteza, repartidas: así cada
-  // categoría se posa siempre en el mismo sitio y gira con el tejido.
-  const SITIOS = Array.from({ length: ANCLAS }, (_, i) => {
-    const j = Math.floor((i + .5) / ANCLAS * CUANTOS * .72) * 7;
-    return { x: VOL[j] * 1.04, y: VOL[j + 1] * 1.04, z: VOL[j + 2] * 1.04 };
-  });
+  const SITIOS = anclasDe(VOL, CUANTOS);
   // El buffer donde se acumula la densidad, a media resolución: al estirarlo
   // sobre el canvas, el propio suavizado del navegador hace de difuminado.
   const lienzo = document.createElement("canvas");
@@ -2528,6 +2544,17 @@ function crearCerebro(cv, op = {}){
 
     if (!puestos.length){ cx.restore(); return; }
 
+    // De aquí abajo se pinta solo dentro del cerebro. El recorte es la silueta
+    // del volumen proyectada (un elipsoide con los mismos semiejes), así que
+    // ni un axón ni una rama cruzan el tejido por mucho que gire.
+    cx.save();
+    const ejeZ = Math.hypot(CAJA.z * ca, CAJA.x * sa);
+    cx.beginPath();
+    cx.ellipse(W / 2, H / 2,
+      R * Math.hypot(CAJA.x * ca, CAJA.z * sa) * .95,
+      R * Math.hypot(CAJA.y * CT, ejeZ * ST) * .95, 0, 0, 7);
+    cx.clip();
+
     // Las neuronas con datos viajan con la corteza.
     for (const q of puestos){
       const pr = proyectar(q.p, ca, sa);
@@ -2615,7 +2642,7 @@ function crearCerebro(cv, op = {}){
       cx.strokeStyle = `rgba(250,220,155,${((.34 + .42 * late) * vis).toFixed(2)})`;
       for (let i = 0; i < cuantas; i++)
         dendrita(q.X, q.Y, (i / cuantas) * 6.283 + q.fase + t / 11000,
-          (q.r * q.s) * 3.6, 1.4, 3, .85 + .15 * late);
+          Math.min(q.r * q.s * 3.6, R * .17), 1.4, 3, .85 + .15 * late);
     }
 
     // De cerca, la neurona abierta las abre del todo, una por gasto.
@@ -2631,6 +2658,7 @@ function crearCerebro(cv, op = {}){
             46 + (i % 3) * 16, 1.6, 3, crece);
       }
     }
+    cx.restore();                       // fin del recorte por la silueta
     cx.globalAlpha = 1;
     cx.restore();
   }
