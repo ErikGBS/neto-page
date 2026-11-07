@@ -669,7 +669,7 @@
     /* En el teléfono se tocan con el pulgar: 44px, aunque en el escritorio
        estos mismos controles vivan cómodos en 34. */
     .admin button.chico, .admin #waBuscar, .admin .fpaso .acc button,
-    .admin .waenviar button, .admin #waBot{min-height:44px}
+    .admin .waenviar button, .admin #waBot, .admin #waDuda{min-height:44px}
     .admin .wa2{grid-template-columns:minmax(0,1fr)}
     .admin .wa2 > *{height:auto}
     .admin .walista{max-height:420px}
@@ -894,7 +894,8 @@
     border-color:var(--border);cursor:not-allowed}
   .admin .wapersona .acc button, .admin .waenviar button{min-height:36px}
   /* Mientras el equipo atiende, el bot calla: el botón lo dice y lo deshace. */
-  .admin #waBot.pausado{border-color:rgba(208,165,92,.45);color:var(--gold-bright)}
+  .admin #waBot.pausado,.admin #waDuda.pausado{
+    border-color:rgba(208,165,92,.45);color:var(--gold-bright)}
   .admin #adminAviso{margin:0 0 14px;color:var(--mute);font-size:.86rem}
   .admin #adminAviso.err{color:var(--red)}
 
@@ -1327,6 +1328,7 @@
           <div class="waenviar">
             <span id="waAviso" class="muted"></span>
             <button id="waBot" class="chico" style="display:none"></button>
+            <button id="waDuda" class="chico" style="display:none"></button>
             <button id="waPush" class="chico" style="display:none">Avisar por push</button>
             <button id="waEnviar" class="primario">Enviar</button>
           </div>
@@ -4050,9 +4052,11 @@ const AYUDA_APP = {
 
 // Una pregunta que el bot no supo contestar, o un "necesito ayuda". El
 // backend la anota cuando pasa y la borra cuando alguien del equipo contesta,
-// así que esta cola se vacía sola.
+// así que esta cola se llena y se vacía sola. Lo que el bot no acierta lo
+// corrige el botón del hilo: ver `cambiarDuda`.
 const conDuda = (c) => !!(c.duda && c.duda.at);
-const DUDA = { no_entendi: "El bot no la entendió", ayuda: "Pidió ayuda" };
+const DUDA = { no_entendi: "El bot no la entendió", ayuda: "Pidió ayuda",
+  manual: "La marcaste tú" };
 
 const COLAS = {
   todas: () => true,
@@ -4072,7 +4076,7 @@ const ROTULO_WA = { todas:"Todas", dudas:"Con dudas", revisar:"Por revisar", pen
   dormidos:"Dormidos", nunca:"Nunca registró" };
 const AYUDA_WA = {
   todas: "Conversaciones de los últimos 30 días, más tus Pro y los que están en prueba",
-  dudas: "Preguntaron algo que el bot no supo contestar, o pidieron ayuda. Se cierra cuando les respondes",
+  dudas: "Preguntaron algo que el bot no supo contestar, o pidieron ayuda. Se cierra cuando les respondes, o a mano desde el hilo",
   revisar: "Mandaron su captura del Yape y esperan que la apruebes",
   pendientes: "Su último mensaje es el que nadie contestó",
   vencen: "Les quedan menos de 4 h de la ventana de 24 h de Meta",
@@ -4382,6 +4386,47 @@ function pintarBot(conv){
   $("waAviso").textContent = avisoDeCaja(conv);
 }
 
+// El bot acierta casi siempre, pero no siempre: anota como duda un "ok
+// gracias" que no lo era y se pierde la pregunta que alguien soltó en medio de
+// otra cosa. Este botón mueve la conversación de la cola a mano, en los dos
+// sentidos, sin tener que contestarle para limpiarla.
+function pintarDuda(conv){
+  const boton = $("waDuda"), hay = conDuda(conv);
+  boton.style.display = waModo === "app" ? "none" : "";
+  boton.classList.toggle("pausado", hay);
+  boton.textContent = hay ? "Quitar duda" : "Marcar duda";
+  boton.title = hay
+    ? (DUDA[conv.duda.kind] || "Se quedó con una duda") +
+      ". Toca para sacarla de la cola sin contestarle."
+    : "Mándala a la cola de dudas para que no se pierda entre las demás.";
+}
+
+async function cambiarDuda(){
+  const conv = waConvs.find(c => c.phone === telefonoAbierto());
+  if (!conv) return;
+  const boton = $("waDuda");
+  boton.disabled = true;
+  try{
+    const r = await api(`/admin/whatsapp/conversations/${
+      encodeURIComponent(conv.phone)}/duda`, {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      // Sin tipo se quita. El que pone el panel es suyo: así se distingue de
+      // lo que detectó el bot.
+      body: JSON.stringify({ kind: conDuda(conv) ? null : "manual" }),
+    });
+    conv.duda = r.duda;
+    // Mientras volaba la petición, el admin pudo abrir otro hilo: repintar el
+    // botón ahora lo dejaría hablando de la conversación anterior.
+    if (telefonoAbierto() === conv.phone) pintarDuda(conv);
+    // La cola y su contador sí cambian igual: la conversación entró o salió
+    // de "Con dudas" sea cual sea el hilo que se esté mirando.
+    pintarColas(); pintarLista();
+  }catch(e){
+    alert("No se pudo: " + e.message);
+  }
+  boton.disabled = false;
+}
+
 async function cambiarBot(){
   const conv = waConvs.find(c => c.phone === telefonoAbierto());
   if (!conv) return;
@@ -4394,7 +4439,7 @@ async function cambiarBot(){
       body: JSON.stringify({ paused: !pausaViva(conv) }),
     });
     conv.bot_paused_until = r.until;
-    pintarBot(conv);
+    if (telefonoAbierto() === conv.phone) pintarBot(conv);   // o se cambió de hilo
   }catch(e){
     alert("No se pudo: " + e.message);
   }
@@ -4442,6 +4487,7 @@ async function abrirHilo(phone){
   $("waAviso").textContent = avisoDeCaja(conv);
 
   pintarBot(conv);   // después del aviso de la caja, que lo completa
+  pintarDuda(conv);
   cargarFicha(conv);
   try{
     const { items } = await api("/admin/whatsapp/conversations/" + encodeURIComponent(conv.phone));
@@ -4471,6 +4517,7 @@ async function abrirUsuario(uid){
     .filter(Boolean).join(" · ");
 
   $("waBot").style.display = "none";
+  $("waDuda").style.display = "none";
   const marca = $("waCabVentana");
   const est = u.status || {};
   marca.style.display = "";
@@ -4883,7 +4930,10 @@ async function responder(){
     // Contestar a mano deja la conversación en manos del humano: el backend
     // pausa el bot y la cabecera lo enseña sin esperar a la recarga.
     const conv = waConvs.find(c => c.phone === tel);
-    if (conv){ conv.bot_paused_until = r.bot_paused_until; pintarBot(conv); }
+    // Contestar cierra la duda en el backend; sin esto el botón seguiría
+    // ofreciendo "Quitar duda" sobre una cola que ya se vació.
+    if (conv){ conv.bot_paused_until = r.bot_paused_until; conv.duda = null;
+      pintarBot(conv); pintarDuda(conv); }
     // Se reactiva acá y no en cargarBandeja: si la conversación no vuelve en la
     // lista, el botón se quedaba muerto y parecía que la pantalla se colgó.
     boton.disabled = false;
@@ -5012,6 +5062,7 @@ async function avisarPush(){
 $("waEnviar").onclick = responder;
 $("waPush").onclick = avisarPush;
 $("waBot").onclick = cambiarBot;
+$("waDuda").onclick = cambiarDuda;
 $("waAvisar").onclick = avisarGrupo;
 $("waRefrescar").onclick = cargarBandeja;
 $("waBuscar").oninput = () => { waBusca = $("waBuscar").value; pintarLista(); };
