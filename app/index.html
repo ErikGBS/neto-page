@@ -160,7 +160,11 @@
 
   .pie{margin-top:auto;display:flex;flex-direction:column;gap:8px}
 
-  .hoja{flex:1;min-width:0;padding:28px 32px 36px;max-width:1240px}
+  /* El ancho útil manda sobre el de la ventana: `container` deja que las
+     rejillas de dentro pregunten por el sitio que de verdad tienen, que no es
+     el de la pantalla (la barra se lleva 244px, o 64 plegada). */
+  .hoja{flex:1;min-width:0;padding:28px 32px 36px;max-width:1760px;
+    margin-inline:auto;container:hoja / inline-size}
 
   .topbar{display:flex;align-items:center;gap:14px;margin-bottom:22px}
   .topbar h1{font-size:1.6rem;font-weight:700;letter-spacing:-.02em;line-height:1.2}
@@ -210,7 +214,7 @@
   .kpi.rojo .val{color:#ffb4b4}
   .kpi.verde .val{color:#9df0c0}
   .kpi.oro .val{color:var(--gold-bright)}
-  @media (max-width:1180px){
+  @container hoja (max-width:880px){
     .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
     .kpi:nth-child(3){border-left:none}
     .kpi:nth-child(n+3){border-top:1px solid var(--border)}
@@ -373,8 +377,8 @@
   .cats .riel{height:6px;border-radius:3px;background:var(--surface);margin-top:6px;overflow:hidden}
   .cats .riel i{display:block;height:100%;background:var(--gold)}
   .cats .resto{color:var(--mute);font-size:.8rem;margin:-4px 0 10px}
-  /* Bajo 1300px la lista no deja al grafo el ancho del abanico: va arriba. */
-  @media (max-width:1300px){
+  /* Bajo 1000px de hoja la lista no deja al grafo el ancho del abanico: va arriba. */
+  @container hoja (max-width:1000px){
     .mes-grid{grid-template-columns:1fr;gap:4px}
     .cats{order:-1;margin-top:8px}
   }
@@ -523,14 +527,17 @@
   .admin .kpi.cyan{--accent:var(--info)}
   .admin .kpi.gold{--accent:var(--gold)}
   .admin .kpi.pink{--accent:var(--red)}
+  /* `overflow-x` a todos los anchos: una tabla más ancha que su tarjeta se
+     desliza dentro de ella en vez de quedar cortada (pasaba en Usuarios). */
   .admin .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radio);
-    padding:22px;margin:14px 0}
+    padding:22px;margin:14px 0;overflow-x:auto}
   .admin .section h3{font-size:1.02rem;font-weight:700;margin-bottom:14px}
   .admin .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
   .admin .row2>*{min-width:0}
-  @media(max-width:900px){
+  @container hoja (max-width:880px){
   .admin .row2{grid-template-columns:1fr}}
-  .admin .chartbox{position:relative;height:248px}
+  /* Las gráficas crecen con la hoja en vez de quedarse en una tira de 248px. */
+  .admin .chartbox{position:relative;height:clamp(248px,26cqw,400px)}
   .admin #estado{margin-bottom:13px;padding:13px 16px;border:1px solid var(--border);
     border-radius:12px;background:var(--surface);font-size:.86rem;color:var(--mute)}
   .admin #estado.error{border-color:rgba(248,113,113,.45);color:var(--red)}
@@ -572,7 +579,7 @@
   .admin .rankbar #rankDir{padding:7px 12px;font-size:.86rem}
   /* En el teléfono once columnas no entran: cada fila del ranking es una tarjeta
      con el puesto, el nombre y el total arriba y el resto en una grilla. */
-  @media (max-width:640px){
+  @container hoja (max-width:610px){
     .admin table.rank thead{display:none}
     .admin table.rank, .admin table.rank tbody{display:block}
     .admin table.rank tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 10px;
@@ -591,7 +598,7 @@
   }
   /* Pagos en el teléfono: tarjetas, para que Aprobar/Rechazar no queden fuera
      de la pantalla. Las etiquetas salen del orden de las columnas del thead. */
-  @media (max-width:640px){
+  @container hoja (max-width:610px){
     #tab-pagos table thead{display:none}
     #tab-pagos table, #tab-pagos tbody{display:block}
     #tab-pagos tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;
@@ -612,8 +619,8 @@
   }
   /* Las demás tablas (dormidos, países) no caben a 390px: se desplazan
      dentro de su tarjeta en vez de ensanchar la página entera. */
-  @media (max-width:900px){
-    .admin .section{overflow-x:auto;padding:16px 14px}
+  @container hoja (max-width:880px){
+    .admin .section{padding:16px 14px}
     .admin th, .admin td{padding:8px 6px}
     .admin td{overflow-wrap:break-word}
   }
@@ -647,10 +654,10 @@
   .admin .wa2{display:grid;
     grid-template-columns:minmax(0,352px) minmax(0,1fr) minmax(0,330px);
     gap:16px;align-items:stretch}
-  .admin .wa2 > *{height:clamp(540px,calc(100vh - 230px),760px)}
+  .admin .wa2 > *{height:clamp(540px,calc(100vh - 230px),900px)}
   /* La ficha baja primero: el hilo necesita el ancho más que ella. Abajo, a lo
      ancho, sus bloques se reparten en columnas en vez de hacer una tira larga. */
-  @media(max-width:1280px){
+  @container hoja (max-width:1240px){
     .admin .wa2{grid-template-columns:minmax(0,310px) minmax(0,1fr)}
     .admin .waficha{grid-column:1 / -1;height:auto}
     .admin .waficha .cuerpo{display:grid;align-content:start;
@@ -658,7 +665,7 @@
     .admin .waficha .fchips, .admin .waficha .fpago{grid-column:1 / -1}}
   /* La cola y el hilo se apilan solo cuando dos columnas ya no caben: a 768 una
      lista de 700px de ancho deja un hueco entre el nombre y su hora. */
-  @media(max-width:720px){
+  @container hoja (max-width:700px){
     /* En el teléfono se tocan con el pulgar: 44px, aunque en el escritorio
        estos mismos controles vivan cómodos en 34. */
     .admin button.chico, .admin #waBuscar, .admin .fpaso .acc button,
