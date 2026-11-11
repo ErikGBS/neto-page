@@ -414,7 +414,7 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
 .pricing{padding:clamp(60px,9vw,110px) 0}
 .eyebrow.gold{color:var(--gold)}
 .eyebrow.gold::before{background:var(--gold)}
-.plans{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:48px;align-items:stretch}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:22px;margin-top:48px;align-items:stretch}
 .plan{position:relative;border-radius:24px;border:1px solid var(--border);background:var(--surface);padding:34px 30px;display:flex;flex-direction:column;transition:transform .3s,border-color .3s}
 .plan:hover{transform:translateY(-5px)}
 .plan-name{font-family:var(--font-display);font-weight:600;font-size:1.32rem;display:flex;align-items:center;gap:9px}
@@ -565,7 +565,6 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
       <a href="#privacidad">Privacidade</a>
       <a class="nav-login" href="/app/">Entrar</a>
     </div>
-    <a class="pill" href="#login" style="text-decoration:none"><span style="color:var(--teal)">●</span> Já no iOS e Android</a>
     <span class="pill lang" aria-label="Idioma"><a href="/" style="color:var(--mute);text-decoration:none">🇵🇪<span class="lc">&nbsp;ES</span></a><span class="lsep">&nbsp;·&nbsp;</span><a href="/en/" style="color:var(--mute);text-decoration:none">🇺🇸<span class="lc">&nbsp;EN</span></a><span class="lsep">&nbsp;·&nbsp;</span><b style="color:var(--gold)">🇧🇷<span class="lc">&nbsp;PT</span></b></span>
     <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema claro/escuro" title="Alternar tema">🌙</button>
     <button class="burger" id="burger" aria-label="Abrir menu" aria-expanded="false">
@@ -1010,11 +1009,23 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
         <div class="plan-price">S/ 10<small> · por mês, via Yape</small></div>
         <div class="plan-sub">Para quem registra tudo pelo chat, sem abrir o app.</div>
         <ul>
-          <li><span class="ck">✓</span><span><b>60 mensagens por mês</b> com o assistente</span></li>
-          <li><span class="ck">✓</span><span>Precisa de mais? <b>S/ 20 por 150 mensagens</b> por mês</span></li>
+          <li><span class="ck">✓</span><span><b>100 mensagens por mês</b> com o assistente</span></li>
           <li><span class="ck">✓</span><span><b>Fotos de comprovantes</b> lidas na hora</span></li>
           <li><span class="ck">✓</span><span>Registre seu dinheiro <b>pelo chat</b>, onde estiver</span></li>
           <li><span class="ck">✓</span><span>Pago por <b>Yape</b>: sem cartão e sem renovação automática</span></li>
+        </ul>
+        <a href="/app/" class="btn btn-gold plan-cta">Ver meu plano</a>
+      </div>
+      <div class="plan plan-pro reveal" data-d="3" style="position:relative">
+        <span class="plan-badge">2 meses grátis</span>
+        <div class="plan-name">💬 Pro anual · O mesmo, pagando uma vez</div>
+        <div class="plan-price">S/ 100<small> · por ano, via Yape</small></div>
+        <div class="plan-sub">Para quem já sabe que vai usar o ano todo.</div>
+        <ul>
+          <li><span class="ck">✓</span><span><b>Tudo do Pro mensal</b>, sem mudar nada</span></li>
+          <li><span class="ck">✓</span><span><b>2 meses de presente</b>: paga 10, usa 12</span></li>
+          <li><span class="ck">✓</span><span><b>Um Yape por ano</b>: sem renovar todo mês</span></li>
+          <li><span class="ck">✓</span><span><b>Você economiza S/ 20</b> em vez de pagar mês a mês</span></li>
         </ul>
         <a href="/app/" class="btn btn-gold plan-cta">Ver meu plano</a>
       </div>
