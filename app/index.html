@@ -1601,6 +1601,11 @@ const fecha = (iso) => iso
   ? new Date(iso).toLocaleDateString("es-PE", { day:"numeric", month:"long", year:"numeric" })
   : "";
 
+// El periodo de un plan sale SIEMPRE de los días que manda el backend. Cuando
+// estaba escrito a mano, el plan anual se ofrecía como "S/ 200 al mes".
+const periodo = (dias) => Number(dias) >= 365 ? "al año" : "al mes";
+const duracion = (dias) => Number(dias) >= 365 ? "un año" : "un mes";
+
 let plan = null;
 let perfil = null;
 
@@ -1697,7 +1702,7 @@ function pintarMini(){
   const planes = plan.plans || [];
   if ($("ctaProPrecio") && planes[0]) $("ctaProPrecio").textContent = ` desde S/ ${planes[0].amount}`;
   if ($("queIncluye")) $("queIncluye").innerHTML = planes.length
-    ? planes.map(p => `<p>· <b>S/ ${p.amount} al mes</b>: ${p.messages} mensajes con el asistente.</p>`).join("")
+    ? planes.map(p => `<p>· <b>S/ ${p.amount} ${periodo(p.days)}</b>: ${p.messages} mensajes con el asistente.</p>`).join("")
     : "";
 }
 
@@ -1716,13 +1721,13 @@ async function cargarPro(){
   const planes = (plan && plan.plans) || [];
   if (planes.length > 1){
     $("pro").innerHTML = `
-      <p class="muted">Elige tu plan. Los dos se pagan por Yape, duran 30 días
-      y no se renuevan solos.</p>
+      <p class="muted">Elige tu plan. Todos se pagan por Yape y no se renuevan
+      solos: cuando se acabe, tú decides si sigues.</p>
       <div class="planes">
         ${planes.map(p => `<button class="plan-op" data-monto="${p.amount}">
             <span class="monto">S/ ${p.amount}</span>
-            <span class="que">${p.messages} mensajes al mes</span>
-            <span class="nota">con el asistente de WhatsApp</span>
+            <span class="que">${periodo(p.days)}</span>
+            <span class="nota">${p.messages} mensajes al mes con el asistente${p.days >= 365 ? " · 2 meses de regalo" : ""}</span>
           </button>`).join("")}
       </div>
       <p class="muted">La app sigue gratis y sin límite: esto es solo el chat.</p>`;
@@ -1754,7 +1759,7 @@ async function pedirPlan(monto){
     <ol>
       <li>Yapea <b>S/ ${Number(datos.amount).toFixed(0)}</b> ${datos.yape_qr_url ? "con este QR" : `al <b>${datos.yape_number}</b>`}.</li>
       <li>Mándanos la <b>captura del Yape</b> por WhatsApp.</li>
-      <li>La revisamos y te activamos Pro por 30 días${datos.messages ? `, con <b>${datos.messages} mensajes al mes</b>` : ""}.</li>
+      <li>La revisamos y te activamos Pro por <b>${duracion(datos.days)}</b>${datos.messages ? `, con <b>${datos.messages} mensajes al mes</b>` : ""}.</li>
     </ol>
     ${datos.yape_qr_url ? `<div class="qr-wrap">
       <img class="qr" id="qrImg" src="${datos.yape_qr_url}" width="210" height="210" alt="QR de Yape para pagar"
@@ -3901,9 +3906,11 @@ async function cargarHistorialPagos(){
 }
 
 async function resolver(id, aprobar, boton, despues){
+  // El periodo lo decide el monto en el backend (S/100 y S/200 son un año),
+  // así que acá no se promete un número de días.
   const pregunta = aprobar
-    ? "¿Confirmas que este Yape llegó? Le activo Pro por 30 días y le aviso por WhatsApp."
-    : "¿Rechazar este pago? Se le avisa por WhatsApp.";
+    ? "¿Confirmas que este Yape llegó? Le activo el plan que pagó y le aviso por WhatsApp."
+    : "¿Rechazar este pago? Si mandó captura le avisamos que no cuadró; si nunca la mandó, solo que su pedido se cerró.";
   if (!confirm(pregunta)) return;
   const motivo = aprobar ? null : (prompt("Motivo (opcional, se lo mandamos tal cual):") || "");
   boton.disabled = true;
