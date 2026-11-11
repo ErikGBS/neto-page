@@ -1702,7 +1702,7 @@ function pintarMini(){
   const planes = plan.plans || [];
   if ($("ctaProPrecio") && planes[0]) $("ctaProPrecio").textContent = ` desde S/ ${planes[0].amount}`;
   if ($("queIncluye")) $("queIncluye").innerHTML = planes.length
-    ? planes.map(p => `<p>· <b>S/ ${p.amount} ${periodo(p.days)}</b>: ${p.messages} mensajes con el asistente.</p>`).join("")
+    ? planes.map(p => `<p>· <b>S/ ${p.amount} ${periodo(p.days)}</b>: ${p.messages} mensajes con el asistente${p.days >= 365 ? ", con 2 meses de regalo" : ""}.</p>`).join("")
     : "";
 }
 
