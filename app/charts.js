@@ -310,7 +310,7 @@
     const lg = series.length > 1 ? legendEl(series.map((sr, k) => ({ label: sr.name, w: 16, draw: (sw) => svg('line', { x1: 0, x2: 16, y1: 6, y2: 6, stroke: colourOf(sr, k), 'stroke-width': 2, 'stroke-dasharray': sr.dash ? '4 3' : null }, sw) })), legend) : null;
     return { legend: lg };
   }
-  function bars(el, { labels, values, format = fmt.int, tickFormat = null, height = 200, highlight = null, dim = [], colour, mutedColour, annotations, reference, xAt = null }) {
+  function bars(el, { labels, values, format = fmt.int, tickFormat = null, height = 200, highlight = null, dim = [], colour, mutedColour, annotations, reference, xAt = null, depth = 0 }) {
     el._fmt = format;
     const lit = (i) => highlight == null || (Array.isArray(highlight) ? highlight.includes(i) : highlight === i);
     const draw = () => {
@@ -326,7 +326,18 @@
       notesUnder(g, el, N, { padT, h, padB });
       for (const it of N.items) if (it.at != null && values[it.at] != null) it.end = y(values[it.at]) - 4;
       const main = colour || css(el, '--chart-1', '#2f6fdf'), muted = mutedColour || css(el, '--chart-muted', '#c9c9c9');
-      values.forEach((v, i) => { const r = svg('rect', { x: x(i) - bw / 2, y: y(v), width: bw, height: Math.max(0, y(0) - y(v)), fill: lit(i) ? main : muted, opacity: dim.includes(i) ? 0.45 : null, 'shape-rendering': 'crispEdges' }, g); titled(r, `${labels[i]}: ${format(v)}`, {}); });
+      // depth > 0 (portal de Y Altoque): cada columna va en su propio <g class="barra"> con una
+      // cara superior más clara y un canto más oscuro, y entra escalonada (animation-delay).
+      values.forEach((v, i) => {
+        const gb = depth ? svg('g', { class: 'barra', style: `animation-delay:${i * 45}ms` }, g) : g;
+        const col = lit(i) ? main : muted, x0 = x(i) - bw / 2, y1 = y(v), y0 = y(0);
+        const r = svg('rect', { x: x0, y: y1, width: bw, height: Math.max(0, y0 - y1), fill: col, opacity: dim.includes(i) ? 0.45 : null, 'shape-rendering': 'crispEdges' }, gb);
+        if (depth && y0 - y1 > 0) {
+          svg('polygon', { points: `${x0 + bw},${y1} ${x0 + bw + depth},${y1 - depth} ${x0 + bw + depth},${y0 - depth} ${x0 + bw},${y0}`, style: `fill:color-mix(in srgb, ${col} 55%, #000)` }, gb);
+          svg('polygon', { points: `${x0},${y1} ${x0 + bw},${y1} ${x0 + bw + depth},${y1 - depth} ${x0 + depth},${y1 - depth}`, style: `fill:color-mix(in srgb, ${col} 82%, #fff)` }, gb);
+        }
+        titled(r, `${labels[i]}: ${format(v)}`, {});
+      });
       references(g, el, reference, { y, padL, w, boxes: values.map((v, i) => ({ x0: x(i) - bw / 2, x1: x(i) + bw / 2, y0: y(v), y1: y(0) })) });
       notesOver(g, el, N, { padT, h, padB });
       s.setAttribute('aria-label', `${labels.length} bars from ${labels[0]} to ${labels.at(-1)}; highest ${format(Math.max(...values))}`);
