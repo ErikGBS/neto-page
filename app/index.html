@@ -809,6 +809,35 @@
     .linea{margin-top:16px}
     .coIng .fig.mano{width:60px;top:12px;right:14px} .coIng h3{padding-right:72px;min-height:56px}
   }
+  /* Fin de mes: el veredicto en grande con el cohete 3D del Universo, el viaje
+     de hoy al próximo ingreso con los fijos marcados en su día, y el deslizador
+     que recalcula la cuenta al instante. */
+  .panel .section.fmHero{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:8px 24px;align-items:start;
+    background:color-mix(in srgb, var(--gold) 9%, var(--surface));padding:22px 24px 20px;overflow:hidden}
+  .fmHero .lbl{display:block;font-size:14px;color:var(--muted)}
+  .fmHero .veredicto{display:block;font-size:15px;font-weight:500;margin-top:10px;color:var(--entra)}
+  .fmHero .veredicto.mal{color:var(--pasa)}
+  .fmHero .val{display:block;font-size:40px;font-weight:600;letter-spacing:-.02em;line-height:1.05;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fmHero .sub{display:block;font-size:14px;color:var(--muted);margin-top:8px}
+  .fmHero .hueso,.fmHero .vacio{grid-column:1 / -1}
+  .fmHero .fig{grid-row:1 / 5;grid-column:2;align-self:center;display:block;margin-top:-10px;
+    transform:translate(calc(var(--px, 0) * 10px), calc(var(--py, 0) * 7px));transition:transform 240ms var(--ease-out)}
+  .fmHero .fig img{display:block;width:100%;height:auto;filter:drop-shadow(0 16px 20px rgba(0,0,0,.5));animation:metaFlota 5s ease-in-out infinite}
+  .fmHero .linea .punto.cae{background:color-mix(in srgb, var(--pasa) 22%, var(--raised));border-color:var(--pasa);color:var(--pasa)}
+  .fmHero .linea .meta{position:absolute;bottom:14px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--entra);
+    box-shadow:0 0 0 4px color-mix(in srgb, var(--entra) 25%, transparent)}
+  .fmHero .linea .meta.mal{background:var(--pasa);box-shadow:0 0 0 4px color-mix(in srgb, var(--pasa) 25%, transparent)}
+  .fmHero .linea .fin{position:absolute;bottom:0;right:0;font-size:11px;color:var(--faint);white-space:nowrap}
+  .fmHero .linea .faltan{position:absolute;top:-2px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--muted);white-space:nowrap}
+  .siGasto{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:14px;font-size:14px;color:var(--muted)}
+  .siGasto input[type=range]{flex:1 1 160px;min-width:140px;accent-color:var(--gold);height:28px}
+  .siGasto b{color:var(--text);font-weight:500;font-variant-numeric:tabular-nums}
+  .siGasto .res{color:var(--entra)} .siGasto .res.mal{color:var(--pasa)}
+  @container hoja (max-width:640px){
+    .panel .section.fmHero{grid-template-columns:minmax(0,1fr) 104px;padding:18px 16px 16px}
+    .fmHero .val{font-size:32px}
+    .fmHero .linea .faltan{display:none}
+  }
   @keyframes metaFlota{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
   @keyframes metaBrilla{0%,100%{filter:drop-shadow(0 0 10px color-mix(in srgb, var(--gold) 50%, transparent)) drop-shadow(0 14px 18px rgba(0,0,0,.5))}
     50%{filter:drop-shadow(0 0 26px var(--gold)) drop-shadow(0 14px 18px rgba(0,0,0,.5))}}
@@ -1327,7 +1356,7 @@
     .moDetalle,.moVelo,.mov{transition:none} .moDetalle .mini i{animation:none}
     .metaCam .fig{transition:none} .metaCam .fig img,.metaCam .chispa,.metaCam .destello{animation:none}
     .metaCam .cuota{animation:none;opacity:1}
-    .coHero .fig,.coIng .fig,.fijo{transition:none} .coHero .fig img,.coIng .fig img{animation:none} .linea .punto{animation:none}
+    .coHero .fig,.coIng .fig,.fmHero .fig,.fijo{transition:none} .fmHero .fig img{animation:none} .coHero .fig img,.coIng .fig img{animation:none} .linea .punto{animation:none}
     .astro img,.sombra{animation:none}
     .astro,.sombra,.mision .orbe{transition:none;transform:none}
   }
@@ -1709,12 +1738,13 @@
           <select id="fmMoneda" style="display:none" aria-label="Moneda"></select>
         </div>
       </div>
-      <div class="estados"><div id="fmSemaforo"></div></div>
+      <div class="estados" id="fmEstados" style="display:none"><div id="fmSemaforo"></div></div>
+      <div class="section fmHero" id="fmHero"></div>
       <div class="grid" id="fmKpis"></div>
       <div class="row2">
         <div class="section">
           <h3>Cómo va a bajar tu saldo</h3>
-          <p class="nota">Tu saldo de hoy menos lo que gastas al día, con los fijos cayendo en su
+          <p class="nota">Tu saldo de hoy menos lo que gastas al día, con cada fijo cayendo en su
             fecha. Punteado porque es una proyección, no un hecho.</p>
           <div class="chart" id="fmSaldo"></div>
         </div>
@@ -2709,7 +2739,7 @@ function subirNumeros(raiz = $("tab-resumen"), selector = ".mision .val"){
     const mon = el.dataset.m, suf = el.dataset.suf, pre = el.dataset.pre || "", puesto = el.dataset.fin, t0 = performance.now();
     const paso = (t) => {
       // Si otra llamada lo invalida a medias, la cifra queda en su valor final.
-      if (mia !== generacionPor.get(raiz)){ el.textContent = puesto; return; }
+      if (mia !== generacionPor.get(raiz)){ el.textContent = el.dataset.fin || puesto; return; }   // lo que diga HOY el data-fin: el deslizador lo cambia
       // El reloj puede entregar un instante anterior al arranque: sin el
       // tope por abajo la curva se va a negativo y la cifra sale al revés.
       const e = Math.max(0, Math.min(1, (t - t0) / 900));
@@ -5162,7 +5192,8 @@ let finmesCargado = false;
 async function cargarFinMes(){
   if (finmesCargado) return;
   finmesCargado = true;
-  $("fmKpis").innerHTML = huesoKpis(["Tienes hoy", "Gastas al día", "Falta pagar", "Próximo ingreso"]);
+  $("fmHero").innerHTML = `<span class="lbl">¿Llegas?</span><span class="hueso val" style="height:34px;width:220px;margin:8px 0 10px"></span><span class="hueso lbl"></span>`;
+  $("fmKpis").innerHTML = huesoKpis(["Tienes hoy", "Falta pagar", "Próximo ingreso"]);
   $("fmFijos").innerHTML = huesos(3, "ancho");
   const hoy = new Date();
   const [proy, fijos, dash] = await Promise.all([proyeccion(), fijosDe(),
@@ -5170,6 +5201,7 @@ async function cargarFinMes(){
   if (!proy || !proy.length){
     finmesCargado = false;
     $("fmNota").textContent = "";
+    $("fmEstados").style.display = ""; $("fmHero").style.display = "none";
     $("fmSemaforo").innerHTML = vacio("Todavía no hay nada que proyectar",
       "Registra tus movimientos del mes y, si tienes sueldo fijo o gastos fijos, configúralos en la app.");
     $("fmKpis").innerHTML = $("fmFijos").innerHTML = "";
@@ -5177,6 +5209,7 @@ async function cargarFinMes(){
     return;
   }
   $("fmSaldo").closest(".section").style.display = "";
+  $("fmEstados").style.display = "none"; $("fmHero").style.display = "";
   const pintarTodo = () => {
     const cur = elegirMoneda("fmMoneda", "fmMonedaLbl", monedasDe(proy.map((p) => p.currency)), pintarTodo);
     pintarFinMes(proy.find((p) => p.currency === cur) || proy[0], fijos || [], dash);
@@ -5231,9 +5264,12 @@ function curvaDeSaldo(saldoHoy, diario, dias, fijosTotal, pendientes, hoy){
   const porIndice = new Map();
   for (const x of pendientes || []){
     if (!x.dia || x.monto == null) continue;
-    const i = fechas.findIndex((f) => f.getDate() === x.dia);
+    // Un fijo cuyo día ya pasó está vencido: se debe hoy, no el mes que viene.
+    const i = x.dia < hoy.getDate() ? 0 : fechas.findIndex((f) => f.getDate() === x.dia);
     if (i >= 0) porIndice.set(i, (porIndice.get(i) || 0) + x.monto);
   }
+  const marcas = (pendientes || []).filter((x) => x.dia && x.monto != null)
+    .map((x) => ({ i: x.dia < hoy.getDate() ? 0 : fechas.findIndex((f) => f.getDate() === x.dia), label: x.label, monto: x.monto })).filter((x) => x.i >= 0);
   const sumaUbicada = [...porIndice.values()].reduce((a, v) => a + v, 0);
   const resto = Math.max(0, fijosTotal - sumaUbicada);
   const etiquetas = [], valores = [];
@@ -5245,7 +5281,7 @@ function curvaDeSaldo(saldoHoy, diario, dias, fijosTotal, pendientes, hoy){
     etiquetas.push(f2.getDate() + (f2.getDate() === 1 || i === 0 ? " " + f2.toLocaleDateString("es-PE", { month:"short" }) : ""));
     valores.push(Math.round(saldo * 100) / 100);
   });
-  return { etiquetas, valores };
+  return { etiquetas, valores, marcas };
 }
 
 function pintarFinMes(f, fijos, dash){
@@ -5258,35 +5294,89 @@ function pintarFinMes(f, fijos, dash){
     ? `Faltan ${dias} ${dias === 1 ? "día" : "días"} para tu próximo ingreso`
     : `Quedan ${dias} ${dias === 1 ? "día" : "días"} de mes, y no tienes ingreso fijo configurado`;
 
-  $("fmSemaforo").innerHTML = `<p class="estadoLinea"><i class="punto ${llega ? "bien" : "mal"}"></i>
-    <span>${llega ? "Llegas" : "No llegas"} ${esc(cuandoTxt)}: al ritmo de ahora
-      ${llega ? "te quedarían" : "te faltarían"} <b>${esc(plata(Math.abs(alFinal), cur))}</b>.</span></p>`;
-
   const pendientes = fijosPendientes(f.pending_fixed_labels, fijos, cur);
+  // El hero: el veredicto, la cifra, el viaje de hoy al ingreso con los fijos
+  // en su día, y el deslizador "si gastara X al día" que recalcula al instante.
+  const destino = hayIngreso && f.next_income_date ? `al ${fechaCorta(f.next_income_date)}` : hayIngreso ? "a tu próximo ingreso" : "a fin de mes";
+  const x = (i) => (i / Math.max(1, dias) * 100).toFixed(2);
+  const porDia = new Map();
+  for (const p of pendientes){
+    if (!p.dia || p.monto == null) continue;
+    const i = p.dia < hoy.getDate() ? 0 : Array.from({ length: dias + 1 }, (_, k) => new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + k).getDate()).indexOf(Math.min(p.dia, ultimo));
+    if (i >= 0) (porDia.get(i) || porDia.set(i, []).get(i)).push(p);
+  }
+  const puntos = [...porDia.entries()].sort((a, b) => a[0] - b[0]).map(([i, l], k) =>
+    `<span class="punto cae" style="left:${x(i)}%;--i:${k}" title="${esc(l.map((p) => `${p.label}: ${plata(p.monto, cur)}`).join("\n"))}">${l.length > 1 ? l.length : ""}</span>`).join("");
+  $("fmHero").innerHTML = `<span class="lbl">¿Llegas ${esc(destino)}?</span>
+    <span class="veredicto${llega ? "" : " mal"}" id="fmVeredicto">${llega ? "Sí, te quedarían" : "No, te faltarían"}</span>
+    <span class="val" id="fmCifra" data-k="finmes" data-n="${Math.abs(alFinal)}" data-m="${esc(cur)}" data-suf="" data-fin="${esc(plata(Math.abs(alFinal), cur))}">${esc(plata(Math.abs(alFinal), cur))}</span>
+    <span class="sub">tienes ${esc(plata(saldoHoy, cur))} · <span id="fmSubGasto">gastas ${esc(plata(diario, cur))} al día</span>${fijosTotal ? ` · ${esc(plata(fijosTotal, cur))} de fijos por pagar` : ""}</span>
+    <span class="fig"><img src="cohete.webp" alt="" width="170" height="178" loading="lazy"></span>
+    <div class="linea" role="img" aria-label="Faltan ${dias} ${dias === 1 ? "día" : "días"}; ${pendientes.length} ${pendientes.length === 1 ? "fijo" : "fijos"} por pagar">
+      <span class="faltan">faltan ${dias} ${dias === 1 ? "día" : "días"}</span>
+      <i class="riel"></i><i class="hecho" style="width:${x(Math.min(dias, 1))}%"></i>${puntos}
+      <span class="hoy" style="left:0%"><i>hoy ${hoy.getDate()}</i></span>
+      <span class="meta${llega ? "" : " mal"}" style="left:100%"></span>
+      <span class="fin">${esc(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + dias).toLocaleDateString("es-PE", { day:"numeric", month:"short" }))}${f.next_income_amount ? " · +" + esc(plata(f.next_income_amount, cur)) : ""}</span>
+    </div>
+    <div class="siGasto"><span>Si gastara</span>
+      <input type="range" id="fmRango" min="0" max="${Math.max(10, Math.ceil(diario * 2))}" step="any" value="${diario}" aria-label="Gasto diario supuesto">
+      <b id="fmRangoVal">${esc(plata(diario, cur))} al día</b><span>→</span><span class="res${llega ? "" : " mal"}" id="fmRangoRes">${llega ? "llegas con" : "te faltarían"} ${esc(plata(Math.abs(alFinal), cur))}</span>
+      <button type="button" class="chico" id="fmRitmo" hidden>Volver a mi ritmo</button></div>`;
+  // Mover el deslizador mueve TODO el hero: la cifra grande, el veredicto, la
+  // meta de la pista y la curva. "Volver a mi ritmo" deja la cuenta real.
+  const simular = () => {
+    const v = Number($("fmRango").value) || 0, fin = saldoHoy - v * dias - fijosTotal, real = Math.abs(v - diario) < .005;
+    $("fmRangoVal").textContent = `${plata(v, cur)} al día`;
+    const res = $("fmRangoRes"); res.classList.toggle("mal", fin < 0);
+    res.textContent = fin >= 0 ? `llegas con ${plata(fin, cur)}` : `te faltarían ${plata(-fin, cur)}`;
+    $("fmRitmo").hidden = real;
+    $("fmVeredicto").classList.toggle("mal", fin < 0);
+    $("fmVeredicto").textContent = real ? (fin >= 0 ? "Sí, te quedarían" : "No, te faltarían")
+      : (fin >= 0 ? "Si gastaras así, te quedarían" : "Si gastaras así, te faltarían");
+    generacionPor.set($("tab-finmes"), (generacionPor.get($("tab-finmes")) || 0) + 1);   // corta el conteo si seguía subiendo
+    $("fmCifra").textContent = $("fmCifra").dataset.fin = plata(Math.abs(fin), cur);
+    $("fmSubGasto").textContent = real ? `gastas ${plata(diario, cur)} al día` : `si gastaras ${plata(v, cur)} al día (hoy gastas ${plata(diario, cur)})`;
+    $("fmHero").querySelector(".linea .meta")?.classList.toggle("mal", fin < 0);
+    cancelAnimationFrame(simular.raf); simular.raf = requestAnimationFrame(() => pintarCurva(v));   // un dibujo por cuadro, no por evento
+  };
+  $("fmRango").oninput = simular;
+  $("fmRitmo").onclick = () => { $("fmRango").value = diario; simular(); };
+
   $("fmKpis").innerHTML =
     kpi("Tienes hoy", plata(saldoHoy, cur), "cyan",
       conArrastre ? "con lo que traías de antes" : "neto de este mes", saldoHoy, cur) +
-    kpi("Gastas al día", plata(diario, cur), "gold", "promedio de los últimos 30 días", diario, cur) +
     kpi("Falta pagar", plata(fijosTotal, cur), "pink",
       `${pendientes.length} ${pendientes.length === 1 ? "fijo pendiente" : "fijos pendientes"}`, fijosTotal, cur) +
     kpi("Próximo ingreso", f.next_income_amount ? plata(f.next_income_amount, cur) : "sin ingreso fijo",
       "green", hayIngreso ? `en ${dias} ${dias === 1 ? "día" : "días"}`
         : "configúralo en la app y esta cuenta mejora", f.next_income_amount || 0, cur);
-  subirNumeros($("tab-finmes"), "#fmKpis .val");
+  subirNumeros($("tab-finmes"), "#fmKpis .val, #fmHero .val");
+  crecer($("fmHero"));
 
-  const { etiquetas, valores } = curvaDeSaldo(saldoHoy, diario, dias, fijosTotal, pendientes, hoy);
-  // Punteada desde hoy porque es una proyección, con el valor al final y la
-  // línea del cero para ver dónde se cruza.
-  Charts.line($("fmSaldo"), { labels: etiquetas, series: [{ name: "Saldo", values: valores, colour: colorDe(llega ? "--entra" : "--pasa") }],
-    format: plataDe(cur), tickFormat: sinCentavos(cur), height: 220,
-    today: 0, todayLabel: "Hoy", endLabel: true, reference: { value: 0, label: "" } });
+  // La curva, como área que se descubre, con cada fijo marcado en su día y el
+  // valor al final; punteada desde hoy porque es una proyección. Con el
+  // deslizador se vuelve a dibujar con el gasto diario supuesto.
+  const pintarCurva = (gastoDiario) => {
+    const { etiquetas, valores, marcas } = curvaDeSaldo(saldoHoy, gastoDiario, dias, fijosTotal, pendientes, hoy);
+    const llega2 = valores.at(-1) >= 0;
+    Charts.line($("fmSaldo"), { labels: etiquetas, series: [{ name: "Saldo", values: valores, colour: colorDe(llega2 ? "--entra" : "--pasa") }],
+      format: plataDe(cur), tickFormat: sinCentavos(cur), height: 240, fill: true,
+      annotations: marcas.map((m) => ({ at: m.i, label: `${m.label} −${plata(m.monto, cur)}`, short: corta(m.label, 10) })),
+      today: 0, todayLabel: "Hoy", endLabel: true, reference: { value: 0, label: "" } });
+  };
+  pintarCurva(diario);
 
+  const diaHoy = hoy.getDate();
+  const enDias = (d) => { d = Math.min(d, ultimo); return d === diaHoy ? "hoy" : d === diaHoy + 1 ? "mañana" : d > diaHoy ? `en ${d - diaHoy} días` : `venció el ${d}`; };
   $("fmFijos").innerHTML = pendientes.length
-    ? `<table><tbody>` + [...pendientes].sort((a, b) => (a.dia || 99) - (b.dia || 99)).map((x) => `<tr>
-        <td><b>${esc(x.label)}</b>${x.dia ? `<span class="muted"> · cada ${x.dia}</span>` : ""}</td>
-        <td class="num">${x.monto != null ? esc(plata(x.monto, cur)) : "<span class='muted'>-</span>"}</td>
-      </tr>`).join("") + `</tbody></table>`
+    ? `<div class="fijos">` + [...pendientes].sort((a, b) => (a.dia || 99) - (b.dia || 99)).map((p) => `<div class="fijo ${p.dia && p.dia < diaHoy ? "vencido" : "viene"}">
+        <i class="dia">${p.dia || "·"} <small>día</small></i>
+        <span class="quien"><b>${esc(p.label)}</b><small>cada mes</small></span>
+        <span class="monto">${p.monto != null ? esc(plata(p.monto, cur)) : "-"}<small>${p.dia ? esc(enDias(p.dia)) : "sin fecha"}</small></span>
+      </div>`).join("") + `</div>`
     : vacio("Nada pendiente", "No te queda ningún gasto fijo por pagar.");
+  if (!quietito()) $("fmFijos").querySelectorAll(".fijo").forEach((r, i) => { r.style.setProperty("--i", i); r.classList.add("entraFila"); });
 }
 
 // ── Vista: Movimientos ─────────────────────────────────────────────────────
@@ -5673,8 +5763,7 @@ async function cargarCompromisos(){
   if (!quietito()) $("tab-compromisos").querySelectorAll(".fijo").forEach((r, i) => { r.style.setProperty("--i", Math.min(i, 18)); r.classList.add("entraFila"); });
 }
 // La billetera y la mano siguen al puntero dentro de su tarjeta.
-for (const id of ["coHero", "coIngresos"]){
-  const caja = id === "coHero" ? $(id) : $(id).closest(".coIng");
+for (const caja of [$("coHero"), $("coIngresos").closest(".coIng"), $("fmHero")]){
   caja.addEventListener("pointermove", (e) => { if (quietito()) return; const r = caja.getBoundingClientRect();
     caja.style.setProperty("--px", ((e.clientX - r.left) / r.width * 2 - 1).toFixed(2)); caja.style.setProperty("--py", ((e.clientY - r.top) / r.height * 2 - 1).toFixed(2)); });
   caja.addEventListener("pointerleave", () => { caja.style.setProperty("--px", 0); caja.style.setProperty("--py", 0); });
