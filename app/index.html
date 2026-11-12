@@ -754,6 +754,61 @@
   .metaCam .nota{color:var(--faint);font-size:13px;margin:8px 0 0}
   .metaCam .destello{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--gold-bright);opacity:0;pointer-events:none;
     animation:metaDestello 2.4s ease-out infinite;animation-delay:calc(var(--d) * 1s)}
+  /* Compromisos: el hero con la billetera 3D del Universo, la línea del mes con
+     un punto por fijo (dorado pagado, gris por venir, coral vencido) y lo que
+     viene; debajo, filas como las de Movimientos agrupadas por estado. */
+  .panel .section.coHero{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:10px 24px;align-items:start;
+    background:color-mix(in srgb, var(--gold) 9%, var(--surface));padding:22px 24px 20px;overflow:hidden}
+  .coHero .lbl{display:block;font-size:13px;color:var(--faint)}
+  .coHero .hueso,.coHero .vacio{grid-column:1 / -1}
+  .coHero .val{display:block;font-size:36px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .coHero .sub{display:block;font-size:14px;color:var(--muted);margin-top:6px}
+  .coHero .fig{grid-row:1 / 4;grid-column:2;align-self:center;display:block;margin-top:-6px;
+    transform:translate(calc(var(--px, 0) * 8px), calc(var(--py, 0) * 6px));transition:transform 240ms var(--ease-out)}
+  .coHero .fig img{display:block;width:100%;height:auto;filter:drop-shadow(0 14px 18px rgba(0,0,0,.5));animation:metaFlota 5.5s ease-in-out infinite}
+  .linea{grid-column:1 / -1;position:relative;height:64px;margin:22px 4px 0}
+  .linea .riel{position:absolute;left:0;right:0;bottom:22px;height:4px;border-radius:2px;
+    background:repeating-linear-gradient(90deg, var(--control) 0 6px, transparent 6px 13px)}
+  .linea .hecho{position:absolute;left:0;bottom:21px;height:6px;border-radius:3px;background:var(--gold);
+    box-shadow:0 0 12px color-mix(in srgb, var(--gold) 45%, transparent)}
+  .linea .punto{position:absolute;bottom:14px;width:20px;height:20px;margin-left:-10px;border-radius:50%;display:grid;place-items:center;
+    font-size:10px;font-weight:600;background:var(--raised);color:var(--muted);border:2px solid var(--control);
+    animation:puntoPop 420ms cubic-bezier(.34,1.56,.64,1) backwards;animation-delay:calc(var(--i, 0) * 60ms + 500ms)}
+  .linea .punto.pagado{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+  .linea .punto.vencido{background:color-mix(in srgb, var(--pasa) 22%, var(--raised));border-color:var(--pasa);color:var(--pasa)}
+  .linea .punto.hoyDia{box-shadow:0 0 0 4px color-mix(in srgb, var(--gold) 25%, transparent)}
+  .linea .hoy{position:absolute;bottom:10px;width:1px;height:38px;background:var(--text);opacity:.8}
+  .linea .hoy i{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-style:normal;font-size:11px;color:var(--text);white-space:nowrap}
+  .linea .dia{position:absolute;bottom:0;transform:translateX(-50%);font-size:11px;color:var(--faint)}
+  .coViene{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin-top:8px;font-size:14px}
+  .coViene .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin:0}
+  .coViene b{font-weight:500}
+  .coViene .mal{color:var(--pasa)}
+  @keyframes puntoPop{from{transform:scale(0)}}
+  .fijos h4{font-size:12px;font-weight:500;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between;gap:12px;padding:12px 10px 6px;margin:0}
+  .fijos h4 span{text-transform:none;letter-spacing:0;font-variant-numeric:tabular-nums}
+  .fijo{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:center;padding:9px 10px;border-radius:12px;
+    transition:background var(--t-hover) ease}
+  .fijo:hover{background:var(--raised)}
+  .fijo .dia{width:40px;height:40px;border-radius:12px;background:var(--raised);color:var(--muted);display:grid;place-items:center;font-style:normal;font-weight:600;font-size:14px;line-height:1}
+  .fijo .dia small{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.02em;margin-top:1px}
+  .fijo.pagado .dia{background:var(--gold);color:var(--ink)}
+  .fijo.vencido .dia{background:color-mix(in srgb, var(--pasa) 22%, var(--raised));color:var(--pasa)}
+  .fijo .quien{min-width:0} .fijo .quien b{display:block;font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fijo .quien small{display:block;font-size:12px;color:var(--faint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fijo .monto{text-align:right;font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .fijo .monto small{display:block;font-size:12px;font-weight:400;color:var(--faint);margin-top:2px}
+  .fijo.pagado .monto small{color:var(--entra)} .fijo.vencido .monto small{color:var(--pasa)}
+  .panel .coIng{position:relative}
+  .coIng .fig.mano{position:absolute;top:12px;right:18px;width:72px;transform:translate(calc(var(--px, 0) * 6px), calc(var(--py, 0) * 4px));transition:transform 240ms var(--ease-out)}
+  .coIng .fig.mano img{display:block;width:100%;height:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.5));animation:metaFlota 6s ease-in-out infinite;animation-delay:-1.4s}
+  .coIng h3{padding-right:96px;min-height:68px}
+  @container hoja (max-width:640px){
+    .panel .section.coHero{grid-template-columns:minmax(0,1fr) 96px;padding:18px 16px 16px}
+    .coHero .val{font-size:30px}
+    .linea{margin-top:16px}
+    .coIng .fig.mano{width:60px;top:12px;right:14px} .coIng h3{padding-right:72px;min-height:56px}
+  }
   @keyframes metaFlota{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
   @keyframes metaBrilla{0%,100%{filter:drop-shadow(0 0 10px color-mix(in srgb, var(--gold) 50%, transparent)) drop-shadow(0 14px 18px rgba(0,0,0,.5))}
     50%{filter:drop-shadow(0 0 26px var(--gold)) drop-shadow(0 14px 18px rgba(0,0,0,.5))}}
@@ -1261,6 +1316,7 @@
     .moDetalle,.moVelo,.mov{transition:none} .moDetalle .mini i{animation:none}
     .metaCam .fig{transition:none} .metaCam .fig img,.metaCam .chispa,.metaCam .destello{animation:none}
     .metaCam .cuota{animation:none;opacity:1}
+    .coHero .fig,.coIng .fig,.fijo{transition:none} .coHero .fig img,.coIng .fig img{animation:none} .linea .punto{animation:none}
     .astro img,.sombra{animation:none}
     .astro,.sombra,.mision .orbe{transition:none;transform:none}
   }
@@ -1286,6 +1342,7 @@
     .panel .kpi + .kpi{border-left:0}
     .panel .kpi:nth-child(2n){border-left:1px solid var(--rule)}
     .panel .kpi:nth-child(n+3){border-top:1px solid var(--rule)}
+    #coKpis .kpi:last-child:nth-child(odd){grid-column:1 / -1}
   }
   .panel table{font-size:14px}
   .panel th{font-size:12px;color:var(--faint);font-weight:400;padding:0 10px 10px 0;border-bottom:1px solid var(--rule)}
@@ -1313,7 +1370,7 @@
     @keyframes despliega{from{opacity:0;transform:translate(calc(var(--dx) * 3), calc(var(--dy) * 3)) scale(.7)}}
     .donaSvg .gajo{animation:despliega 620ms var(--ease-out) backwards;animation-delay:calc(var(--i, 0) * 120ms)}
     #fmSaldo svg path[stroke-width="2"]{animation:descubre 1100ms var(--ease-expo) backwards}
-    .panel table.rank tbody tr.entraFila, .mov.entraFila{animation:asoma 420ms var(--ease-out) backwards;
+    .panel table.rank tbody tr.entraFila, .mov.entraFila, .fijo.entraFila{animation:asoma 420ms var(--ease-out) backwards;
       animation-delay:calc(var(--i, 0) * 18ms)}
   }
   .panel .chart svg g.barra:hover{opacity:.82}
@@ -1686,13 +1743,15 @@
     <!-- ── Compromisos: fijos, ingresos fijos y deudas ──────────────────── -->
     <section class="tab panel" id="tab-compromisos" style="display:none">
       <p class="nota" id="coNota" role="status" aria-live="polite">Cargando tus compromisos…</p>
+      <div class="section coHero" id="coHero"></div>
       <div class="grid" id="coKpis"></div>
       <div class="row2">
         <div class="section">
           <h3>Gastos fijos</h3>
           <div id="coFijos"></div>
         </div>
-        <div class="section">
+        <div class="section coIng">
+          <span class="fig mano"><img src="cobrar.webp" alt="" width="84" height="77" loading="lazy"></span>
           <h3>Ingresos fijos</h3>
           <div id="coIngresos"></div>
         </div>
@@ -5465,7 +5524,8 @@ let compromisosCargado = false;
 async function cargarCompromisos(){
   if (compromisosCargado) return;
   compromisosCargado = true;
-  $("coKpis").innerHTML = huesoKpis(["Comprometido al mes", "Entra fijo", "Te deben", "Debes"]);
+  $("coHero").innerHTML = `<span class="lbl">Comprometido al mes</span><span class="hueso val" style="height:34px;width:220px;margin:8px 0 10px"></span><span class="hueso lbl"></span>`;
+  $("coKpis").innerHTML = huesoKpis(["Entra fijo", "Te deben", "Debes"]);
   $("coFijos").innerHTML = huesos(4, "ancho");
   $("coIngresos").innerHTML = huesos(2, "ancho");
   $("coDeudas").innerHTML = huesos(3, "ancho");
@@ -5498,64 +5558,108 @@ async function cargarCompromisos(){
   const pagarM = sumaPorMoneda(porPagar, "amount");
   const cuentas = (n) => `${n} ${n === 1 ? "cuenta" : "cuentas"}`;
   const cifra = (pares) => pares.length ? pares[0][1] : 0, mon = (pares) => pares.length ? pares[0][0] : mes.moneda;
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const diaHoy = hoy.getDate(), diasMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
+  const monto = (f) => Number(f.expected_amount) || 0;
+  // El día se acota al mes (un fijo del 31 cae el 30 en noviembre, como hace el autopost).
+  const diaEf = (f) => Math.min(diasMes, Math.max(1, Number(f.day_of_month) || 1));
+  const estadoDe = (f) => f.paid_this_period ? "pagado" : diaEf(f) < diaHoy ? "vencido" : "viene";
+  const enDias = (d) => d === diaHoy ? "hoy" : d === diaHoy + 1 ? "mañana" : `en ${d - diaHoy} días`;
+
+  // El hero: lo comprometido en la moneda principal, cuánto ya se fue y cuánto
+  // falta, la línea del mes con un punto por fijo, y lo que viene.
+  if (!fijos) $("coHero").innerHTML = `<span class="lbl">Comprometido al mes</span>` + falloBloque;
+  else {
+    const curP = mon(fijosM), delCur = activos.filter((f) => (f.currency || "PEN") === curP);
+    const pagadoP = delCur.filter((f) => f.paid_this_period).reduce((a, f) => a + monto(f), 0);
+    const faltaP = delCur.filter((f) => !f.paid_this_period).reduce((a, f) => a + monto(f), 0);
+    const porDia = new Map();
+    for (const f of activos){ const d = diaEf(f); (porDia.get(d) || porDia.set(d, []).get(d)).push(f); }
+    const x = (d) => ((d - 1) / Math.max(1, diasMes - 1) * 100).toFixed(2);
+    const puntos = [...porDia.entries()].sort((a, b) => a[0] - b[0]).map(([d, lista], i) => {
+      const estados = lista.map(estadoDe);
+      const clase = estados.includes("vencido") ? "vencido" : estados.every((e) => e === "pagado") ? "pagado" : "viene";
+      const titulo = lista.map((f) => `${f.label}: ${plata(monto(f), f.currency)} · ${estadoDe(f) === "viene" ? enDias(d) : estadoDe(f)}`).join("\n");
+      return `<span class="punto ${clase}${d === diaHoy ? " hoyDia" : ""}" style="left:${x(d)}%;--i:${i}" title="${esc(titulo)}">${lista.length > 1 ? lista.length : ""}</span>`;
+    }).join("");
+    const marcas = [1, 5, 10, 15, 20, 25, diasMes].filter((d, i, a) => a.indexOf(d) === i && Math.abs(d - diaHoy) > 1)
+      .map((d) => `<span class="dia" style="left:${x(d)}%">${d}</span>`).join("");
+    const vienen = activos.filter((f) => estadoDe(f) === "viene").sort((a, b) => diaEf(a) - diaEf(b));
+    const vencidos = activos.filter((f) => estadoDe(f) === "vencido");
+    const prox = vienen[0];
+    const viene = prox
+      ? `<span class="lbl">Lo que viene</span><span><b>${esc(prox.label)}</b> · día ${diaEf(prox)} · ${esc(plata(monto(prox), prox.currency))} · ${enDias(diaEf(prox))}</span>`
+      : `<span class="lbl">Lo que viene</span><span>Nada más hasta fin de mes</span>`;
+    const atras = vencidos.length ? `<span class="mal">${vencidos.length === 1 ? `${esc(vencidos[0].label)} venció el día ${diaEf(vencidos[0])}` : `${vencidos.length} sin pagar y ya pasó su día`}</span>` : "";
+    $("coHero").innerHTML = `<span class="lbl">Comprometido al mes</span>
+      <span class="val" data-k="comprometido" data-n="${cifra(fijosM)}" data-m="${esc(curP)}" data-suf="" data-fin="${esc(principal(fijosM))}">${esc(principal(fijosM))}</span>
+      <span class="sub">${activos.length} ${activos.length === 1 ? "gasto fijo" : "gastos fijos"} · ya pagaste ${esc(plata(pagadoP, curP))} · faltan ${esc(plata(faltaP, curP))}${fijosM.length > 1 ? " · además " + esc(fijosM.slice(1).map(([c, v]) => plata(v, c)).join(" y ")) + " al mes en fijos" : ""}</span>
+      <span class="fig"><img src="billetera.webp" alt="" width="150" height="120" loading="lazy"></span>
+      <div class="linea" role="img" aria-label="Los ${activos.length} gastos fijos del mes sobre los ${diasMes} días">
+        <i class="riel"></i><i class="hecho" style="width:${x(diaHoy)}%"></i>${puntos}
+        <span class="hoy" style="left:${x(diaHoy)}%"><i>hoy ${diaHoy}</i></span>${marcas}
+      </div>
+      <div class="coViene">${viene}${atras}</div>`;
+  }
   $("coKpis").innerHTML =
-    kpi("Comprometido al mes", principal(fijosM), "pink",
-      yAdemas(fijosM, `${activos.length} ${activos.length === 1 ? "gasto fijo" : "gastos fijos"}`), cifra(fijosM), mon(fijosM)) +
     kpi("Entra fijo", principal(entraM), "green", yAdemas(entraM, "ingresos configurados"), cifra(entraM), mon(entraM)) +
     kpi("Te deben", principal(cobrarM), "cyan", yAdemas(cobrarM, cuentas(porCobrar.length)), cifra(cobrarM), mon(cobrarM)) +
     kpi("Debes", principal(pagarM), "gold", yAdemas(pagarM, cuentas(porPagar.length)), cifra(pagarM), mon(pagarM));
-  subirNumeros($("tab-compromisos"), "#coKpis .val");
+  subirNumeros($("tab-compromisos"), "#coKpis .val, #coHero .val");
+  crecer($("coHero"));
 
-  // Cada fijo como una pista: llena si ya se pagó este mes, vacía si falta.
-  // Por moneda, que no se mezclan: la de más peso primero, las otras debajo.
+  // Las filas: primero lo que falta (vencidos arriba), después lo pagado. Por
+  // moneda, que no se mezclan: la de más peso primero, las otras debajo.
+  const fila = (f, estado, sub, nota) => `<div class="fijo ${estado}">
+      <i class="dia">${diaEf(f)} <small>día</small></i>
+      <span class="quien"><b>${esc(f.label)}</b><small>${esc(sub)}</small></span>
+      <span class="monto">${esc(plata(monto(f), f.currency))}<small>${esc(nota)}</small></span>
+    </div>`;
   if (!fijos) $("coFijos").innerHTML = falloBloque;
   else if (!activos.length) $("coFijos").innerHTML = vacio("Sin gastos fijos", "El alquiler, el internet o el gimnasio se configuran en la app.");
   else {
-    $("coFijos").innerHTML = "";
-    for (const [cur] of fijosM){
-      const caja = document.createElement("div");
-      if (fijosM.length > 1){ const h = document.createElement("p"); h.className = "nota"; h.textContent = cur; caja.appendChild(h); }
-      const lista = document.createElement("div"); caja.appendChild(lista); $("coFijos").appendChild(caja);
-      Charts.plan(lista, activos.filter((f) => (f.currency || "PEN") === cur).sort((a, b) => a.day_of_month - b.day_of_month)
-        .map((f) => ({ label: `${f.label} · día ${f.day_of_month}`, planned: Number(f.expected_amount) || 0,
-                       spent: f.paid_this_period ? Number(f.expected_amount) || 0 : 0, pagado: !!f.paid_this_period })),
-        { format: plataDe(cur), ofLabel: "de", note: (r) => r.pagado ? "pagado" : "pendiente" });
-    }
-    crecer($("coFijos"));
+    $("coFijos").innerHTML = `<div class="fijos">` + fijosM.map(([cur]) => {
+      const lista = activos.filter((f) => (f.currency || "PEN") === cur).sort((a, b) => diaEf(a) - diaEf(b));
+      const faltan = lista.filter((f) => !f.paid_this_period), pagados = lista.filter((f) => f.paid_this_period);
+      const suma = (l) => l.reduce((a, f) => a + monto(f), 0);
+      const orden = [...faltan.filter((f) => estadoDe(f) === "vencido"), ...faltan.filter((f) => estadoDe(f) === "viene")];
+      return (fijosM.length > 1 ? `<p class="nota">${esc(cur)}</p>` : "")
+        + (orden.length ? `<h4>Pendiente<span>${esc(plata(suma(faltan), cur))}</span></h4>` + orden.map((f) => fila(f, estadoDe(f), `cada mes · día ${diaEf(f)}`,
+            estadoDe(f) === "vencido" ? `venció el ${diaEf(f)}` : enDias(diaEf(f)))).join("") : "")
+        + (pagados.length ? `<h4>Pagado<span>${esc(plata(suma(pagados), cur))}</span></h4>` + pagados.map((f) => fila(f, "pagado", `cada mes · día ${diaEf(f)}`, "pagado")).join("") : "");
+    }).join("") + `</div>`;
   }
 
   const vivos = (ingresos || []).filter((i) => i.active !== false);
   const CADA = { weekly:"cada semana", biweekly:"cada quincena", monthly:"cada mes" };
   $("coIngresos").innerHTML = !ingresos ? falloBloque : vivos.length
-    ? `<table class="rank"><thead><tr><th>Ingreso</th><th>Cada</th><th>Próximo</th><th class="num">Monto</th></tr></thead><tbody>`
-      + vivos.map((i) => `<tr>
-          <td class="desc"><b>${esc(i.label)}</b></td>
-          <td data-l="Cada">${esc(CADA[i.frequency] || i.frequency)}</td>
-          <td data-l="Próximo">${i.next_date ? esc(new Date(i.next_date + "T12:00:00").toLocaleDateString("es-PE",
-            { day:"numeric", month:"short" })) : "<span class='muted'>-</span>"}</td>
-          <td class="num tot" data-l="Monto">${esc(plata(Number(i.expected_amount) || 0, i.currency))}</td>
-        </tr>`).join("") + `</tbody></table>`
+    ? `<div class="fijos">` + vivos.map((i) => {
+        const prox = i.next_date ? new Date(i.next_date + "T12:00:00") : null;
+        return `<div class="fijo entra">
+          <i class="dia">${prox ? prox.getDate() : "·"} <small>${prox ? esc(prox.toLocaleDateString("es-PE", { month:"short" }).replace(".", "")) : "día"}</small></i>
+          <span class="quien"><b>${esc(i.label)}</b><small>${esc(CADA[i.frequency] || i.frequency)}</small></span>
+          <span class="monto" style="color:var(--positive)">+${esc(plata(Number(i.expected_amount) || 0, i.currency))}</span>
+        </div>`; }).join("") + `</div>`
     : vacio("Sin ingresos fijos", "Si tienes sueldo o una renta, configúralo y la proyección mejora.");
 
-  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
   $("coDeudas").innerHTML = !deudas ? falloBloque : pendientes.length
-    ? `<table class="rank"><thead><tr><th>Quién</th><th>Qué</th><th>Vence</th>
-        <th class="num">Monto</th></tr></thead><tbody>`
-      + pendientes.sort((a, b) => (a.due_date || "9") > (b.due_date || "9") ? 1 : -1).map((d) => {
+    ? `<div class="fijos">` + pendientes.sort((a, b) => (a.due_date || "9") > (b.due_date || "9") ? 1 : -1).map((d) => {
         const vence = d.due_date ? new Date(d.due_date + "T12:00:00") : null;
         const tarde = vence && vence < hoy;
-        return `<tr>
-          <td class="desc"><b>${esc(d.counterpart)}</b>
-            <span class="muted"> · ${d.direction === "owed_to_me" ? "te debe" : "le debes"}</span></td>
-          <td data-l="Qué">${esc(corta(d.description || "", 30))}</td>
-          <td data-l="Vence">${vence
-            ? `<span class="badge ${tarde ? "never" : "idle"}">`
-              + esc(vence.toLocaleDateString("es-PE", { day:"numeric", month:"short" }))
-              + `${tarde ? " · vencida" : ""}</span>`
-            : "<span class='muted'>sin fecha</span>"}</td>
-          <td class="num tot" data-l="Monto">${esc(plata(Number(d.amount) || 0, d.currency))}</td>
-        </tr>`; }).join("") + `</tbody></table>`
+        return `<div class="fijo${tarde ? " vencido" : ""}">
+          <i class="dia">${vence ? vence.getDate() : "·"} <small>${vence ? esc(vence.toLocaleDateString("es-PE", { month:"short" }).replace(".", "")) : "sin fecha"}</small></i>
+          <span class="quien"><b>${esc(d.counterpart)}</b><small>${d.direction === "owed_to_me" ? "te debe" : "le debes"}${d.description ? " · " + esc(corta(d.description, 40)) : ""}</small></span>
+          <span class="monto"${d.direction === "owed_to_me" ? ' style="color:var(--positive)"' : ""}>${esc(plata(Number(d.amount) || 0, d.currency))}<small>${vence ? (tarde ? "vencida" : "vence el " + esc(vence.toLocaleDateString("es-PE", { day:"numeric", month:"short" }))) : "sin fecha"}</small></span>
+        </div>`; }).join("") + `</div>`
     : vacio("Sin deudas abiertas", "Acá salen los préstamos que hiciste y los que te hicieron.");
+  if (!quietito()) $("tab-compromisos").querySelectorAll(".fijo").forEach((r, i) => { r.style.setProperty("--i", Math.min(i, 18)); r.classList.add("entraFila"); });
+}
+// La billetera y la mano siguen al puntero dentro de su tarjeta.
+for (const id of ["coHero", "coIngresos"]){
+  const caja = id === "coHero" ? $(id) : $(id).closest(".coIng");
+  caja.addEventListener("pointermove", (e) => { if (quietito()) return; const r = caja.getBoundingClientRect();
+    caja.style.setProperty("--px", ((e.clientX - r.left) / r.width * 2 - 1).toFixed(2)); caja.style.setProperty("--py", ((e.clientY - r.top) / r.height * 2 - 1).toFixed(2)); });
+  caja.addEventListener("pointerleave", () => { caja.style.setProperty("--px", 0); caja.style.setProperty("--py", 0); });
 }
 
 // ── Vista: Metas ───────────────────────────────────────────────────────────
