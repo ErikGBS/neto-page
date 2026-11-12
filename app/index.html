@@ -939,26 +939,78 @@
     .admin table.rank td.tot::before{display:inline;margin-right:6px}
     .admin table.rank td[colspan], .panel table.rank td[colspan]{grid-column:1 / -1}
   }
-  /* Pagos en el teléfono: tarjetas, para que Aprobar/Rechazar no queden fuera
-     de la pantalla. Las etiquetas salen del orden de las columnas del thead. */
-  @container hoja (max-width:610px){
-    #tab-pagos table thead{display:none}
-    #tab-pagos table, #tab-pagos tbody{display:block}
-    #tab-pagos tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;
-      padding:12px 2px;border-bottom:1px solid var(--border)}
-    #tab-pagos tr:last-child{border-bottom:none}
-    #tab-pagos td{padding:0;border:none}
-    #tab-pagos td::before{display:block;color:var(--mute);font-size:.75rem}
-    #tab-pagos td:nth-child(1){grid-column:1 / -1;font-weight:600}
-    #tab-pagos td:nth-child(2)::before{content:"Ref"}
-    #tab-pagos td:nth-child(3)::before{content:"Monto"}
-    #pagos td:nth-child(4)::before{content:"Comprobante"}
-    #pagos td:nth-child(5)::before{content:"Pedido"}
-    #pagos td:nth-child(6){grid-column:1 / -1}
-    #pagosHist td:nth-child(4)::before{content:"Estado"}
-    #pagosHist td:nth-child(5)::before{content:"Fecha"}
-    #tab-pagos td[colspan]{grid-column:1 / -1}
-    #tab-pagos td[colspan]::before{content:none}
+  /* ── Pagos: la mesa de revisión. La cola a la izquierda (mismas tarjetas que
+     Clientes), el comprobante grande a la derecha y la decisión en un solo
+     lugar: qué plan compra ese monto, quién paga y desde cuándo espera. ── */
+  .admin .wa2.pg2{grid-template-columns:minmax(0,352px) minmax(0,1fr);margin-bottom:16px}
+  @container hoja (max-width:1240px){ .admin .wa2.pg2{grid-template-columns:minmax(0,300px) minmax(0,1fr)} }
+  .admin #pgVolver{display:none;flex:none;margin-right:4px}
+  .admin .pgcard .monto{display:block;margin-top:3px;font-family:var(--tit);font-size:1.05rem;font-weight:700;
+    font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .admin .pgcard .f2 .marca.raro{color:var(--pasa)}
+  .admin .pgcard .recibo{flex:none;width:48px;height:48px;border-radius:10px;object-fit:cover;border:1px solid var(--border)}
+  .admin .pgcard .sincap{flex:none;width:48px;height:48px;border-radius:10px;border:1px dashed var(--control);
+    display:grid;place-items:center;color:var(--mute);font-size:.6rem;text-align:center;line-height:1.15}
+  .admin .pgcard.sale{animation:pgSale 260ms var(--ease-out) forwards;pointer-events:none}
+  @keyframes pgSale{to{opacity:0;transform:translateX(-18px)}}
+  /* El panel es su propio contenedor: cuando queda estrecho (tableta, o el
+     teléfono) el comprobante y los datos se apilan, mida lo que mida la hoja. */
+  .admin .wapanel.pgDetalle{display:block;overflow-y:auto;container-type:inline-size}
+  .admin .pgDetalle .wapersona{border-bottom:1px solid var(--border)}
+  .admin .pgDetalle .wavacio{color:var(--mute);font-size:.88rem;padding:48px 24px;text-align:center;line-height:1.5}
+  .admin .pgCuerpo{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,320px);gap:20px;padding:18px 20px 22px;align-items:start}
+  .admin .pgCap{margin:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;
+    display:grid;place-items:center;min-height:240px}
+  .admin .pgCap a{display:block;width:100%;cursor:zoom-in}
+  .admin .pgCap img{display:block;width:100%;max-height:540px;object-fit:contain}
+  .admin .pgCap .vacio{color:var(--mute);font-size:.85rem;padding:28px;text-align:center;line-height:1.5}
+  .admin .pgDatos .lbl{font-size:.72rem;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin:0}
+  .admin .pgDatos .val{font-family:var(--tit);font-size:2rem;font-weight:700;letter-spacing:-.02em;margin:2px 0 0;
+    font-variant-numeric:tabular-nums;line-height:1.1}
+  .admin .pgDatos .compra{margin:6px 0 14px;font-size:.88rem;color:var(--dim);line-height:1.45}
+  .admin .pgDatos .compra b{color:var(--gold-bright);font-weight:600}
+  .admin .pgDatos .compra.raro{color:var(--pasa)} .admin .pgDatos .compra.raro b{color:inherit}
+  .admin .pgDatos .filas{border-top:1px solid var(--border)}
+  .admin .pgDatos .fila{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);font-size:.84rem}
+  .admin .pgDatos .fila span{color:var(--mute);flex:none} .admin .pgDatos .fila b{font-weight:500;text-align:right;min-width:0}
+  .admin .pgAcc{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+  .admin .pgAcc .acc button{flex:1;min-height:38px}
+  .admin .pgAcc .pregunta{font-size:.84rem;color:var(--dim);margin:0;line-height:1.45}
+  .admin .pgAcc input{height:38px;background:var(--surface-2);color:var(--text);border:1px solid var(--border);
+    border-radius:10px;padding:0 12px;font:inherit;font-size:.85rem;width:100%}
+  .admin .pgAcc input:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+  .admin .pgAcc .teclas{font-size:.72rem;color:var(--mute);margin:2px 0 0}
+  .admin .pgAcc .teclas kbd{font:inherit;background:var(--raised);padding:1px 6px;border-radius:5px;color:var(--dim);margin-right:2px}
+  @container (max-width:620px){
+    .admin .pgCuerpo{grid-template-columns:minmax(0,1fr)}
+    .admin .pgCap{min-height:0}
+    .admin .pgCap img{max-height:min(460px,40vh)}
+  }
+  /* Pagadores: una fila por persona con el tiempo de Pro que le queda. */
+  .admin .pgGente{display:flex;flex-direction:column}
+  .admin .pgpayer{display:grid;grid-template-columns:38px minmax(0,1fr) minmax(110px,150px) auto;gap:12px;align-items:center;
+    padding:10px 6px;border-bottom:1px solid var(--border)}
+  .admin .pgpayer:last-child{border-bottom:0}
+  .admin .pgpayer .txt{min-width:0}
+  .admin .pgpayer .txt b{display:block;font-size:.86rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .admin .pgpayer .txt small{display:block;color:var(--mute);font-size:.76rem;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .admin .pgpayer .pista{height:6px;border-radius:3px;background:var(--raised);overflow:hidden}
+  .admin .pgpayer .pista i{display:block;height:100%;border-radius:3px;background:var(--entra)}
+  .admin .pgpayer .pista i.pronto{background:var(--gold)}
+  .admin .pgpayer .badge{justify-self:end}
+  @container hoja (max-width:700px){
+    .admin .wa2.pg2{grid-template-columns:minmax(0,1fr)}
+    /* Los tres números en una tira, no en tres tarjetas que empujan la cola fuera de la pantalla. */
+    .admin #pgKpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .admin #pgKpis .kpi{padding:12px 12px 11px}
+    .admin #pgKpis .kpi .label{font-size:.72rem;line-height:1.25}
+    .admin #pgKpis .kpi .val{font-size:1.35rem}
+    .admin #pgKpis .kpi .sub{display:none}
+    .admin .wa2.enDetalle #pgVolver{display:inline-flex;flex:1 1 100%;justify-content:center;margin:0 0 10px}
+    .admin .pgCuerpo{padding:16px 14px 18px}
+    .admin .pgAcc .acc button{min-height:44px}
+    .admin .pgpayer{grid-template-columns:38px minmax(0,1fr) auto}
+    .admin .pgpayer .pista{display:none}
   }
   /* Las demás tablas (dormidos, países) no caben a 390px: se desplazan
      dentro de su tarjeta en vez de ensanchar la página entera. */
@@ -1940,24 +1992,22 @@
   </section>
 
 <section class="tab admin" id="tab-pagos" style="display:none">
-    <div class="section">
-      <h3>Pagos por revisar <span class="muted" style="font-weight:400">· Yape, S/ 10 o S/ 20 al mes</span></h3>
-      <p class="muted" style="margin-bottom:12px">
-        El usuario yapea y manda la captura al bot. Acá la miras y apruebas: aprobar
-        activa su Pro por 30 días y le avisa por WhatsApp.
-      </p>
-      <table>
-        <thead><tr><th>Usuario</th><th>Ref</th><th class="num">Monto</th><th>Comprobante</th><th>Pedido</th><th></th></tr></thead>
-        <tbody id="pagos"></tbody>
-      </table>
+    <div class="grid" id="pgKpis"></div>
+    <div class="wa2 pg2" id="pg2">
+      <div class="wapanel walado">
+        <div class="wacab">
+          <h3>Por revisar <span class="muted" id="pgCuantos" style="font-weight:400"></span></h3>
+          <button id="pgRefrescar" class="chico" type="button" style="margin-left:auto">Actualizar</button>
+        </div>
+        <div id="pgLista" class="walista"></div>
+      </div>
+      <div class="wapanel wahilo pgDetalle" id="pgDetalle">
+        <div class="wavacio">Elige un pago de la izquierda.</div>
+      </div>
     </div>
-
     <div class="section">
-      <h3>Pagadores <span class="muted" style="font-weight:400">· lo último que le resolvimos a cada quien</span></h3>
-      <table>
-        <thead><tr><th>Usuario</th><th>Ref</th><th class="num">Monto</th><th>Estado</th><th>Fecha</th><th>Pro vence</th></tr></thead>
-        <tbody id="pagosHist"></tbody>
-      </table>
+      <h3>Pagadores <span class="muted" style="font-weight:400">· a quién se le vence el Pro y lo último que le resolvimos</span></h3>
+      <div id="pagosHist" class="pgGente"></div>
     </div>
   </section>
 
@@ -6002,43 +6052,200 @@ function vigencia(p){
   return `<span class="badge ${clase}" title="${fecha}">${texto}</span>`;
 }
 
-function filaPago(p){
-  const img = p.receipt_url
-    ? `<a href="${p.receipt_url}" target="_blank" rel="noopener"><img class="recibo" src="${p.receipt_url}" width="54" height="54" loading="lazy" alt="Comprobante"></a>`
-    : `<span class="muted">sin captura todavía</span>`;
-  // Sin captura no hay nada que mirar, así que aprobar queda deshabilitado:
-  // evita activar un Pro por un clic de más en una fila a medio llegar.
-  const falta = p.receipt_url ? "" : " disabled";
-  return `<tr>
-    <td>${quien(p)}</td>
-    <td class="muted">${p.reference || ""}</td>
-    <td class="num">S/ ${Number(p.amount || 0).toFixed(0)}</td>
-    <td>${img}</td>
-    <td class="muted">${cuando(p.created_at)}</td>
-    <td><div class="acc">
-      <button class="primary" data-ok="${p.id}"${falta}>Aprobar</button>
-      <button class="danger" data-no="${p.id}">Rechazar</button>
-    </div></td>
-  </tr>`;
+// ── Pagos: la mesa de revisión ─────────────────────────────────────────────
+// Flechas para moverse por la cola, A aprueba, R rechaza. La pregunta de
+// confirmación y el motivo viven dentro del panel, no en diálogos del navegador.
+let pgItems = [], pgHist = [], pgSel = null, pgPintado = null, pgEstrenado = false;
+const soles = (n) => "S/ " + Number(n || 0).toFixed(0);
+// El plan sale de lo que trae el endpoint (días y Dúo), que es la misma regla
+// que activa el Pro al aprobar: acá no se repiten precios.
+const nombrePlan = (pl) => !pl ? "Pro" : "Pro " + (pl.duo ? "Dúo " : "") + (pl.dias >= 365 ? "anual" : "mensual");
+const montoRaro = (p) => !!p.plan && Number(p.amount || 0) !== Number(p.plan.precio);
+const pagoDe = (id) => pgItems.find((x) => x.id === id);
+
+function tarjetaPago(p){
+  const pl = p.plan || {};
+  return `<button class="wacard pgcard" data-pid="${esc(p.id)}" type="button">
+    <span class="ava ${tinte(p)}">${esc(iniciales(p))}</span>
+    <span class="txt">
+      <span class="f1"><b>${esc(nombreCorto(p))}</b><time title="${esc(cuando(p.created_at))}">${esc(haceCorto(p.created_at))}</time></span>
+      <span class="monto">${soles(p.amount)}</span>
+      <span class="f2"><span class="marca pro">${esc(nombrePlan(p.plan))} · ${pl.dias || 30} d</span>${
+        montoRaro(p) ? `<span class="marca raro" title="No es un precio del catálogo: se activa el plan de ${soles(pl.precio)}">monto raro</span>` : ""}${
+        p.reference ? `<span class="marca">${esc(p.reference)}</span>` : ""}</span>
+    </span>
+    ${p.receipt_url ? `<img class="recibo" src="${esc(p.receipt_url)}" loading="lazy" alt="">` : `<span class="sincap">sin captura</span>`}
+  </button>`;
 }
 
+function pintarPagos(){
+  const cuerpo = $("pgLista");
+  cuerpo.innerHTML = pgItems.length ? pgItems.map(tarjetaPago).join("")
+    : `<div class="wavacio">No hay pagos por revisar.</div>`;
+  $("pgCuantos").textContent = pgItems.length ? `· ${pgItems.length}` : "";
+  // Tocar una tarjeta es lo único que abre el detalle a pantalla en el teléfono.
+  const aPantalla = () => { const g = $("pg2"); g.classList.add("enDetalle");
+    if (getComputedStyle(g.querySelector(".walado")).display === "none"){
+      $("pgVolver")?.focus({ preventScroll: true });
+      $("pgDetalle").scrollIntoView({ block: "start", behavior: quietito() ? "auto" : "smooth" });
+    } };
+  for (const b of cuerpo.querySelectorAll("[data-pid]")) b.onclick = () => { elegirPago(b.dataset.pid); aPantalla(); };
+  if (!pgEstrenado && pgItems.length && !quietito()){
+    pgEstrenado = true;
+    cuerpo.querySelectorAll(".pgcard").forEach((f, i) => { f.style.setProperty("--i", Math.min(i, 18)); f.classList.add("entraFila"); });
+  }
+  if (!pagoDe(pgSel)) pgSel = pgItems.length ? pgItems[0].id : null;
+  // El detalle se repinta si cambió el pago elegido o no hay pregunta armada:
+  // una recarga a medio escribir el motivo borraba el input y las teclas
+  // siguientes caían en los atajos (la "a" armaba Aprobar).
+  if (pgPintado !== pgSel || $("pgOk") || !$("pgAcc")) pintarDetallePago();
+  else for (const f of cuerpo.querySelectorAll(".pgcard")) f.classList.toggle("sel", f.dataset.pid === pgSel);
+}
+
+function elegirPago(id){
+  pgSel = id;
+  pintarDetallePago();
+  $("pgLista").querySelector(".pgcard.sel")?.scrollIntoView({ block: "nearest" });
+}
+
+function pintarDetallePago(){
+  const caja = $("pgDetalle"), p = pagoDe(pgSel);
+  pgPintado = p ? p.id : null;
+  for (const f of $("pgLista").querySelectorAll(".pgcard")) f.classList.toggle("sel", f.dataset.pid === pgSel);
+  if (!p){
+    caja.innerHTML = `<div class="wavacio">${pgItems.length ? "Elige un pago de la izquierda."
+      : "Nada que revisar. El usuario yapea y manda la captura al bot: cuando llegue, aparece acá."}</div>`;
+    return;
+  }
+  const raro = montoRaro(p), pl = p.plan || {};
+  const previos = pgHist.filter((h) => h.user_id === p.user_id && h.status === "confirmed").length;
+  const fila = (k, v) => v ? `<div class="fila"><span>${k}</span><b>${v}</b></div>` : "";
+  caja.innerHTML = `
+    <header class="wapersona">
+      <button id="pgVolver" class="chico volver" type="button" aria-label="Volver a la lista">← Volver</button>
+      <span class="ava grande ${tinte(p)}">${esc(iniciales(p))}</span>
+      <div class="quien"><h2>${esc(nombreCorto(p))}</h2>
+        <div class="sub">${esc([p.email, p.phone ? telefono(p.phone) : ""].filter(Boolean).join(" · "))}</div></div>
+      <div class="acc">${previos ? `<span class="badge ok">${previos} ${previos === 1 ? "pago previo" : "pagos previos"}</span>`
+                                 : `<span class="badge idle">primer pago</span>`}</div>
+    </header>
+    <div class="pgCuerpo">
+      <figure class="pgCap">${p.receipt_url
+        ? `<a href="${esc(p.receipt_url)}" target="_blank" rel="noopener" title="Abrir la captura en grande"><img src="${esc(p.receipt_url)}" alt="Comprobante de ${esc(nombreCorto(p))}"></a>`
+        : `<div class="vacio">Sin captura todavía. Pidió el Pro pero no ha mandado el Yape: no hay nada que aprobar.</div>`}</figure>
+      <div class="pgDatos">
+        <p class="lbl">Yapeó</p>
+        <p class="val" data-k="${esc(p.id)}" data-n="${Number(p.amount) || 0}" data-m="" data-pre="S/ " data-suf="" data-fin="${soles(p.amount)}">${soles(p.amount)}</p>
+        <p class="compra${raro ? " raro" : ""}">${raro
+          ? `${soles(p.amount)} no es un precio del catálogo: se activa <b>${esc(nombrePlan(pl))}</b> (${soles(pl.precio)}, ${pl.dias} días)`
+          : `Compra <b>${esc(nombrePlan(pl))}</b> · ${pl.dias || 30} días`}</p>
+        <div class="filas">
+          ${fila("Referencia", esc(p.reference || ""))}
+          ${fila("Pidió", `${esc(cuando(p.created_at))} <span class="muted">· ${esc(haceCorto(p.created_at))}</span>`)}
+          ${fila("Pro vence", previos ? vigencia(p) : "")}
+        </div>
+        <div class="pgAcc" id="pgAcc"></div>
+      </div>
+    </div>`;
+  $("pgVolver").onclick = () => { $("pg2").classList.remove("enDetalle"); $("pgLista").querySelector(".pgcard.sel")?.focus({ preventScroll: true }); };
+  pintarAccionesPago(p);
+  subirNumeros(caja, ".val[data-n]");
+}
+
+// Dos pasos dentro del panel: el primer clic arma la pregunta (o el motivo),
+// el segundo resuelve. Escape o Cancelar vuelven al principio.
+function pintarAccionesPago(p, modo){
+  const caja = $("pgAcc"); if (!caja) return;
+  const sinCaptura = !p.receipt_url;
+  if (modo === "ok") caja.innerHTML = `
+      <p class="pregunta">¿Llegó el Yape de <b>${soles(p.amount)}</b>? Le activo ${esc(nombrePlan(p.plan))} por ${(p.plan || {}).dias || 30} días y le aviso por WhatsApp.</p>
+      <div class="acc"><button class="primary" id="pgSi" type="button">Sí, activar Pro</button><button id="pgNo" type="button">Cancelar</button></div>`;
+  else if (modo === "no") caja.innerHTML = `
+      <p class="pregunta">${sinCaptura ? "Nunca mandó la captura: solo le decimos que su pedido se cerró."
+                                       : "Le avisamos que el pago no cuadró. El motivo se lo mandamos tal cual."}</p>
+      <input id="pgMotivo" type="text" maxlength="200" placeholder="Motivo (opcional)" aria-label="Motivo del rechazo" autocomplete="off">
+      <div class="acc"><button class="danger" id="pgSi" type="button">${sinCaptura ? "Cerrar el pedido" : "Rechazar"}</button><button id="pgNo" type="button">Cancelar</button></div>`;
+  else caja.innerHTML = `
+      <div class="acc"><button class="primary" id="pgOk" type="button"${sinCaptura ? ' disabled title="Sin captura no hay nada que aprobar"' : ""}>Aprobar</button><button class="danger" id="pgRechazar" type="button">Rechazar</button></div>
+      ${matchMedia("(hover:hover)").matches ? `<p class="teclas"><kbd>↑</kbd><kbd>↓</kbd> moverse · <kbd>A</kbd> aprobar · <kbd>R</kbd> rechazar</p>` : ""}`;
+  const armar = (m) => { pintarAccionesPago(p, m); ($("pgMotivo") || $("pgSi")).focus({ preventScroll: true }); };
+  if ($("pgOk")) $("pgOk").onclick = () => armar("ok");
+  if ($("pgRechazar")) $("pgRechazar").onclick = () => armar("no");
+  if ($("pgNo")) $("pgNo").onclick = () => { pintarAccionesPago(p); $("pgOk")?.focus({ preventScroll: true }); };
+  if ($("pgSi")) $("pgSi").onclick = () => resolverPago(p, modo === "ok", $("pgSi"));
+  if ($("pgMotivo")) $("pgMotivo").onkeydown = (e) => { if (e.key === "Enter"){ e.preventDefault(); $("pgSi").click(); } };
+}
+
+async function resolverPago(p, aprobar, boton){
+  boton.disabled = true;
+  try{
+    await llamarResolver(p.id, aprobar, $("pgMotivo")?.value.trim() || "");
+  }catch(e){
+    alert("No se pudo: " + e.message);
+    boton.disabled = false;
+    return;
+  }
+  // La tarjeta se va y el foco pasa al siguiente de la cola sin esperar a la
+  // recarga, que después confirma contra el servidor y refresca Pagadores.
+  const i = pgItems.findIndex((x) => x.id === p.id);
+  const tarjeta = $("pgLista").querySelector(`.pgcard[data-pid="${CSS.escape(p.id)}"]`);
+  if (i >= 0){                          // una recarga pudo sacarlo ya de la cola
+    pgItems.splice(i, 1);
+    pgSel = (pgItems[i] || pgItems[i - 1] || {}).id || null;
+  }
+  let hecho = false;
+  const seguir = () => { if (hecho) return; hecho = true; pintarPagos(); cargarPagos(); };
+  // En el teléfono la lista está escondida (display:none) y ahí la animación
+  // no corre ni avisa: solo se anima lo que se ve, y hay un respaldo por tiempo.
+  if (tarjeta?.getClientRects().length && !quietito()){
+    tarjeta.classList.add("sale");
+    tarjeta.addEventListener("animationend", seguir, { once: true });
+    setTimeout(seguir, 400);
+  } else seguir();
+}
+
+document.addEventListener("keydown", (e) => {
+  const vista = $("tab-pagos");
+  if (!vista.getClientRects().length || !pgItems.length || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.matches("input, textarea, select, [contenteditable]") && e.key !== "Escape") return;
+  const i = Math.max(0, pgItems.findIndex((p) => p.id === pgSel));
+  if (e.key === "ArrowDown" || e.key === "ArrowUp"){
+    e.preventDefault();
+    elegirPago(pgItems[Math.min(pgItems.length - 1, Math.max(0, i + (e.key === "ArrowDown" ? 1 : -1)))].id);
+  } else if (e.key === "a" || e.key === "A"){ e.preventDefault(); $("pgOk")?.click(); }
+  else if (e.key === "r" || e.key === "R"){ e.preventDefault(); $("pgRechazar")?.click(); }   // sin esto la "r" caía dentro del motivo
+  else if (e.key === "Escape") $("pgNo")?.click();
+});
+
 async function cargarPagos(){
-  const cuerpo = $("pagos"), badge = $("navPagos");
+  $("pgRefrescar").onclick = () => cargarPagos();
   try{
     const { items } = await api("/admin/payments?status=pending");
-    cuerpo.innerHTML = items.length
-      ? items.map(filaPago).join("")
-      : `<tr><td colspan="6" class="muted">No hay pagos por revisar.</td></tr>`;
-    for (const b of [badge, $("barraPagos")]){
+    pgItems = items;
+    for (const b of [$("navPagos"), $("barraPagos")]){
       b.textContent = items.length || "";
       b.style.display = items.length ? "" : "none";
     }
-    for (const b of cuerpo.querySelectorAll("[data-ok]")) b.onclick = () => resolver(b.dataset.ok, true, b);
-    for (const b of cuerpo.querySelectorAll("[data-no]")) b.onclick = () => resolver(b.dataset.no, false, b);
+    pintarPagos();
   }catch(e){
-    cuerpo.innerHTML = `<tr><td colspan="6" class="muted">No se pudo cargar: ${e.message}</td></tr>`;
+    $("pgLista").innerHTML = `<div class="wavacio">No se pudo cargar: ${esc(e.message)}</div>`;
   }
   cargarHistorialPagos();
+}
+
+function pintarKpisPagos(){
+  const hoy = new Date(), mismoMes = (iso) => { const d = new Date(iso); return d.getMonth() === hoy.getMonth() && d.getFullYear() === hoy.getFullYear(); };
+  const esteMes = pgHist.filter((h) => h.status === "confirmed" && mismoMes(h.confirmed_at || h.created_at));
+  const cobrado = esteMes.reduce((a, h) => a + (Number(h.amount) || 0), 0);
+  const masViejo = pgItems.reduce((a, p) => !a || (p.created_at || "") < (a.created_at || "") ? p : a, null);
+  const diasPara = (iso) => (new Date(iso) - Date.now()) / 86400000;
+  const porVencer = new Set(pgHist.filter((h) => h.status === "confirmed" && h.renews_at && diasPara(h.renews_at) > 0 && diasPara(h.renews_at) <= 7)
+    .map((h) => h.user_id)).size;
+  $("pgKpis").innerHTML =
+    kpi("Por revisar", pgItems.length, "", masViejo ? `el más antiguo espera desde ${esc(haceCorto(masViejo.created_at))}` : "nadie espera", pgItems.length) +
+    kpi("Aprobados este mes", esteMes.length, "", esteMes.length ? `${soles(cobrado)} cobrados por Yape` : "todavía ninguno", esteMes.length) +
+    kpi("Pro que vence en 7 días", porVencer, "", porVencer ? "renovaciones por empujar" : "nadie vence esta semana", porVencer);
+  subirNumeros($("tab-pagos"), ".kpi .val[data-n]");
 }
 
 async function cargarHistorialPagos(){
@@ -6047,7 +6254,7 @@ async function cargarHistorialPagos(){
     const vistas = await Promise.all(["confirmed","rejected"].map(st =>
       api("/admin/payments?status=" + st).then(r => r.items.map(i => ({...i, status: st})))
     ));
-    const filas = vistas.flat()
+    pgHist = vistas.flat()
       .sort((a,b) => (b.confirmed_at || b.created_at || "").localeCompare(a.confirmed_at || a.created_at || ""));
 
     // Una fila por pagador, no por cobro: quien renovó tres veces salía tres
@@ -6055,27 +6262,46 @@ async function cargarHistorialPagos(){
     // resolvimos (las filas ya vienen de la más nueva a la más vieja) más
     // cuántos Yapes suyos aprobamos, que es el conteo de renovaciones.
     const porPagador = new Map();
-    for (const p of filas){
+    for (const p of pgHist){
       if (!porPagador.has(p.user_id)) porPagador.set(p.user_id, { ...p, pagos: 0 });
       if (p.status === "confirmed") porPagador.get(p.user_id).pagos++;
     }
-    const gente = [...porPagador.values()].slice(0, 25);
+    // Primero a quien hay que empujar: el Pro que vence esta semana, luego el
+    // que ya venció (el más reciente antes), después los vigentes por fecha y
+    // al final quien nunca pagó.
+    const dias = (p) => p.pagos && p.renews_at ? Math.ceil((new Date(p.renews_at) - Date.now()) / 86400000) : null;
+    const orden = (p) => { const d = dias(p); return d == null ? 1e9 : d <= 0 ? 100 - d : d <= 7 ? d : 1e6 + d; };
+    const gente = [...porPagador.values()].sort((a, b) => orden(a) - orden(b)).slice(0, 25);
 
-    cuerpo.innerHTML = gente.length ? gente.map(p => `<tr>
-      <td>${quien(p)}${p.pagos > 1
-        ? ` <span class="muted" title="Activó y renovó ${p.pagos - 1} ${p.pagos === 2 ? "vez" : "veces"}">· ${p.pagos} pagos</span>`
-        : ""}</td>
-      <td class="muted">${p.reference || ""}</td>
-      <td class="num">S/ ${Number(p.amount || 0).toFixed(0)}</td>
-      <td>${p.status === "confirmed" ? `<span class="badge ok">Aprobado</span>` : `<span class="badge never">Rechazado</span>`}</td>
-      <td class="muted">${cuando(p.confirmed_at || p.created_at)}</td>
-      <td>${p.pagos ? vigencia(p) : ""}</td>
-    </tr>`).join("") : `<tr><td colspan="6" class="muted">Todavía nada.</td></tr>`;
+    cuerpo.innerHTML = gente.length ? gente.map((p) => {
+      const d = dias(p), largo = (p.plan || {}).dias || 30;
+      const pct = d == null ? 0 : Math.max(0, Math.min(100, d / largo * 100));
+      const ultimo = `${p.status === "confirmed" ? "aprobado" : "rechazado"} ${soles(p.amount)} · ${cuando(p.confirmed_at || p.created_at)}`;
+      return `<div class="pgpayer">
+        <span class="ava ${tinte(p)}">${esc(iniciales(p))}</span>
+        <span class="txt"><b>${esc(nombreCorto(p))}${p.pagos > 1 ? ` <span class="muted" style="font-weight:400" title="Activó y renovó ${p.pagos - 1} ${p.pagos === 2 ? "vez" : "veces"}">· ${p.pagos} pagos</span>` : ""}</b><small>${esc(ultimo)}</small></span>
+        <span class="pista" title="${d == null ? "" : esc(`${Math.max(0, d)} de ${largo} días`)}"><i class="${d != null && d > 0 && d <= 7 ? "pronto" : ""}" style="width:${pct.toFixed(0)}%"></i></span>
+        ${d == null ? (p.pagos ? "" : `<span class="badge never">Rechazado</span>`) : vigencia(p)}
+      </div>`; }).join("") : `<div class="wavacio">Todavía nadie ha pagado.</div>`;
+    crecer(cuerpo);
   }catch(e){
-    cuerpo.innerHTML = `<tr><td colspan="6" class="muted">No se pudo cargar: ${e.message}</td></tr>`;
+    cuerpo.innerHTML = `<div class="wavacio">No se pudo cargar: ${esc(e.message)}</div>`;
   }
+  pintarKpisPagos();
+  // El detalle se repinta con los pagos previos, salvo que el admin esté a
+  // medio aprobar o rechazar: ahí no se le quita la pregunta de las manos.
+  if ($("pgOk") || !$("pgAcc")) pintarDetallePago();
 }
 
+const llamarResolver = (id, aprobar, motivo) => api(`/admin/payments/${id}/` + (aprobar ? "approve" : "reject"), {
+  method:"POST",
+  headers:{ "Content-Type":"application/json" },
+  body: aprobar ? null : JSON.stringify({ reason: motivo || "" }),
+});
+
+// La ficha de Clientes resuelve el mismo pago con los diálogos del navegador
+// y necesita refrescarse ella también: por eso el qué-hacer-después lo pone
+// quien llama.
 async function resolver(id, aprobar, boton, despues){
   // El periodo lo decide el monto en el backend (S/100 y S/200 son un año),
   // así que acá no se promete un número de días.
@@ -6086,13 +6312,7 @@ async function resolver(id, aprobar, boton, despues){
   const motivo = aprobar ? null : (prompt("Motivo (opcional, se lo mandamos tal cual):") || "");
   boton.disabled = true;
   try{
-    await api(`/admin/payments/${id}/` + (aprobar ? "approve" : "reject"), {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: aprobar ? null : JSON.stringify({ reason: motivo }),
-    });
-    // La ficha de Clientes resuelve el mismo pago y necesita refrescarse ella
-    // también: por eso el qué-hacer-después lo pone quien llama.
+    await llamarResolver(id, aprobar, motivo);
     (despues || cargarPagos)();
   }catch(e){
     alert("No se pudo: " + e.message);
