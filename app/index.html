@@ -990,7 +990,13 @@
     .admin #waHilo, .admin .wahechos{min-height:300px;max-height:420px}
     .admin .wabar{flex-wrap:wrap}
     .admin .wabar p{flex:1 1 100%;order:2}
-    .admin .wabar button{order:1}}
+    .admin .wabar button{order:1}
+    /* Al abrir a alguien, el detalle ocupa la pantalla y la lista vuelve con el botón. */
+    .admin .wa2.enDetalle .walado{display:none}
+    .admin .wa2.enDetalle #waVolver{display:inline-flex;flex:1 1 100%;justify-content:center;margin:0 0 10px}
+    .admin .wa2.enDetalle .wapersona{flex-wrap:wrap}
+    .admin .waleido{order:1}
+    .admin .wa2.enDetalle #waHilo, .admin .wa2.enDetalle .wahechos{max-height:none;min-height:50vh}}
 
   .admin .wapanel{background:var(--surface);border:1px solid var(--border);
     border-radius:16px;display:flex;flex-direction:column;min-width:0;overflow:hidden}
@@ -1004,33 +1010,29 @@
   /* ── Las colas: un solo bloque partido por hilos, y son los filtros ────── */
   /* Las columnas van por clase y no en el atributo style: un inline gana a la
      media query y en el teléfono se quedaban cuatro celdas de 90px. */
-  .admin .wacolas{display:grid;gap:1px;grid-template-columns:repeat(4,minmax(0,1fr));
-    background:var(--border);border-bottom:1px solid var(--border)}
-  .admin .wacolas.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .admin .wacolas.cols4{grid-template-columns:repeat(4,minmax(0,1fr))}
-  @media(max-width:860px){
-    .admin .wacolas, .admin .wacolas.cols3, .admin .wacolas.cols4{
-      grid-template-columns:repeat(2,minmax(0,1fr))}}
-  /* `white-space:normal` porque el button base del sitio trae nowrap: sin esto
-     el rótulo de la cola se sale de su celda en vez de pasar de línea. */
-  .admin .wacola{position:relative;display:flex;flex-direction:column;align-items:stretch;
-    gap:1px;background:var(--surface);border:0;border-radius:0;padding:10px 9px 11px;
-    text-align:left;min-height:68px;white-space:normal}
-  .admin .wacola:hover{background:var(--surface-2)}
-  .admin .wacola .n{font-family:var(--tit);font-size:1.25rem;font-weight:700;
-    line-height:1.05;font-variant-numeric:tabular-nums}
-  .admin .wacola .l{color:var(--mute);font-size:.7rem;line-height:1.2;
-    overflow-wrap:break-word;min-width:0}
-  .admin .wacola.on{background:var(--surface-2)}
-  .admin .wacola.on::after{content:"";position:absolute;left:0;right:0;bottom:0;
-    height:2px;background:var(--gold)}
-  .admin .wacola.on .l{color:var(--dim)}
-  .admin .wacola.urge .n{color:var(--gold-bright)}
-  .admin .wabusca{padding:12px 14px;border-bottom:1px solid var(--border)}
-  .admin .wabusca input{width:100%;height:36px;background:var(--surface-2);color:var(--text);
+  /* Las colas son píldoras con su conteo: el color dice si hay que mirarlas
+     (coral: alguien espera o se fue; verde agua: va bien), no en qué pestaña estás. */
+  .admin .wacolas{display:flex;flex-wrap:wrap;gap:6px;padding:12px 14px 10px;border-bottom:1px solid var(--border)}
+  .admin .wacola{display:inline-flex;align-items:baseline;gap:6px;background:var(--raised);border:0;
+    border-radius:999px;padding:6px 11px 7px;font-size:.78rem;color:var(--muted);white-space:nowrap;
+    transition:background var(--t-hover) ease,color var(--t-hover) ease,transform 120ms ease}
+  .admin .wacola:hover{background:var(--active);color:var(--text)}
+  .admin .wacola:active{transform:scale(.97)}
+  .admin .wacola .n{font-weight:600;font-variant-numeric:tabular-nums;color:var(--text)}
+  .admin .wacola .l{color:inherit}
+  .admin .wacola.on{background:var(--gold);color:var(--ink)} .admin .wacola.on .n{color:var(--ink)}
+  .admin .wacola.mal:not(.on) .n{color:var(--pasa)} .admin .wacola.bien:not(.on) .n{color:var(--entra)}
+  .admin .wabusca{display:flex;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border)}
+  .admin .wabusca input{flex:1;min-width:0;height:36px;background:var(--surface-2);color:var(--text);
     border:1px solid var(--border);border-radius:10px;padding:0 12px;font:inherit;font-size:.85rem}
+  .admin .wabusca select{flex:none;height:36px;max-width:38%;background:var(--surface-2);color:var(--muted);border:1px solid var(--border);
+    border-radius:10px;padding:0 10px;font:inherit;font-size:.8rem}
   .admin .wabusca input::placeholder{color:var(--mute)}
-  .admin .wabusca input:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+  .admin .wabusca input:focus-visible, .admin .wabusca select:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+  .admin .waleido{font-size:.78rem;white-space:nowrap}
+  .admin #waVolver{display:none;flex:none;margin-right:4px}
+  .admin .wamas{padding:14px 16px 18px;text-align:center;color:var(--mute);font-size:.8rem}
+  .admin .wamas button{margin-left:8px}
 
   /* ── La cola ──────────────────────────────────────────────────────────── */
   .admin .walista{display:flex;flex-direction:column;flex:1;min-height:0;overflow-y:auto}
@@ -1038,7 +1040,16 @@
     background:none;border:0;border-bottom:1px solid var(--rule,rgba(28,39,64,.6));
     border-radius:0;padding:13px 14px;cursor:pointer;white-space:normal}
   .admin .wacard:hover{background:var(--surface-2)}
+  .admin .wacard:active{transform:translateY(1px)}
   .admin .wacard.sel{background:var(--surface-2);box-shadow:inset 3px 0 0 var(--gold)}
+  /* El anillo del avatar es el estado: verde agua activo, gris dormido, coral
+     zombie, punteado quien nunca registró nada. */
+  .admin .wacard .ava.e-activo{box-shadow:0 0 0 2px var(--entra)}
+  .admin .wacard .ava.e-dormido{box-shadow:0 0 0 2px var(--control)}
+  .admin .wacard .ava.e-zombie{box-shadow:0 0 0 2px var(--pasa)}
+  .admin .wacard .ava.e-nunca{outline:2px dashed var(--control);outline-offset:1px}
+  .admin .wacard .f1 .nuevo{flex:none;font-size:.62rem;font-weight:700;letter-spacing:.06em;padding:2px 6px;border-radius:6px;
+    background:color-mix(in srgb, var(--gold) 22%, var(--surface));color:var(--gold-bright)}
   .admin .wacard .txt{min-width:0;flex:1}
   .admin .wacard .f1{display:flex;align-items:baseline;gap:8px}
   .admin .wacard .f1 b{font-size:.86rem;font-weight:600;min-width:0;
@@ -1370,7 +1381,7 @@
     @keyframes despliega{from{opacity:0;transform:translate(calc(var(--dx) * 3), calc(var(--dy) * 3)) scale(.7)}}
     .donaSvg .gajo{animation:despliega 620ms var(--ease-out) backwards;animation-delay:calc(var(--i, 0) * 120ms)}
     #fmSaldo svg path[stroke-width="2"]{animation:descubre 1100ms var(--ease-expo) backwards}
-    .panel table.rank tbody tr.entraFila, .mov.entraFila, .fijo.entraFila{animation:asoma 420ms var(--ease-out) backwards;
+    .panel table.rank tbody tr.entraFila, .mov.entraFila, .fijo.entraFila, .wacard.entraFila{animation:asoma 420ms var(--ease-out) backwards;
       animation-delay:calc(var(--i, 0) * 18ms)}
   }
   .panel .chart svg g.barra:hover{opacity:.82}
@@ -1928,6 +1939,7 @@
     <div class="wabar">
       <p id="waHallazgo">Cargando...</p>
       <button id="waAvisar" class="chico" style="margin-left:auto;display:none"></button>
+      <span id="waLeido" class="muted waleido"></span>
       <button id="waRefrescar" class="chico">Actualizar</button>
     </div>
 
@@ -1937,12 +1949,18 @@
         <div class="wabusca">
           <input id="waBuscar" type="search" autocomplete="off"
                  placeholder="Buscar por nombre, correo o número" aria-label="Buscar conversación">
+          <select id="waOrden" aria-label="Orden de la lista">
+            <option value="nuevos">Nuevos</option>
+            <option value="espera">Por atender</option>
+            <option value="actividad">Actividad</option>
+          </select>
         </div>
         <div id="waLista" class="walista"></div>
       </div>
 
       <div class="wapanel wahilo">
         <header class="wapersona" id="waCab" style="display:none">
+          <button id="waVolver" class="chico volver" type="button" aria-label="Volver a la lista">← Volver</button>
           <span class="ava grande" id="waCabAva">·</span>
           <div class="quien">
             <h2 id="waCabQuien"></h2>
@@ -6000,6 +6018,24 @@ async function resolver(id, aprobar, boton, despues){
 // antes había que salir a Usuarios y a Pagos justo cuando el mensaje es "ya
 // pagué". La pantalla responde a una sola pregunta: a quién le debo algo.
 let waConvs = [], waActiva = null, waFiltro = "todas", waBusca = "", waVista = "chat";
+let waOrden = "nuevos", waTope = 80, waLeidoEn = null, waEstrenado = { wa: false, app: false };
+// "hace 3 h", "hace 2 d", "hace 3 m": lo justo para leer una lista de un vistazo.
+const haceCorto = (iso) => {
+  if (!iso) return "";
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 60) return "hace nada";
+  if (s < 3600) return `hace ${Math.floor(s / 60)} min`;
+  if (s < 86400) return `hace ${Math.floor(s / 3600)} h`;
+  if (s < 86400 * 30) return `hace ${Math.floor(s / 86400)} d`;
+  if (s < 86400 * 365) return `hace ${Math.floor(s / 86400 / 30)} m`;
+  return `hace ${Math.floor(s / 86400 / 365)} a`;
+};
+const esNuevo = (x) => !!x.registered_at && Date.now() - new Date(x.registered_at).getTime() < 7 * 86400e3;
+const marcarLeido = () => {
+  const el = $("waLeido"); if (!el) return;
+  el.textContent = waLeidoEn ? `Leído ${haceCorto(new Date(waLeidoEn).toISOString())}` : "";
+};
+setInterval(marcarLeido, 10000);
 
 async function cargarBandeja(){
   if (waModo === "app") return cargarApp();
@@ -6007,6 +6043,7 @@ async function cargarBandeja(){
   try{
     const { items } = await api("/admin/whatsapp/conversations");
     waConvs = items;
+    waLeidoEn = Date.now(); marcarLeido();
     contarColas();
     pintarLista();
     // Si había una conversación abierta se recarga: la respuesta recién
@@ -6024,6 +6061,7 @@ async function cargarApp(){
     const r = await api("/admin/app-users");
     appUsers = r.items;
     pushLocks = r.push_locks || {};
+    waLeidoEn = Date.now(); marcarLeido();
     contarColas();
     pintarLista();
     if (waActiva && appUsers.some(u => u.user_id === waActiva)) abrirUsuario(waActiva);
@@ -6040,6 +6078,11 @@ function cambiarModo(nuevo){
   waBusca = "";
   $("waBuscar").value = "";
   waFiltro = modo().inicial;
+  waTope = 80;
+  // "Lo que espera" es de la cola de WhatsApp: en App no hay a quién responder.
+  const espOp = $("waOrden").querySelector('[value="espera"]'); espOp.hidden = espOp.disabled = nuevo === "app";
+  if (nuevo === "app" && waOrden === "espera"){ waOrden = "nuevos"; $("waOrden").value = waOrden; }
+  $("waLista").closest(".wa2").classList.remove("enDetalle");
   for (const b of $("waModos").querySelectorAll("[data-modo]"))
     b.classList.toggle("on", b.dataset.modo === nuevo);
   // Hasta que lleguen los datos, la pantalla no puede seguir enseñando a la
@@ -6168,22 +6211,18 @@ const modo = () => MODO[waModo];
 
 function pintarColas(){
   const m = modo(), colas = m.colas(), datos = m.datos();
-  const cuantas = Object.keys(colas).length;
-  // Las columnas se eligen por cuántas colas hay: con ocho son cuatro, con
-  // seis son tres. Un grid fijo dejaba dos celdas vacías.
-  $("waFiltros").classList.toggle("cols4", cuantas % 4 === 0);
-  $("waFiltros").classList.toggle("cols3", cuantas % 4 !== 0);
+  // Coral donde alguien espera o se fue; verde agua donde va bien.
+  const TONO = { revisar:"mal", pendientes:"mal", vencen:"mal", dudas:"mal", zombies:"mal", nunca:"mal", dormidos:"mal", activos:"bien", pro:"bien" };
   $("waFiltros").innerHTML = Object.keys(colas).map(cola => {
     const n = datos.filter(colas[cola]).length;
     const activa = cola === waFiltro;
-    return `<button class="wacola${activa ? " on" : ""}${
-      cola !== m.inicial && n ? " urge" : ""}" data-filtro="${cola}"
+    return `<button class="wacola${activa ? " on" : ""}${n && TONO[cola] ? " " + TONO[cola] : ""}" data-filtro="${cola}"
       aria-pressed="${activa}" title="${esc(m.ayudas[cola] || "")}">
-      <span class="n">${fmt(n)}</span><span class="l">${esc(m.rotulos[cola])}</span>
+      <span class="l">${esc(m.rotulos[cola])}</span><span class="n">${fmt(n)}</span>
     </button>`;
   }).join("");
   for (const b of $("waFiltros").querySelectorAll("[data-filtro]"))
-    b.onclick = () => { waFiltro = b.dataset.filtro; pintarColas(); pintarLista(); };
+    b.onclick = () => { waFiltro = b.dataset.filtro; waTope = 80; $("waLista").scrollTop = 0; pintarColas(); pintarLista(); };
   pintarAvisar();
 }
 
@@ -6272,16 +6311,16 @@ function listaVisible(){
   const cola = m.colas()[waFiltro] || (() => true);
   const busca = (x) => !q || [nombreCorto(x), x.phone, x.email, x.name, x.last_text]
     .some(v => (v || "").toLowerCase().includes(q));
-  if (waModo === "app")
-    // Ya vienen del backend por los más frecuentes primero, que es el orden
-    // que se quiere mirar.
-    return appUsers.filter(u => cola(u) && busca(u));
-  return waConvs
-    .filter(c => cola(c) && busca(c))
-    // Primero lo que hay que resolver y, dentro de cada nivel, lo más reciente:
-    // un pago de hace tres días no puede quedar debajo de un "gracias" de hoy.
-    .sort((a, b) => espera(a)[3] - espera(b)[3] ||
-      String(b.last_at || "").localeCompare(String(a.last_at || "")));
+  const desc = (k) => (a, b) => (Date.parse(k(b)) || 0) - (Date.parse(k(a)) || 0);
+  const actividad = waModo === "app" ? (x) => (x.movements || {}).last_at : (x) => x.last_at;
+  const lista = m.datos().filter(x => cola(x) && busca(x));
+  // Del último registrado hacia atrás, que es como se lee quién va llegando.
+  // "Lo que espera" es la cola de WhatsApp: primero lo que hay que resolver y,
+  // dentro de cada nivel, lo más reciente.
+  if (waOrden === "espera" && waModo !== "app")
+    return lista.sort((a, b) => espera(a)[3] - espera(b)[3] || desc((x) => x.last_at)(a, b));
+  if (waOrden === "actividad") return lista.sort(desc(actividad));
+  return lista.sort((a, b) => desc((x) => x.registered_at)(a, b) || desc(actividad)(a, b));
 }
 
 // ── La tarjeta de quien usa la app ──────────────────────────────────────────
@@ -6289,9 +6328,7 @@ const CLASE_USO = { activo:"", dormido:"ojo", zombie:"ojo", nunca:"ojo" };
 
 function tarjetaUsuario(u){
   const movs = u.movements || {}, est = u.status || {};
-  const cuando = movs.last_at
-    ? "hace " + (est.dias === 0 ? "nada" : est.dias + (est.dias === 1 ? " día" : " días"))
-    : "sin movimientos";
+  const cuando = movs.last_at ? haceCorto(movs.last_at) : "sin movimientos";
   const marcas = [];
   if ((u.plan || {}).is_pro) marcas.push(["Pro", "pro"]);
   else if ((u.trial || {}).activa) marcas.push(["En prueba", ""]);
@@ -6301,10 +6338,10 @@ function tarjetaUsuario(u){
   marcas.push([est.label || "", CLASE_USO[est.clave] || ""]);
 
   return `<button class="wacard" data-uid="${esc(u.user_id)}" type="button">
-    <span class="ava ${tinte(u)}">${caraDe(u)}</span>
+    <span class="ava ${tinte(u)} e-${esc(estadoUso(u))}">${caraDe(u)}</span>
     <span class="txt">
-      <span class="f1"><b>${esc(nombreCorto(u))}</b><time>${esc(cuando)}</time></span>
-      <span class="msg">${fmt(movs.total || 0)} ${
+      <span class="f1"><b>${esc(nombreCorto(u))}</b>${esNuevo(u) ? '<span class="nuevo">NUEVO</span>' : ""}<time>${esc(cuando)}</time></span>
+      <span class="msg">${u.registered_at ? "se registró " + esc(haceCorto(u.registered_at)) + " · " : ""}${fmt(movs.total || 0)} ${
         movs.total === 1 ? "movimiento" : "movimientos"} · ${fmt(movs.days || 0)} ${
         movs.days === 1 ? "día con registros" : "días con registros"}</span>
       <span class="f2">${marcas.filter(x => x[0]).map(([txt, cls]) =>
@@ -6382,12 +6419,14 @@ const breve = (iso) => {
 
 function tarjeta(c){
   const [que, clase, nivel] = espera(c);
+  const COHORTE = { activos_7d:"activo", dormido:"dormido", zombie:"zombie", nunca:"nunca", d7_30:"dormido", m1_2:"zombie", m2_3:"zombie", m3_mas:"zombie" };
+  const estado = c.user_id ? (COHORTE[(c.usage || {}).cohort] || "") : "";
   return `<button class="wacard" data-tel="${esc(c.phone)}" type="button">
-    <span class="ava ${tinte(c)}">${caraDe(c)}</span>
+    <span class="ava ${tinte(c)}${estado ? " e-" + estado : ""}">${caraDe(c)}</span>
     <span class="txt">
-      <span class="f1"><b>${esc(nombreCorto(c))}</b><time>${breve(c.last_at)}</time></span>
+      <span class="f1"><b>${esc(nombreCorto(c))}</b>${esNuevo(c) ? '<span class="nuevo">NUEVO</span>' : ""}<time>${breve(c.last_at)}</time></span>
       <span class="msg">${c.last_direction === "out" ? "↩ " : ""}${esc(ultimoTexto(c))}</span>
-      <span class="f2">${marcas(c)}</span>
+      <span class="f2">${marcas(c)}${c.registered_at ? `<span class="marca" title="Creó su cuenta ${esc(haceCorto(c.registered_at))}">se registró ${esc(haceCorto(c.registered_at))}</span>` : ""}</span>
       <span class="f3"><span class="que">${esc(que)}</span>${
         nivel ? `<span class="badge ${clase}">${nivel}</span>` : ""}</span>
     </span>
@@ -6399,19 +6438,38 @@ function marcarElegida(){
     f.classList.toggle("sel", (f.dataset.tel || f.dataset.uid) === waActiva);
 }
 
+let waCentinela = null;
 function pintarLista(){
   const cuerpo = $("waLista"), items = listaVisible(), app = waModo === "app";
   const hay = app ? appUsers.length : waConvs.length;
-  cuerpo.innerHTML = items.length
-    ? items.map(app ? tarjetaUsuario : tarjeta).join("")
+  // Se pintan de a 80: con 1,136 cuentas, cada tecla del buscador rehacía
+  // toda la lista. Al llegar abajo entra el siguiente lote.
+  const lote = items.slice(0, waTope);
+  cuerpo.innerHTML = lote.length
+    ? lote.map(app ? tarjetaUsuario : tarjeta).join("") + (items.length > lote.length
+      ? `<div class="wamas" id="waMas">${fmt(lote.length)} de ${fmt(items.length)}<button class="chico" type="button" id="waMasBtn">Mostrar más</button></div>` : "")
     : `<div class="wavacio">${!hay ? "Todavía no hay nada que mirar acá."
         : waBusca.trim() ? "Nada con esa búsqueda." : "Nada en esta cola."}</div>`;
+  const mas = () => { waTope += 80; const y = cuerpo.scrollTop; pintarLista(); cuerpo.scrollTop = y; };
+  waCentinela?.disconnect(); waCentinela = null;
+  if ($("waMasBtn")){
+    $("waMasBtn").onclick = mas;
+    if ("IntersectionObserver" in window){ waCentinela = new IntersectionObserver(([e]) => { if (e.isIntersecting) mas(); }, { root: cuerpo }); waCentinela.observe($("waMas")); }
+  }
+  if (!waEstrenado[waModo] && lote.length && !quietito()){
+    waEstrenado[waModo] = true;
+    cuerpo.querySelectorAll(".wacard").forEach((f, i) => { f.style.setProperty("--i", Math.min(i, 18)); f.classList.add("entraFila"); });
+  }
   // La clave y no el índice: con filtros y búsqueda, la posición en la lista
   // pintada deja de coincidir con la del lote.
+  // Tocar una tarjeta es lo único que abre el detalle a pantalla en el
+  // teléfono: una recarga que reabre a la persona elegida no debe hacerlo.
+  const aPantalla = () => { const wa2 = cuerpo.closest(".wa2"); wa2.classList.add("enDetalle");
+    if (getComputedStyle(wa2.querySelector(".walado")).display === "none") $("waVolver").focus({ preventScroll: true }); };
   for (const f of cuerpo.querySelectorAll("[data-tel]"))
-    f.onclick = () => abrirHilo(f.dataset.tel);
+    f.onclick = () => { abrirHilo(f.dataset.tel); aPantalla(); };
   for (const f of cuerpo.querySelectorAll("[data-uid]"))
-    f.onclick = () => abrirUsuario(f.dataset.uid);
+    f.onclick = () => { abrirUsuario(f.dataset.uid); aPantalla(); };
   marcarElegida();
 }
 
@@ -7136,7 +7194,19 @@ $("waBot").onclick = cambiarBot;
 $("waDuda").onclick = cambiarDuda;
 $("waAvisar").onclick = avisarGrupo;
 $("waRefrescar").onclick = cargarBandeja;
-$("waBuscar").oninput = () => { waBusca = $("waBuscar").value; pintarLista(); };
+let waBuscaTimer = 0;
+$("waBuscar").oninput = () => { clearTimeout(waBuscaTimer); waBuscaTimer = setTimeout(() => { waBusca = $("waBuscar").value; waTope = 80; $("waLista").scrollTop = 0; pintarLista(); }, 150); };
+$("waOrden").onchange = () => {
+  waOrden = $("waOrden").value;
+  if (waModo === "app" && waOrden === "espera"){ waOrden = "nuevos"; $("waOrden").value = waOrden; }   // iOS ignora hidden en <option>
+  waTope = 80; $("waLista").scrollTop = 0; pintarLista();
+};
+$("waVolver").onclick = () => {
+  $("waLista").closest(".wa2").classList.remove("enDetalle");
+  const elegida = $("waLista").querySelector(".wacard.sel");
+  waActiva = null; marcarElegida();                 // así una recarga no vuelve a abrirla
+  (elegida || $("waBuscar")).focus({ preventScroll: true });
+};
 for (const b of $("waModos").querySelectorAll("[data-modo]"))
   b.onclick = () => cambiarModo(b.dataset.modo);
 pintarColas();
