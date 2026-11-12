@@ -723,16 +723,49 @@
   .leyenda small{color:var(--faint);font-size:12px;margin-left:8px}
 
   /* Una meta: la barra con los dos extremos rotulados y el ratio real. */
-  .meta{background:var(--surface);border-radius:var(--radius-card);padding:20px}
-  .meta h3{font-size:16px;font-weight:600;margin-bottom:12px}
-  .meta .cifra{font-size:24px;font-weight:400;letter-spacing:-.01em}
-  .meta .cifra small{font-size:14px;color:var(--muted);margin-left:6px}
-  .meta .pista{height:8px;border-radius:999px;background:var(--raised);margin:12px 0 6px;overflow:hidden}
-  .meta .pista i{display:block;height:100%;border-radius:999px;background:var(--gold);
-    transition:width 900ms var(--ease-expo)}
-  .meta .extremos{display:flex;justify-content:space-between;font-size:12px;color:var(--faint);
-    font-variant-numeric:tabular-nums}
-  .meta p{color:var(--faint);font-size:13px;margin-top:10px}
+  /* Metas: cada una es un camino de la caja fuerte al trofeo (los dibujos 3D del
+     Universo de la app). El tramo recorrido se dora con una chispa en la punta,
+     la próxima cuota marca hasta dónde te deja, y al 100% el trofeo brilla. */
+  .metas{display:grid;gap:16px}
+  .metaCam{background:var(--surface);border-radius:var(--radius-card);padding:22px 24px 20px;position:relative;overflow:hidden}
+  .metaCam header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px}
+  .metaCam h3{font-size:16px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .metaCam .falta{font-size:13px;color:var(--muted);white-space:nowrap}
+  .metaCam.lograda .falta{color:var(--entra)}
+  .metaCam .ruta{display:grid;grid-template-columns:108px minmax(0,1fr) 108px;align-items:center;gap:18px;padding:26px 0 10px}
+  .metaCam .fig{display:block;transform:translate(calc(var(--px, 0) * 8px), calc(var(--py, 0) * 6px));transition:transform 240ms var(--ease-out)}
+  .metaCam .fig img{display:block;width:100%;height:auto;filter:drop-shadow(0 14px 18px rgba(0,0,0,.5));animation:metaFlota 5.5s ease-in-out infinite}
+  .metaCam .fig.trofeo img{animation-delay:-2.2s}
+  .metaCam.lograda .fig.trofeo img{filter:drop-shadow(0 0 18px color-mix(in srgb, var(--gold) 70%, transparent)) drop-shadow(0 14px 18px rgba(0,0,0,.5));animation:metaFlota 5.5s ease-in-out infinite, metaBrilla 1.8s ease-in-out infinite}
+  .metaCam .camino{position:relative;height:40px}
+  .metaCam .pistaPuntos{position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;border-radius:2px;
+    background:repeating-linear-gradient(90deg, var(--control) 0 6px, transparent 6px 13px)}
+  .metaCam .hecho{position:absolute;left:0;top:50%;height:6px;margin-top:-3px;border-radius:3px;background:var(--gold);
+    box-shadow:0 0 14px color-mix(in srgb, var(--gold) 55%, transparent)}
+  .metaCam .chispa{position:absolute;right:-7px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--gold-bright);
+    box-shadow:0 0 0 4px color-mix(in srgb, var(--gold) 28%, transparent), 0 0 18px var(--gold);animation:metaLate 1.6s ease-in-out infinite}
+  .metaCam .cuota{position:absolute;top:-26px;left:clamp(60px, var(--x, 50%), calc(100% - 60px));transform:translateX(-50%);font-size:11px;font-weight:500;white-space:nowrap;padding:3px 8px;
+    border-radius:999px;background:var(--raised);color:var(--muted);max-width:100%;opacity:0;animation:cuotaAsoma 400ms var(--ease-out) 700ms forwards}
+  @keyframes cuotaAsoma{to{opacity:1}}
+  .metaCam .cuota::after{content:"";position:absolute;left:50%;bottom:-6px;width:1px;height:6px;background:var(--control)}
+  .metaCam .cifras{display:flex;align-items:baseline;gap:10px;margin-top:4px}
+  .metaCam .cifras .val{font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1.05}
+  .metaCam .cifras span:last-child{font-size:14px;color:var(--muted)}
+  .metaCam .nota{color:var(--faint);font-size:13px;margin:8px 0 0}
+  .metaCam .destello{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--gold-bright);opacity:0;pointer-events:none;
+    animation:metaDestello 2.4s ease-out infinite;animation-delay:calc(var(--d) * 1s)}
+  @keyframes metaFlota{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
+  @keyframes metaBrilla{0%,100%{filter:drop-shadow(0 0 10px color-mix(in srgb, var(--gold) 50%, transparent)) drop-shadow(0 14px 18px rgba(0,0,0,.5))}
+    50%{filter:drop-shadow(0 0 26px var(--gold)) drop-shadow(0 14px 18px rgba(0,0,0,.5))}}
+  @keyframes metaLate{0%,100%{box-shadow:0 0 0 4px color-mix(in srgb, var(--gold) 28%, transparent), 0 0 18px var(--gold)}
+    50%{box-shadow:0 0 0 9px color-mix(in srgb, var(--gold) 12%, transparent), 0 0 26px var(--gold)}}
+  @keyframes metaDestello{0%{opacity:0;transform:translateY(0) scale(.4)}20%{opacity:1}100%{opacity:0;transform:translateY(-46px) scale(1)}}
+  @container hoja (max-width:640px){
+    .metaCam{padding:18px 16px 16px}
+    .metaCam .ruta{grid-template-columns:64px minmax(0,1fr) 64px;gap:10px;padding-top:30px}
+    .metaCam .cifras .val{font-size:26px}
+    .metaCam .cuota .cuando{display:none}
+  }
 
   /* ── Panel de administración ────────────────────────────────────────────
      Viene del que vivía en /dashboard/admin/. Cada regla va acotada a .admin
@@ -1226,6 +1259,8 @@
     .cats .lista li > span:first-child > span:first-child{transition:none}
     .desvio .pista b,.desvio .delta{transition:none}
     .moDetalle,.moVelo,.mov{transition:none} .moDetalle .mini i{animation:none}
+    .metaCam .fig{transition:none} .metaCam .fig img,.metaCam .chispa,.metaCam .destello{animation:none}
+    .metaCam .cuota{animation:none;opacity:1}
     .astro img,.sombra{animation:none}
     .astro,.sombra,.mision .orbe{transition:none;transform:none}
   }
@@ -2084,7 +2119,7 @@ function estrenar(vista){
   if (estrenadas.has(vista.id) || quietito()) return;
   estrenadas.add(vista.id);
   const bloques = vista.querySelectorAll(":scope > .section, :scope > .row2 > .section,"
-    + " :scope > .grid > .kpi, :scope > .semaforo, :scope > .card, :scope > #meLista > .grid > .section");
+    + " :scope > .grid > .kpi, :scope > .semaforo, :scope > .card");
   let turno = 0;
   for (const b of bloques){
     b.style.setProperty("--i", Math.min(turno++, 7));
@@ -5544,26 +5579,49 @@ async function cargarMetas(){
       "Una meta es una plata que apartas con fecha: el viaje, la laptop, el colchón de emergencia.");
     return;
   }
-  // Una tarjeta por meta: lo ahorrado como cifra, la pista con los dos
-  // extremos rotulados y el relleno al ratio real (cero no deja muñón).
-  $("meLista").innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">`
-    + metas.map((g) => {
-      const pct = Math.max(0, Math.min(100, Number(g.percent) || 0));
-      const ahorrado = Number(g.saved_amount) || 0, objetivo = Number(g.target_amount) || 0;
-      return `<div class="meta">
-        <h3>${esc(g.name)}</h3>
-        <div class="cifra"><span class="val" data-k="${esc(g.name)}" data-n="${ahorrado}" data-m="${esc(g.currency)}"
-          data-suf="" data-fin="${esc(plata(ahorrado, g.currency))}">${esc(plata(ahorrado, g.currency))}</span><small>${pct}% de la meta</small></div>
-        <div class="pista" role="img" aria-label="${pct}% de ${esc(plata(objetivo, g.currency))}"><i style="width:${pct}%"></i></div>
-        <div class="extremos"><span>${esc(plata(ahorrado, g.currency))}</span><span>${esc(plata(objetivo, g.currency))}</span></div>
-        <p>${g.installments_saved ?? 0} de ${g.installments_total ?? 0} cuotas${g.next_due
-          ? ` · la próxima el ${esc(fechaCorta(g.next_due))}` : ""}${g.next_amount
-          ? ` (${esc(plata(Number(g.next_amount), g.currency))})` : ""}</p>
-      </div>`;
-    }).join("") + `</div>`;
-  subirNumeros($("tab-metas"), ".meta .val");
+  // Un camino por meta: de la caja fuerte al trofeo. El tramo recorrido es el
+  // ratio real (cero no deja muñón) y la píldora marca hasta dónde te deja la
+  // próxima cuota. Los dibujos 3D son los del Universo de la app.
+  $("meLista").innerHTML = `<div class="metas">` + metas.map((g, i) => {
+    const pct = Math.max(0, Math.min(100, Number(g.percent) || 0));
+    const ahorrado = Number(g.saved_amount) || 0, objetivo = Number(g.target_amount) || 0;
+    const falta = Math.max(0, objetivo - ahorrado), lograda = objetivo > 0 ? ahorrado >= objetivo : pct >= 100;   // percent llega redondeado: 996 de 1000 es 100 y no está lograda
+    const proxima = Number(g.next_amount) || 0;
+    const conCuota = proxima > 0 && objetivo > 0 && !lograda ? Math.min(100, (ahorrado + proxima) / objetivo * 100) : null;
+    return `<article class="metaCam${lograda ? " lograda" : ""}" style="--i:${i}">
+      <header><h3>${esc(g.name)}</h3><span class="falta">${lograda ? "¡Lograda!" : "faltan " + esc(plata(falta, g.currency))}</span></header>
+      <div class="ruta">
+        <span class="fig caja"><img src="caja-fuerte.webp" alt="" width="108" height="72" loading="lazy"></span>
+        <div class="camino" role="img" aria-label="${pct}% de ${esc(plata(objetivo, g.currency))}">
+          <i class="pistaPuntos"></i>
+          <i class="hecho" style="width:${pct}%"><b class="chispa"></b></i>
+          ${conCuota != null ? `<span class="cuota" style="--x:${conCuota.toFixed(1)}%">+${esc(plata(proxima, g.currency))}${g.next_due ? `<span class="cuando"> el ${esc(fechaCorta(g.next_due))}</span>` : ""}</span>` : ""}
+        </div>
+        <span class="fig trofeo"><img src="trofeo.webp" alt="" width="108" height="93" loading="lazy">
+          ${lograda ? [.1, .5, .9, .3, .7].map((d, k) => `<i class="destello" style="--d:${d};left:${15 + k * 17}%;top:${20 + (k % 2) * 30}%"></i>`).join("") : ""}</span>
+      </div>
+      <div class="cifras"><span class="val" data-k="${esc(g.name)}" data-n="${pct}" data-m="" data-suf="%" data-fin="${pct}%">${pct}%</span>
+        <span>${esc(plata(ahorrado, g.currency))} de ${esc(plata(objetivo, g.currency))}</span></div>
+      <p class="nota">${g.installments_saved ?? 0} de ${g.installments_total ?? 0} cuotas${g.next_due
+        ? ` · la próxima el ${esc(fechaCorta(g.next_due))}` : ""}${proxima
+        ? ` (${esc(plata(proxima, g.currency))})` : ""}</p>
+    </article>`;
+  }).join("") + `</div>`;
+  subirNumeros($("tab-metas"), ".metaCam .val");
   crecer($("meLista"));
+  // estrenar() corre antes de que llegue la respuesta: la entrada escalonada va acá.
+  if (!quietito()) for (const c of $("meLista").querySelectorAll(".metaCam")){
+    c.classList.add("asomaYa"); c.addEventListener("animationend", () => c.classList.remove("asomaYa"), { once: true });
+  }
 }
+// Los dibujos siguen al puntero dentro de su tarjeta, como el astronauta del home.
+$("meLista").addEventListener("pointermove", (e) => {
+  const c = e.target.closest(".metaCam"); if (!c || quietito()) return;
+  const r = c.getBoundingClientRect();
+  c.style.setProperty("--px", ((e.clientX - r.left) / r.width * 2 - 1).toFixed(2));
+  c.style.setProperty("--py", ((e.clientY - r.top) / r.height * 2 - 1).toFixed(2));
+});
+$("meLista").addEventListener("pointerleave", () => { for (const c of $("meLista").querySelectorAll(".metaCam")){ c.style.setProperty("--px", 0); c.style.setProperty("--py", 0); } }, true);
 
 function pintarAdmin(m){
   const r=m.registered, a=m.active, mv=m.movements;
