@@ -295,7 +295,7 @@
   .mundos3d{position:absolute;inset:-110px -60px;pointer-events:none}
   .mundos3d .lienzo3d{position:absolute;inset:0;width:100% !important;height:100% !important}
   .mundos3d .tip3d{display:none}
-  #planetas.en3d .planeta i{visibility:hidden}
+  .en3d .planeta i{visibility:hidden}
   .orbVacio{position:absolute;left:50%;top:26%;transform:translateX(-50%);max-width:30ch;text-align:center;
     color:var(--muted);font-size:14px;line-height:1.5}
   /* El texto: lo que se lee primero. */
@@ -354,6 +354,51 @@
     @keyframes aterriza{from{transform:scale(.4);opacity:0}60%{transform:scale(1.25)}to{transform:scale(1);opacity:1}}
     .estadoLinea{animation:llegaFila 320ms var(--ease-expo) both}
     .estadoLinea .punto{animation:aterriza 420ms var(--ease-out) 120ms both}
+  }
+  /* ── Gastos: el cinturón de mundos ─────────────────────────────────────
+     Hasta ocho mundos en un arco suave; el desvío contra el promedio va bajo
+     cada uno, en coral solo si te pasas. Mismos mundos 3D del Resumen. */
+  .panel .section.gaCinturon{padding:22px 24px 12px;overflow:visible}
+  .gaCab{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .gaCab h3{margin:0}
+  .gaEscena{position:relative;height:320px;margin:4px -24px 0}
+  .gaEscena .mundos3d{inset:-60px 0}
+  .gaEscena .planeta em{display:block;font-style:normal;font-size:11px;margin-top:4px;color:var(--muted);white-space:nowrap}
+  .gaEscena .planeta em.mal{color:var(--pasa)} .gaEscena .planeta em.bien{color:var(--entra)}
+  .gaEscena .planeta[data-i="0"]{--x:11%;--y:42%} .gaEscena .planeta[data-i="1"]{--x:24%;--y:30%}
+  .gaEscena .planeta[data-i="2"]{--x:36%;--y:48%} .gaEscena .planeta[data-i="3"]{--x:48%;--y:28%}
+  .gaEscena .planeta[data-i="4"]{--x:60%;--y:50%} .gaEscena .planeta[data-i="5"]{--x:71%;--y:30%}
+  .gaEscena .planeta[data-i="6"]{--x:81%;--y:50%} .gaEscena .planeta[data-i="7"]{--x:90%;--y:28%}
+  .gaEscena .orbVacio{top:40%}
+  /* ── Fin de mes: el camino ──────────────────────────────────────────────
+     El mismo camino del Resumen: de la billetera al próximo ingreso. El
+     astronauta sale hoy; cada fijo pendiente es un asteroide en su día. */
+  .fmCamino{position:relative;height:230px;margin:10px -24px 0;grid-column:1 / -1}
+  .fmCamino .mundos3d{inset:-40px 0}
+  .fmCamino .orbBillete{width:84px;left:3%;bottom:8%} .fmCamino .orbCobrar{width:86px;right:3%;top:2%}
+  .fmCamino .orbCobrar small{font-size:11px;transform:translateX(-56%)}
+  .fmCamino .meta{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--entra);
+    box-shadow:0 0 0 4px color-mix(in srgb, var(--entra) 25%, transparent)}
+  .fmCamino .meta.mal{background:var(--pasa);box-shadow:0 0 0 4px color-mix(in srgb, var(--pasa) 25%, transparent)}
+  .fmCamino .fmAstro{position:absolute;width:96px;height:100px;margin:-50px 0 0 -48px;transition:none}
+  .fmCamino .fmAstro .hoyTag{margin-top:-2px}
+  .fmCamino .asteroide b{font-size:12px;margin-top:5px} .fmCamino .asteroide small{font-size:11px;white-space:nowrap}
+  .fmCamino .asteroide i{background:radial-gradient(circle at 32% 30%, #c9c9cf 0%, #7a7a82 35%, #2e2e33 70%, #111 100%)}
+  @container hoja (max-width:700px){
+    .gaEscena{height:360px;margin:4px -16px 0}
+    .gaEscena .planeta{--k:.6}
+    .gaEscena .planeta em{display:none}   /* el desvío ya está en la sección de abajo */
+    .gaEscena .planeta[data-i="0"]{--x:20%;--y:24%} .gaEscena .planeta[data-i="1"]{--x:52%;--y:18%}
+    .gaEscena .planeta[data-i="2"]{--x:82%;--y:26%} .gaEscena .planeta[data-i="3"]{--x:18%;--y:68%}
+    .gaEscena .planeta[data-i="4"]{--x:50%;--y:64%} .gaEscena .planeta[data-i="5"]{--x:82%;--y:70%}
+    .gaEscena .planeta[data-i="6"], .gaEscena .planeta[data-i="7"]{display:none}
+    .fmCamino{height:210px;margin:8px -16px 0}
+    .fmCamino .orbBillete{width:54px;left:2%} .fmCamino .orbCobrar{width:54px;right:4%;top:0}
+    .fmCamino .orbCobrar small{font-size:10px;left:auto;right:0;transform:none}
+    .fmCamino .fmAstro{width:62px;height:65px;margin:-32px 0 0 -31px}
+    .fmCamino .fmAstro .hoyTag{font-size:10px}
+    .fmCamino .asteroide{--k:.75}
+    .fmCamino .asteroide b{font-size:11px} .fmCamino .asteroide small{font-size:10px}
   }
   /* ── Acciones: un solo lenguaje ─────────────────────────────────────
      Toda navegación secundaria es la misma píldora: contorno fino, texto a
@@ -915,8 +960,8 @@
   /* Fin de mes: el veredicto en grande con el cohete 3D del Universo, el viaje
      de hoy al próximo ingreso con los fijos marcados en su día, y el deslizador
      que recalcula la cuenta al instante. */
-  .panel .section.fmHero{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:8px 24px;align-items:start;
-    background:color-mix(in srgb, var(--gold) 9%, var(--surface));padding:22px 24px 20px;overflow:hidden}
+  .panel .section.fmHero{display:grid;grid-template-columns:minmax(0,1fr);gap:8px 24px;align-items:start;
+    background:radial-gradient(120% 90% at 70% 40%, #171513 0%, #0f0f10 55%, #0b0b0c 100%);padding:22px 24px 20px}
   .fmHero .lbl{display:block;font-size:14px;color:var(--muted)}
   .fmHero .veredicto{display:block;font-size:15px;font-weight:500;margin-top:10px;color:var(--entra)}
   .fmHero .veredicto.mal{color:var(--pasa)}
@@ -937,7 +982,7 @@
   .siGasto b{color:var(--text);font-weight:500;font-variant-numeric:tabular-nums}
   .siGasto .res{color:var(--entra)} .siGasto .res.mal{color:var(--pasa)}
   @container hoja (max-width:640px){
-    .panel .section.fmHero{grid-template-columns:minmax(0,1fr) 104px;padding:18px 16px 16px}
+    .panel .section.fmHero{grid-template-columns:minmax(0,1fr);padding:18px 16px 16px}
     .fmHero .val{font-size:32px}
     .fmHero .linea .faltan{display:none}
   }
@@ -1962,6 +2007,20 @@
         </div>
       </div>
 
+      <!-- El cinturón: cada categoría del mes es un mundo con el tamaño de lo
+           gastado; bajo cada uno, cuánto se aleja de tu promedio. Tocarlo abre
+           su detalle. -->
+      <div class="section gaCinturon" id="gaCinturon">
+        <div class="gaCab">
+          <h3>Tus mundos este mes <span class="muted" style="font-weight:400">· cada uno pesa lo que gastaste</span></h3>
+          <button type="button" class="accion" id="gaVerMovs">Ver movimientos</button>
+        </div>
+        <div class="gaEscena" id="gaEscena">
+          <div class="mundos3d" id="gaMundos3d" aria-hidden="true"></div>
+          <div id="gaPlanetas"></div>
+        </div>
+      </div>
+
       <div class="section">
         <h3>Tu mes contra tu promedio</h3>
         <p class="nota">Cuánto se aleja cada categoría de lo que sueles gastar en ella.</p>
@@ -2966,6 +3025,10 @@ const ORB = { P0: [150, 430], P1: [380, 470], P2: [600, 230], P3: [870, 195], av
 const orbBez = (t) => { const u = 1 - t, { P0, P1, P2, P3 } = ORB; return [
   u*u*u*P0[0] + 3*u*u*t*P1[0] + 3*u*t*t*P2[0] + t*t*t*P3[0],
   u*u*u*P0[1] + 3*u*u*t*P1[1] + 3*u*t*t*P2[1] + t*t*t*P3[1]]; };
+// El mismo camino del Resumen, pero en porcentaje del contenedor: así sirve
+// en cualquier escena sin medir nada.
+const caminoD = () => `M ${ORB.P0} C ${ORB.P1}, ${ORB.P2}, ${ORB.P3}`;
+const caminoPct = (t) => { const [x, y] = orbBez(t); return [(x / 10).toFixed(2), (y / 5.4).toFixed(2)]; };
 function colocarAstro(){
   const escena = $("orbEscena"), t = ORB.avance ?? .04, [x, y] = orbBez(t);
   $("astroCapa").style.transform = `translate(${(x / 1000 * escena.clientWidth).toFixed(1)}px, ${(y / 540 * escena.clientHeight).toFixed(1)}px)`;
@@ -2992,7 +3055,7 @@ function pintarOrbita(){
         ${i === 0 ? '<span class="resplandor"></span>' : ""}<span class="sombraM"></span><i></i><b>${esc(nombre(c.cat))}</b><small>${esc(plata(c.total, mes.moneda))}</small></button>`).join("")
       : `<p class="orbVacio">Todavía no hay planetas: tu primer gasto del mes pone el primero.</p>`;
     for (const b of caja.querySelectorAll(".planeta")) b.onclick = () => tab("gastos");
-    mundos3d($("mundos3d"), [...caja.querySelectorAll(".planeta")]);
+    mundos3d($("mundos3d"), [...caja.querySelectorAll(".planeta")], null, caja);
   }
   // El astronauta viaja desde la billetera la primera vez; después solo se recoloca.
   const capa = $("astroCapa");
@@ -3038,10 +3101,13 @@ function texturaMundo(THREE, tipo, semilla){
   return t;
 }
 const TIPO_MUNDO = ["oro", "roca", "hielo", "roca", "hielo"];
-async function mundos3d(el, botones){
-  const caja = $("planetas");
-  caja.classList.remove("en3d");
-  if (!botones.length){ el._m3d?.matar(); el.innerHTML = ""; return; }
+async function mundos3d(el, botones, tipos, caja){
+  caja = caja || botones[0]?.parentElement;
+  caja?.classList.remove("en3d");
+  if (!botones.length){
+    el._gen3d = (el._gen3d || 0) + 1;      // una carga de three.js que siga en vuelo ya no monta nada
+    el._m3d?.matar(); el.innerHTML = ""; return;
+  }
   const alto = el.clientHeight || 300;
   const m = await motor3d(el, alto, (m) => {
     const { THREE, escena } = m;
@@ -3061,7 +3127,7 @@ async function mundos3d(el, botones){
       if (m.render && m.lienzo) m.render.setSize(w, h, false); };
     const geo = new THREE.SphereGeometry(1, 48, 32);
     const mundos = botones.map((b, i) => {
-      const tipo = TIPO_MUNDO[i] || "roca";
+      const tipo = (tipos && tipos[i]) || TIPO_MUNDO[i] || "roca";
       const mat = new THREE.MeshStandardMaterial({ map: texturaMundo(THREE, tipo, 101 + i * 37),
         roughness: tipo === "oro" ? .55 : .9, metalness: tipo === "oro" ? .35 : .05 });
       mat.bumpMap = mat.map; mat.bumpScale = tipo === "oro" ? 1.2 : 3;
@@ -5596,6 +5662,7 @@ function pintarGastos(txs, cats, cur, dash){
   const gastos = gastosDe(txs, cur);
   const total = gastos.reduce((a, t) => a + (Number(t.amount) || 0), 0);
   const dinero = plataDe(cur);
+  pintarMundosGastos(gastos, cats, cur);
   $("gaNota").innerHTML = gastos.length
     ? `${gastos.length} gastos este mes · ${esc(plata(total, cur))}`
     : "Todavía no hay gastos este mes.";
@@ -5669,6 +5736,31 @@ function pintarGastos(txs, cats, cur, dash){
   columnas3d($("gaDias"), { ...dias, highlight: tope > 0 ? dias.values.indexOf(tope) : -1 })
     .then((ok) => { if (!ok) Charts.bars($("gaDias"), { ...dias, tickFormat: sinCentavos(cur), height: 200 }); });
 }
+
+// El cinturón de mundos: las categorías del mes, hasta ocho, en un arco. El
+// tamaño es lo gastado; bajo cada mundo, cuánto se aleja de tu promedio (si
+// hay promedio), en coral solo cuando te pasas. Tocar uno abre su detalle.
+function pintarMundosGastos(gastos, cats, cur){
+  const cerebro = construirCerebro(gastos, cur);
+  const mundos = cerebro.nodos.filter((n) => n.tipo === "cat" && n.cat !== "otras" && n.total > 0)
+    .sort((a, b) => b.total - a.total).slice(0, 8);
+  const max = Math.max(...mundos.map((m) => m.total), 1);
+  const prom = new Map((cats || []).filter((c) => c.currency === cur && c.avg_monthly > 0).map((c) => [c.category.trim().toLowerCase(), c.avg_monthly]));
+  const nombre = (c) => { c = c.trim(); return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); };
+  const caja = $("gaPlanetas");
+  caja.innerHTML = mundos.length ? mundos.map((m, i) => {
+    const avg = prom.get(m.cat.trim().toLowerCase()), d = avg ? m.total - avg : null;
+    const desvio = d == null ? "" : `<em class="${d > 0 ? "mal" : "bien"}">${d > 0 ? "+" : "\u2212"}${esc(plata(Math.abs(d), cur))} vs. tu promedio</em>`;
+    return `<button type="button" class="planeta${i === 0 ? " oro" : ""}${quietito() ? "" : " nace"}" data-i="${i}" data-k="${esc(m.k)}" style="--s:${Math.round(40 + 70 * Math.sqrt(m.total / max))}px;--z:${(1.3 - i * .12).toFixed(2)};--i:${i}" title="${esc(nombre(m.cat))}: ${esc(plata(m.total, cur))}">
+      ${i === 0 ? '<span class="resplandor"></span>' : ""}<span class="sombraM"></span><i></i><b>${esc(nombre(m.cat))}</b><small>${esc(plata(m.total, cur))}</small>${desvio}</button>`; }).join("")
+    : `<p class="orbVacio">Todavía no hay mundos: tu primer gasto del mes pone el primero.</p>`;
+  for (const b of caja.querySelectorAll(".planeta")){
+    const nodo = cerebro.nodos.find((n) => n.k === b.dataset.k);
+    b.onclick = () => nodo && abrirNodo(nodo);
+  }
+  mundos3d($("gaMundos3d"), [...caja.querySelectorAll(".planeta")], mundos.map((_, i) => i === 0 ? "oro" : (i % 2 ? "hielo" : "roca")), caja);
+}
+$("gaVerMovs").onclick = () => tab("movs");
 
 // La tendencia y el mes contra el anterior comparten los mismos doce meses.
 let tendenciaPedida = 0;
@@ -5851,19 +5943,37 @@ function pintarFinMes(f, fijos, dash){
     const i = p.dia < hoy.getDate() ? 0 : Array.from({ length: dias + 1 }, (_, k) => new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + k).getDate()).indexOf(Math.min(p.dia, ultimo));
     if (i >= 0) (porDia.get(i) || porDia.set(i, []).get(i)).push(p);
   }
-  const puntos = [...porDia.entries()].sort((a, b) => a[0] - b[0]).map(([i, l], k) =>
-    `<span class="punto cae" style="left:${x(i)}%;--i:${k}" title="${esc(l.map((p) => `${p.label}: ${plata(p.monto, cur)}`).join("\n"))}">${l.length > 1 ? l.length : ""}</span>`).join("");
+  // Cada fijo pendiente es un asteroide sobre el camino, en el día que cae.
+  // Los que caen el mismo día se juntan en uno, con su cuenta.
+  // Sobre el camino, en su día, pero sin pisarse: cada asteroide guarda un
+  // tramo mínimo con el anterior (antes del primero va el astronauta).
+  const grupos = porDia.size;
+  const GAP = Math.min($("fmHero").clientWidth < 700 ? .2 : .14, grupos > 1 ? .6 / (grupos - 1) : 1);
+  let tAnt = .28 - GAP;
+  const asteroides = [...porDia.entries()].sort((a, b) => a[0] - b[0]).map(([i, l], k) => {
+    const t = tAnt = Math.min(.88, Math.max(tAnt + GAP, .28, i / Math.max(1, dias)));
+    const [px, py] = caminoPct(t), monto = l.reduce((a, p) => a + (p.monto || 0), 0);
+    return `<button type="button" class="planeta asteroide${quietito() ? "" : " nace"}" data-i="${k}" style="--x:${px}%;--y:${py}%;--s:${l.length > 1 ? 40 : 32}px;--z:.6;--i:${k}" title="${esc(l.map((p) => `${p.label}: ${plata(p.monto, cur)}`).join("\n"))}">
+      <span class="sombraM"></span><i></i><b>${esc(l.length > 1 ? `${l.length} fijos` : corta(l[0].label, 14))}</b><small>${esc(plata(monto, cur))} · día ${esc(String(Math.min(l[0].dia, ultimo)))}</small></button>`; }).join("");
+  $("fmMundos3d")?._m3d?.matar();          // el repintado (otra moneda) suelta el motor anterior
   $("fmHero").innerHTML = `<span class="lbl">¿Llegas ${esc(destino)}?</span>
     <span class="veredicto${llega ? "" : " mal"}" id="fmVeredicto">${llega ? "Sí, te quedarían" : "No, te faltarían"}</span>
     <span class="val" id="fmCifra" data-k="finmes" data-n="${Math.abs(alFinal)}" data-m="${esc(cur)}" data-suf="" data-fin="${esc(plata(Math.abs(alFinal), cur))}">${esc(plata(Math.abs(alFinal), cur))}</span>
     <span class="sub">tienes ${esc(plata(saldoHoy, cur))} · <span id="fmSubGasto">gastas ${esc(plata(diario, cur))} al día</span>${fijosTotal ? ` · ${esc(plata(fijosTotal, cur))} de fijos por pagar` : ""}</span>
-    <span class="fig"><img src="cohete.webp" alt="" width="170" height="178" loading="lazy"></span>
-    <div class="linea" role="img" aria-label="Faltan ${dias} ${dias === 1 ? "día" : "días"}; ${pendientes.length} ${pendientes.length === 1 ? "fijo" : "fijos"} por pagar">
-      <span class="faltan">faltan ${dias} ${dias === 1 ? "día" : "días"}</span>
-      <i class="riel"></i><i class="hecho" style="width:${x(Math.min(dias, 1))}%"></i>${puntos}
-      <span class="hoy" style="left:0%"><i>hoy ${hoy.getDate()}</i></span>
-      <span class="meta${llega ? "" : " mal"}" style="left:100%"></span>
-      <span class="fin">${esc(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + dias).toLocaleDateString("es-PE", { day:"numeric", month:"short" }))}${f.next_income_amount ? " · +" + esc(plata(f.next_income_amount, cur)) : ""}</span>
+    <div class="fmCamino" id="fmCamino" role="img" aria-label="Faltan ${dias} ${dias === 1 ? "día" : "días"}; ${pendientes.length} ${pendientes.length === 1 ? "fijo" : "fijos"} por pagar">
+      <svg class="orbRuta" viewBox="0 0 1000 540" preserveAspectRatio="none" aria-hidden="true">
+        <path class="pista" d="${caminoD()}"/><path class="hecho" d="${caminoD()}" pathLength="1" style="stroke-dashoffset:${(1 - Math.min(.96, Math.max(.04, Math.min(dias, 1) / Math.max(1, dias)))).toFixed(3)}"/>
+      </svg>
+      <figure class="orbCosa orbBillete"><img src="billetera.webp" width="420" height="337" alt=""></figure>
+      <figure class="orbCosa orbCobrar"><img src="cobrar.webp" width="420" height="385" alt=""><small>${esc(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + dias).toLocaleDateString("es-PE", { day:"numeric", month:"short" }))}${f.next_income_amount ? " · +" + esc(plata(f.next_income_amount, cur)) : ""}</small></figure>
+      <span class="meta${llega ? "" : " mal"}" style="left:${caminoPct(.98)[0]}%;top:${caminoPct(.98)[1]}%"></span>
+      <div class="mundos3d" id="fmMundos3d" aria-hidden="true"></div>
+      <div id="fmAsteroides">${asteroides}</div>
+      <div class="astroCapa fmAstro" style="left:${caminoPct(.06)[0]}%;top:${caminoPct(.06)[1]}%" aria-hidden="true">
+        <div class="astro"><img src="astronauta.webp" width="320" height="334" alt=""></div>
+        <span class="hoyTag">hoy ${hoy.getDate()} · faltan ${dias} ${dias === 1 ? "día" : "días"}</span>
+      </div>
+      <span class="finViejo" hidden>${esc(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + dias).toLocaleDateString("es-PE", { day:"numeric", month:"short" }))}${f.next_income_amount ? " · +" + esc(plata(f.next_income_amount, cur)) : ""}</span>
     </div>
     <div class="siGasto"><span>Si gastara</span>
       <input type="range" id="fmRango" min="0" max="${Math.max(10, Math.ceil(diario * 2))}" step="any" value="${diario}" aria-label="Gasto diario supuesto">
@@ -5883,7 +5993,7 @@ function pintarFinMes(f, fijos, dash){
     generacionPor.set($("tab-finmes"), (generacionPor.get($("tab-finmes")) || 0) + 1);   // corta el conteo si seguía subiendo
     $("fmCifra").textContent = $("fmCifra").dataset.fin = plata(Math.abs(fin), cur);
     $("fmSubGasto").textContent = real ? `gastas ${plata(diario, cur)} al día` : `si gastaras ${plata(v, cur)} al día (hoy gastas ${plata(diario, cur)})`;
-    $("fmHero").querySelector(".linea .meta")?.classList.toggle("mal", fin < 0);
+    $("fmHero").querySelector(".fmCamino .meta")?.classList.toggle("mal", fin < 0);
     cancelAnimationFrame(simular.raf); simular.raf = requestAnimationFrame(() => pintarCurva(v));   // un dibujo por cuadro, no por evento
   };
   $("fmRango").oninput = simular;
@@ -5898,7 +6008,7 @@ function pintarFinMes(f, fijos, dash){
       "green", hayIngreso ? `en ${dias} ${dias === 1 ? "día" : "días"}`
         : "configúralo en la app y esta cuenta mejora", f.next_income_amount || 0, cur);
   subirNumeros($("tab-finmes"), "#fmKpis .val, #fmHero .val");
-  crecer($("fmHero"));
+  mundos3d($("fmMundos3d"), [...$("fmAsteroides").querySelectorAll(".planeta")], pendientes.map(() => "roca"), $("fmAsteroides"));
 
   // La curva, como área que se descubre, con cada fijo marcado en su día y el
   // valor al final; punteada desde hoy porque es una proyección. Con el
