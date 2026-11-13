@@ -245,7 +245,8 @@
   .anilloGrande.sinFoto .anilloTexto .sub{margin-top:0;max-width:18ch}
   /* El anillo en 3D: un lienzo más grande que la caja, detrás de la foto, que
      la rodea con un toro que crece. Sin WebGL queda el SVG de siempre. */
-  .anillo .anillo3d{position:absolute;inset:-10px;pointer-events:none}
+  /* Más grande que el anillo: las chispas tienen que poder salirse de él. */
+  .anillo .anillo3d{position:absolute;inset:-48px;pointer-events:none}
   .anillo .anillo3d .lienzo3d{position:absolute;inset:0;width:100% !important;height:100% !important}
   .anillo .foto{z-index:1}
   .anillo.en3d svg{display:none}
@@ -2851,51 +2852,118 @@ function anilloConFoto(el, parte, pasado){
   else requestAnimationFrame(() => requestAnimationFrame(() => {
     arco.style.transition = "stroke-dashoffset 1100ms var(--ease-expo)"; arco.setAttribute("stroke-dashoffset", fin);
   }));
-  if (el.classList.contains("anillo") && el.closest(".anilloGrande")) anillo3d(el, parte, pasado);
+  if (el.classList.contains("anillo") && el.closest(".anilloGrande")) anilloChispas(el, parte, pasado);
 }
 
-// El mismo anillo con volumen: un toro dorado y redondeado que crece alrededor
-// de la foto, inclinado hacia ti, con una cabeza que brilla en la punta del
-// arco. Se mece solo y sigue al puntero con el resto del hero. Sin ingresos,
-// la cabeza da vueltas sola sobre la pista vacía: invita a anotar el sueldo.
-async function anillo3d(el, parte, pasado){
+// El anillo como aro de luz: una estela dorada que va hasta donde llega lo
+// consumido, hecha de varias luces finas, con la punta ardiendo y chispas que
+// saltan de ella y del trazo. Lienzo 2D con mezcla aditiva: sin WebGL y sin
+// librerías. El SVG queda detrás para quien pide menos movimiento, que ve el
+// aro terminado y con su brillo, sin chispas.
+function anilloChispas(el, parte, pasado){
   const caja = document.createElement("div"); caja.className = "anillo3d"; el.appendChild(caja);
-  const m = await motor3d(caja, "cuadrado", (m) => {
-    const { THREE, escena } = m;
-    const camara = new THREE.OrthographicCamera(-1.3, 1.3, 1.3, -1.3, .1, 100);
-    camara.encuadre = (w, h) => { const a = w / h; camara.left = -1.3 * Math.max(1, a); camara.right = -camara.left;
-      camara.top = 1.3 * Math.max(1, 1 / a); camara.bottom = -camara.top; };
-    camara.position.set(0, 0, 6); camara.lookAt(0, 0, 0);
-    const grupo = new THREE.Group(); escena.add(grupo);
-    grupo.add(new THREE.Mesh(new THREE.TorusGeometry(.97, .14, 20, 72),
-      new THREE.MeshStandardMaterial({ color: 0x232327, roughness: .9, metalness: .1 })));
-    const tono = pasado ? 0xe5566f : 0xd0a55c, brillo = pasado ? 0x3a0e16 : 0x3a2a0c;
-    const oro = new THREE.MeshStandardMaterial({ color: tono, metalness: .8, roughness: .28, emissive: brillo, emissiveIntensity: .5 });
-    const arco = new THREE.Mesh(new THREE.TorusGeometry(.97, .2, 24, 96, .001), oro);
-    arco.rotation.set(0, Math.PI, Math.PI / 2);        // arranca arriba y gira en sentido horario
-    grupo.add(arco);
-    const cabeza = new THREE.Mesh(new THREE.SphereGeometry(.25, 24, 24),
-      new THREE.MeshStandardMaterial({ color: tono, metalness: .6, roughness: .22, emissive: brillo, emissiveIntensity: 1.2 }));
-    arco.add(cabeza);
-    const fin = parte == null ? 0 : Math.min(1, parte) * Math.PI * 2;
-    const mision = el.closest(".mision");
-    const cuadro = (t) => {
-      const e = Math.max(0, Math.min(1, (t - .25) / 1.4)), a = Math.max(.001, fin * (1 - Math.pow(1 - e, 3)));
-      if (Math.abs(a - (arco.geometry.parameters.arc || 0)) > .003){ arco.geometry.dispose(); arco.geometry = new THREE.TorusGeometry(.97, .2, 24, 96, a); }
-      const ang = parte == null ? t * .9 : a;      // sin ingresos, la cabeza orbita sola
-      cabeza.position.set(Math.cos(ang) * .97, Math.sin(ang) * .97, 0);
-      cabeza.material.emissiveIntensity = 1 + .5 * Math.sin(t * 2.2);
-      oro.emissiveIntensity = .45 + .2 * Math.sin(t * 1.3);
-      const px = mision ? parseFloat(getComputedStyle(mision).getPropertyValue("--px")) || 0 : 0;
-      const py = mision ? parseFloat(getComputedStyle(mision).getPropertyValue("--py")) || 0 : 0;
-      grupo.rotation.x = .28 + Math.cos(t * .5) * .04 + py * -.14;
-      grupo.rotation.y = Math.sin(t * .6) * .08 + px * .2;
-    };
-    return { camara, cuadro, tocar: () => {} };
-  });
-  if (!caja.isConnected){ if (m && m !== VIEJO) m.matar(); return; }   // otro repintado la sacó mientras cargaba Three
-  if (m && m !== VIEJO) el.classList.add("en3d");
-  else if (!m) caja.remove();
+  const cv = document.createElement("canvas"); cv.className = "lienzo3d"; caja.appendChild(cv);
+  const cx = cv.getContext("2d");
+  const tono = pasado ? [229, 86, 111] : [243, 206, 127];       // coral o dorado claro
+  const fin = parte == null ? 0 : parte * Math.PI * 2, INI = -Math.PI / 2;
+  let W = 0, H = 0, R = 0, lazo = 0, t0 = 0, antes = 0, vivo = true;
+  let azar = 13; const rnd = () => (azar = (azar * 16807) % 2147483647) / 2147483647;
+  // Estelas fijas: cada una con su desvío de radio, grosor y alfa, para que
+  // el trazo parezca hecho de varias luces y no de una sola línea.
+  const estelas = Array.from({ length: 7 }, () => ({ d: (rnd() - .5) * 8, w: .6 + rnd() * 1.4,
+    a: .14 + rnd() * .22, f: rnd() * 6.28, v: .6 + rnd() * .8 }));
+  // Hebras: trazos cortos a distintos radios, como un aro cepillado de luz.
+  // Cada una vive en un tramo del arco y se desplaza despacio por él.
+  const hebras = Array.from({ length: 26 }, () => ({ d: (rnd() - .5) * 26, w: .5 + rnd() * .9, a: .08 + rnd() * .2,
+    p: rnd(), l: .08 + rnd() * .35, v: (rnd() - .5) * .25 }));
+  const chispas = [];
+  const medir = () => {
+    const d = Math.min(devicePixelRatio || 1, 2), w = cv.clientWidth, h = cv.clientHeight;
+    if (!w || !h) return false;
+    if (cv.width !== w * d || cv.height !== h * d){ cv.width = w * d; cv.height = h * d; }
+    cx.setTransform(d, 0, 0, d, 0, 0); W = w; H = h;
+    R = el.clientWidth / 2 - 6;      // el radio es el del anillo, no el del lienzo
+    return true;
+  };
+  const color = (a) => `rgba(${tono[0]},${tono[1]},${tono[2]},${a.toFixed(3)})`;
+  const arco = (r, w, estilo, desde, hasta) => { cx.beginPath(); cx.arc(W / 2, H / 2, r, desde, hasta);
+    cx.lineWidth = w; cx.strokeStyle = estilo; cx.stroke(); };
+  const pintar = (t, ang) => {
+    cx.clearRect(0, 0, W, H);
+    cx.lineCap = "round";
+    // La pista: un hilo tenue que cierra el círculo. Sin ingresos, punteado.
+    cx.setLineDash(parte == null ? [3, 6] : []);
+    arco(R, 1.5, "rgba(255,255,255,.12)", 0, Math.PI * 2);
+    cx.setLineDash([]);
+    cx.globalCompositeOperation = "lighter";
+    if (ang > .002){
+      cx.shadowColor = color(.9); cx.shadowBlur = 34;
+      arco(R, 10, color(.16), INI, INI + ang);                     // el resplandor ancho
+      cx.shadowBlur = 16;
+      arco(R, 6, color(.28), INI, INI + ang);
+      cx.shadowBlur = 0;
+      for (const h of hebras){                                      // las hebras cortas
+        const ini = INI + ((h.p + t * h.v) % 1 + 1) % 1 * ang, fin = Math.min(INI + ang, ini + h.l * ang);
+        if (fin > ini) arco(R + h.d, h.w, color(h.a), ini, fin);
+      }
+      for (const e of estelas){                                     // las luces finas
+        const osc = .85 + .15 * Math.sin(t * e.v + e.f);
+        arco(R + e.d, e.w, color(e.a * osc), INI, INI + ang);
+      }
+      arco(R, 5, color(.6), INI, INI + ang);                        // el cuerpo
+      arco(R, 2.2, "rgba(255,248,220,.95)", INI, INI + ang);       // el núcleo blanco
+      const hx = W / 2 + Math.cos(INI + ang) * R, hy = H / 2 + Math.sin(INI + ang) * R;
+      const g = cx.createRadialGradient(hx, hy, 0, hx, hy, 14);    // la punta que arde
+      g.addColorStop(0, "rgba(255,252,235,.95)"); g.addColorStop(.35, color(.6)); g.addColorStop(1, color(0));
+      cx.fillStyle = g; cx.beginPath(); cx.arc(hx, hy, 14, 0, 7); cx.fill();
+    }
+    for (const c of chispas){
+      const vida = 1 - c.e / c.dur;
+      cx.strokeStyle = color(vida * .9); cx.lineWidth = c.w;
+      cx.beginPath(); cx.moveTo(c.x - c.vx * c.cola, c.y - c.vy * c.cola); cx.lineTo(c.x, c.y); cx.stroke();
+    }
+    cx.globalCompositeOperation = "source-over";
+  };
+  // Las chispas salen sobre todo de la punta, hacia adelante y afuera, y unas
+  // pocas de cualquier punto del trazo. Caen un poco y se apagan.
+  const emitir = (ang, n) => {
+    for (let i = 0; i < n && chispas.length < 140; i++){
+      const dePunta = rnd() < .5, a = INI + (dePunta ? ang - rnd() * .15 : rnd() * ang);
+      const x = W / 2 + Math.cos(a) * R, y = H / 2 + Math.sin(a) * R;
+      // Rayos: unas pocas salen radiales, rápidas y cortas, como las agujas de
+      // luz de la referencia. Las demás, tangentes y hacia afuera, caen y se apagan.
+      const rayo = rnd() < .3;
+      const dir = rayo ? a + (rnd() - .5) * .3 : a + (dePunta ? .9 : 0) + (rnd() - .5) * 1.2;
+      const vel = (rayo ? 90 + rnd() * 120 : 30 + rnd() * 80) / 60, afuera = rayo ? 0 : (rnd() - .35) * 1.8;
+      chispas.push({ x, y, vx: Math.cos(dir) * vel + Math.cos(a) * afuera, vy: Math.sin(dir) * vel + Math.sin(a) * afuera,
+        e: 0, dur: rayo ? 160 + rnd() * 220 : 400 + rnd() * 800, w: rayo ? .5 + rnd() * .6 : .7 + rnd() * 1.3, cola: rayo ? 9 : 5 });
+    }
+  };
+  const ciclo = (ms) => {
+    if (!vivo) return;
+    lazo = requestAnimationFrame(ciclo);
+    if (document.hidden || !medir()) return;           // escondido o sin tamaño: no gasta
+    if (!t0) t0 = ms;
+    const t = (ms - t0) / 1000, dt = Math.min(50, antes ? ms - antes : 16); antes = ms;
+    // El arco crece desde cero con la misma curva que el SVG de respaldo.
+    const e = Math.max(0, Math.min(1, (t - .25) / 1.1)), ang = fin * (1 - Math.pow(1 - e, 3));
+    const angVivo = parte == null ? (t * .8) % (Math.PI * 2) : ang;   // sin ingresos, la punta orbita sola
+    emitir(angVivo, e < 1 ? 6 : (rnd() < .7 ? 2 : 1));   // muchas mientras crece, un goteo después
+    for (let i = chispas.length - 1; i >= 0; i--){
+      const c = chispas[i]; c.e += dt;
+      c.x += c.vx * dt / 16; c.y += c.vy * dt / 16; c.vx *= .985; c.vy = c.vy * .985 + .02;
+      if (c.e >= c.dur) chispas.splice(i, 1);
+    }
+    pintar(t, angVivo);
+  };
+  const m = { matar: () => { vivo = false; cancelAnimationFrame(lazo); if (caja._m3d === m) delete caja._m3d; caja.remove(); } };
+  caja._m3d = m;
+  if (quietito()){
+    if (medir()){ pintar(0, fin); el.classList.add("en3d"); } else m.matar();   // sin tamaño queda el SVG
+    return;
+  }
+  el.classList.add("en3d");
+  lazo = requestAnimationFrame(ciclo);
 }
 
 // Las cifras suben desde cero la primera vez que se pintan: es un instrumento
