@@ -774,18 +774,12 @@
     border:1px dashed var(--control);border-radius:12px}
   .vacio b{display:block;color:var(--text);font-size:15px;margin-bottom:5px}
 
-  @container hoja (max-width:610px){
-    .panel table.rank td.desc{grid-column:1 / -1;font-weight:600}
-    .panel table.rank td.desc::before{content:none}
-    .panel table.rank td{overflow-wrap:anywhere}
-    .panel table.rank td .badge{white-space:normal;display:inline-block}
-  }
   /* La cabecera de una vista: nota a la izquierda, selector a la derecha. */
   .barraVista{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}
   .barraVista .der{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .barraVista input[type="search"]{min-width:250px}
   .barraVista select, .barraVista input{padding:0 16px;border-radius:999px;height:38px;
-    border:1px solid var(--border);background:var(--raised);color:var(--text);
+    border:1px solid transparent;background:linear-gradient(180deg,#2d2c38,#222129);color:var(--text);box-shadow:var(--clay-chica);
     font:inherit;font-size:14px}
   .panel .nota{color:var(--faint);font-size:13px;margin:-6px 0 12px}
   /* Movimientos: filas por día que se tocan, y el detalle que se abre al lado
@@ -864,21 +858,29 @@
   .desvio .cab{margin-bottom:6px}
   .desvio .cab small{position:absolute;top:0;font-size:11px;color:var(--faint)}
   .desvio .cab small:first-child{right:calc(50% + 8px)} .desvio .cab small:last-child{left:calc(50% + 8px)}
-  .desvio ul{list-style:none;margin:0;padding:0}
-  .desvio li{padding:7px 0;border-radius:8px;transition:background 160ms var(--ease-out)}
-  .desvio li:hover{background:var(--raised)}
+  .desvio ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .desvio li{padding:10px 14px}
+  /* Tejas: la fila es una pieza de arcilla chica; entran una tras otra desde abajo. */
+  .tejas > li, .desvio li, .tejas2 > div{border-radius:14px;background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));box-shadow:var(--clay-chica);
+    transition:opacity 420ms var(--ease-out) calc(var(--i,0) * 45ms),transform 420ms var(--ease-out) calc(var(--i,0) * 45ms),background 160ms var(--ease-out)}
+  .tejas > li:hover, .desvio li:hover{background:linear-gradient(180deg,#2c2b36,#201f28)}
+  .tejas.brota > li, .desvio.brota li{opacity:0;transform:translateY(8px)}
   .desvio .nom{font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .desvio .nom em{display:block;font-style:normal;font-size:12px;color:var(--faint);margin-top:2px}
   .desvio .pista{position:relative;height:22px;min-width:0}
-  .desvio .pista::before{content:"";position:absolute;left:50%;top:-6px;bottom:-6px;width:1px;background:var(--control)}
+  .desvio .pista::before{content:"";position:absolute;left:50%;top:-10px;bottom:-10px;width:2px;border-radius:2px;background:var(--clay-lo);box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
   .desvio .cab .pista::before{display:none}
-  .desvio .pista b{position:absolute;top:5px;height:12px;border-radius:6px;width:calc((50% - var(--res, 84px)) * var(--w))}
-  .desvio .pista b.mas{left:50%;background:var(--pasa);transform-origin:left}
-  .desvio .pista b.menos{right:50%;background:var(--entra);transform-origin:right}
-  .desvio .delta{position:absolute;top:0;line-height:22px;font-size:13px;font-weight:500;white-space:nowrap;color:var(--muted)}
-  .desvio .delta.mal{color:var(--pasa);left:calc(50% + (50% - var(--res, 84px)) * var(--w) + 8px)}
-  .desvio .delta.bien{right:calc(50% + (50% - var(--res, 84px)) * var(--w) + 8px)}
-  .desvio .pista b{transition:transform 900ms cubic-bezier(.34,1.56,.64,1) calc(var(--i) * 45ms)}
+  /* La barra es una cápsula de arcilla: brillo arriba, canto abajo. */
+  .desvio .pista b{position:absolute;top:4px;height:14px;border-radius:999px;width:calc((50% - var(--res, 84px)) * var(--w));
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.28)}
+  .desvio .pista b.mas{left:50%;background:linear-gradient(180deg,#f0738a,var(--pasa));transform-origin:left}
+  .desvio .pista b.menos{right:50%;background:linear-gradient(180deg,#7fe0c0,var(--entra));transform-origin:right}
+  /* El desvío va en un chip teñido, como las píldoras de la referencia. */
+  .panel .desvio .delta{position:absolute;top:0;height:22px;line-height:22px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;
+    color:var(--muted);background:var(--active);box-shadow:var(--clay-chica)}   /* .panel: gana a la regla general del panel */
+  .desvio .delta.mal{color:var(--pasa);background:var(--pill-negative-bg);left:calc(50% + (50% - var(--res, 84px)) * var(--w) + 8px)}
+  .desvio .delta.bien{color:var(--entra);background:var(--pill-positive-bg);right:calc(50% + (50% - var(--res, 84px)) * var(--w) + 8px)}
+  .desvio .pista b{transition:transform 700ms var(--ease-expo) calc(var(--i) * 45ms)}
   .desvio .delta{transition:opacity 400ms var(--ease-out) calc(var(--i) * 45ms + 500ms)}
   .desvio.brota .pista b{transform:scaleX(0)} .desvio.brota .delta{opacity:0}
   @container hoja (max-width:560px){
@@ -892,9 +894,39 @@
   .donaSvg .gajo{transform-box:view-box;transform-origin:110px 66px;transition:transform 220ms var(--ease-out);cursor:default}
   .donaSvg .gajo:hover{transform:translate(var(--dx),var(--dy))}
   @container hoja (max-width:610px){ .donaCaja{grid-template-columns:1fr} }
+  /* En media anchura (row2) la leyenda no cabe al lado: la dona arriba, centrada, y la leyenda debajo. */
+  .row2 .donaCaja{grid-template-columns:1fr;justify-items:center}
+  .row2 .donaCaja .dona{width:min(100%,240px)}
+  .row2 .donaCaja .leyenda{width:100%}
+  /* En el teléfono el desvío no tiene sitio para un eje al centro: la cápsula
+     sale desde la izquierda y el chip va al final, en ambos sentidos. */
+  @container hoja (max-width:610px){
+    .desvio .cab{display:none}
+    .desvio li{grid-template-columns:1fr}
+    .desvio .pista::before{display:none}
+    .desvio .pista b.mas, .desvio .pista b.menos{left:0;right:auto;transform-origin:left;width:calc((100% - var(--res, 84px)) * var(--w))}
+    .desvio .delta.mal, .desvio .delta.bien{right:auto;left:calc((100% - var(--res, 84px)) * var(--w) + 8px)}
+    .pasado > li{grid-template-columns:minmax(0,1fr) auto}
+    .pasado > li .delta{grid-column:1 / -1;justify-self:start}   /* el chip baja a su fila: el nombre respira */
+  }
   .leyenda{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px}
   .leyenda li{display:flex;align-items:center;gap:10px}
-  .leyenda i{width:10px;height:10px;border-radius:50%;flex:none}
+  .leyenda i{width:12px;height:12px;border-radius:50%;flex:none;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(0,0,0,.3)}
+  .tejas{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-variant-numeric:tabular-nums}
+  .tejas > li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 14px;font-size:14px}
+  .tejas .nom{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tejas .nom em{display:block;font-style:normal;font-size:12px;color:var(--faint);margin-top:1px}
+  .tejas > li > b{font-weight:600}
+  /* A quién le pagas: la cápsula bajo el nombre; la primera en dorado. */
+  .barras .capsula{grid-column:1 / -1;height:12px;border-radius:999px;background:var(--clay-lo);box-shadow:inset 0 2px 5px rgba(0,0,0,.45)}
+  .barras .capsula i{display:block;height:100%;border-radius:999px;background:linear-gradient(180deg,#a7a1f2,var(--lavanda));
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.25)}
+  .barras > li:first-child .capsula i{background:linear-gradient(180deg,#f3d48f,var(--gold))}
+  /* Contra el mes pasado: nombre y el mes anterior en voz baja, la cifra y el chip. */
+  .pasado > li{grid-template-columns:minmax(0,1fr) auto auto}
+  .tejas2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .tejas2 > div{padding:10px 14px;font-size:13px;color:var(--faint)}
+  .tejas2 > div b{display:block;color:var(--text);font-size:16px;font-weight:600;font-family:var(--cifra);margin-top:2px}
   .leyenda b{margin-left:auto;font-weight:500;font-variant-numeric:tabular-nums}
   .leyenda small{color:var(--faint);font-size:12px;margin-left:8px}
 
@@ -1697,10 +1729,10 @@
      una tira partida por hairlines, cifras en Inter a 24/400 en tinta,
      tablas con cabecera gris de 12px y cifras tabulares a la derecha,
      píldoras pálidas. Pisa las reglas que comparte con .admin, que no cambia. */
-  .panel .section{background:var(--surface);border:0;border-radius:var(--radius-card);padding:22px}
+  .panel .section{background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));border:0;border-radius:24px;padding:22px;box-shadow:var(--clay-sombra)}
   .panel .section h3{font-size:16px;font-weight:600;margin-bottom:14px}
   .panel .grid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:0;
-    background:var(--surface);border-radius:var(--radius-card);margin:0 0 14px;overflow:hidden}
+    background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));border-radius:24px;margin:0 0 14px;overflow:hidden;box-shadow:var(--clay-sombra)}
   .panel .kpi{background:none;border:0;border-radius:0;padding:16px 22px}
   .panel .kpi + .kpi{border-left:1px solid var(--rule)}
   .panel .kpi .label{font-size:13px;color:var(--faint);font-weight:400}
@@ -1728,6 +1760,10 @@
   /* La variación, en texto: flecha y signo siempre, color solo si es mala. */
   .panel .delta{display:inline;background:none;padding:0;font-size:inherit;font-weight:500;color:var(--muted)}
   .panel .delta.sube{color:var(--negative)}
+  .panel .pasado .delta{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:600;
+    background:var(--active);color:var(--muted);box-shadow:var(--clay-chica)}
+  .panel .pasado .delta.sube{background:var(--pill-negative-bg);color:var(--negative)}
+  .panel .pasado .delta.baja{background:var(--pill-positive-bg);color:var(--positive)}
   .panel .delta.baja{color:var(--positive)}
   .panel .chart{position:relative;min-width:0}
   /* Los gráficos llegan: la columna crece desde su base, la curva se descubre
@@ -5678,6 +5714,16 @@ async function dona3d(el, partes, cur){
 // la barra sale a la derecha (coral) si te pasas y a la izquierda (verde agua)
 // si gastas menos, con el desvío en cifra al final. Las barras brotan del eje
 // con rebote y las cifras cuentan. Una sola columna en el teléfono.
+// Las tejas entran una tras otra: se pintan escondidas y al siguiente cuadro se sueltan.
+function brotar(caja){ if (caja && !quietito()) requestAnimationFrame(() => requestAnimationFrame(() => caja.classList.remove("brota"))); }
+// Lista donde la fila es una teja con su cápsula: nombre, cifra y barra debajo.
+function tejasBarras(el, filas, format){
+  const max = Math.max(...filas.map((f) => f.value), 1);
+  el.innerHTML = `<ol class="tejas barras${quietito() ? "" : " brota"}">` + filas.map((f, i) =>
+    `<li style="--i:${i}"><span class="nom">${esc(f.label)}</span><b>${esc(format(f.value))}</b>
+     <span class="capsula"><i style="width:${(f.value / max * 100).toFixed(1)}%"></i></span></li>`).join("") + `</ol>`;
+  brotar(el.firstElementChild); crecer(el);
+}
 function desvios(el, filas, cur){
   const tope = Math.max(...filas.map((f) => Math.abs(f.value - f.target)), 1);
   const reserva = (Math.max(...filas.map((f) => plata(Math.abs(f.value - f.target), cur).length)) + 1) * 8 + 22;   // la cifra más larga con su signo, a 13px
@@ -5691,8 +5737,7 @@ function desvios(el, filas, cur){
         <span class="pista"><b class="${mas ? "mas" : "menos"}" style="--w:${w}"></b>
           <span class="delta ${mas ? "mal" : "bien"}" style="--w:${w}" data-k="${esc(f.label)}" data-n="${Math.abs(d)}" data-m="${esc(cur)}" data-pre="${signo}" data-suf="" data-fin="${esc(fin)}">${esc(fin)}</span></span>
       </li>`; }).join("") + `</ul></div>`;
-  const caja = el.firstElementChild;
-  if (!quietito()) requestAnimationFrame(() => requestAnimationFrame(() => caja.classList.remove("brota")));
+  brotar(el.firstElementChild);
 }
 
 // Una dona con volumen: vista inclinada (la elipse es el círculo visto desde
@@ -5840,8 +5885,7 @@ function pintarGastos(txs, cats, cur, dash){
   // 2. A quién le pagas: la fila es la barra.
   const quien = sumarPor(gastos, quienCobra).slice(0, 6);
   if (quien.length){
-    Charts.barList($("gaQuien"), quien.map(([nombre, monto]) => ({ label: corta(nombre, 28), value: monto })), { format: dinero });
-    crecer($("gaQuien"));
+    tejasBarras($("gaQuien"), quien.map(([nombre, monto]) => ({ label: corta(nombre, 28), value: monto })), dinero);
   }
   else $("gaQuien").innerHTML = vacio("Nada todavía", "Cuando registres gastos, acá verás a quién le pagas más.");
 
@@ -5872,8 +5916,7 @@ function pintarGastos(txs, cats, cur, dash){
   // ese campo suma todas las monedas juntas (ADR-0011).
   const porCtx = sumarPor(gastos, (t) => t.context === "business" ? "Negocio" : "Personal");
   $("gaContexto").innerHTML = porCtx.length > 1
-    ? `<table style="margin-top:14px"><tbody>` + porCtx.map(([nombre, monto]) => `<tr><td>${esc(nombre)}</td>
-        <td class="num">${esc(plata(monto, cur))}</td></tr>`).join("") + `</tbody></table>`
+    ? `<div class="tejas2">` + porCtx.map(([nombre, monto]) => `<div>${esc(nombre)}<b>${esc(plata(monto, cur))}</b></div>`).join("") + `</div>`
     : "";
 
   // 4. Qué días se te va: siete columnas de un tono, la semana empieza el lunes.
@@ -5954,14 +5997,11 @@ async function pintarTendencia(cur){
     .sort((x, y) => Math.abs(y.a - y.b) - Math.abs(x.a - x.b))
     .slice(0, 6);
   $("gaDeltas").innerHTML = todas.length
-    ? `<table class="rank"><thead><tr><th>Categoría</th><th class="num">Este mes</th>
-        <th class="num">Mes pasado</th><th>Cambio</th></tr></thead><tbody>`
-      + todas.map((f) => `<tr><td class="desc"><b>${esc(f.cat)}</b></td>
-          <td class="num tot" data-l="Este mes">${esc(plata(f.a, cur))}</td>
-          <td class="num" data-l="Mes pasado">${esc(plata(f.b, cur))}</td>
-          <td data-l="Cambio">${f.b ? delta(f.a, f.b) : `<span class="delta">nuevo</span>`}</td></tr>`).join("")
-      + "</tbody></table>"
+    ? `<ul class="tejas pasado${quietito() ? "" : " brota"}">` + todas.map((f, i) => `<li style="--i:${i}">
+          <span class="nom">${esc(f.cat)}<em>mes pasado ${esc(plata(f.b, cur))}</em></span>
+          <b>${esc(plata(f.a, cur))}</b>${f.b ? delta(f.a, f.b) : `<span class="delta">nuevo</span>`}</li>`).join("") + "</ul>"
     : vacio("Sin mes anterior", "Cuando tengas dos meses registrados, acá verás qué subió y qué bajó.");
+  brotar($("gaDeltas").firstElementChild);
 }
 
 // ── Vista: Fin de mes ──────────────────────────────────────────────────────
