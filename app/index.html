@@ -242,7 +242,9 @@
      el astronauta viaja por él hasta hoy. Las categorías son planetas con el
      tamaño de lo gastado. La nébula vive detrás. Arriba a la izquierda, lo
      único que se lee primero: el disponible, una frase y una acción. */
-  .mision{position:relative;height:540px;border-radius:20px;margin:56px 0 16px;--px:0;--py:0}
+  /* Alto mínimo, no fijo: una frase larga del cerebro empuja las tejas y la
+     tarjeta crece con ellas; la escena (en porcentajes) se estira con la tarjeta. */
+  .mision{position:relative;min-height:540px;border-radius:20px;margin:56px 0 16px;--px:0;--py:0}
   /* El fondo es lo único recortado: los mundos, el astronauta y las chispas
      se salen de la tarjeta, como objetos delante de ella. */
   .orbFondo{position:absolute;inset:0;border-radius:28px;overflow:hidden;box-shadow:var(--clay-sombra);
@@ -310,7 +312,7 @@
   .planeta:active{transform:scale(.97)}
   .planeta b{display:block;margin-top:8px;font-size:13px;font-weight:600;white-space:nowrap}
   .planeta small{display:block;font-size:12px;color:var(--muted)}
-  .planeta[data-i="0"]{--x:50%;--y:23%} .planeta[data-i="1"]{--x:63%;--y:10%} .planeta[data-i="2"]{--x:74%;--y:34%}
+  .planeta[data-i="0"]{--x:53%;--y:24%} .planeta[data-i="1"]{--x:65%;--y:9%} .planeta[data-i="2"]{--x:74%;--y:34%}
   .planeta[data-i="3"]{--x:78%;--y:7%} .planeta[data-i="4"]{--x:64%;--y:50%}
   /* Los mundos en 3D: una sola escena para todos, debajo de las etiquetas.
      Con WebGL la esfera CSS se esconde (sin perder su sitio); sin él, se queda. */
@@ -321,7 +323,7 @@
   .orbVacio{position:absolute;left:50%;top:26%;transform:translateX(-50%);max-width:30ch;text-align:center;
     color:var(--muted);font-size:14px;line-height:1.5}
   /* El texto: lo que se lee primero. */
-  .misionGrid{position:absolute;left:30px;top:28px;max-width:47%;z-index:3;display:flex;flex-direction:column}
+  .misionGrid{position:relative;z-index:3;max-width:47%;padding:28px 0 128px 30px;display:flex;flex-direction:column}   /* el padding de abajo deja sitio a la billetera y al pie */
   .misionIzq, .misionDer{display:contents}
   .mision .hero{margin:0}
   .mision .hero .lbl{font-size:13px;color:var(--faint)}
@@ -1635,7 +1637,7 @@
        (a dos tercios) y el astronauta. El aro y el veredicto cierran abajo. */
     .mision{height:auto;margin-top:54px;padding:22px 18px 0;display:flex;flex-direction:column}
     .mundos3d{inset:-60px 0}
-    .misionGrid{position:static;max-width:none;order:1}
+    .misionGrid{position:static;max-width:none;padding:0;order:1}
     .orbEscena{order:2} .orbPie{order:3;flex-direction:row}
     .mision .hero .val{font-size:40px}
     .saludo p{font-size:16px;max-width:none}
