@@ -147,7 +147,17 @@
      cara detrás, con sombra en el borde para que quede dentro. Al entrar el
      aro llega y la escotilla se abre como un iris. Funciona con cualquier
      foto: el círculo recorta y el reflejo unifica. */
-  .escotilla{position:relative;flex:none;height:150px;margin:-4px 0 0;pointer-events:none}
+  .escotilla{position:relative;flex:none;display:block;width:100%;height:164px;margin:-4px 0 0;padding:0;border:0;border-radius:0;background:none;cursor:pointer}
+  .escotilla:focus-visible{outline:none} .escotilla:focus-visible .aro{outline:2px solid var(--gold);outline-offset:4px}
+  .escotilla:active{transform:none}   /* el botón global se encoge al pulsar; la escotilla no */
+  /* La pista bajo la escotilla: aparece al pasar el ratón o al enfocar, y
+     cuenta cómo va la subida; mientras sube, el vidrio se apaga un poco. */
+  .escotilla .pista{position:absolute;left:50%;top:146px;transform:translateX(-50%);font-size:11px;color:var(--muted);white-space:nowrap;
+    opacity:0;transition:opacity var(--t-hover) ease}
+  .escotilla:hover .pista, .escotilla:focus-visible .pista, .escotilla.avisa .pista{opacity:1}
+  .escotilla.subiendo .cara{opacity:.45;transition:opacity 200ms ease}
+  .escotilla.subiendo .reflejo{animation:barrido 1.1s linear infinite}
+  @keyframes barrido{from{transform:translateX(-45%)}to{transform:translateX(45%)}}
   .escotilla .aro{position:absolute;left:50%;top:8px;width:132px;height:132px;margin-left:-66px;border-radius:50%;
     background:radial-gradient(circle at 38% 30%, #3a3946 0%, #2a2933 48%, #1c1b23 100%);
     box-shadow:inset 0 2px 0 rgba(255,255,255,.1), inset 0 -4px 6px rgba(0,0,0,.45), 0 16px 26px -10px rgba(0,0,0,.7), 0 2px 4px rgba(0,0,0,.4)}
@@ -1898,10 +1908,12 @@
     <div class="sideScroll">
     <div class="marca"><span class="y">Y</span><span class="txt"> Altoque</span></div>
     <!-- La escotilla: la cara del usuario mirando desde su nave, por una ventana redonda de arcilla con remaches y vidrio. -->
-    <div class="escotilla" id="escotilla" aria-hidden="true">
+    <button type="button" class="escotilla" id="escotilla" aria-label="Cambiar foto de perfil" title="Cambiar foto">
       <span class="aro"><i style="--a:0deg"></i><i style="--a:45deg"></i><i style="--a:90deg"></i><i style="--a:135deg"></i><i style="--a:180deg"></i><i style="--a:225deg"></i><i style="--a:270deg"></i><i style="--a:315deg"></i></span>
       <span class="vidrio"><span class="cara" id="escotillaCara">·</span><span class="reflejo"></span></span>
-    </div>
+      <span class="pista" id="escotillaPista">Cambiar foto</span>
+    </button>
+    <input type="file" id="escotillaInput" accept="image/jpeg,image/png,image/webp" hidden>
 
     <nav id="menu">
       <div class="grupo" style="--i:1">Mi dinero</div>
@@ -2865,8 +2877,48 @@ async function cargarPerfil(){
   }catch{ /* la barra ya tiene lo de Google: no hace falta avisar de nada */ }
 }
 
+// Clic en la escotilla: elige una foto, se encoge acá a 512px cuadrados (el
+// backend admite 3 MB; una foto de cámara pesa más) y se sube por
+// /users/me/avatar, que la deja en el bucket público y guarda la URL.
+function prepararEscotilla(){
+  const btn = $("escotilla"), input = $("escotillaInput"), pista = $("escotillaPista");
+  if (!btn || !input) return;
+  let aviso = 0;
+  btn.addEventListener("click", () => { if (!btn.classList.contains("subiendo")) input.click(); });   // una subida a la vez: dos en paralelo se borran la foto entre sí en el backend
+  input.addEventListener("change", async () => {
+    const f = input.files && input.files[0]; input.value = "";
+    if (!f) return;
+    clearTimeout(aviso);
+    btn.classList.add("subiendo", "avisa"); pista.textContent = "Subiendo tu foto…";
+    try{
+      const { b64, mime } = await encogerFoto(f);
+      const r = await api("/users/me/avatar", { method:"POST", headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ image_b64: b64, mime_type: mime }) });
+      perfil = { ...(perfil || {}), avatar_url: r.avatar_url };
+      pintarYo(perfil.name || yoNombre, $("correo").textContent, r.avatar_url);
+      pista.textContent = "Listo, esa eres tú";
+    } catch (e){
+      pista.textContent = "No se pudo subir, prueba con otra foto";
+    } finally {
+      btn.classList.remove("subiendo");
+      aviso = setTimeout(() => { btn.classList.remove("avisa"); pista.textContent = "Cambiar foto"; }, 2800);
+    }
+  });
+}
+// Recorte cuadrado centrado a 512px, en JPEG al 86%: cabe de sobra y se ve bien en 104px.
+async function encogerFoto(archivo){
+  const img = await createImageBitmap(archivo, { imageOrientation: "from-image" });   // una foto vertical del teléfono llega con rotación EXIF
+  const L = 512, lado = Math.min(img.width, img.height);
+  const c = document.createElement("canvas"); c.width = c.height = L;
+  c.getContext("2d").drawImage(img, (img.width - lado) / 2, (img.height - lado) / 2, lado, lado, 0, 0, L, L);
+  img.close?.();
+  const blob = await new Promise((ok, no) => c.toBlob((b) => b ? ok(b) : no(new Error("sin imagen")), "image/jpeg", .86));
+  const b64 = await new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",", 2)[1]); r.onerror = no; r.readAsDataURL(blob); });
+  return { b64, mime: "image/jpeg" };
+}
+let yoNombre = "";   // el nombre pintado, para repintar sin leer "Tu cuenta" del DOM
 function pintarYo(nombre, correo, foto){
-  const n = (nombre || "").trim();
+  const n = (nombre || "").trim(); yoNombre = n;
   $("nombre").textContent = n || "Tu cuenta";
   $("correo").textContent = correo || "";
   $("ava").innerHTML = foto
@@ -8906,6 +8958,7 @@ async function boot(){
   }
 }
 
+prepararEscotilla();
 sb.auth.onAuthStateChange((_e, s) => { if (s) boot(); });
 boot();
 </script>
