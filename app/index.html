@@ -241,6 +241,20 @@
   /* El texto siempre por encima de las chispas: el lienzo del aro es más
      grande que el anillo y, sin esto, pintaba sobre las cifras vecinas. */
   .mision .hero, .saludo, .mision .kpis{position:relative;z-index:1}
+  /* Cuando llega el dato (no cuando entra la tarjeta, que ya tuvo su
+     entrada): la cifra manda y cuenta; el saludo y la tira la siguen con un
+     paso corto y menos recorrido; el aro se dibuja solo. Una vez por carga. */
+  @media (prefers-reduced-motion:no-preference){
+    @keyframes llegaDato{from{opacity:0;transform:translateY(8px)}}
+    .mision.llegaDato .hero{animation:llegaDato 420ms var(--ease-expo) both}
+    .mision.llegaDato .saludo{animation:llegaDato 360ms var(--ease-expo) 90ms both;--dy:6px}
+    .mision.llegaDato .kpis{animation:llegaDato 360ms var(--ease-expo) 150ms both}
+    /* Un aviso llega como una fila: sube un poco y su punto aterriza con ella. */
+    @keyframes llegaFila{from{opacity:0;transform:translateY(6px)}}
+    @keyframes aterriza{from{transform:scale(.4);opacity:0}60%{transform:scale(1.25)}to{transform:scale(1);opacity:1}}
+    .estadoLinea{animation:llegaFila 320ms var(--ease-expo) both}
+    .estadoLinea .punto{animation:aterriza 420ms var(--ease-out) 120ms both}
+  }
   .anillo .anillo3d{z-index:0}
   /* El botón de la cabecera, por encima de la ilustración. */
   .topbar .der{position:relative;z-index:3}
@@ -295,9 +309,25 @@
   /* La nébula va un paso por detrás: se mueve al revés y menos. */
   .mision .orbe{transform:translate(calc(var(--px, 0) * -6px), calc(var(--py, 0) * -4px));
     transition:transform 320ms var(--ease-out)}
-  .verGastos{margin-top:14px;height:38px;padding:0 16px;border-radius:999px;border:1px solid var(--control);
-    background:transparent;color:var(--text);font-weight:500;font-size:14px}
-  .verGastos:hover{background:var(--raised)}
+  /* ── Acciones: un solo lenguaje ─────────────────────────────────────
+     Toda navegación secundaria es la misma píldora: contorno fino, texto a
+     14/500 y una flecha que avanza 2px al pasar por encima (respuesta, no
+     adorno). La variante chica vive dentro de las filas de avisos. El único
+     control distinto es el envío del buscador, que es un envío, no un enlace. */
+  .accion{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px 0 16px;border-radius:999px;
+    border:1px solid var(--control);background:transparent;color:var(--text);font-weight:500;font-size:14px;
+    text-decoration:none;white-space:nowrap;cursor:pointer;
+    transition:background var(--t-hover) ease,border-color var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
+  .accion::after{content:"";width:14px;height:14px;flex:none;background:currentColor;
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h13M12 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;
+    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h13M12 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;
+    transition:transform var(--t-hover) var(--ease-out)}
+  .accion:hover{background:var(--raised);border-color:var(--border-strong)}
+  .accion:hover::after{transform:translateX(2px)}
+  .accion:active{transform:scale(.97)}
+  .accion.chica{height:30px;padding:0 10px 0 12px;font-size:13px;gap:6px}
+  .accion.chica::after{width:12px;height:12px}
+  .verGastos{margin-top:14px}
   @keyframes flota{0%,100%{transform:translateY(0)}25%{transform:translateY(7px)}
     75%{transform:translateY(-7px)}}
   /* La cifra que responde a la pantalla: lo que tienes. Más grande que
@@ -355,9 +385,7 @@
   .estadoLinea .punto{width:8px;height:8px;border-radius:50%;flex:none;background:var(--faint)}
   .estadoLinea .punto.bien{background:var(--positive)}
   .estadoLinea .punto.mal{background:var(--negative)}
-  .estadoLinea a{margin-left:auto;color:var(--text);font-weight:500;text-decoration:none;
-    text-underline-offset:3px}
-  .estadoLinea a:hover{text-decoration:underline}
+  .estadoLinea .accion{margin-left:auto}
 
   .estado{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
   .estado .plan{font-size:1.75rem;font-weight:700;letter-spacing:-.02em}
@@ -603,7 +631,10 @@
   .consulta button:hover{border-color:var(--gold)}
   .consulta button svg{width:18px;height:18px;fill:none;stroke:var(--gold);
     stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .consulta button svg{transition:transform var(--t-hover) var(--ease-out),opacity var(--t-hover) ease}
+  .consulta button:hover svg{transform:translateX(2px)}
   .consulta.pensando input{opacity:.7}
+  .consulta.pensando button svg{transform:translateX(4px);opacity:.35}
 
   /* ── El cerebro del mes ─────────────────────────────────────────────────
      El canvas no tiene alto propio, así que se le da uno explícito: si se
@@ -1433,6 +1464,11 @@
     .hoja{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
     .hoja{padding:16px 16px 28px}
     .mision{padding:22px 18px 20px;margin-top:54px}
+    /* Un aviso en el teléfono: el punto pegado al texto y la acción debajo, a
+       la derecha, en vez de un punto suelto en su propia línea. */
+    .estadoLinea{display:grid;grid-template-columns:8px minmax(0,1fr);column-gap:12px;row-gap:10px;align-items:start}
+    .estadoLinea .punto{margin-top:7px}
+    .estadoLinea .accion{grid-column:2;justify-self:end;margin-left:0}
     /* Una columna y el mismo orden que en el escritorio: la cifra primero. El
        astronauta ocupa la esquina, así que el Disponible le deja sitio. */
     .misionGrid{grid-template-columns:1fr;grid-template-rows:auto auto auto auto;gap:16px}
@@ -1768,7 +1804,7 @@
               <h2 id="hola">Tu mes</h2>
               <p id="frase"><span class="hueso ancho" style="max-width:520px"></span>
                 <span class="hueso" style="width:60%"></span></p>
-              <button type="button" class="verGastos" id="verGastos">Ver en qué se te va</button>
+              <button type="button" class="accion verGastos" id="verGastos">Ver en qué se te va</button>
             </div>
             <!-- Lo que manda: tu foto con el arco y el porcentaje en grande. -->
             <div class="anilloGrande">
@@ -1799,7 +1835,7 @@
       <div class="card">
         <div class="cab-card">
           <h2>En qué se te fue</h2>
-          <button type="button" id="verTodo">Ver todo el historial</button>
+          <button type="button" class="accion" id="verTodo">Ver todo el historial</button>
         </div>
         <p class="muted" id="grafNota" role="status" aria-live="polite"
           style="margin:-6px 0 10px">Cargando tu mes…</p>
@@ -2845,6 +2881,11 @@ function pintarKpis(){
       mes.rachaHoy ? "hoy ya registraste" : "registra hoy para no cortarla",
       mes.racha, "", mes.racha === 1 ? " día" : " días");
   if (kpisPintados++) $("app").classList.remove("llega");
+  else {
+    const caja = $("tab-resumen").querySelector(".mision");
+    caja.classList.add("llegaDato");
+    caja.addEventListener("animationend", () => caja.classList.remove("llegaDato"), { once: true });
+  }
   $("kpis").innerHTML = html;
   // De lo que entró, cuánto ya se fue: tu foto con el arco y el porcentaje en
   // grande. Sin ingresos anotados el arco queda vacío y el texto pide anotarlos.
@@ -3107,7 +3148,7 @@ async function cargarPanorama(){
       <span>${pr.llega ? "Llegas" : "No llegas"} ${esc(pr.cuandoTxt)}:
         ${pr.llega ? "te quedarían" : "te faltarían"} <b>${esc(plata(Math.abs(pr.alFinal), f.currency))}</b>
         ${notas.length ? `(${notas.join(", ")})` : ""}</span>
-      <a href="#finmes" id="reVerFin">Ver el detalle</a></p>`;
+      <a href="#finmes" class="accion chica" id="reVerFin">Ver el detalle</a></p>`;
     // El detalle se abre en la misma moneda que esta línea, no en la última
     // que se eligió en otra vista.
     $("reVerFin").onclick = (e) => { e.preventDefault(); monedaVista = f.currency; tab("finmes"); };
@@ -3124,7 +3165,7 @@ async function cargarPanorama(){
     $("reSalto").innerHTML = `<p class="estadoLinea"><i class="punto mal"></i>
       <span><b>${esc(salto.category)}</b> va ${esc(plata(exceso, salto.currency))} por encima de lo que sueles gastar
         (${esc(plata(salto.spent_month, salto.currency))} este mes).</span>
-      <a href="#gastos" id="reVerGastos">Ver en qué se te va</a></p>`;
+      <a href="#gastos" class="accion chica" id="reVerGastos">Verlo en Gastos</a></p>`;
     $("reVerGastos").onclick = (e) => { e.preventDefault(); tab("gastos"); };
   }
 }
