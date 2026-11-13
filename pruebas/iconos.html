@@ -1,0 +1,107 @@
+<!doctype html>
+<!-- Fábrica de los iconos de arcilla de app/ico-*.webp.
+     Sírvela por http (los módulos de three no cargan desde file://), abre la
+     página y cada icono queda en window.ICONOS como PNG de 256px con fondo
+     transparente. Para regenerar: volcar window.ICONOS a archivos y pasar
+     `cwebp -q 92 -alpha_q 100`. Mismo material y luz que los gráficos 3D. -->
+<html><head><meta charset="utf-8"><title>Iconos de arcilla</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"}}</script>
+<style>body{background:#1f1e27;color:#eee;font:14px system-ui;padding:20px}#grid{display:flex;flex-wrap:wrap;gap:16px}#grid div{text-align:center;font-size:12px}#grid img{display:block;width:96px;height:96px;background:#2a2936;border-radius:18px}</style>
+</head><body><div id="grid"></div>
+<script type="module">
+import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+
+const C = { lavanda: 0x8d86e8, cielo: 0x6fb7e6, rosa: 0xe08ab8, menta: 0x4fc9a3, oro: 0xe9c57c, oroOscuro: 0xc9a258, coral: 0xe5566f, crema: 0xf3eee4, sombra: 0x3a3848, blanco: 0xffffff };
+const mat = (color) => new THREE.MeshPhysicalMaterial({ color, roughness: .5, metalness: 0, clearcoat: .55, clearcoatRoughness: .4 });
+const caja = (w, h, d, r, color) => new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 4, Math.min(r, w / 2, h / 2, d / 2)), mat(color));
+const cil = (r, h, color, seg = 48) => new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, seg), mat(color));
+const esfera = (r, color) => new THREE.Mesh(new THREE.SphereGeometry(r, 48, 32), mat(color));
+const at = (m, x, y, z = 0) => { m.position.set(x, y, z); return m; };
+
+const ICONOS = {
+  casa(g){
+    g.add(at(caja(1.3, .95, 1.1, .12, C.lavanda), 0, -.35));
+    const techo = new THREE.Mesh(new THREE.ConeGeometry(1.1, .75, 4), mat(C.oro)); techo.rotation.y = Math.PI / 4; at(techo, 0, .55); g.add(techo);
+    g.add(at(caja(.34, .5, .1, .06, C.crema), 0, -.55, .56));
+    g.add(at(caja(.3, .3, .1, .05, C.cielo), -.4, -.15, .56));
+  },
+  dona(g){
+    const partes = [[0, 2.4, C.oro], [2.5, 1.5, C.menta], [4.1, 2.1, C.lavanda]];
+    for (const [a0, arco, color] of partes){ const t = new THREE.Mesh(new THREE.TorusGeometry(.72, .3, 24, 48, arco), mat(color)); t.rotation.z = a0; g.add(t); }
+  },
+  calendario(g){
+    g.add(at(caja(1.4, 1.25, .3, .14, C.crema), 0, -.1));
+    g.add(at(caja(1.4, .4, .32, .14, C.coral), 0, .38));
+    for (const x of [-.4, .4]) g.add(at(cil(.07, .4, C.sombra, 16), x, .62, 0));
+    const v1 = caja(.18, .42, .12, .06, C.menta); v1.rotation.z = Math.PI / 4; at(v1, -.16, -.28, .2); g.add(v1);
+    const v2 = caja(.18, .72, .12, .06, C.menta); v2.rotation.z = -Math.PI / 4; at(v2, .1, -.16, .2); g.add(v2);
+  },
+  lista(g){
+    const filas = [[.45, C.oro], [0, C.lavanda], [-.45, C.cielo]];
+    for (const [y, color] of filas){ g.add(at(esfera(.14, color), -.6, y)); g.add(at(caja(1.0, .22, .22, .11, color), .15, y)); }
+  },
+  monedas(g){
+    for (let i = 0; i < 4; i++){ const m = cil(.68, .17, i % 2 ? C.oroOscuro : C.oro); at(m, (i % 2) * .08 - .04, -.5 + i * .2); g.add(m); }
+    g.add(at(cil(.42, .04, C.oroOscuro), .04, .32));
+  },
+  diana(g){
+    const anillos = [[.85, C.coral], [.62, C.crema], [.4, C.coral], [.18, C.crema]];
+    anillos.forEach(([r, color], i) => { const c = cil(r, .14 + i * .04, color); c.rotation.x = Math.PI / 2; at(c, 0, 0, i * .02); g.add(c); });
+  },
+  tarjeta(g){
+    const t = caja(1.5, 1.0, .14, .12, C.lavanda); t.rotation.z = -.12; g.add(t);
+    const banda = caja(1.5, .22, .16, .02, C.sombra); banda.rotation.z = -.12; at(banda, .03, .22); g.add(banda);
+    const chip = caja(.3, .22, .16, .05, C.oro); chip.rotation.z = -.12; at(chip, -.45, -.18); g.add(chip);
+  },
+  estrella(g){
+    const s = new THREE.Shape(); const R = .9, r = .42;
+    for (let i = 0; i < 10; i++){ const a = Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r : R; i ? s.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : s.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+    s.closePath();
+    const e = new THREE.Mesh(new THREE.ExtrudeGeometry(s, { depth: .22, bevelEnabled: true, bevelThickness: .08, bevelSize: .08, bevelSegments: 4 }), mat(C.oro));
+    at(e, 0, -.04, -.1); g.add(e);
+  },
+  puntos(g){ for (const x of [-.6, 0, .6]) g.add(at(esfera(.22, C.lavanda), x, 0)); },
+  billete(g, color = C.menta, moneda = null){
+    const b = caja(1.6, .95, .12, .1, color); g.add(b);
+    const c = cil(.3, .14, C.crema); c.rotation.x = Math.PI / 2; g.add(c);
+    for (const x of [-.55, .55]) g.add(at(caja(.14, .5, .14, .05, C.crema), x, 0, 0));
+    if (moneda){ const m = cil(.34, .16, moneda); m.rotation.x = Math.PI / 2; at(m, .62, -.42, .25); g.add(m); }
+  },
+  ingreso(g){ ICONOS.billete(g, C.menta, C.oro); },
+  gasto(g){ ICONOS.billete(g, C.lavanda, C.coral); },
+  cohete(g){
+    const cuerpo = new THREE.Mesh(new THREE.CapsuleGeometry(.36, .9, 8, 24), mat(C.crema)); g.add(cuerpo);
+    const punta = new THREE.Mesh(new THREE.ConeGeometry(.36, .45, 24), mat(C.coral)); at(punta, 0, .85); g.add(punta);
+    const ojo = cil(.16, .1, C.cielo); ojo.rotation.x = Math.PI / 2; at(ojo, 0, .2, .33); g.add(ojo);
+    for (const x of [-.42, .42]){ const ala = caja(.3, .5, .12, .06, C.coral); at(ala, x, -.5); g.add(ala); }
+    g.add(at(esfera(.2, C.oro), 0, -.85));
+  },
+  diana2(g){ ICONOS.diana(g); const f = caja(.12, .9, .12, .05, C.oro); f.rotation.z = -.8; at(f, .35, .35, .4); g.add(f); },
+};
+
+const TAM = 256;
+const render = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
+render.setPixelRatio(1); render.setSize(TAM, TAM); render.setClearColor(0x000000, 0);
+if (THREE.SRGBColorSpace) render.outputColorSpace = THREE.SRGBColorSpace;
+const escena = new THREE.Scene();
+escena.add(new THREE.HemisphereLight(0xfff1d6, 0x0b0b0c, 1.1));
+const clave = new THREE.DirectionalLight(0xfff4e0, 1.5); clave.position.set(-4, 6, 7); escena.add(clave);
+const relleno = new THREE.DirectionalLight(0x9fd2f2, .5); relleno.position.set(-4, 2, 2); escena.add(relleno);
+const contra = new THREE.DirectionalLight(0xf3ce7f, .5); contra.position.set(5, 2, -5); escena.add(contra);
+const camara = new THREE.PerspectiveCamera(28, 1, .1, 100);
+camara.position.set(1.1, 1.5, 5.2); camara.lookAt(0, 0, 0);
+
+const salida = {};
+const grid = document.getElementById("grid");
+for (const [nombre, armar] of Object.entries(ICONOS)){
+  const g = new THREE.Group(); armar(g);
+  // Encajar: el icono ocupa el 78% del lienzo pase lo que pase.
+  const bb = new THREE.Box3().setFromObject(g), tam = new THREE.Vector3(); bb.getSize(tam); const centro = new THREE.Vector3(); bb.getCenter(centro);
+  g.position.sub(centro); g.scale.setScalar(2.1 / Math.max(tam.x, tam.y, tam.z));
+  escena.add(g); render.render(escena, camara); escena.remove(g);
+  salida[nombre] = render.domElement.toDataURL("image/png");
+  const d = document.createElement("div"); d.innerHTML = `<img src="${salida[nombre]}">${nombre}`; grid.appendChild(d);
+}
+window.ICONOS = salida; window.LISTO = true;
+</script></body></html>
