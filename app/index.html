@@ -142,6 +142,31 @@
     .plegado .side .pill{position:static;font-size:.72rem}
     .plegado #cuentaBtn{justify-content:flex-start}}
   .marca{font-size:1.06rem;font-weight:700;letter-spacing:-.01em;padding:0 6px}
+  /* La rotura: un hueco rasgado en la pared del menú (borde claro de papel
+     roto, fondo que se hunde) y la cara saliendo por él, más grande que el
+     hueco. Al entrar, la pared se rasga y después la cara asoma. */
+  .rotura{position:relative;flex:none;height:150px;margin:-4px 0 0;pointer-events:none}   /* flex:none: en una ventana baja el menú no la aplasta */
+  /* La pared es el propio menú, oscuro. El hueco rasgado deja ver un fondo
+     gris claro detrás (ahí se recorta la cara), con el canto blanco del papel
+     roto alrededor, y la cara sale por delante con su sombra sobre el gris. */
+  .roturaHueco{position:absolute;left:50%;top:6px;width:190px;height:132px;transform:translateX(-50%);overflow:visible}
+  .roturaHueco .borde{fill:#f7f7f9;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}   /* el canto del papel roto */
+  .roturaHueco .fondo{stroke:#a9a9b2;stroke-width:1}
+  .roturaCara{position:absolute;left:50%;top:12px;width:100px;height:100px;margin-left:-50px;border-radius:50%;overflow:hidden;
+    background:linear-gradient(180deg,#f3d48f,#d9ad5b);color:var(--ink);display:flex;align-items:center;justify-content:center;
+    font-family:var(--tit);font-weight:700;font-size:2.2rem;
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.35), inset 0 -6px 0 rgba(110,70,15,.4), 0 16px 22px rgba(0,0,0,.55);
+    transform-origin:50% 100%;transition:transform 260ms var(--ease-out)}
+  .roturaCara img{display:block;width:100%;height:100%;object-fit:cover}
+  .side:hover .roturaCara{transform:translateY(-4px) rotate(-4deg)}
+  @keyframes rasga{from{transform:translateX(-50%) scale(0)}to{transform:translateX(-50%) scale(1)}}
+  @keyframes asomaCara{from{opacity:0;transform:translateY(34px) scale(.45)}to{opacity:1;transform:none}}
+  .roturaHueco .borde, .roturaHueco .fondo{transform-box:fill-box;transform-origin:center;animation:rasga2 520ms var(--ease-expo) 160ms both}
+  @keyframes rasga2{from{transform:scale(0)}to{transform:scale(1)}}
+  .roturaCara{animation:asomaCara 640ms var(--ease-expo) 420ms backwards}   /* backwards, no both: al terminar, el hover vuelve a mandar sobre transform */
+  .plegado .rotura{display:none}
+  @media (max-width:900px){ .plegado .rotura{display:block} }   /* el cajón del teléfono ignora el plegado del escritorio */
+  @media (prefers-reduced-motion:reduce){ .roturaHueco .borde,.roturaHueco .fondo,.roturaCara{animation:none} .side:hover .roturaCara{transform:none} }
   .marca .y{color:var(--gold)}
 
   /* La cuenta: una fila al pie de la barra (avatar, nombre y plan) que abre
@@ -242,7 +267,9 @@
      el astronauta viaja por él hasta hoy. Las categorías son planetas con el
      tamaño de lo gastado. La nébula vive detrás. Arriba a la izquierda, lo
      único que se lee primero: el disponible, una frase y una acción. */
-  .mision{position:relative;height:540px;border-radius:20px;margin:56px 0 16px;--px:0;--py:0}
+  /* Alto mínimo, no fijo: una frase larga del cerebro empuja las tejas y la
+     tarjeta crece con ellas; la escena (en porcentajes) se estira con la tarjeta. */
+  .mision{position:relative;min-height:540px;border-radius:20px;margin:56px 0 16px;--px:0;--py:0}
   /* El fondo es lo único recortado: los mundos, el astronauta y las chispas
      se salen de la tarjeta, como objetos delante de ella. */
   .orbFondo{position:absolute;inset:0;border-radius:28px;overflow:hidden;box-shadow:var(--clay-sombra);
@@ -310,7 +337,7 @@
   .planeta:active{transform:scale(.97)}
   .planeta b{display:block;margin-top:8px;font-size:13px;font-weight:600;white-space:nowrap}
   .planeta small{display:block;font-size:12px;color:var(--muted)}
-  .planeta[data-i="0"]{--x:50%;--y:23%} .planeta[data-i="1"]{--x:63%;--y:10%} .planeta[data-i="2"]{--x:74%;--y:34%}
+  .planeta[data-i="0"]{--x:53%;--y:24%} .planeta[data-i="1"]{--x:65%;--y:9%} .planeta[data-i="2"]{--x:74%;--y:34%}
   .planeta[data-i="3"]{--x:78%;--y:7%} .planeta[data-i="4"]{--x:64%;--y:50%}
   /* Los mundos en 3D: una sola escena para todos, debajo de las etiquetas.
      Con WebGL la esfera CSS se esconde (sin perder su sitio); sin él, se queda. */
@@ -321,7 +348,7 @@
   .orbVacio{position:absolute;left:50%;top:26%;transform:translateX(-50%);max-width:30ch;text-align:center;
     color:var(--muted);font-size:14px;line-height:1.5}
   /* El texto: lo que se lee primero. */
-  .misionGrid{position:absolute;left:30px;top:28px;max-width:47%;z-index:3;display:flex;flex-direction:column}
+  .misionGrid{position:relative;z-index:3;max-width:47%;padding:28px 0 128px 30px;display:flex;flex-direction:column}   /* el padding de abajo deja sitio a la billetera y al pie */
   .misionIzq, .misionDer{display:contents}
   .mision .hero{margin:0}
   .mision .hero .lbl{font-size:13px;color:var(--faint)}
@@ -1621,6 +1648,37 @@
   .admin #adminAviso.err{color:var(--red)}
 
   /* ── Teléfono: la barra se guarda y se abre por encima ──────────────────── */
+  /* Con menos de 1040px útiles (teléfono, tablet o ventana angosta) la escena se
+     parte en dos: el texto arriba, como un bloque normal, y debajo una franja de
+     300px con el camino, los planetas (a dos tercios) y el cohete. El aro y el
+     veredicto cierran abajo. Va por el ancho útil, no el de la ventana: con la
+     barra lateral, una ventana de 1200 deja 930 y las tejas, el camino y el pie
+     ya no caben juntos en la escena. */
+  @container hoja (max-width:1040px){
+    .mision{min-height:0;margin-top:54px;padding:22px 18px 0;display:flex;flex-direction:column}
+    .mision .mundos3d{inset:-60px 0}
+    .misionGrid{position:static;max-width:none;padding:0;order:1}
+    .orbEscena{order:2} .orbPie{order:3;flex-direction:row}
+    .mision .hero .val{font-size:40px}
+    .saludo p{font-size:16px;max-width:none}
+    .orbEscena{position:relative;height:320px;margin:8px -18px 0}   /* 320: el cohete y su marca caben también el día 1, abajo del todo */
+    .mision .planeta{--k:.5}
+    .mision .planeta[data-i="0"]{--x:18%;--y:26%} .mision .planeta[data-i="1"]{--x:40%;--y:12%} .mision .planeta[data-i="2"]{--x:62%;--y:30%}
+    .mision .planeta[data-i="3"]{--x:86%;--y:60%} .mision .planeta[data-i="4"]{--x:27%;--y:52%}
+    .mision .planeta b{font-size:11px;margin-top:5px} .mision .planeta small{font-size:10px}
+    .mision .orbBillete{width:66px;left:4%;bottom:8%} .mision .orbCobrar{width:58px;right:6%;top:2%}
+    .mision .orbCobrar small{font-size:10px;transform:translateX(-62%)}
+    .mision .orbVacio{top:30%;font-size:13px}
+    .mision .astroCapa{width:40px;height:40px;margin:-20px 0 0 -20px}
+    .mascota{width:112px;margin:-6px 0 -8px -12px}
+    .mision .astroCapa .hoyTag{font-size:11px}
+    .mision .orbe{display:none}
+    .mision .astro{transform:none;transition:none}
+    .orbPie{position:static;flex-direction:row;align-items:center;gap:22px;padding:14px 0 18px;border-top:1px solid var(--rule)}
+    @container hoja (max-width:610px){ .orbPie{flex-direction:column;align-items:flex-start;gap:14px} }   /* en el teléfono, apilado */
+    .anilloTexto .sub{max-width:24ch}
+    .orbVeredicto{padding:0;border:0;flex-wrap:wrap;font-size:13px}
+  }
   @media (max-width:900px){
     .side{position:fixed;left:0;top:0;transform:translateX(-100%);
       transition:transform .28s cubic-bezier(.2,.7,.2,1);background:var(--bg);
@@ -1630,31 +1688,6 @@
     .velo.open{display:block}
     .tabbar{display:grid}
     .hoja{padding:16px 16px calc(96px + env(safe-area-inset-bottom))}   /* la barra de abajo mide 68px más el área segura */
-    /* En el teléfono la escena se parte en dos: el texto arriba, como un
-       bloque normal, y debajo una franja de 300px con el camino, los planetas
-       (a dos tercios) y el astronauta. El aro y el veredicto cierran abajo. */
-    .mision{height:auto;margin-top:54px;padding:22px 18px 0;display:flex;flex-direction:column}
-    .mundos3d{inset:-60px 0}
-    .misionGrid{position:static;max-width:none;order:1}
-    .orbEscena{order:2} .orbPie{order:3;flex-direction:row}
-    .mision .hero .val{font-size:40px}
-    .saludo p{font-size:16px;max-width:none}
-    .orbEscena{position:relative;height:300px;margin:8px -18px 0}
-    .planeta{--k:.5}
-    .planeta[data-i="0"]{--x:18%;--y:26%} .planeta[data-i="1"]{--x:40%;--y:12%} .planeta[data-i="2"]{--x:62%;--y:30%}
-    .planeta[data-i="3"]{--x:86%;--y:60%} .planeta[data-i="4"]{--x:27%;--y:52%}
-    .planeta b{font-size:11px;margin-top:5px} .planeta small{font-size:10px}
-    .orbBillete{width:66px;left:4%;bottom:8%} .orbCobrar{width:58px;right:6%;top:2%}
-    .orbCobrar small{font-size:10px;transform:translateX(-62%)}
-    .orbVacio{top:30%;font-size:13px}
-    .astroCapa{width:40px;height:40px;margin:-20px 0 0 -20px}
-    .mascota{width:112px;margin:-6px 0 -8px -12px}
-    .astroCapa .hoyTag{font-size:11px}
-    .mision .orbe{display:none}
-    .astro{transform:none;transition:none}
-    .orbPie{position:static;flex-direction:column;align-items:flex-start;gap:14px;padding:14px 0 18px;border-top:1px solid var(--rule)}
-    .anilloTexto .sub{max-width:24ch}
-    .orbVeredicto{padding:0;border:0;flex-wrap:wrap;font-size:13px}
     /* Un aviso en el teléfono: el punto pegado al texto y la acción debajo, a
        la derecha, en vez de un punto suelto en su propia línea. */
     .estadoLinea{display:grid;grid-template-columns:8px minmax(0,1fr);column-gap:12px;row-gap:10px;align-items:start}
@@ -1856,6 +1889,15 @@
     <button class="pliega" id="pliega" aria-label="Plegar el menú" title="Plegar el menú">‹</button>
     <div class="sideScroll">
     <div class="marca"><span class="y">Y</span><span class="txt"> Altoque</span></div>
+    <!-- La rotura: la pared del menú se rasga y la cara del usuario asoma por el hueco. -->
+    <div class="rotura" id="rotura" aria-hidden="true">
+      <svg class="roturaHueco" viewBox="0 0 190 132">
+        <defs><radialGradient id="roturaFondo" cx="50%" cy="42%" r="64%"><stop offset="0" stop-color="#ececef"/><stop offset=".7" stop-color="#d4d4d9"/><stop offset="1" stop-color="#b6b6bd"/></radialGradient></defs>
+        <path class="borde" d="M157.2 72.0 L155.1 91.5 L144.6 109.2 L128.5 123.7 L106.1 128.2 L83.4 130.6 L68.2 113.4 L49.1 106.4 L32.1 92.4 L32.4 72.0 L32.7 51.8 L53.0 40.6 L65.0 25.6 L85.2 22.1 L105.6 18.3 L125.8 24.4 L135.8 41.4 L147.9 54.8 Z"/>
+        <path class="fondo" d="M152.1 72.0 L150.2 89.9 L140.5 106.1 L125.7 119.5 L105.2 123.6 L84.4 125.7 L70.4 110.0 L52.9 103.6 L37.3 90.7 L37.6 72.0 L37.8 53.4 L56.5 43.2 L67.5 29.5 L86.0 26.2 L104.7 22.7 L123.2 28.4 L132.5 43.9 L143.5 56.2 Z" fill="url(#roturaFondo)"/>
+      </svg>
+      <span class="roturaCara" id="roturaCara">·</span>
+    </div>
 
     <nav id="menu">
       <div class="grupo" style="--i:1">Mi dinero</div>
@@ -2833,6 +2875,7 @@ function pintarYo(nombre, correo, foto){
   $("hola").textContent = `${saludo}${n ? ", " + n.split(" ")[0] : ""}`;
   const enAnillo = document.querySelector("#anilloGasto .foto");
   if (enAnillo) enAnillo.innerHTML = $("ava").innerHTML;   // el anillo puede haberse pintado antes que el perfil
+  $("roturaCara").innerHTML = $("ava").innerHTML;           // la cara que asoma por el menú
 }
 
 async function cargarPlan(){
@@ -3114,14 +3157,18 @@ function pintarKpis(){
 // en la fracción del tramo que ya pasó (por defecto, el día del mes; cuando
 // llega la proyección, los días que faltan hasta el ingreso). Los planetas
 // son las categorías del mes por lo gastado; sin gastos, se dice.
-const ORB = { P0: [150, 430], P1: [380, 470], P2: [600, 230], P3: [870, 195], avance: null, planetasDe: null };
-const orbBez = (t) => { const u = 1 - t, { P0, P1, P2, P3 } = ORB; return [
+// El camino del Resumen sale de la billetera, pasa por debajo de las tejas
+// (que ocupan la mitad izquierda) y sube a cobrar. Fin de mes tiene su hero
+// sin tejas y conserva el trazo original.
+const ORB = { P0: [150, 480], P1: [480, 530], P2: [560, 250], P3: [870, 195], avance: null, planetasDe: null };
+const CAMINO_FM = { P0: [150, 430], P1: [380, 470], P2: [600, 230], P3: [870, 195] };
+const orbBez = (t, P = ORB) => { const u = 1 - t, { P0, P1, P2, P3 } = P; return [
   u*u*u*P0[0] + 3*u*u*t*P1[0] + 3*u*t*t*P2[0] + t*t*t*P3[0],
   u*u*u*P0[1] + 3*u*u*t*P1[1] + 3*u*t*t*P2[1] + t*t*t*P3[1]]; };
 // El mismo camino del Resumen, pero en porcentaje del contenedor: así sirve
 // en cualquier escena sin medir nada.
-const caminoD = () => `M ${ORB.P0} C ${ORB.P1}, ${ORB.P2}, ${ORB.P3}`;
-const caminoPct = (t) => { const [x, y] = orbBez(t); return [(x / 10).toFixed(2), (y / 5.4).toFixed(2)]; };
+const caminoD = () => `M ${CAMINO_FM.P0} C ${CAMINO_FM.P1}, ${CAMINO_FM.P2}, ${CAMINO_FM.P3}`;
+const caminoPct = (t) => { const [x, y] = orbBez(t, CAMINO_FM); return [(x / 10).toFixed(2), (y / 5.4).toFixed(2)]; };
 function colocarAstro(){
   const escena = $("orbEscena"), t = ORB.avance ?? .04, [x, y] = orbBez(t);
   $("astroCapa").style.transform = `translate(${(x / 1000 * escena.clientWidth).toFixed(1)}px, ${(y / 540 * escena.clientHeight).toFixed(1)}px)`;
