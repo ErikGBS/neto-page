@@ -935,6 +935,11 @@
   .admin .usLey li i{flex:none;width:10px;height:10px;border-radius:3px;align-self:center}
   .admin .usLey li b{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--text)}
   .admin .usLey li small{color:var(--mute);font-variant-numeric:tabular-nums}
+  /* La lista-barra se toca: cada fila es un botón y la elegida va en dorado. */
+  .admin #usPaises li{cursor:pointer;border-radius:6px;transition:background var(--t-hover) ease}
+  .admin #usPaises li:hover{background:var(--raised)}
+  .admin #usPaises li.on > span:first-child{box-shadow:inset 3px 0 0 var(--gold)}
+  .admin #usPaises li.on{background:var(--raised)}
   .admin .usGente{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px}
   .admin .usGente .wacard{background:var(--raised);border:0;border-radius:12px;
     transition:background var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
@@ -2016,9 +2021,16 @@
         <div class="chart" id="usAltas"></div>
       </div>
       <div class="section">
-        <h3>Dónde están <span class="muted" style="font-weight:400">· usuarios que registran, por país</span></h3>
+        <h3>Dónde están <span class="muted" style="font-weight:400">· usuarios que registran, por país. Toca uno.</span></h3>
         <div class="chart" id="usPaises"></div>
       </div>
+    </div>
+    <div class="section usPais" id="usPais" style="display:none">
+      <div class="rankbar">
+        <h3 style="margin:0" id="usPaisTit"></h3>
+        <button class="chico" type="button" id="usPaisCerrar">Cerrar</button>
+      </div>
+      <div class="usGente" id="usPaisGente"></div>
     </div>
     <div class="section">
       <h3>Cómo está la base <span class="muted" style="font-weight:400">· por lo último que registraron</span></h3>
@@ -7665,9 +7677,18 @@ function pintarUsuarios(m){
 
   // Países: la fila es la barra. El dato sale de la zona horaria del
   // dispositivo: el campo "país" del perfil lo llena casi nadie.
-  const paises = (m.by_country || []).filter(p => p.users);
-  if (paises.length) Charts.barList($("usPaises"), paises.slice(0, 8).map(p => ({ label: p.country, value: p.users })));
-  else $("usPaises").innerHTML = `<div class="muted">Todavía nadie registra movimientos</div>`;
+  const paises = (m.by_country || []).filter(p => p.users).slice(0, 8);
+  if (paises.length){
+    Charts.barList($("usPaises"), paises.map(p => ({ label: p.country, value: p.users })));
+    // Cada fila abre la gente de ese país; la misma fila otra vez la cierra.
+    $("usPaises").querySelectorAll("li").forEach((li, i) => {
+      li.setAttribute("role", "button"); li.tabIndex = 0;
+      const elegir = () => verPais(usPais === paises[i].code ? null : paises[i]);
+      li.onclick = elegir;
+      li.onkeydown = (e) => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); elegir(); } };
+    });
+    if (usPais && !paises.some(p => p.code === usPais)) verPais(null);
+  } else $("usPaises").innerHTML = `<div class="muted">Todavía nadie registra movimientos</div>`;
 
   // Cohortes: una sola tira partida por estado, con la leyenda debajo.
   const cuentas = (m.activity || {}).buckets || [], base = (m.activity || {}).total || 0;
@@ -7681,11 +7702,44 @@ function pintarUsuarios(m){
   estrenarUsuarios();
 }
 
+// ── La gente de un país ──────────────────────────────────────────────────
+// Los mismos que cuenta la barra: los que registran, del país que dice su
+// zona horaria (lo trae /admin/app-users con la misma regla que el backend
+// usa para "Dónde están"). Mientras la lista no llegó, se deja el hueso y
+// cargarRecientes vuelve a pintar al terminar.
+let usPais = null;
+function verPais(pais){
+  usPais = pais ? pais.code : null;
+  const caja = $("usPais"), gente = $("usPaisGente");
+  $("usPaises").querySelectorAll("li").forEach((li) => li.classList.toggle("on", !!pais && li.textContent.startsWith(pais.country)));
+  if (!pais){ caja.style.display = "none"; gente.innerHTML = ""; return; }
+  caja.style.display = "";
+  if (!usRecientesListos){
+    $("usPaisTit").textContent = pais.country;
+    gente.innerHTML = `<div class="cargando"><span></span><span></span><span></span></div>`;
+    return;
+  }
+  const quienes = appUsers
+    .filter(u => (u.country || {}).code === pais.code && (u.movements || {}).total > 0)
+    .sort((x, y) => (y.movements.total - x.movements.total) || (y.movements.days - x.movements.days));
+  $("usPaisTit").innerHTML = `${esc(pais.country)} <span class="muted" style="font-weight:400">· ${fmt(quienes.length)} ${quienes.length === 1 ? "usuario que registra" : "usuarios que registran"}</span>`;
+  gente.innerHTML = quienes.map(tarjetaUsuario).join("")
+    || `<div class="wavacio">Las cuentas de este país todavía no tienen país en la lista: hay que desplegar el backend.</div>`;
+  for (const b of gente.querySelectorAll("[data-uid]")) b.onclick = () => irAClientes(b.dataset.uid);
+  if (!quietito()) gente.querySelectorAll(".wacard").forEach((f, i) => { f.style.setProperty("--i", Math.min(i, 18)); f.classList.add("entraFila"); });
+  // Al elegir desde arriba, la lista queda a la vista sin buscarla.
+  caja.scrollIntoView({ block: "nearest", behavior: quietito() ? "auto" : "smooth" });
+}
+$("usPaisCerrar").onclick = () => verPais(null);
+
+let usRecientesListos = false;
 async function cargarRecientes(){
   const caja = $("usRecientes");
   try{
     const r = await api("/admin/app-users");
     appUsers = r.items; pushLocks = r.push_locks || {};   // Clientes los reusa tal cual
+    usRecientesListos = true;
+    if (usPais){ const p = (usPintadoCon.by_country || []).find(x => x.code === usPais); if (p) verPais(p); }
     const nuevos = appUsers.slice().sort((x, y) => (y.registered_at || "").localeCompare(x.registered_at || "")).slice(0, 12);
     caja.innerHTML = nuevos.map(tarjetaUsuario).join("") || `<div class="wavacio">Todavía no hay cuentas.</div>`;
     for (const b of caja.querySelectorAll("[data-uid]")) b.onclick = () => irAClientes(b.dataset.uid);
