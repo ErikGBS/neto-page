@@ -183,7 +183,6 @@
   #menuAdmin button{position:relative;transition:background .18s ease,color .18s ease,
     transform .18s cubic-bezier(.22,.9,.3,1)}
   #menuAdmin button:hover{transform:translateX(3px)}
-  #menu button.on svg{stroke:var(--text)}
   #menuAdmin{display:flex;flex-direction:column;gap:4px;margin-top:-8px}
   #menuAdmin button{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
     background:none;border:none;border-radius:11px;padding:11px 12px;color:var(--dim);
@@ -198,8 +197,16 @@
     margin-left:auto}
   .admin td{vertical-align:middle}
   .admin table .muted{white-space:nowrap}
-  #menu svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;
-    stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  /* Iconos de arcilla: renderizados con Three.js con el mismo material y luz
+     que los gráficos (scratch iconos.html), 256px con fondo transparente. En
+     reposo van un poco apagados; el activo y el hover los encienden y los
+     inclinan, como piezas que se levantan. */
+  .ico3d{width:26px;height:26px;margin:-3px 0;flex:none;object-fit:contain;filter:saturate(.85) brightness(.9);
+    transition:transform var(--t-hover) var(--ease-out),filter var(--t-hover) ease}
+  #menu button:hover .ico3d, #menu button.on .ico3d{filter:none;transform:scale(1.12) rotate(-6deg)}
+  .tabbar .ico3d{width:30px;height:30px;margin:-2px 0 -1px}
+  .tabbar button.on .ico3d{filter:none;transform:scale(1.12) rotate(-6deg)}
+  @media (prefers-reduced-motion:reduce){ .ico3d{transition:none} #menu button:hover .ico3d, #menu button.on .ico3d, .tabbar button.on .ico3d{transform:none} }
 
   .pie{margin-top:auto;display:flex;flex-direction:column;gap:8px}
 
@@ -221,8 +228,6 @@
     background:none;border:none;border-radius:12px;padding:7px 4px;color:var(--mute);
     font-size:.75rem;font-weight:500;min-height:52px}
   .tabbar button.on{color:var(--text);background:linear-gradient(180deg,#2d2c38,#222129);font-weight:600;box-shadow:var(--clay-chica)}
-  .tabbar svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;
-    stroke-linecap:round;stroke-linejoin:round}
   .tabbar .pill{position:absolute;top:4px;left:calc(50% + 6px);min-width:17px;padding:0 5px;
     border-radius:999px;background:var(--red);color:#fff;font-size:.7rem;font-weight:700;line-height:17px}
   .velo{display:none;position:fixed;inset:0;background:rgba(4,7,12,.72);z-index:15}
@@ -331,9 +336,11 @@
   /* Gastado e ingresos, en voz baja, bajo la acción. */
   .mision .kpis{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0;border:0;padding:0}
   /* Tejas de arcilla teñidas: dorado para lo gastado, menta para lo que entra. */
-  .mision .kpi{flex:1 1 200px;padding:10px 16px 11px;border:0;border-radius:16px;display:flex;flex-direction:column;gap:2px;font-size:13px;min-width:0;
+  .mision .kpi{flex:1 1 200px;position:relative;padding:10px 16px 11px 62px;border:0;border-radius:16px;display:flex;flex-direction:column;gap:2px;font-size:13px;min-width:0;
     background:linear-gradient(180deg,color-mix(in srgb,var(--tu) 22%,var(--clay-hi)),color-mix(in srgb,var(--tu) 14%,var(--clay-lo)));box-shadow:var(--clay-chica)}
   .mision .kpi:nth-child(2){background:linear-gradient(180deg,color-mix(in srgb,var(--menta) 22%,var(--clay-hi)),color-mix(in srgb,var(--menta) 14%,var(--clay-lo)))}
+  .mision .kpi::before{content:"";position:absolute;left:12px;top:50%;width:40px;height:40px;transform:translateY(-50%);background:url(ico-gasto.webp) center/contain no-repeat}
+  .mision .kpi:nth-child(2)::before{background-image:url(ico-ingreso.webp)}
   .mision .kpi .lbl{font-size:12px;color:var(--muted)}
   .mision .kpi .val{font-size:16px;font-weight:600;margin:0;color:var(--text);overflow:visible;font-family:var(--cifra)}
   .mision .kpi .sub{font-size:12px;margin:0;color:var(--faint)}
@@ -479,7 +486,7 @@
     .mision .kpi:last-child:nth-child(odd){grid-column:1 / -1}
   }
   /* Las tejas del hero no heredan la raya ni el padding de la tira de KPIs. */
-  .mision .kpi + .kpi, .mision .kpi:nth-child(2n), .mision .kpi:nth-child(n+3){border:0;padding-left:16px}
+  .mision .kpi + .kpi, .mision .kpi:nth-child(2n), .mision .kpi:nth-child(n+3){border:0;padding-left:62px}
 
   .card{background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));border-radius:24px;padding:24px;margin-bottom:18px;box-shadow:var(--clay-sombra)}
   .card h2{font-size:16px;font-weight:600;margin-bottom:14px}
@@ -773,6 +780,8 @@
   .vacio{color:var(--muted);font-size:14px;text-align:center;padding:26px 16px;
     border:1px dashed var(--control);border-radius:12px}
   .vacio b{display:block;color:var(--text);font-size:15px;margin-bottom:5px}
+  .vacio::before{content:"";display:block;width:56px;height:56px;margin:0 auto 8px;background:url(ico-cohete.webp) center/contain no-repeat}
+  .admin .vacio::before{display:none}   /* el panel admin no lleva la mascota */
 
   /* La cabecera de una vista: nota a la izquierda, selector a la derecha. */
   .barraVista{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}
@@ -1833,36 +1842,36 @@
     <nav id="menu">
       <div class="grupo" style="--i:1">Mi dinero</div>
       <button data-tab="resumen" class="on" style="--i:2">
-        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-5H3zM13 8h8V3h-8z"/></svg>
+        <img class="ico3d" src="ico-casa.webp" alt="" width="22" height="22">
         Resumen
       </button>
       <button data-tab="gastos" style="--i:3">
-        <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-9-9v9z"/><path d="M14.5 3.5A9 9 0 0121 10h-6.5z"/></svg>
+        <img class="ico3d" src="ico-dona.webp" alt="" width="22" height="22">
         Gastos
       </button>
       <button data-tab="finmes" style="--i:4">
-        <svg viewBox="0 0 24 24"><path d="M3 10h18"/><path d="M5 5h14v15H5z"/><path d="M8 3v4M16 3v4"/><path d="M9 15l2.5 2.5L16 13"/></svg>
+        <img class="ico3d" src="ico-calendario.webp" alt="" width="22" height="22">
         Fin de mes
       </button>
       <button data-tab="movs" style="--i:5">
-        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+        <img class="ico3d" src="ico-lista.webp" alt="" width="22" height="22">
         Movimientos
       </button>
       <button data-tab="compromisos" style="--i:6">
-        <svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M17 7.5C17 5.6 14.8 4.5 12 4.5S7 5.6 7 7.5s2.2 2.6 5 3.2 5 1.3 5 3.3-2.2 3-5 3-5-1.1-5-3"/></svg>
+        <img class="ico3d" src="ico-monedas.webp" alt="" width="22" height="22">
         Compromisos
       </button>
       <button data-tab="metas" style="--i:7">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>
+        <img class="ico3d" src="ico-diana2.webp" alt="" width="22" height="22">
         Metas
       </button>
       <div class="grupo" style="--i:8">Mi cuenta</div>
       <button data-tab="plan" style="--i:9">
-        <svg viewBox="0 0 24 24"><path d="M3 7h18v12H3z"/><path d="M3 11h18"/></svg>
+        <img class="ico3d" src="ico-tarjeta.webp" alt="" width="22" height="22">
         Mi plan
       </button>
       <button data-tab="pro" style="--i:10">
-        <svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6.1.8-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.4l6.1-.8z"/></svg>
+        <img class="ico3d" src="ico-estrella.webp" alt="" width="22" height="22">
         Activar Pro
       </button>
     </nav>
@@ -1917,19 +1926,19 @@
        admin, el panel. -->
   <nav class="tabbar" id="barra" aria-label="Navegación">
     <button data-tab="resumen" class="on">
-      <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-5H3zM13 8h8V3h-8z"/></svg>
+        <img class="ico3d" src="ico-casa.webp" alt="" width="22" height="22">
       <span>Resumen</span>
     </button>
     <button data-tab="gastos">
-      <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-9-9v9z"/><path d="M14.5 3.5A9 9 0 0121 10h-6.5z"/></svg>
+        <img class="ico3d" src="ico-dona.webp" alt="" width="22" height="22">
       <span>Gastos</span>
     </button>
     <button data-tab="finmes">
-      <svg viewBox="0 0 24 24"><path d="M3 10h18"/><path d="M5 5h14v15H5z"/><path d="M8 3v4M16 3v4"/><path d="M9 15l2.5 2.5L16 13"/></svg>
+        <img class="ico3d" src="ico-calendario.webp" alt="" width="22" height="22">
       <span>Fin de mes</span>
     </button>
     <button id="barraMas" aria-label="Más opciones">
-      <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>
+      <img class="ico3d" src="ico-puntos.webp" alt="" width="22" height="22">
       <span id="barraMasTxt">Más</span>
       <span id="barraPagos" class="pill" style="display:none"></span>
     </button>
