@@ -824,6 +824,11 @@
   /* Los gráficos en tres dimensiones: el lienzo ocupa el ancho de su tarjeta,
      las etiquetas van en HTML debajo y el tooltip es una caja plana. */
   .lienzo3d{display:block;width:100%;height:240px}
+  .ejeCifras{position:absolute;top:0;left:0;right:0;pointer-events:none}   /* mide lo que el lienzo, no el .chart con su eje debajo */
+  .ejeCifras b{position:absolute;transform:translate(-50%,-115%);font-size:11px;font-weight:500;color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .donaTotal{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);text-align:center;font-weight:600;font-size:15px;
+    pointer-events:none;font-variant-numeric:tabular-nums}
+  .donaTotal small{display:block;color:var(--faint);font-weight:400;font-size:11px;margin-top:2px}
   .ejeX{position:relative;height:18px;margin-top:2px;font-size:12px;color:var(--faint)}
   .ejeX span{position:absolute;transform:translateX(-50%);white-space:nowrap}
   .tip3d{position:absolute;pointer-events:none;padding:6px 9px;font-size:12px;line-height:1.3;border-radius:6px;
@@ -831,6 +836,7 @@
   .panel .chart:has(.lienzo3d){cursor:default}
   /* Cómo pagas: la dona con volumen y, al lado, las cifras con su muestra. */
   .donaCaja{display:grid;grid-template-columns:minmax(170px,230px) minmax(0,1fr);gap:18px;align-items:center}
+  .donaCaja .dona{position:relative}
   .leyenda li{white-space:nowrap}
   .desvio .cab, .desvio li{display:grid;grid-template-columns:minmax(120px,30%) minmax(0,1fr);gap:4px 18px;align-items:center}
   .desvio .cab{margin-bottom:6px}
@@ -5407,7 +5413,6 @@ const pedirTresGraf = () => cargaTresGraf ||= (async () => {
   const { RoundedBoxGeometry } = await import("three/addons/geometries/RoundedBoxGeometry.js");
   return { THREE, RoundedBoxGeometry };
 })().catch((e) => { cargaTresGraf = null; throw e; });
-const alivio = (t) => 1 + 2.3 * Math.pow(t - 1, 3) + 1.3 * Math.pow(t - 1, 2);   // sale con un pelín de rebote
 
 // Se pregunta una vez si hay WebGL: pedírselo a Three.js sin tenerlo deja
 // una ristra de errores en consola por cada gráfico.
@@ -5468,7 +5473,8 @@ async function motor3d(el, alto, montar){
   const ojo = "IntersectionObserver" in window ? new IntersectionObserver(([e]) => { m.aLaVista = e.isIntersecting; }) : null;
   ojo?.observe(lienzo);
   // El encuadre sigue al contenedor, no a la ventana: plegar el menú también cambia el ancho.
-  m.redibujar = () => { if (!m.vivo) return; medir(); m.alMedir?.(); cuadro(quieto ? 9 : (performance.now() - m.t0) / 1000); render.render(escena, camara); };
+  // alMedir va DESPUÉS de pintar: cuadro() mueve la cámara (lookAt) y render actualiza sus matrices; proyectar antes usaría la vista vieja.
+  m.redibujar = () => { if (!m.vivo) return; medir(); cuadro(quieto ? 9 : (performance.now() - m.t0) / 1000); render.render(escena, camara); m.alMedir?.(); };
   const regla = "ResizeObserver" in window ? new ResizeObserver(m.redibujar) : null;
   regla ? regla.observe(el) : addEventListener("resize", m.redibujar);
   m.matar = () => { m.vivo = false; ojo?.disconnect(); regla ? regla.disconnect() : removeEventListener("resize", m.redibujar);
@@ -5491,39 +5497,62 @@ async function motor3d(el, alto, montar){
 // Columnas redondeadas sobre una base, cámara ortográfica inclinada (así las
 // etiquetas de abajo caen exactamente bajo su columna). Suben escalonadas con
 // rebote; la columna que importa va en dorado, las demás en gris oscuro.
+// ── Plastilina: el material de todo lo 3D que no es un mundo ─────────────
+// Mate, sin metal, con la huella fina de dedos en el relieve y colores pastel.
+// Los mundos tienen su propia textura; columnas, dona y losa usan esto.
+const PLASTI = { oro: 0xe3bd78, gris: 0x8d8d96, verde: 0x7ad1b8, losa: 0x2a2a2f };
+let _huella = null;
+function plastilina(THREE, color){
+  if (!_huella){
+    const c = document.createElement("canvas"); c.width = 256; c.height = 256;
+    const g = c.getContext("2d"); g.fillStyle = "#808080"; g.fillRect(0, 0, 256, 256);
+    let a = 31; const rnd = () => (a = (a * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 900; i++){ g.globalAlpha = .06 + rnd() * .08; g.fillStyle = rnd() < .5 ? "#6a6a6a" : "#9a9a9a";
+      g.beginPath(); g.ellipse(rnd() * 256, rnd() * 256, 2 + rnd() * 6, 1 + rnd() * 3, rnd() * 3, 0, 7); g.fill(); }
+    _huella = new THREE.CanvasTexture(c); _huella.wrapS = _huella.wrapT = THREE.RepeatWrapping; _huella.repeat.set(2, 2);
+  }
+  return new THREE.MeshStandardMaterial({ color, roughness: .96, metalness: 0, bumpMap: _huella, bumpScale: .012 });
+}
+
+// Columnas de plastilina sobre una losa, cámara ortográfica inclinada (así las
+// etiquetas de abajo caen exactamente bajo su columna). Suben escalonadas con
+// ease-out, sin rebote; la columna que importa va en dorado, las demás en
+// gris cálido que se ve. La cifra va sobre la columna destacada y la más alta:
+// esa es la escala.
 async function columnas3d(el, { labels, values, highlight, format }){
   const n = values.length, max = Math.max(...values, 1), ALTO = 240;
   const m = await motor3d(el, ALTO, (m) => {
     const { THREE, RoundedBoxGeometry, escena } = m;
-    const paso = 1, ancho = .62;
-    // El ancho del encuadre lo dan las columnas; el alto sale del aspecto del
-    // lienzo (medir) y las barras, normalizadas a 1, escalan con él.
+    for (const luz of escena.children.filter((o) => o.isLight)){      // la plastilina quiere luz envolvente
+      if (luz.isHemisphereLight) luz.intensity = 1.3;
+      else if (luz.color.getHex() === 0xffe2a8){ luz.position.set(-4, 6, 7); luz.intensity = 1.6; luz.color.setHex(0xfff4e0); }
+      else if (luz.color.getHex() === 0x9fd2f2){ luz.intensity = .45; }
+      else { luz.position.set(5, 2, -5); luz.intensity = .6; }
+    }
+    const paso = 1, ancho = .64;
     const camara = new THREE.OrthographicCamera(-1, 1, 1, -1, .1, 100);
     camara.ancho = n * paso + 1.0;
     camara.position.set(2.2, 3.2, 9);
     const grupo = new THREE.Group(); escena.add(grupo); m.grupo = grupo;
-    const base = new THREE.Mesh(new THREE.BoxGeometry(n * paso + .8, .06, 1.3),
-      new THREE.MeshStandardMaterial({ color: 0x1b1b1e, roughness: .9, metalness: .1 }));
-    base.position.y = -.03; escena.add(base);
-    const oro = new THREE.MeshStandardMaterial({ color: 0xd0a55c, metalness: .7, roughness: .32, emissive: 0x2a1e08 });
-    const gris = new THREE.MeshStandardMaterial({ color: 0x3a3a40, metalness: .25, roughness: .65 });
+    const losa = new THREE.Mesh(new RoundedBoxGeometry(n * paso + .9, .14, 1.5, 3, .06), plastilina(THREE, PLASTI.losa));
+    losa.position.y = -.07; escena.add(losa);
     m.piezas = values.map((v, i) => {
       const h = Math.max(.02, v / max);
-      const g = new RoundedBoxGeometry(ancho, h, ancho, 4, Math.min(.08, h / 2));
+      const g = new RoundedBoxGeometry(ancho, h, ancho, 4, Math.min(.12, h / 2));
       g.translate(0, h / 2, 0);
-      const caja = new THREE.Mesh(g, (i === highlight ? oro : gris).clone());
+      const caja = new THREE.Mesh(g, plastilina(THREE, i === highlight ? PLASTI.oro : PLASTI.gris));
       caja.position.x = (i - (n - 1) / 2) * paso;
-      caja.userData = { i, h, retardo: i * .06 };
+      caja.userData = { i, h, retardo: i * .05 };
       caja.scale.y = 0.0001;
       grupo.add(caja); return caja;
     });
     let tocada = null;
+    const suave = (e) => 1 - Math.pow(1 - e, 4);
     const cuadro = (t) => {
       for (const c of m.piezas){
-        const e = Math.max(0, Math.min(1, (t - c.userData.retardo) / .7));
-        c.scale.y = Math.max(.0001, alivio(e));
+        const e = Math.max(0, Math.min(1, (t - c.userData.retardo) / .6));
+        c.scale.y = Math.max(.0001, suave(e));
         c.position.y += ((c === tocada ? .06 : 0) - c.position.y) * (m.quieto ? 1 : .25);
-        c.material.emissiveIntensity = c === tocada ? 1.6 : 1;
       }
       m.camara.position.x = 2.2 + Math.sin(t * .35) * .25;
       m.camara.lookAt(0, (m.altoU || 4) * .26, 0);
@@ -5537,49 +5566,65 @@ async function columnas3d(el, { labels, values, highlight, format }){
   });
   if (m === VIEJO) return true;     // otra llamada más nueva ya pinta este el
   if (!m) return false;
-  // Las etiquetas van en HTML, bajo su columna: la cámara ortográfica las deja en línea.
+  // Las etiquetas van en HTML: las de abajo bajo su columna, la cifra sobre
+  // la destacada y la más alta, y la escala a la izquierda. La cámara
+  // ortográfica deja todo en línea.
   const eje = document.createElement("div"); eje.className = "ejeX";
+  const capa = document.createElement("div"); capa.className = "ejeCifras"; capa.style.height = ALTO + "px";
   const { THREE } = m, v = new THREE.Vector3();
-  const colocar = () => { eje.innerHTML = m.piezas.map((c, i) => { v.set(c.position.x, 0, 0).project(m.camara); return `<span style="left:${((v.x + 1) / 2 * 100).toFixed(2)}%">${esc(labels[i])}</span>`; }).join(""); };
+  // Las columnas viven en un grupo que `medir` estira en y; la altura se proyecta ya estirada.
+  const pct = (x, y) => { v.set(x, y * m.grupo.scale.y, 0).project(m.camara); return [((v.x + 1) / 2 * 100).toFixed(2), ((1 - v.y) / 2 * 100).toFixed(2)]; };
+  const iMax = values.indexOf(Math.max(...values));
+  const colocar = () => {
+    // En el teléfono doce meses no caben: se escribe uno sí y uno no, sin saltarse el destacado.
+    const hueco = el.clientWidth * Math.abs(pct(1, 0)[0] - pct(0, 0)[0]) / 100;
+    eje.innerHTML = m.piezas.map((c, i) => hueco < 36 && i % 2 !== Math.max(highlight, 0) % 2 ? "" : `<span style="left:${pct(c.position.x, 0)[0]}%">${esc(labels[i])}</span>`).join("");
+    // La escala es la propia cifra sobre la columna más alta (y la destacada); no hace falta un eje aparte.
+    const cifras = [...new Set([highlight, iMax])].filter((i) => i >= 0 && values[i] > 0);
+    capa.innerHTML = cifras.map((i) => { const [x, y] = pct(m.piezas[i].position.x, m.piezas[i].userData.h); return `<b style="left:${x}%;top:${y}%">${esc(format(values[i]))}</b>`; }).join("");
+  };
   colocar(); m.alMedir = colocar;
-  el.appendChild(eje);
+  el.appendChild(capa); el.appendChild(eje);
   return true;
 }
 
-// La dona: un toro partido en gajos, inclinado hacia la cámara, que giran
-// despacio. Cada gajo crece desde cero (se reconstruye su arco mientras entra)
-// y al pasar el puntero se separa del centro y se enciende.
+// La dona: un aro de plastilina partido en gajos con costuras, inclinado
+// hacia la cámara, que gira despacio. Cada gajo crece desde cero y al pasar
+// el puntero se separa del centro. El total va al centro, en HTML.
 async function dona3d(el, partes, cur){
   const total = partes.reduce((a, p) => a + p.valor, 0) || 1;
   const m = await motor3d(el, 230, (m) => {
     const { THREE, escena } = m;
+    for (const luz of escena.children.filter((o) => o.isLight)){
+      if (luz.isHemisphereLight) luz.intensity = 1.3;
+      else if (luz.color.getHex() === 0xffe2a8){ luz.position.set(-4, 6, 7); luz.intensity = 1.6; luz.color.setHex(0xfff4e0); }
+      else if (luz.color.getHex() === 0x9fd2f2){ luz.intensity = .45; }
+      else { luz.position.set(5, 2, -5); luz.intensity = .6; }
+    }
     const camara = new THREE.PerspectiveCamera(32, 1, .1, 100);
     camara.position.set(0, 2.6, 4.6); camara.lookAt(0, 0, 0);
     const grupo = new THREE.Group(); grupo.rotation.x = .25; escena.add(grupo);
-    const colores = { "var(--tu)": 0xd0a55c, "var(--entra)": 0x4fc9a3, "var(--faint)": 0x6b6b72 };
+    const colores = { "var(--tu)": PLASTI.oro, "var(--entra)": PLASTI.verde, "var(--faint)": PLASTI.gris };
+    const COSTURA = .09;
     let a = 0;
     m.piezas = partes.map((p, i) => {
-      const arco = p.valor / total * Math.PI * 2 - .05;
-      const mat = new THREE.MeshStandardMaterial({ color: colores[p.color] ?? 0xd0a55c,
-        metalness: p.color === "var(--tu)" ? .7 : .35, roughness: .35, emissive: 0x000000 });
-      const g = new THREE.Mesh(new THREE.TorusGeometry(1.15, .42, 24, 48, .001), mat);
+      const arco = p.valor / total * Math.PI * 2 - COSTURA;
+      const g = new THREE.Mesh(new THREE.TorusGeometry(1.15, .42, 24, 48, .001), plastilina(THREE, colores[p.color] ?? PLASTI.oro));
       g.rotation.x = Math.PI / 2; g.rotation.z = a;
-      g.userData = { i, arco, a0: a, medio: a + arco / 2, retardo: i * .18, p };
-      grupo.add(g); a += arco + .05; return g;
+      g.userData = { i, arco, a0: a, medio: a + arco / 2, retardo: i * .14, p };
+      grupo.add(g); a += arco + COSTURA; return g;
     });
-    let tocada = null, ultimo = -1;
+    let tocada = null;
     const cuadro = (t) => {
       for (const g of m.piezas){
-        const e = Math.max(0, Math.min(1, (t - g.userData.retardo) / .9));
-        const arco = Math.max(.001, g.userData.arco * (1 - Math.pow(1 - e, 3)));
+        const e = Math.max(0, Math.min(1, (t - g.userData.retardo) / .8));
+        const arco = Math.max(.001, g.userData.arco * (1 - Math.pow(1 - e, 4)));
         if (Math.abs(arco - (g.geometry.parameters.arc || 0)) > .004){
           g.geometry.dispose(); g.geometry = new THREE.TorusGeometry(1.15, .42, 24, 48, arco);
         }
-        // El toro está acostado (rotation.x = π/2): su radial cae en el plano XZ del grupo.
         const d = g === tocada ? .18 : 0, ang = g.userData.medio, k = m.quieto ? 1 : .25;
         g.position.x += (Math.cos(ang) * d - g.position.x) * k;
         g.position.z += (Math.sin(ang) * d - g.position.z) * k;
-        g.material.emissive.setHex(g === tocada ? 0x332611 : 0x000000);
       }
       grupo.rotation.y = t * .18;
     };
@@ -5590,7 +5635,12 @@ async function dona3d(el, partes, cur){
     };
     return { camara, cuadro, tocar };
   });
-  return m === VIEJO ? true : !!m;
+  if (m === VIEJO) return true;
+  if (!m) return false;
+  const centro = document.createElement("div"); centro.className = "donaTotal";
+  centro.innerHTML = `${esc(plata(total, cur))}<small>este mes</small>`;
+  el.appendChild(centro);
+  return true;
 }
 
 // Cada categoría contra tu promedio: el eje del medio es lo que sueles gastar,
