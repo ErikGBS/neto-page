@@ -260,11 +260,11 @@
     margin-inline:auto;container:hoja / inline-size}
 
   .avisoApp[hidden]{display:none}   /* el display:flex de abajo le gana al hidden del navegador */
-  .avisoApp{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 18px;margin-bottom:18px;
+  .avisoApp{position:relative;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 52px 14px 18px;margin-bottom:18px;
     border-radius:16px;background:linear-gradient(180deg,#262530,#17161d);box-shadow:var(--clay-chica)}
   .avisoApp b{display:block;font-size:15px} .avisoApp p{margin:2px 0 0;font-size:13px;color:var(--muted)}
   .avisoApp .botones{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap} .avisoApp a.accion{text-decoration:none}
-  .avisoApp .cerrar{width:32px;height:32px;border-radius:50%;border:0;background:var(--raised);color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+  .avisoApp .cerrar{position:absolute;right:12px;top:12px;width:32px;height:32px;border-radius:50%;border:0;background:var(--raised);color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
   .avisoApp .cerrar:hover{color:var(--text)}
   .topbar{display:flex;align-items:center;gap:14px;margin-bottom:22px}
   .topbar h1{font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
@@ -587,6 +587,11 @@
   .ref{display:block;text-align:center;font-size:1.3rem;font-weight:800;letter-spacing:.09em;
     color:var(--gold-bright);margin:6px 0 2px;font-family:var(--tit);font-variant-numeric:tabular-nums}
   .acciones{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .waForm{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .waForm input{font:inherit;flex:1 1 220px;min-width:0;height:44px;padding:0 14px;border-radius:11px;
+    border:1px solid var(--border);background:var(--surface);color:var(--text)}
+  .waForm input:focus{outline:none;border-color:rgba(208,165,92,.68)}
+  .waNota{font-size:.85rem;color:var(--dim);margin-top:10px} .waNota a{color:var(--gold-bright)}
   /* Selector de plan: dos tarjetas que se tocan, no un desplegable. */
   .planes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 4px}
   .plan-op{display:flex;flex-direction:column;gap:4px;align-items:flex-start;
@@ -2036,6 +2041,7 @@
       <div class="botones">
         <a class="accion" href="https://apps.apple.com/app/id6778281655" target="_blank" rel="noopener">App Store</a>
         <a class="accion" href="https://play.google.com/store/apps/details?id=com.erikgbs.finance_app&amp;pcampaignid=web_share" target="_blank" rel="noopener">Google Play</a>
+        <a class="accion" href="#plan">Vincular WhatsApp</a>
       </div>
       <button type="button" class="cerrar" id="avisoAppCerrar" aria-label="Cerrar el aviso">×</button>
     </div>
@@ -2145,6 +2151,10 @@
       <div class="card" id="estadoCard">
         <h2>Tu plan</h2>
         <div id="estado" aria-live="polite"><p class="muted">Cargando…</p></div>
+      </div>
+      <div class="card" id="waCard">
+        <h2>Tu WhatsApp</h2>
+        <div id="waEstado" aria-live="polite"><p class="muted">Cargando…</p></div>
       </div>
       <div class="card">
         <h2>Qué incluye</h2>
@@ -2718,6 +2728,7 @@ function cambiarVista(name, desdeHistorial){
     history[desdeHistorial || !location.hash ? "replaceState" : "pushState"](null, "", destino);
   menu(false);                        // en el teléfono, elegir cierra la barra
   if (name === "pro") cargarPro();
+  if (name === "plan") cargarWhatsApp(); else clearInterval(waSondeo);
   if (name === "resumen"){
     pintar();                         // el SVG necesita medir su contenedor ya visible
     subirNumeros();                   // si se entró por otra pestaña, cuentan aquí
@@ -2867,8 +2878,13 @@ async function api(path, opts){
     ...opts,
     headers:{ ...(opts||{}).headers, Authorization:"Bearer " + session.access_token }
   });
-  if (!res.ok) throw new Error("HTTP " + res.status);
-  return res.json();
+  if (!res.ok){
+    // El backend explica sus 409/422/429 en `detail`: se guarda para mostrarlo.
+    const e = new Error("HTTP " + res.status); e.status = res.status;
+    try{ e.detail = (await res.json()).detail; }catch{}
+    throw e;
+  }
+  return res.status === 204 ? null : res.json();
 }
 
 const fecha = (iso) => iso
@@ -2954,6 +2970,90 @@ function pintarYo(nombre, correo, foto){
   $("escotillaCara").innerHTML = $("ava").innerHTML;        // la cara que mira desde la escotilla del menú
 }
 
+// ── Vincular WhatsApp desde la web, con los mismos endpoints que usa la app:
+// por número (le mandamos un WhatsApp con Aceptar) y, si no llega, por código.
+let waSondeo = 0;
+async function cargarWhatsApp(){
+  clearInterval(waSondeo);
+  let st;
+  try{ st = await api("/whatsapp/link"); }
+  catch(e){ $("waEstado").innerHTML = `<p class="muted">No pudimos leer tu WhatsApp: ${esc(e.message)}</p>`; return; }
+  pintarWhatsApp(st);
+}
+// Mientras hay una solicitud viva se pregunta cada 3 s si ya aceptó.
+function sondearWhatsApp(){
+  clearInterval(waSondeo);
+  waSondeo = setInterval(async () => {
+    try{
+      const s = await api("/whatsapp/link");
+      if (s.linked || !s.pending){ clearInterval(waSondeo); pintarWhatsApp(s); }
+    }catch{}
+  }, 3000);
+}
+function avisoWa(texto){
+  const caja = $("waEstado");
+  let a = caja.querySelector(".aviso");
+  if (!a){ a = document.createElement("div"); a.className = "aviso"; caja.append(a); }
+  a.textContent = texto;
+}
+function pintarWhatsApp(st){
+  const caja = $("waEstado");
+  if (st.linked){
+    caja.innerHTML = `<div class="estado"><span class="chip ok">vinculado</span>
+        <span class="muted">número terminado en ${esc(st.phone || "")}</span></div>
+      <p class="muted">Escríbele al asistente y tus gastos quedan anotados aquí.</p>
+      <div class="acciones"><button id="waQuitar">Desvincular</button></div>`;
+    $("waQuitar").onclick = async () => {
+      $("waQuitar").disabled = true;
+      try{ await api("/whatsapp/link", { method:"DELETE" }); cargarWhatsApp(); }
+      catch(e){ $("waQuitar").disabled = false; avisoWa("No se pudo desvincular: " + e.message); }
+    };
+    return;
+  }
+  if (st.pending){
+    caja.innerHTML = `<p>Te mandamos un WhatsApp${st.phone ? ` al número terminado en ${esc(st.phone)}` : ""}.
+        Tócale <b>Aceptar</b> y esta tarjeta se actualiza sola.</p>
+      <p class="waNota">¿No te llegó? <a href="#plan" id="waCodigo">Vincular con un código</a>
+        o <a href="#plan" id="waOtro">probar con otro número</a>.</p>`;
+    $("waCodigo").onclick = (e) => { e.preventDefault(); vincularPorCodigo(); };
+    $("waOtro").onclick = (e) => { e.preventDefault(); clearInterval(waSondeo); pintarWhatsApp({ linked:false, pending:false }); };
+    sondearWhatsApp();
+    return;
+  }
+  caja.innerHTML = `<p class="muted">Con tu WhatsApp vinculado registras tu plata desde el chat y le mandas fotos de vouchers.</p>
+    <form class="waForm" id="waForm">
+      <input id="waTel" type="tel" inputmode="tel" autocomplete="tel" required
+             placeholder="Tu número de WhatsApp" aria-label="Tu número de WhatsApp">
+      <button class="primary" type="submit" id="waMandar">Mandarme el WhatsApp</button>
+    </form>
+    <p class="waNota">Te llega un mensaje de Y Altoque con un botón para confirmar. Si no es de Perú, con el código de país.
+      <a href="#plan" id="waCodigo">Prefiero vincular con un código</a>.</p>`;
+  $("waForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const b = $("waMandar"); b.disabled = true; b.textContent = "Enviando…";
+    try{
+      const r = await api("/whatsapp/link/phone", { method:"POST", headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ phone: $("waTel").value }) });
+      pintarWhatsApp({ linked:false, pending:true, phone: r.phone });
+    }catch(err){
+      b.disabled = false; b.textContent = "Mandarme el WhatsApp";
+      if (err.status === 502) vincularPorCodigo(err.detail);   // Meta no lo mandó: queda el camino del código
+      else avisoWa(err.detail || "No se pudo mandar el WhatsApp: " + err.message);
+    }
+  };
+  $("waCodigo").onclick = (e) => { e.preventDefault(); vincularPorCodigo(); };
+}
+async function vincularPorCodigo(motivo){
+  const caja = $("waEstado");
+  let r;
+  try{ r = await api("/whatsapp/link/start", { method:"POST" }); }
+  catch(e){ avisoWa("No se pudo generar el código: " + e.message); return; }
+  caja.innerHTML = `${motivo ? `<p class="muted">${esc(motivo)}</p>` : ""}
+    <p>Abre WhatsApp y manda <b>VINCULAR ${esc(r.code)}</b> al asistente. El código vale 24 horas.</p>
+    <div class="acciones"><a class="btn primary" href="${esc(r.whatsapp_link)}" target="_blank" rel="noopener">Abrir WhatsApp con el mensaje listo</a></div>
+    <p class="waNota">Cuando lo mandes, esta tarjeta se actualiza sola.</p>`;
+  sondearWhatsApp();
+}
 async function cargarPlan(){
   try{
     plan = await api("/billing/plan");
