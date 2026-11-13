@@ -72,6 +72,32 @@
     color:#1a1206;background:#e3bd74 linear-gradient(180deg,#f3d48f,#d9ad5b);
     box-shadow:inset 0 1.5px 0 rgba(255,255,255,.35), inset 0 -4px 0 rgba(110,70,15,.45), 0 16px 30px -12px rgba(0,0,0,.7);opacity:0}
   .on .pill{animation:asoma 520ms var(--ease-expo) 900ms both}
+
+  /* ── Cámara: el clip se acerca a lo que importa y vuelve a alejarse. La
+     escala va en el vídeo (el marco se queda quieto) y el origen se mueve con
+     ella, así el "zoom" apunta a una zona distinta en cada escena. */
+  .marco video{will-change:transform,transform-origin}
+  [data-clip="login"].on video{animation:camLogin 4s cubic-bezier(.4,0,.2,1) both}
+  @keyframes camLogin{from{transform:scale(1);transform-origin:50% 45%}to{transform:scale(1.28);transform-origin:50% 48%}}
+  [data-clip="resumen"].on video{animation:camResumen 8s cubic-bezier(.45,0,.2,1) both}
+  @keyframes camResumen{0%{transform:scale(1.35);transform-origin:30% 32%}34%{transform:scale(1.35);transform-origin:36% 34%}
+    62%{transform:scale(1);transform-origin:50% 50%}100%{transform:scale(1.25);transform-origin:84% 72%}}
+  [data-clip="gastos"].on video{animation:camGastos 7s cubic-bezier(.45,0,.2,1) both}
+  @keyframes camGastos{0%{transform:scale(1.2);transform-origin:45% 30%}40%{transform:scale(1);transform-origin:50% 50%}100%{transform:scale(1.3);transform-origin:36% 62%}}
+  [data-clip="finmes"].on video{animation:camFinmes 6s cubic-bezier(.45,0,.2,1) both}
+  @keyframes camFinmes{0%{transform:scale(1);transform-origin:50% 40%}45%{transform:scale(1.35);transform-origin:62% 36%}100%{transform:scale(1.1);transform-origin:50% 40%}}
+  [data-clip="movs"].on video{animation:camMovs 5s cubic-bezier(.45,0,.2,1) both}
+  @keyframes camMovs{0%{transform:scale(1);transform-origin:40% 40%}100%{transform:scale(1.32);transform-origin:72% 42%}}
+  [data-clip="compromisos"].on video{animation:camCompromisos 5s cubic-bezier(.45,0,.2,1) both}
+  @keyframes camCompromisos{0%{transform:scale(1.3);transform-origin:40% 24%}100%{transform:scale(1);transform-origin:50% 50%}}
+  [data-clip="metas"].on video{animation:camMetas 4s cubic-bezier(.45,0,.2,1) both}
+  @keyframes camMetas{0%{transform:scale(1);transform-origin:50% 40%}100%{transform:scale(1.28);transform-origin:40% 32%}}
+  [data-clip="pro"].on video{animation:camPro 3.5s cubic-bezier(.45,0,.2,1) both}
+  @keyframes camPro{0%{transform:scale(1.25);transform-origin:50% 28%}100%{transform:scale(1.05);transform-origin:50% 36%}}
+  /* Entre capítulos el astronauta cruza por delante, como barrido de corte. */
+  .barrido{position:absolute;left:-520px;top:300px;width:440px;pointer-events:none;opacity:0;z-index:5;filter:drop-shadow(0 30px 40px rgba(0,0,0,.7))}
+  .barrido.va{animation:barre 900ms cubic-bezier(.5,0,.2,1) both}
+  @keyframes barre{0%{opacity:0;transform:translate(0,120px) rotate(10deg)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(2600px,-260px) rotate(-12deg)}}
   #velo{position:absolute;inset:0;background:#0b0b0c;opacity:0;pointer-events:none}
 </style></head>
 <body><div id="lienzo">
@@ -150,6 +176,7 @@
       <span class="pill">Empieza hoy</span>
     </div>
   </section>
+  <img class="barrido" id="barrido" src="../../app/astronauta.webp" alt="">
   <div id="velo"></div>
 </div>
 <script>
@@ -178,6 +205,7 @@ function pintarEstrellas(t, brillo = 1){
 
 // ── Reloj maestro: activa y desactiva escenas, arranca sus clips.
 const escenas = [...document.querySelectorAll(".escena")].map((el) => ({ el, in: +el.dataset.in, out: +el.dataset.out, video: el.querySelector("video"), estado: "fuera" }));
+const CORTES_CON_ASTRO = new Set(["resumen", "finmes", "compromisos"]);   // tres barridos en 50 s, no uno por corte
 const DURACION = 50, OFFSET = 0;   // los mp4 ya vienen sin el segundo en blanco del arranque (ver grabar-clips.sh)
 function estado(t){
   for (const s of escenas){
@@ -187,6 +215,7 @@ function estado(t){
       if (s.video){ s.video.currentTime = OFFSET; s.video.play().catch(() => {}); }
     } else if (!dentro && s.estado === "dentro"){
       s.estado = "saliendo"; s.el.classList.add("off");
+      if (s.video && CORTES_CON_ASTRO.has(s.el.dataset.clip)){ const b = document.getElementById("barrido"); b.classList.remove("va"); void b.offsetWidth; b.classList.add("va"); }
       setTimeout(() => { s.el.classList.remove("on", "off"); s.estado = "fuera"; s.video?.pause(); }, 230);
     }
   }
