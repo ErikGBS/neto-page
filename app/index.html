@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" href="/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600&display=swap">
 <style>
   :root{
     /* Negro neutro, sin azul: la jerarquía la da el tono (fondo, tarjeta,
@@ -51,6 +51,7 @@
   --t-press:140ms; --t-hover:180ms; --t-ui:240ms; --t-reveal:560ms;
   --paso:70ms;
   --tit:'Space Grotesk',-apple-system,'Segoe UI',Roboto,sans-serif;
+  --cifra:'Bricolage Grotesque',Inter,-apple-system,sans-serif;   /* solo las cifras grandes del Resumen */
     --cuerpo:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
     --radio:18px;
   }
@@ -215,60 +216,164 @@
   /* La tarjeta del mes: el saludo, la frase y las cifras juntas, con el
      astronauta en su cohete saliendo por la esquina, como la tarjeta del
      ranking en la pantalla Universo de la app. */
-  /* Un campo plano de dorado tenue: el único bloque de color de la pantalla,
-     para que el astronauta tenga de dónde salirse. Sin degradado ni borde. */
-  .mision{position:relative;background:color-mix(in srgb, var(--gold) 9%, var(--surface));
-    border-radius:20px;padding:26px 28px 24px;margin:56px 0 16px}
-  /* Dos columnas: a la izquierda el saludo y el porcentaje en grande (lo que
-     manda), a la derecha el astronauta y, debajo, el disponible y la tira. */
-  .misionGrid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:24px 40px;align-items:start}
-  .misionIzq{min-width:0}
-  .misionDer{min-width:0;padding-top:150px}
-  .saludo{min-height:0}
-  .anilloGrande{display:flex;align-items:center;gap:30px;margin-top:26px}
-  .anilloGrande .anillo{width:160px;height:160px;flex:none}
-  .anilloGrande .anillo .foto{inset:30px;font-size:34px}
+  /* ── Tu mes en órbita ───────────────────────────────────────────────────
+     La portada es una escena, no un panel: el camino del mes va de la
+     billetera (lo que tienes) a la mano con la moneda (el próximo ingreso) y
+     el astronauta viaja por él hasta hoy. Las categorías son planetas con el
+     tamaño de lo gastado. La nébula vive detrás. Arriba a la izquierda, lo
+     único que se lee primero: el disponible, una frase y una acción. */
+  .mision{position:relative;height:540px;border-radius:20px;margin:56px 0 16px;--px:0;--py:0}
+  /* El fondo es lo único recortado: los mundos, el astronauta y las chispas
+     se salen de la tarjeta, como objetos delante de ella. */
+  .orbFondo{position:absolute;inset:0;border-radius:20px;overflow:hidden;
+    background:radial-gradient(120% 90% at 70% 40%, #171513 0%, #0f0f10 55%, #0b0b0c 100%)}
+  .orbEscena{position:absolute;inset:0}
+  .mision .orbe{position:absolute;right:-6%;top:-10%;width:62%;height:120%;pointer-events:none;opacity:.9;
+    mix-blend-mode:screen;-webkit-mask:radial-gradient(60% 55% at 55% 45%, #000 45%, transparent 100%);
+    mask:radial-gradient(60% 55% at 55% 45%, #000 45%, transparent 100%)}
+  .orbRuta{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .orbRuta .pista{fill:none;stroke:rgba(255,255,255,.14);stroke-width:2;stroke-dasharray:3 7;stroke-linecap:round}
+  .orbRuta .hecho{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;stroke-dasharray:1;
+    filter:drop-shadow(0 0 6px rgba(243,206,127,.55));transition:stroke-dashoffset 1100ms var(--ease-expo)}
+  .orbCosa{position:absolute;margin:0;pointer-events:none;filter:drop-shadow(0 18px 22px rgba(0,0,0,.55))}
+  .orbCosa img{display:block;width:100%;height:auto}
+  .orbBillete{left:4.5%;bottom:5%;width:118px;transform:translate(calc(var(--px) * 3px), calc(var(--py) * 2px))}
+  .orbCobrar{right:5%;top:14%;width:116px;transform:translate(calc(var(--px) * -4px), calc(var(--py) * -3px))}
+  .orbCobrar small{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:2px;white-space:nowrap;
+    font-size:12px;color:var(--muted)}
+  /* El astronauta: la capa se coloca sobre el camino (lo hace el JS, con un
+     viaje de 1,3 s desde la billetera) y la imagen de dentro flota e inclina
+     hacia el puntero, como siempre. */
+  .astroCapa{position:absolute;left:0;top:0;width:150px;height:157px;margin:-78px 0 0 -75px;pointer-events:none;z-index:2;
+    perspective:900px;transition:transform 1300ms var(--ease-expo);will-change:transform}
+  .astroCapa .hoyTag{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:-4px;font-size:12px;
+    color:var(--gold-bright);white-space:nowrap;font-weight:500}
+  .astro{position:absolute;inset:0;width:100%;height:auto;pointer-events:none;
+    transform:translate(calc(var(--px) * 7px), calc(var(--py) * 5px))
+      rotateY(calc(var(--px) * 12deg)) rotateX(calc(var(--py) * -9deg));
+    transition:transform 220ms var(--ease-out);transform-style:preserve-3d;will-change:transform;
+    filter:drop-shadow(0 22px 24px rgba(0,0,0,.6))}
+  .astro img{display:block;width:100%;height:auto;animation:flota 6s ease-in-out infinite}
+  .sombra{display:none}
+  @keyframes flota{0%,100%{transform:translateY(0)}25%{transform:translateY(7px)}
+    75%{transform:translateY(-7px)}}
+  /* Los planetas: una esfera por categoría, el tamaño por lo gastado, la
+     mayor en dorado. Cada uno a su profundidad frente al puntero. */
+  .planeta{position:absolute;left:var(--x);top:var(--y);width:calc(var(--s) * var(--k, 1));
+    margin:calc(var(--s) * var(--k, 1) / -2) 0 0 calc(var(--s) * var(--k, 1) / -2);
+    background:none;border:0;padding:0;cursor:pointer;text-align:center;color:var(--text);white-space:normal;
+    transform:translate(calc(var(--px) * var(--z) * -5px), calc(var(--py) * var(--z) * -4px));
+    transition:transform 260ms var(--ease-out)}
+  .planeta i{display:block;width:calc(var(--s) * var(--k, 1));height:calc(var(--s) * var(--k, 1));border-radius:50%;
+    background:radial-gradient(circle at 32% 30%, #ececf0 0%, #9a9aa2 32%, #3a3a40 68%, #141416 100%);
+    box-shadow:0 20px 28px rgba(0,0,0,.55), inset -10px -12px 24px rgba(0,0,0,.45);
+    transition:transform var(--t-hover) var(--ease-out)}
+  .planeta.oro i{background:radial-gradient(circle at 32% 30%, #fff4d6 0%, var(--gold-bright) 28%, #8a6a30 66%, #2a1d08 100%)}
+  /* La sombra de cada mundo sobre la tarjeta, como la del astronauta: un
+     óvalo oscuro desenfocado bajo la esfera, que viaja con ella. */
+  .planeta .sombraM{position:absolute;left:50%;top:calc(var(--s) * var(--k, 1) * .78);width:calc(var(--s) * var(--k, 1) * .9);
+    height:calc(var(--s) * var(--k, 1) * .3);transform:translateX(-50%);border-radius:50%;pointer-events:none;z-index:-1;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,.55), rgba(0,0,0,0) 70%);filter:blur(4px)}
+  /* El mundo grande ilumina lo que tiene cerca: un resplandor dorado tenue
+     detrás, que respira muy despacio. */
+  .planeta.oro .resplandor{position:absolute;left:50%;top:calc(var(--s) * var(--k, 1) / 2);width:calc(var(--s) * var(--k, 1) * 3.2);
+    height:calc(var(--s) * var(--k, 1) * 3.2);transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:-2;
+    background:radial-gradient(circle, rgba(243,206,127,.34) 0%, rgba(243,206,127,.12) 40%, rgba(243,206,127,0) 70%);
+    mix-blend-mode:screen}
+  @media (prefers-reduced-motion:no-preference){
+    @keyframes respiraOro{0%,100%{opacity:.85;scale:1}50%{opacity:1;scale:1.06}}
+    .planeta.oro .resplandor{animation:respiraOro 7s ease-in-out infinite}
+  }
+  .planeta:hover i{transform:scale(1.06)}
+  .planeta:active{transform:scale(.97)}
+  .planeta b{display:block;margin-top:8px;font-size:13px;font-weight:600;white-space:nowrap}
+  .planeta small{display:block;font-size:12px;color:var(--muted)}
+  .planeta[data-i="0"]{--x:46%;--y:22%} .planeta[data-i="1"]{--x:60%;--y:11%} .planeta[data-i="2"]{--x:74%;--y:34%}
+  .planeta[data-i="3"]{--x:78%;--y:7%} .planeta[data-i="4"]{--x:64%;--y:50%}
+  /* Los mundos en 3D: una sola escena para todos, debajo de las etiquetas.
+     Con WebGL la esfera CSS se esconde (sin perder su sitio); sin él, se queda. */
+  .mundos3d{position:absolute;inset:-110px -60px;pointer-events:none}
+  .mundos3d .lienzo3d{position:absolute;inset:0;width:100% !important;height:100% !important}
+  .mundos3d .tip3d{display:none}
+  #planetas.en3d .planeta i{visibility:hidden}
+  .orbVacio{position:absolute;left:50%;top:26%;transform:translateX(-50%);max-width:30ch;text-align:center;
+    color:var(--muted);font-size:14px;line-height:1.5}
+  /* El texto: lo que se lee primero. */
+  .misionGrid{position:absolute;left:30px;top:28px;max-width:44%;z-index:3;display:flex;flex-direction:column}
+  .misionIzq, .misionDer{display:contents}
+  .mision .hero{margin:0}
+  .mision .hero .lbl{font-size:13px;color:var(--faint)}
+  .mision .hero .val{font-family:var(--cifra);font-size:58px;font-weight:600;letter-spacing:-.03em;line-height:1;margin-top:4px;
+    font-variation-settings:"opsz" 96}
+  .mision .hero .sub{font-size:14px;color:var(--muted);margin-top:8px}
+  .saludo{min-height:0;margin-top:18px}
+  .saludo h2{font-size:13px;font-weight:500;color:var(--faint);letter-spacing:.01em}
+  .saludo p{font-size:17px;color:var(--text);max-width:36ch;margin-top:6px;line-height:1.4}
+  .saludo .verGastos{margin-top:16px}
+  .saludo .racha{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;margin-left:10px;border-radius:999px;
+    background:var(--raised);color:var(--muted);font-size:12px;vertical-align:middle}
+  .saludo .racha b{color:var(--text);font-weight:600}
+  /* Gastado e ingresos, en voz baja, bajo la acción. */
+  .mision .kpis{display:flex;flex-wrap:wrap;gap:4px 18px;margin:16px 0 0;border:0;padding:0}
+  .mision .kpi{padding:0;border:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;font-size:13px;min-width:0}
+  .mision .kpi .lbl{font-size:12px;color:var(--faint)}
+  .mision .kpi .val{font-size:14px;font-weight:500;margin:0;color:var(--text);overflow:visible}
+  .mision .kpi .sub{font-size:12px;margin:0;color:var(--faint)}
+  .mision .kpi .sub .delta{font-size:12px}
+  /* Abajo a la derecha: el aro de lo consumido y el veredicto del mes. */
+  .orbPie{position:absolute;right:26px;bottom:20px;display:flex;flex-direction:row-reverse;align-items:center;gap:18px;z-index:3}
+  .anilloGrande{display:flex;align-items:center;gap:12px;margin:0;padding:0}
+  .anilloGrande .anillo{width:72px;height:72px;flex:none}
+  .anilloGrande .anillo .foto{inset:14px;font-size:15px}
   .anilloGrande .anillo .pct{display:none}
-  /* El anillo en 3D: un lienzo más grande que la caja, detrás de la foto, que
-     la rodea con un toro que crece. Sin WebGL queda el SVG de siempre. */
-  .anillo .anillo3d{position:absolute;inset:-10px;pointer-events:none}
+  .anilloTexto, .orbVeredicto{position:relative;z-index:1}
+  .anilloTexto .val{display:none}
+  .anilloTexto .sub{display:block;font-size:12px;color:var(--muted);max-width:14ch;line-height:1.35}
+  .orbVeredicto{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);padding-right:18px;border-right:1px solid var(--rule)}
+  .orbVeredicto i{width:8px;height:8px;border-radius:50%;background:var(--entra);flex:none}
+  .orbVeredicto.mal i{background:var(--pasa)}
+  .orbVeredicto b{color:var(--text)}
+  .orbVeredicto .accion{margin-left:4px}
+  .anillo .anillo3d{position:absolute;inset:-40px;pointer-events:none;z-index:0}
   .anillo .anillo3d .lienzo3d{position:absolute;inset:0;width:100% !important;height:100% !important}
   .anillo .foto{z-index:1}
   .anillo.en3d svg{display:none}
-  .anillo.en3d::after{content:"";position:absolute;left:10%;right:10%;bottom:-14px;height:18px;border-radius:50%;
-    background:radial-gradient(ellipse at center, rgba(0,0,0,.55), transparent 70%)}
-  .anilloTexto .val{display:block;font-size:40px;font-weight:600;letter-spacing:-.02em;line-height:1.05}
-  .anilloTexto .sub{display:block;font-size:14px;color:var(--muted);margin-top:6px;max-width:26ch}
-  .saludo h2{font-size:1.25rem;font-weight:600;letter-spacing:-.01em;line-height:1.25}
-  .saludo p{color:var(--muted);max-width:62ch;margin-top:6px}
-  .mision .orbe{position:absolute;right:-30px;top:-70px;width:400px;height:320px;
-    pointer-events:none}
-  /* El astronauta: el render de la marca, grande, saliéndose de la tarjeta por
-     arriba y por la derecha. Tres capas que se mueven a distinta velocidad
-     (la nébula atrás, la sombra en el suelo, él delante) y una perspectiva
-     que lo inclina hacia el puntero: eso es lo que lo hace leer como un
-     objeto y no como una pegatina. La capa hace el parallax y la imagen
-     flota: dos transforms en dos elementos, para que no se pisen. */
-  .astroCapa{position:absolute;right:30px;top:-96px;width:300px;height:340px;
-    pointer-events:none;z-index:2;perspective:900px;
-    --px:0;--py:0}
-  .astro{position:absolute;inset:0;width:100%;height:auto;pointer-events:none;
-    transform:translate(calc(var(--px) * 14px), calc(var(--py) * 10px))
-      rotateY(calc(var(--px) * 12deg)) rotateX(calc(var(--py) * -9deg));
-    transition:transform 220ms var(--ease-out);transform-style:preserve-3d;will-change:transform}
-  .astro img{display:block;width:100%;height:auto;animation:flota 6s ease-in-out infinite}
-  .sombra{position:absolute;left:38px;right:38px;bottom:4px;height:22px;border-radius:50%;
-    background:#000;opacity:.34;filter:blur(9px);
-    transform:translateX(calc(var(--px) * -10px));
-    animation:respira 6s ease-in-out infinite;transition:transform 220ms var(--ease-out)}
-  @keyframes respira{0%,100%{transform:translateX(calc(var(--px) * -10px)) scaleX(1)}
-    25%{transform:translateX(calc(var(--px) * -10px)) scaleX(.94)}75%{transform:translateX(calc(var(--px) * -10px)) scaleX(1.03)}}
-  /* La nébula va un paso por detrás: se mueve al revés y menos. */
-  .mision .orbe{transform:translate(calc(var(--px, 0) * -6px), calc(var(--py, 0) * -4px));
-    transition:transform 320ms var(--ease-out)}
-  .verGastos{margin-top:14px;height:38px;padding:0 16px;border-radius:999px;border:1px solid var(--control);
-    background:transparent;color:var(--text);font-weight:500;font-size:14px}
-  .verGastos:hover{background:var(--raised)}
+  .anillo .foto.sinFoto{background:transparent;color:var(--text);font-weight:600;letter-spacing:-.02em;font-family:var(--cifra)}
+  .mision .hero, .saludo, .mision .kpis{position:relative;z-index:1}
+  .topbar .der{position:relative;z-index:3}
+  /* Llegada: la cifra manda; el saludo y la línea la siguen. Los planetas
+     nacen escalonados. Una vez por carga. */
+  @media (prefers-reduced-motion:no-preference){
+    @keyframes llegaDato{from{opacity:0;transform:translateY(8px)}}
+    .mision.llegaDato .hero{animation:llegaDato 420ms var(--ease-expo) both}
+    .mision.llegaDato .saludo{animation:llegaDato 360ms var(--ease-expo) 90ms both}
+    .mision.llegaDato .kpis{animation:llegaDato 360ms var(--ease-expo) 150ms both}
+    @keyframes planetaNace{from{opacity:0;scale:.6}}
+    .planeta.nace{animation:planetaNace 520ms var(--ease-expo) both;animation-delay:calc(400ms + var(--i) * 70ms)}
+    @keyframes llegaFila{from{opacity:0;transform:translateY(6px)}}
+    @keyframes aterriza{from{transform:scale(.4);opacity:0}60%{transform:scale(1.25)}to{transform:scale(1);opacity:1}}
+    .estadoLinea{animation:llegaFila 320ms var(--ease-expo) both}
+    .estadoLinea .punto{animation:aterriza 420ms var(--ease-out) 120ms both}
+  }
+  /* ── Acciones: un solo lenguaje ─────────────────────────────────────
+     Toda navegación secundaria es la misma píldora: contorno fino, texto a
+     14/500 y una flecha que avanza 2px al pasar por encima (respuesta, no
+     adorno). La variante chica vive dentro de las filas de avisos y del
+     veredicto. El único control distinto es el envío del buscador. */
+  .accion{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px 0 16px;border-radius:999px;
+    border:1px solid var(--control);background:transparent;color:var(--text);font-weight:500;font-size:14px;
+    text-decoration:none;white-space:nowrap;cursor:pointer;
+    transition:background var(--t-hover) ease,border-color var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
+  .accion::after{content:"";width:14px;height:14px;flex:none;background:currentColor;
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h13M12 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;
+    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h13M12 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;
+    transition:transform var(--t-hover) var(--ease-out)}
+  .accion:hover{background:var(--raised);border-color:var(--border-strong)}
+  .accion:hover::after{transform:translateX(2px)}
+  .accion:active{transform:scale(.97)}
+  .accion.chica{height:30px;padding:0 10px 0 12px;font-size:13px;gap:6px}
+  .accion.chica::after{width:12px;height:12px}
+  .verGastos{margin-top:14px}
   @keyframes flota{0%,100%{transform:translateY(0)}25%{transform:translateY(7px)}
     75%{transform:translateY(-7px)}}
   /* La cifra que responde a la pantalla: lo que tienes. Más grande que
@@ -326,9 +431,7 @@
   .estadoLinea .punto{width:8px;height:8px;border-radius:50%;flex:none;background:var(--faint)}
   .estadoLinea .punto.bien{background:var(--positive)}
   .estadoLinea .punto.mal{background:var(--negative)}
-  .estadoLinea a{margin-left:auto;color:var(--text);font-weight:500;text-decoration:none;
-    text-underline-offset:3px}
-  .estadoLinea a:hover{text-decoration:underline}
+  .estadoLinea .accion{margin-left:auto}
 
   .estado{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
   .estado .plan{font-size:1.75rem;font-weight:700;letter-spacing:-.02em}
@@ -424,15 +527,12 @@
   .llega #menu,.llega #menuAdmin{animation:none}
   /* Cambiar de pestaña no hereda el retraso de la llegada. */
   .hoja section.entra{animation-delay:0s}
-  /* El astronauta llega volando desde fuera y recién ahí se pone a flotar. */
-  .llega .mision .astroCapa{animation:aterriza .95s cubic-bezier(.2,.85,.25,1) .2s both}
   @media (prefers-reduced-motion:reduce){
     .entrar.entrando .saludo{animation:none;opacity:1}
     .shell.llega,.hoja section.entra,.llega .side > *,.llega .hoja > *,.llega .marca,
     .llega #menu button,.llega #menuAdmin button,.llega .grupo,.llega .mision,
     .llega .kpi,.llega .card,
     #menu button.on::before,#menuAdmin button.on::before{animation-duration:.01ms}
-    .llega .mision .astroCapa{animation:none}
   }
   .entrar h1{font-size:1.6rem;font-weight:700;margin-bottom:8px}
   .entrar p{color:var(--dim);margin-bottom:24px}
@@ -574,7 +674,10 @@
   .consulta button:hover{border-color:var(--gold)}
   .consulta button svg{width:18px;height:18px;fill:none;stroke:var(--gold);
     stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .consulta button svg{transition:transform var(--t-hover) var(--ease-out),opacity var(--t-hover) ease}
+  .consulta button:hover svg{transform:translateX(2px)}
   .consulta.pensando input{opacity:.7}
+  .consulta.pensando button svg{transform:translateX(4px);opacity:.35}
 
   /* ── El cerebro del mes ─────────────────────────────────────────────────
      El canvas no tiene alto propio, así que se le da uno explícito: si se
@@ -1403,19 +1506,35 @@
     .tabbar{display:grid}
     .hoja{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
     .hoja{padding:16px 16px 28px}
-    .mision{padding:22px 18px 20px;margin-top:54px}
-    .misionGrid{grid-template-columns:1fr;gap:18px}
-    .misionDer{padding-top:0}
-    .anilloGrande .anillo{width:112px;height:112px}
-    .anilloGrande .anillo .foto{inset:24px;font-size:26px}
-    .anilloGrande{gap:22px}
-    .anilloTexto .val{font-size:32px}
+    /* En el teléfono la escena se parte en dos: el texto arriba, como un
+       bloque normal, y debajo una franja de 300px con el camino, los planetas
+       (a dos tercios) y el astronauta. El aro y el veredicto cierran abajo. */
+    .mision{height:auto;margin-top:54px;padding:22px 18px 0;display:flex;flex-direction:column}
+    .mundos3d{inset:-60px 0}
+    .misionGrid{position:static;max-width:none;order:1}
+    .orbEscena{order:2} .orbPie{order:3;flex-direction:row}
+    .mision .hero .val{font-size:40px}
+    .saludo p{font-size:16px;max-width:none}
+    .orbEscena{position:relative;height:300px;margin:8px -18px 0}
+    .planeta{--k:.5}
+    .planeta[data-i="0"]{--x:18%;--y:26%} .planeta[data-i="1"]{--x:40%;--y:12%} .planeta[data-i="2"]{--x:62%;--y:30%}
+    .planeta[data-i="3"]{--x:86%;--y:60%} .planeta[data-i="4"]{--x:27%;--y:52%}
+    .planeta b{font-size:11px;margin-top:5px} .planeta small{font-size:10px}
+    .orbBillete{width:66px;left:4%;bottom:8%} .orbCobrar{width:58px;right:6%;top:2%}
+    .orbCobrar small{font-size:10px;transform:translateX(-62%)}
+    .orbVacio{top:30%;font-size:13px}
+    .astroCapa{width:84px;height:88px;margin:-44px 0 0 -42px}
+    .astroCapa .hoyTag{font-size:11px}
     .mision .orbe{display:none}
-    .saludo{max-width:none;min-height:0;padding-top:64px}
-    .astroCapa{width:132px;height:auto;right:8px;top:-54px;perspective:none}
-    .astro{position:static;transform:none;transition:none}
-    .astro img{animation:none}
-    .sombra{display:none}
+    .astro{transform:none;transition:none}
+    .orbPie{position:static;flex-direction:column;align-items:flex-start;gap:14px;padding:14px 0 18px;border-top:1px solid var(--rule)}
+    .anilloTexto .sub{max-width:24ch}
+    .orbVeredicto{padding:0;border:0;flex-wrap:wrap;font-size:13px}
+    /* Un aviso en el teléfono: el punto pegado al texto y la acción debajo, a
+       la derecha, en vez de un punto suelto en su propia línea. */
+    .estadoLinea{display:grid;grid-template-columns:8px minmax(0,1fr);column-gap:12px;row-gap:10px;align-items:start}
+    .estadoLinea .punto{margin-top:7px}
+    .estadoLinea .accion{grid-column:2;justify-self:end;margin-left:0}
 
     .kpis{margin:14px 0 0}
     .kpi{padding:14px 18px 16px 0}
@@ -1498,6 +1617,7 @@
     .coHero .fig,.coIng .fig,.fmHero .fig,.fijo{transition:none} .fmHero .fig img{animation:none} .coHero .fig img,.coIng .fig img{animation:none} .linea .punto{animation:none}
     .astro img,.sombra{animation:none}
     .astro,.sombra,.mision .orbe{transition:none;transform:none}
+    .astroCapa,.orbRuta .hecho{transition:none}
   }
 
   /* ── El panel de las vistas de dinero ───────────────────────────────────
@@ -1720,49 +1840,58 @@
 
     <section id="tab-resumen">
       <div class="mision">
-        <canvas class="orbe" id="nebulaMes" aria-hidden="true"></canvas>
-        <div class="astroCapa" id="astroCapa" aria-hidden="true">
-          <i class="sombra"></i>
-          <div class="astro"><img src="astronauta.webp" width="320" height="334" alt=""></div>
+        <div class="orbFondo" aria-hidden="true"><canvas class="orbe" id="nebulaMes"></canvas></div>
+        <div class="orbEscena" id="orbEscena">
+          <svg class="orbRuta" viewBox="0 0 1000 540" preserveAspectRatio="none" aria-hidden="true">
+            <path class="pista" id="orbPista" d=""/><path class="hecho" id="orbHecho" d="" pathLength="1" style="stroke-dashoffset:1"/>
+          </svg>
+          <figure class="orbCosa orbBillete"><img src="billetera.webp" width="420" height="337" alt=""></figure>
+          <figure class="orbCosa orbCobrar"><img src="cobrar.webp" width="420" height="385" alt=""><small id="orbMeta">fin de mes</small></figure>
+          <div class="mundos3d" id="mundos3d" aria-hidden="true"></div>
+          <div id="planetas"></div>
+          <div class="astroCapa" id="astroCapa" aria-hidden="true">
+            <div class="astro"><img src="astronauta.webp" width="320" height="334" alt=""></div>
+            <span class="hoyTag" id="orbHoy"></span>
+          </div>
         </div>
         <div class="misionGrid">
           <div class="misionIzq">
-            <div class="saludo">
-              <h2 id="hola">Tu mes</h2>
-              <p id="frase"><span class="hueso ancho" style="max-width:520px"></span>
-                <span class="hueso" style="width:60%"></span></p>
-              <button type="button" class="verGastos" id="verGastos">Ver en qué se te va</button>
-            </div>
-            <!-- Lo que manda: tu foto con el arco y el porcentaje en grande. -->
-            <div class="anilloGrande">
-              <div class="anillo" id="anilloGasto"><span class="hueso" style="width:100%;height:100%;border-radius:50%;margin:0"></span></div>
-              <div class="anilloTexto" id="anilloTexto"><span class="hueso val" style="width:90px"></span><span class="hueso lbl"></span></div>
-            </div>
-          </div>
-          <div class="misionDer">
             <div class="hero" id="hero">
               <span class="lbl">Disponible</span>
               <span class="hueso val" style="height:34px;width:230px;margin:8px 0 10px"></span>
               <span class="hueso lbl"></span>
             </div>
-            <div class="kpis" id="kpis">
-              <div class="kpi"><span class="lbl">Gastado</span><span class="hueso val"></span><span class="hueso lbl"></span></div>
-              <div class="kpi"><span class="lbl">Ingresos</span><span class="hueso val"></span><span class="hueso lbl"></span></div>
-              <div class="kpi"><span class="lbl">Racha</span><span class="hueso val"></span><span class="hueso lbl"></span></div>
+            <div class="saludo">
+              <h2 id="hola">Tu mes</h2>
+              <p id="frase"><span class="hueso ancho" style="max-width:520px"></span>
+                <span class="hueso" style="width:60%"></span></p>
+              <div><button type="button" class="accion verGastos" id="verGastos">Ver en qué se te va</button><span class="racha" id="orbRacha" style="display:none"></span></div>
             </div>
           </div>
+          <div class="misionDer">
+            <div class="kpis" id="kpis">
+              <div class="kpi"><span class="lbl">Gastado</span><span class="hueso val"></span></div>
+              <div class="kpi"><span class="lbl">Ingresos</span><span class="hueso val"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="orbPie">
+          <div class="anilloGrande">
+            <div class="anillo" id="anilloGasto"><span class="hueso" style="width:100%;height:100%;border-radius:50%;margin:0"></span></div>
+            <div class="anilloTexto" id="anilloTexto"><span class="hueso lbl"></span></div>
+          </div>
+          <div class="orbVeredicto" id="orbVeredicto" style="display:none"></div>
         </div>
       </div>
 
       <div class="estados">
-        <div id="reSemaforo"></div>
         <div id="reSalto"></div>
       </div>
 
       <div class="card">
         <div class="cab-card">
           <h2>En qué se te fue</h2>
-          <button type="button" id="verTodo">Ver todo el historial</button>
+          <button type="button" class="accion" id="verTodo">Ver todo el historial</button>
         </div>
         <p class="muted" id="grafNota" role="status" aria-live="polite"
           style="margin:-6px 0 10px">Cargando tu mes…</p>
@@ -2434,7 +2563,7 @@ $("verGastos").onclick = () => tab("gastos");
 // desplaza, la sombra y la nébula van al revés. Solo con puntero fino.
 if (matchMedia("(hover:hover) and (pointer:fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches){
   const tarjeta = document.querySelector(".mision");
-  const mover = (px, py) => { for (const el of [tarjeta, $("astroCapa")]){ el.style.setProperty("--px", px); el.style.setProperty("--py", py); } };
+  const mover = (px, py) => { tarjeta.style.setProperty("--px", px); tarjeta.style.setProperty("--py", py); };
   tarjeta.addEventListener("pointermove", (e) => {
     const r = tarjeta.getBoundingClientRect();
     mover(((e.clientX - r.left) / r.width - .5) * 2, ((e.clientY - r.top) / r.height - .5) * 2);
@@ -2792,28 +2921,193 @@ function pintarKpis(){
 
   // El ritmo, en palabras y con la ventana: solo el número lleva color, y solo
   // si gastas más que el mes pasado a estas alturas (la mala dirección).
+  // Pasado el 100 % el porcentaje asusta sin decir nada (un mes pasado flojo
+  // lo dispara): entonces manda el monto y el porcentaje acompaña.
   const ritmo = mes.ritmo && mes.ritmo.antes
-    ? `<span class="delta ${mes.ritmo.pct > 0 ? "mal" : mes.ritmo.pct < 0 ? "bien" : ""}">`
-      + `${Math.abs(mes.ritmo.pct)}% ${mes.ritmo.pct >= 0 ? "más" : "menos"}</span> que el mes pasado al día ${hoy.getDate()}`
+    ? (Math.abs(mes.ritmo.pct) >= 100
+      ? `<span class="delta ${mes.ritmo.pct > 0 ? "mal" : "bien"}">${esc(plata(Math.abs(gastado - mes.ritmo.antes), moneda))} ${mes.ritmo.pct > 0 ? "más" : "menos"}</span>`
+        + ` que el mes pasado al día ${hoy.getDate()} (${Math.abs(mes.ritmo.pct)}%)`
+      : `<span class="delta ${mes.ritmo.pct > 0 ? "mal" : mes.ritmo.pct < 0 ? "bien" : ""}">`
+        + `${Math.abs(mes.ritmo.pct)}% ${mes.ritmo.pct >= 0 ? "más" : "menos"}</span> que el mes pasado al día ${hoy.getDate()}`)
     : `${dias} ${dias === 1 ? "día" : "días"} con movimientos`;
   let html = tarjeta("Gastado", plata(gastado, moneda), ritmo, gastado, moneda)
     + tarjeta("Ingresos", plata(ingresos, moneda), "registrados este mes", ingresos, moneda);
-  if (mes.racha != null)
-    html += tarjeta("Racha", mes.racha + (mes.racha === 1 ? " día" : " días"),
-      mes.rachaHoy ? "hoy ya registraste" : "registra hoy para no cortarla",
-      mes.racha, "", mes.racha === 1 ? " día" : " días");
+  // La racha es un chip junto a la acción, no una columna de dinero.
+  const chip = $("orbRacha");
+  if (mes.racha != null){
+    chip.style.display = "";
+    chip.innerHTML = `<b>${mes.racha} ${mes.racha === 1 ? "día" : "días"}</b> de racha${mes.rachaHoy ? "" : " · registra hoy"}`;
+  } else chip.style.display = "none";
   if (kpisPintados++) $("app").classList.remove("llega");
+  else {
+    const caja = $("tab-resumen").querySelector(".mision");
+    caja.classList.add("llegaDato");
+    caja.addEventListener("animationend", () => caja.classList.remove("llegaDato"), { once: true });
+  }
   $("kpis").innerHTML = html;
   // De lo que entró, cuánto ya se fue: tu foto con el arco y el porcentaje en
   // grande. Sin ingresos anotados el arco queda vacío y el texto pide anotarlos.
   const parte = ingresos > 0 ? Math.min(1, gastado / ingresos) : null;
   anilloConFoto($("anilloGasto"), parte, parte != null && gastado > ingresos);   // sin ingresos no hay "te pasaste"
   $("anilloTexto").innerHTML = parte == null
-    ? `<span class="val">Sin ingresos</span><span class="sub">Anota tu sueldo en la app y acá verás cuánto de lo que entra ya se fue.</span>`
+    ? `<span class="val">Sin ingresos</span><span class="sub">sin ingresos anotados: anota tu sueldo</span>`
     : cifra("Consumido", `${Math.round(parte * 100)}%`, Math.round(parte * 100), "", "%")
       + `<span class="sub">${gastado > ingresos ? "de lo que entró ya se fue todo, y más" : "de lo que entró este mes ya se fue"}</span>`;
   subirNumeros();
+  pintarOrbita();
 }
+
+// ── Tu mes en órbita ────────────────────────────────────────────────────────
+// El camino va de la billetera al próximo ingreso. El astronauta se coloca
+// en la fracción del tramo que ya pasó (por defecto, el día del mes; cuando
+// llega la proyección, los días que faltan hasta el ingreso). Los planetas
+// son las categorías del mes por lo gastado; sin gastos, se dice.
+const ORB = { P0: [150, 430], P1: [380, 470], P2: [600, 230], P3: [870, 195], avance: null, planetasDe: null };
+const orbBez = (t) => { const u = 1 - t, { P0, P1, P2, P3 } = ORB; return [
+  u*u*u*P0[0] + 3*u*u*t*P1[0] + 3*u*t*t*P2[0] + t*t*t*P3[0],
+  u*u*u*P0[1] + 3*u*u*t*P1[1] + 3*u*t*t*P2[1] + t*t*t*P3[1]]; };
+function colocarAstro(){
+  const escena = $("orbEscena"), t = ORB.avance ?? .04, [x, y] = orbBez(t);
+  $("astroCapa").style.transform = `translate(${(x / 1000 * escena.clientWidth).toFixed(1)}px, ${(y / 540 * escena.clientHeight).toFixed(1)}px)`;
+  $("orbHecho").style.strokeDashoffset = (1 - t).toFixed(3);
+}
+function pintarOrbita(){
+  const hoy = new Date();
+  const d = `M ${ORB.P0} C ${ORB.P1}, ${ORB.P2}, ${ORB.P3}`;
+  $("orbPista").setAttribute("d", d); $("orbHecho").setAttribute("d", d);
+  $("orbHoy").textContent = `hoy, día ${hoy.getDate()}`;
+  if (ORB.avance == null) ORB.avance = Math.min(.96, Math.max(.04, hoy.getDate() / ultimoDelMes()));
+  // Los planetas, una vez por juego de gastos: repintar sin cambios haría nacer de nuevo a todos.
+  const gastos = mes.dias.flatMap((dd) => dd.gastos);
+  const firma = gastos.length + ":" + mes.gastado.toFixed(2);
+  if (ORB.planetasDe !== firma){
+    ORB.planetasDe = firma;
+    const cats = construirCerebro(gastos, mes.moneda).nodos
+      .filter((n) => n.tipo === "cat" && n.cat !== "otras" && n.total > 0).sort((a, b) => b.total - a.total).slice(0, 5);
+    const max = Math.max(...cats.map((c) => c.total), 1);
+    const nombre = (c) => { c = c.trim(); return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); };
+    const caja = $("planetas");
+    caja.innerHTML = cats.length ? cats.map((c, i) =>
+      `<button type="button" class="planeta${i === 0 ? " oro" : ""}${quietito() ? "" : " nace"}" data-i="${i}" style="--s:${Math.round(44 + 76 * Math.sqrt(c.total / max))}px;--z:${(1.4 - i * .2).toFixed(1)};--i:${i}" title="${esc(nombre(c.cat))}: ${esc(plata(c.total, mes.moneda))}">
+        ${i === 0 ? '<span class="resplandor"></span>' : ""}<span class="sombraM"></span><i></i><b>${esc(nombre(c.cat))}</b><small>${esc(plata(c.total, mes.moneda))}</small></button>`).join("")
+      : `<p class="orbVacio">Todavía no hay planetas: tu primer gasto del mes pone el primero.</p>`;
+    for (const b of caja.querySelectorAll(".planeta")) b.onclick = () => tab("gastos");
+    mundos3d($("mundos3d"), [...caja.querySelectorAll(".planeta")]);
+  }
+  // El astronauta viaja desde la billetera la primera vez; después solo se recoloca.
+  const capa = $("astroCapa");
+  if (!capa.dataset.puesto){
+    capa.dataset.puesto = "1";
+    if (quietito()) colocarAstro();
+    else {
+      const t = ORB.avance; ORB.avance = .02; capa.style.transition = "none"; colocarAstro(); ORB.avance = t;
+      requestAnimationFrame(() => requestAnimationFrame(() => { capa.style.transition = ""; colocarAstro(); }));
+    }
+  } else colocarAstro();
+}
+// ── Los mundos ──────────────────────────────────────────────────────────────
+// Cada planeta es una esfera con su textura dibujada al vuelo (gas dorado con
+// bandas, roca con cráteres, hielo veteado), gira despacio a su ritmo, sigue
+// la posición y el parallax del botón que la nombra y nace escalonada. Una
+// sola escena WebGL para todos; el botón HTML conserva el toque y el rótulo.
+function texturaMundo(THREE, tipo, semilla){
+  const c = document.createElement("canvas"); c.width = 512; c.height = 256;
+  const g = c.getContext("2d");
+  let a = semilla; const rnd = () => (a = (a * 16807) % 2147483647) / 2147483647;
+  const base = tipo === "oro" ? ["#e3bd78", "#b98a3e", "#7d5a22"]
+             : tipo === "roca" ? ["#9a9aa3", "#5e5e66", "#36363c"] : ["#b7bfcb", "#737b8a", "#474d59"];
+  g.fillStyle = base[1]; g.fillRect(0, 0, 512, 256);
+  if (tipo === "oro"){
+    for (let i = 0; i < 46; i++){ g.globalAlpha = .16 + rnd() * .3; g.fillStyle = rnd() < .5 ? base[0] : base[2];
+      g.fillRect(0, rnd() * 256, 512, 5 + rnd() * 26); }
+    for (let i = 0; i < 140; i++){ g.globalAlpha = .07 + rnd() * .12; g.fillStyle = rnd() < .5 ? "#fff3cf" : base[2];
+      g.beginPath(); g.ellipse(rnd() * 512, rnd() * 256, 30 + rnd() * 100, 3 + rnd() * 7, 0, 0, 7); g.fill(); }
+  } else {
+    for (let i = 0; i < 240; i++){ g.globalAlpha = .08 + rnd() * .22; g.fillStyle = rnd() < .5 ? base[0] : base[2];
+      g.beginPath(); g.ellipse(rnd() * 512, rnd() * 256, 10 + rnd() * 60, 8 + rnd() * 40, rnd() * 3, 0, 7); g.fill(); }
+    for (let i = 0; i < (tipo === "roca" ? 28 : 9); i++){
+      const x = rnd() * 512, y = rnd() * 256, r = 4 + rnd() * 18;
+      const gr = g.createRadialGradient(x - r * .3, y - r * .3, r * .1, x, y, r);
+      gr.addColorStop(0, "rgba(0,0,0,.5)"); gr.addColorStop(.7, "rgba(0,0,0,.15)"); gr.addColorStop(1, "rgba(255,255,255,.2)");
+      g.globalAlpha = 1; g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+    }
+  }
+  g.globalAlpha = 1;
+  const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping;
+  if (THREE.SRGBColorSpace) t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const TIPO_MUNDO = ["oro", "roca", "hielo", "roca", "hielo"];
+async function mundos3d(el, botones){
+  const caja = $("planetas");
+  caja.classList.remove("en3d");
+  if (!botones.length){ el._m3d?.matar(); el.innerHTML = ""; return; }
+  const alto = el.clientHeight || 300;
+  const m = await motor3d(el, alto, (m) => {
+    const { THREE, escena } = m;
+    // La luz del motor es para el cerebro y aplana una esfera. Acá: una clave
+    // fuerte desde arriba a la izquierda que deja un lado en sombra, un
+    // contraluz dorado que recorta el borde oscuro, y casi nada de ambiente.
+    for (const luz of escena.children.filter((o) => o.isLight)){
+      if (luz.isHemisphereLight) luz.intensity = .32;
+      else if (luz.color.getHex() === 0xffe2a8){ luz.position.set(-5, 6, 7); luz.intensity = 2.6; }
+      else if (luz.color.getHex() === 0x9fd2f2){ luz.intensity = .12; }
+      else { luz.position.set(6, -2, -5); luz.intensity = 1.8; }
+    }
+    // Cámara ortográfica en píxeles del contenedor: x hacia la derecha, y hacia abajo.
+    const camara = new THREE.OrthographicCamera(0, 1, 0, -1, .1, 2000);
+    camara.position.set(0, 0, 900); camara.lookAt(0, 0, 0);
+    camara.encuadre = (w) => { const h = el.clientHeight || alto; camara.left = 0; camara.right = w; camara.top = 0; camara.bottom = -h;
+      if (m.render && m.lienzo) m.render.setSize(w, h, false); };
+    const geo = new THREE.SphereGeometry(1, 48, 32);
+    const mundos = botones.map((b, i) => {
+      const tipo = TIPO_MUNDO[i] || "roca";
+      const mat = new THREE.MeshStandardMaterial({ map: texturaMundo(THREE, tipo, 101 + i * 37),
+        roughness: tipo === "oro" ? .55 : .9, metalness: tipo === "oro" ? .35 : .05 });
+      mat.bumpMap = mat.map; mat.bumpScale = tipo === "oro" ? 1.2 : 3;
+      if (tipo === "oro"){ mat.emissive = new THREE.Color(0x3a2a0c); mat.emissiveIntensity = .5; }
+      const esfera = new THREE.Mesh(geo, mat); escena.add(esfera);
+      // La atmósfera: un halo fino por detrás, dorado en el mundo grande y
+      // azulado en los de hielo. La roca no tiene.
+      if (tipo !== "roca"){
+        const halo = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: tipo === "oro" ? 0xf3ce7f : 0x9fc4e8,
+          transparent: true, opacity: tipo === "oro" ? .22 : .16, side: THREE.BackSide, depthWrite: false }));
+        halo.scale.set(1.09, 1.09, 1.09); esfera.add(halo);
+      }
+      esfera.rotation.z = .25 + (i % 3) * .12; esfera.rotation.x = .18;
+      esfera.userData = { b, i, giro: (.08 + (i % 3) * .035) * (i % 2 ? -1 : 1), hover: 0, escala: 1 };
+      b.addEventListener("pointerenter", () => { esfera.userData.hover = 1; });
+      b.addEventListener("pointerleave", () => { esfera.userData.hover = 0; });
+      return esfera;
+    });
+    m.piezas = [];
+    const suave = (x) => 1 - Math.pow(1 - x, 3);
+    const cuadro = (t) => {
+      const r0 = el.getBoundingClientRect();
+      for (const e of mundos){
+        const { b, i, giro } = e.userData;
+        const rb = b.getBoundingClientRect(), esf = b.querySelector("i").getBoundingClientRect();
+        const radio = esf.width / 2 || 20;
+        e.position.set(rb.left - r0.left + rb.width / 2, -(esf.top - r0.top + esf.height / 2), 0);
+        const nace = m.quieto ? 1 : suave(Math.max(0, Math.min(1, (t - .4 - i * .07) / .52)));
+        e.userData.escala += ((e.userData.hover ? 1.06 : 1) - e.userData.escala) * .2;
+        const k = Math.max(.001, radio * nace * e.userData.escala);
+        e.scale.set(k, k, k);
+        if (!m.quieto) e.rotation.y = t * giro;
+      }
+    };
+    return { camara, cuadro, tocar: () => {} };
+  });
+  if (!m || m === VIEJO) return;        // sin WebGL quedan las esferas CSS
+  if (!el.isConnected){ m.matar(); return; }
+  caja.classList.add("en3d");
+}
+
+// Si el dato llega con la pestaña oculta, la escena mide cero y el astronauta
+// quedaría en la esquina: el observador lo recoloca en cuanto tiene tamaño,
+// y cubre también el cambio de ancho de la ventana.
+new ResizeObserver(() => { if ($("astroCapa").dataset.puesto && $("orbEscena").clientWidth) colocarAstro(); }).observe($("orbEscena"));
+
 
 // El anillo del mes: tu foto (la misma de la barra) en medio y, alrededor, el
 // arco de lo que entró que ya se fue. Crece desde cero al pintarse.
@@ -2825,58 +3119,144 @@ function anilloConFoto(el, parte, pasado){
     <circle cx="32" cy="32" r="${R}" fill="none" stroke="var(--raised)" stroke-width="6"${parte == null ? ' stroke-dasharray="3 5"' : ""}/>
     <circle class="arco" cx="32" cy="32" r="${R}" fill="none" stroke="${pasado ? "var(--pasa)" : "var(--tu)"}" stroke-width="6"
       stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}" transform="rotate(-90 32 32)"/></svg>
-    <div class="foto">${$("ava").innerHTML}</div>
-    ${parte == null ? "" : `<span class="pct">${Math.round(v * 100)}%</span>`}`;
+    <div class="foto sinFoto">${parte == null ? "" : Math.round(v * 100) + "%"}</div>`;
+  el.closest(".anilloGrande")?.classList.add("sinFoto");
   const arco = el.querySelector(".arco"), fin = C * (1 - v);
   if (quietito()) arco.setAttribute("stroke-dashoffset", fin);
   else requestAnimationFrame(() => requestAnimationFrame(() => {
     arco.style.transition = "stroke-dashoffset 1100ms var(--ease-expo)"; arco.setAttribute("stroke-dashoffset", fin);
   }));
-  if (el.classList.contains("anillo") && el.closest(".anilloGrande")) anillo3d(el, parte, pasado);
+  if (el.classList.contains("anillo") && el.closest(".anilloGrande")) anilloChispas(el, parte, pasado);
 }
 
-// El mismo anillo con volumen: un toro dorado y redondeado que crece alrededor
-// de la foto, inclinado hacia ti, con una cabeza que brilla en la punta del
-// arco. Se mece solo y sigue al puntero con el resto del hero. Sin ingresos,
-// la cabeza da vueltas sola sobre la pista vacía: invita a anotar el sueldo.
-async function anillo3d(el, parte, pasado){
+// El anillo como aro de luz: una estela dorada que va hasta donde llega lo
+// consumido, hecha de varias luces finas, con la punta ardiendo y chispas que
+// saltan de ella y del trazo. Lienzo 2D con mezcla aditiva: sin WebGL y sin
+// librerías. El SVG queda detrás para quien pide menos movimiento, que ve el
+// aro terminado y con su brillo, sin chispas.
+function anilloChispas(el, parte, pasado){
   const caja = document.createElement("div"); caja.className = "anillo3d"; el.appendChild(caja);
-  const m = await motor3d(caja, "cuadrado", (m) => {
-    const { THREE, escena } = m;
-    const camara = new THREE.OrthographicCamera(-1.3, 1.3, 1.3, -1.3, .1, 100);
-    camara.encuadre = (w, h) => { const a = w / h; camara.left = -1.3 * Math.max(1, a); camara.right = -camara.left;
-      camara.top = 1.3 * Math.max(1, 1 / a); camara.bottom = -camara.top; };
-    camara.position.set(0, 0, 6); camara.lookAt(0, 0, 0);
-    const grupo = new THREE.Group(); escena.add(grupo);
-    grupo.add(new THREE.Mesh(new THREE.TorusGeometry(.97, .14, 20, 72),
-      new THREE.MeshStandardMaterial({ color: 0x232327, roughness: .9, metalness: .1 })));
-    const tono = pasado ? 0xe5566f : 0xd0a55c, brillo = pasado ? 0x3a0e16 : 0x3a2a0c;
-    const oro = new THREE.MeshStandardMaterial({ color: tono, metalness: .8, roughness: .28, emissive: brillo, emissiveIntensity: .5 });
-    const arco = new THREE.Mesh(new THREE.TorusGeometry(.97, .2, 24, 96, .001), oro);
-    arco.rotation.set(0, Math.PI, Math.PI / 2);        // arranca arriba y gira en sentido horario
-    grupo.add(arco);
-    const cabeza = new THREE.Mesh(new THREE.SphereGeometry(.25, 24, 24),
-      new THREE.MeshStandardMaterial({ color: tono, metalness: .6, roughness: .22, emissive: brillo, emissiveIntensity: 1.2 }));
-    arco.add(cabeza);
-    const fin = parte == null ? 0 : Math.min(1, parte) * Math.PI * 2;
-    const mision = el.closest(".mision");
-    const cuadro = (t) => {
-      const e = Math.max(0, Math.min(1, (t - .25) / 1.4)), a = Math.max(.001, fin * (1 - Math.pow(1 - e, 3)));
-      if (Math.abs(a - (arco.geometry.parameters.arc || 0)) > .003){ arco.geometry.dispose(); arco.geometry = new THREE.TorusGeometry(.97, .2, 24, 96, a); }
-      const ang = parte == null ? t * .9 : a;      // sin ingresos, la cabeza orbita sola
-      cabeza.position.set(Math.cos(ang) * .97, Math.sin(ang) * .97, 0);
-      cabeza.material.emissiveIntensity = 1 + .5 * Math.sin(t * 2.2);
-      oro.emissiveIntensity = .45 + .2 * Math.sin(t * 1.3);
-      const px = mision ? parseFloat(getComputedStyle(mision).getPropertyValue("--px")) || 0 : 0;
-      const py = mision ? parseFloat(getComputedStyle(mision).getPropertyValue("--py")) || 0 : 0;
-      grupo.rotation.x = .28 + Math.cos(t * .5) * .04 + py * -.14;
-      grupo.rotation.y = Math.sin(t * .6) * .08 + px * .2;
-    };
-    return { camara, cuadro, tocar: () => {} };
-  });
-  if (!caja.isConnected){ if (m && m !== VIEJO) m.matar(); return; }   // otro repintado la sacó mientras cargaba Three
-  if (m && m !== VIEJO) el.classList.add("en3d");
-  else if (!m) caja.remove();
+  const cv = document.createElement("canvas"); cv.className = "lienzo3d"; caja.appendChild(cv);
+  const cx = cv.getContext("2d");
+  const tono = pasado ? [229, 86, 111] : [243, 206, 127];       // coral o dorado claro
+  const fin = parte == null ? 0 : parte * Math.PI * 2, INI = -Math.PI / 2;
+  let W = 0, H = 0, R = 0, lazo = 0, t0 = 0, antes = 0, vivo = true;
+  let azar = 13; const rnd = () => (azar = (azar * 16807) % 2147483647) / 2147483647;
+  // Estelas fijas: cada una con su desvío de radio, grosor y alfa, para que
+  // el trazo parezca hecho de varias luces y no de una sola línea.
+  const estelas = Array.from({ length: 7 }, () => ({ d: (rnd() - .5) * 8, w: .6 + rnd() * 1.4,
+    a: .14 + rnd() * .22, f: rnd() * 6.28, v: .6 + rnd() * .8 }));
+  // Hebras: trazos cortos a distintos radios, como un aro cepillado de luz.
+  // Cada una vive en un tramo del arco y se desplaza despacio por él.
+  const hebras = Array.from({ length: 44 }, () => ({ d: (rnd() - .5) * 38, w: .4 + rnd() * .9, a: .06 + rnd() * .18,
+    p: rnd(), l: .05 + rnd() * .3, v: (rnd() - .5) * .35 }));
+  const chispas = [];
+  const medir = () => {
+    const d = Math.min(devicePixelRatio || 1, 2), w = cv.clientWidth, h = cv.clientHeight;
+    if (!w || !h) return false;
+    if (cv.width !== w * d || cv.height !== h * d){ cv.width = w * d; cv.height = h * d; }
+    cx.setTransform(d, 0, 0, d, 0, 0); W = w; H = h;
+    R = el.clientWidth / 2 - 6;      // el radio es el del anillo, no el del lienzo
+    return true;
+  };
+  const color = (a) => `rgba(${tono[0]},${tono[1]},${tono[2]},${a.toFixed(3)})`;
+  const arco = (r, w, estilo, desde, hasta) => { cx.beginPath(); cx.arc(W / 2, H / 2, r, desde, hasta);
+    cx.lineWidth = w; cx.strokeStyle = estilo; cx.stroke(); };
+  const pintar = (t, ang) => {
+    cx.clearRect(0, 0, W, H);
+    cx.lineCap = "round";
+    // La pista: un hilo tenue que cierra el círculo. Sin ingresos, punteado.
+    cx.setLineDash(parte == null ? [3, 6] : []);
+    arco(R, 1.5, "rgba(255,255,255,.12)", 0, Math.PI * 2);
+    cx.setLineDash([]);
+    cx.globalCompositeOperation = "lighter";
+    if (ang > .002){
+      cx.shadowColor = color(.9); cx.shadowBlur = 34;
+      arco(R, 10, color(.16), INI, INI + ang);                     // el resplandor ancho
+      cx.shadowBlur = 16;
+      arco(R, 6, color(.28), INI, INI + ang);
+      cx.shadowBlur = 0;
+      for (const h of hebras){                                      // las hebras cortas
+        const ini = INI + ((h.p + t * h.v) % 1 + 1) % 1 * ang, fin = Math.min(INI + ang, ini + h.l * ang);
+        if (fin > ini) arco(R + h.d, h.w, color(h.a), ini, fin);
+      }
+      for (const e of estelas){                                     // las luces finas
+        const osc = .85 + .15 * Math.sin(t * e.v + e.f);
+        arco(R + e.d, e.w, color(e.a * osc), INI, INI + ang);
+      }
+      arco(R, 5, color(.6), INI, INI + ang);                        // el cuerpo
+      arco(R, 2.2, "rgba(255,248,220,.95)", INI, INI + ang);       // el núcleo blanco
+      const hx = W / 2 + Math.cos(INI + ang) * R, hy = H / 2 + Math.sin(INI + ang) * R;
+      const g = cx.createRadialGradient(hx, hy, 0, hx, hy, 14);    // la punta que arde
+      g.addColorStop(0, "rgba(255,252,235,.95)"); g.addColorStop(.35, color(.6)); g.addColorStop(1, color(0));
+      cx.fillStyle = g; cx.beginPath(); cx.arc(hx, hy, 14, 0, 7); cx.fill();
+    }
+    for (const c of chispas){
+      const vida = 1 - c.e / c.dur;
+      if (c.aguja){
+        // Aguja: un trazo radial fijo que nace, se estira y se apaga.
+        const lar = c.lar * Math.sin(Math.min(1, c.e / c.dur) * Math.PI);
+        cx.strokeStyle = color(vida * .7); cx.lineWidth = c.w;
+        cx.beginPath(); cx.moveTo(c.x, c.y); cx.lineTo(c.x + Math.cos(c.dir) * lar, c.y + Math.sin(c.dir) * lar); cx.stroke();
+        continue;
+      }
+      cx.strokeStyle = color(vida * .95); cx.lineWidth = c.w;
+      cx.beginPath(); cx.moveTo(c.x - c.vx * c.cola, c.y - c.vy * c.cola); cx.lineTo(c.x, c.y); cx.stroke();
+      if (c.brasa){                                                  // pavesa: un punto que brilla
+        const g = cx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 4);
+        g.addColorStop(0, `rgba(255,250,230,${(vida * .9).toFixed(3)})`); g.addColorStop(1, color(0));
+        cx.fillStyle = g; cx.beginPath(); cx.arc(c.x, c.y, 4, 0, 7); cx.fill();
+      }
+    }
+    cx.globalCompositeOperation = "source-over";
+  };
+  // Las chispas salen sobre todo de la punta, hacia adelante y afuera, y unas
+  // pocas de cualquier punto del trazo. Caen un poco y se apagan.
+  const emitir = (ang, n) => {
+    for (let i = 0; i < n && chispas.length < 320; i++){
+      const dePunta = rnd() < .35, a = INI + (dePunta ? ang - rnd() * .12 : rnd() * ang);
+      const x = W / 2 + Math.cos(a) * R, y = H / 2 + Math.sin(a) * R;
+      const suerte = rnd();
+      if (suerte < .45){
+        // Agujas: trazos radiales por todo el trazo, hacia afuera y algunos
+        // hacia adentro, que nacen, se estiran y se apagan. Son el "pelo" de
+        // luz de la referencia.
+        const dir = a + (rnd() - .5) * .5 + (rnd() < .22 ? Math.PI : 0);
+        chispas.push({ aguja: true, x, y, dir, lar: 10 + rnd() * 34, e: 0, dur: 140 + rnd() * 260, w: .4 + rnd() * .7 });
+        continue;
+      }
+      // Pavesas: salen tangentes y hacia afuera (de la punta, hacia adelante),
+      // caen un poco y se apagan. Algunas brillan como un punto.
+      const dir = a + (dePunta ? 1 : 0) + (rnd() - .5) * 1.4, vel = (30 + rnd() * 100) / 60, afuera = (rnd() - .3) * 2.4;
+      chispas.push({ x, y, vx: Math.cos(dir) * vel + Math.cos(a) * afuera, vy: Math.sin(dir) * vel + Math.sin(a) * afuera,
+        e: 0, dur: 400 + rnd() * 900, w: .6 + rnd() * 1.4, cola: 4 + rnd() * 5, brasa: rnd() < .25 });
+    }
+  };
+  const ciclo = (ms) => {
+    if (!vivo) return;
+    lazo = requestAnimationFrame(ciclo);
+    if (document.hidden || !medir()) return;           // escondido o sin tamaño: no gasta
+    if (!t0) t0 = ms;
+    const t = (ms - t0) / 1000, dt = Math.min(50, antes ? ms - antes : 16); antes = ms;
+    // El arco crece desde cero con la misma curva que el SVG de respaldo.
+    const e = Math.max(0, Math.min(1, (t - .25) / 1.1)), ang = fin * (1 - Math.pow(1 - e, 3));
+    const angVivo = parte == null ? (t * .8) % (Math.PI * 2) : ang;   // sin ingresos, la punta orbita sola
+    emitir(angVivo, e < 1 ? 16 : 6);                     // muchas mientras crece, y nunca se apaga del todo
+    for (let i = chispas.length - 1; i >= 0; i--){
+      const c = chispas[i]; c.e += dt;
+      c.x += c.vx * dt / 16; c.y += c.vy * dt / 16; c.vx *= .985; c.vy = c.vy * .985 + .02;
+      if (c.e >= c.dur) chispas.splice(i, 1);
+    }
+    pintar(t, angVivo);
+  };
+  const m = { matar: () => { vivo = false; cancelAnimationFrame(lazo); if (caja._m3d === m) delete caja._m3d; caja.remove(); } };
+  caja._m3d = m;
+  if (quietito()){
+    if (medir()){ pintar(0, fin); el.classList.add("en3d"); } else m.matar();   // sin tamaño queda el SVG
+    return;
+  }
+  el.classList.add("en3d");
+  lazo = requestAnimationFrame(ciclo);
 }
 
 // Las cifras suben desde cero la primera vez que se pintan: es un instrumento
@@ -2975,11 +3355,15 @@ async function cargarPanorama(){
     const notas = [];
     if (!pr.hayIngreso) notas.push("sin ingreso fijo configurado");
     if (!pr.conArrastre) notas.push("sin contar lo que traías de antes");
-    $("reSemaforo").innerHTML = `<p class="estadoLinea"><i class="punto ${pr.llega ? "bien" : "mal"}"></i>
-      <span>${pr.llega ? "Llegas" : "No llegas"} ${esc(pr.cuandoTxt)}:
-        ${pr.llega ? "te quedarían" : "te faltarían"} <b>${esc(plata(Math.abs(pr.alFinal), f.currency))}</b>
-        ${notas.length ? `(${notas.join(", ")})` : ""}</span>
-      <a href="#finmes" id="reVerFin">Ver el detalle</a></p>`;
+    const ver = $("orbVeredicto");
+    ver.style.display = "";
+    ver.className = "orbVeredicto" + (pr.llega ? "" : " mal");
+    ver.innerHTML = `<i></i><span>${pr.llega ? "Llegas" : "No llegas"}: ${pr.llega ? "te quedarían" : "te faltarían"} <b>${esc(plata(Math.abs(pr.alFinal), f.currency))}</b>${
+      notas.length ? ` <span class="muted">(${notas.join(", ")})</span>` : ""}</span>
+      <a href="#finmes" class="accion chica" id="reVerFin">Ver el detalle</a>`;
+    $("orbMeta").textContent = pr.hayIngreso && f.next_income_date ? "próximo ingreso · " + fechaCorta(f.next_income_date) : "fin de mes";
+    // Con la proyección, el camino mide hasta el ingreso: lo que falta son sus días.
+    if (pr.hayIngreso && pr.dias > 0){ ORB.avance = Math.min(.96, Math.max(.04, 1 - pr.dias / ultimoDelMes())); if ($("astroCapa").dataset.puesto) colocarAstro(); }
     // El detalle se abre en la misma moneda que esta línea, no en la última
     // que se eligió en otra vista.
     $("reVerFin").onclick = (e) => { e.preventDefault(); monedaVista = f.currency; tab("finmes"); };
@@ -2996,11 +3380,12 @@ async function cargarPanorama(){
     $("reSalto").innerHTML = `<p class="estadoLinea"><i class="punto mal"></i>
       <span><b>${esc(salto.category)}</b> va ${esc(plata(exceso, salto.currency))} por encima de lo que sueles gastar
         (${esc(plata(salto.spent_month, salto.currency))} este mes).</span>
-      <a href="#gastos" id="reVerGastos">Ver en qué se te va</a></p>`;
+      <a href="#gastos" class="accion chica" id="reVerGastos">Verlo en Gastos</a></p>`;
     $("reVerGastos").onclick = (e) => { e.preventDefault(); tab("gastos"); };
   }
 }
 
+const ultimoDelMes = () => { const h = new Date(); return new Date(h.getFullYear(), h.getMonth() + 1, 0).getDate(); };
 async function cargarMes(){
   const hoy = new Date();
   const m = hoy.getMonth() + 1, y = hoy.getFullYear();
