@@ -951,6 +951,53 @@
     .admin #usKpis .kpi .val{font-size:1.35rem}
     .admin .usGente{grid-template-columns:minmax(0,1fr)}
   }
+  /* ── Uso: el ranking como personas ───────────────────────────────────
+     Cada fila es alguien: puesto, avatar, nombre, total y UNA barra que mide
+     contra el primero de la página y va partida por canal. Tocarla abre a la
+     persona en Clientes. Entra escalonada en cada carga, corta. */
+  .admin .rkLeyenda{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 8px;font-size:.76rem;color:var(--mute)}
+  .admin .rkLeyenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .admin .rkLista{display:flex;flex-direction:column}
+  .admin .rk{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;
+    border-bottom:1px solid var(--rule);border-radius:0;padding:11px 8px;cursor:pointer;white-space:normal;
+    transition:background var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
+  .admin .rk:hover{background:var(--raised)}
+  .admin .rk:active{transform:translateY(1px)}
+  /* Sin id la fila no abre a nadie, pero no está apagada: pisa el opacity:.5 global. */
+  .admin .rk:disabled{cursor:default;opacity:1} .admin .rk:disabled:hover{background:none}
+  .admin .rk:last-child{border-bottom:0}
+  .admin .rkPos{flex:none;width:26px;text-align:right;color:var(--mute);font-size:.86rem;font-variant-numeric:tabular-nums}
+  .admin .rk.top .rkPos{color:var(--gold-bright);font-weight:700;font-size:1rem}
+  .admin .rkTxt{flex:1;min-width:0}
+  .admin .rkF1{display:flex;align-items:baseline;gap:10px}
+  .admin .rkF1 b{font-size:.9rem;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .admin .rkTot{margin-left:auto;flex:none;font-weight:600;font-variant-numeric:tabular-nums}
+  .admin .rkMix{display:flex;height:8px;border-radius:4px;overflow:hidden;margin:7px 0 6px;min-width:4px;
+    transition:width 700ms var(--ease-expo)}
+  .admin .rkMix i{display:block;height:100%}
+  .admin .rkMix i + i{margin-left:1px}
+  .admin .m-app{background:var(--gold)} .admin .m-whatsapp{background:var(--entra)} .admin .m-apple_pay{background:#c9c9cc}
+  .admin .m-correo{background:var(--faint)} .admin .m-fijos{background:var(--control)}
+  .admin .m-otros{background:repeating-linear-gradient(90deg,var(--control) 0 3px,transparent 3px 6px)}
+  .admin .rkF3{display:block;color:var(--mute);font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .admin .rkWa{color:var(--entra)}
+  /* Escala de intensidad para "cuánto registra cada quien": de punteado a dorado. */
+  .admin .c-d0{background:repeating-linear-gradient(90deg,var(--control) 0 4px,transparent 4px 8px)}
+  .admin .c-d1{background:var(--control)} .admin .c-d2{background:#c9c9cc}
+  .admin .c-d3{background:var(--entra)} .admin .c-d4{background:var(--gold)}
+  .admin .uoPills{display:flex;flex-wrap:wrap;gap:6px}
+  .admin .uoMas{margin-top:12px}
+  @container hoja (max-width:700px){
+    /* En el teléfono la línea de fechas se parte en vez de cortarse: "sin
+       WhatsApp" o "WhatsApp desde" es justo lo que se quiere leer. */
+    .admin .rkF3{white-space:normal}
+    .admin #uoKpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .admin #uoKpis .kpi{padding:12px 12px 11px}
+    .admin #uoKpis .kpi .val{font-size:1.35rem}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .admin .rk.entraFila{animation:asoma 420ms var(--ease-out) backwards;animation-delay:calc(var(--i,0) * 18ms)}
+  }
   .admin td.num, .admin th.num, .panel td.num, .panel th.num{text-align:right;font-variant-numeric:tabular-nums}
   .admin table.rank td.fecha, .panel table.rank td.fecha{white-space:nowrap}
   .admin table.rank th[data-sort]{cursor:pointer;user-select:none}
@@ -1952,6 +1999,7 @@
   </section>
 
 <section class="tab admin" id="tab-ad-uso" style="display:none">
+    <div class="grid" id="uoKpis"></div>
     <div class="section">
       <div class="rankbar">
         <h3 style="margin:0">Ranking de uso <span class="muted" style="font-weight:400">· movimientos registrados</span></h3>
@@ -1976,14 +2024,12 @@
           <button id="rankDir" aria-label="Cambiar sentido del orden">Mayor a menor</button>
         </div>
       </div>
-      <div class="tscroll"><table class="rank"><thead><tr><th class="num">#</th><th>Nombre</th>
-        <th class="num" data-sort="total">Total</th><th class="num" data-sort="app">App</th>
-        <th class="num" data-sort="whatsapp">WhatsApp</th><th class="num" data-sort="apple_pay">Apple Pay</th>
-        <th class="num" data-sort="correo">Correo</th><th class="num" data-sort="fijos">Fijos</th>
-        <th class="num" data-sort="otros">Otros</th>
-        <th data-sort="last_tx">Último</th><th data-sort="registered_at">Registro</th>
-        <th data-sort="wa_linked_at">WhatsApp vinculado</th></tr></thead>
-      <tbody id="ranking"></tbody></table></div>
+      <!-- La barra de cada persona mide su total contra el primero de la
+           página y va partida por canal: la mezcla se lee de un vistazo. -->
+      <div class="rkLeyenda"><span><i class="m-app"></i>App</span><span><i class="m-whatsapp"></i>WhatsApp</span>
+        <span><i class="m-apple_pay"></i>Apple Pay</span><span><i class="m-correo"></i>Correo</span>
+        <span><i class="m-fijos"></i>Fijos</span><span><i class="m-otros"></i>Otros</span></div>
+      <div class="rkLista" id="ranking"></div>
       <div class="rankbar" style="margin:12px 0 0">
         <span class="muted" id="rankInfo"></span>
         <div class="acc"><button id="rankPrev">Anterior</button><button id="rankNext">Siguiente</button></div>
@@ -1991,23 +2037,32 @@
     </div>
 
     <div class="row2">
-      <div class="section"><h3>Top categorías</h3><div class="chartbox"><canvas id="cCat"></canvas></div></div>
-      <div class="section"><h3>Movimientos por canal de entrada</h3><div class="chartbox"><canvas id="cChannel"></canvas></div></div>
+      <div class="section">
+        <h3>Por dónde entran <span class="muted" style="font-weight:400">· movimientos por canal de entrada</span></h3>
+        <div class="chart" id="uoCanal"></div>
+      </div>
+      <div class="section">
+        <h3>Cuánto registra cada quien <span class="muted" style="font-weight:400">· usuarios por movimientos acumulados</span></h3>
+        <div id="uoDist"></div>
+      </div>
     </div>
 
     <div class="row2">
-      <div class="section"><h3>Distribución de uso · movimientos por usuario</h3><div class="chartbox"><canvas id="cDist"></canvas></div></div>
       <div class="section">
-        <h3>Mapa de calor · lo más tocado <span class="muted" style="font-weight:400">· últimos 30 días</span></h3>
-        <div id="usageTaps"></div>
+        <h3>Lo más tocado <span class="muted" style="font-weight:400">· últimos 30 días, por usuarios distintos</span></h3>
+        <div class="chart" id="uoTaps"></div>
+        <button class="chico uoMas" type="button" id="uoTapsMas" style="display:none">Ver todos</button>
+      </div>
+      <div class="section">
+        <h3>Dónde pasan el tiempo <span class="muted" style="font-weight:400">· usuarios distintos por pantalla, 30 días</span></h3>
+        <div class="chart" id="uoScreens"></div>
+        <button class="chico uoMas" type="button" id="uoScreensMas" style="display:none">Ver todas</button>
       </div>
     </div>
 
     <div class="section">
-      <h3>Dónde pasan el tiempo</h3>
-      <div id="usageScreens"></div>
-      <h3 style="margin-top:22px">Nadie lo tocó <span class="muted" style="font-weight:400">· candidatos a quitar</span></h3>
-      <div id="usageZero"></div>
+      <h3>Nadie lo tocó <span class="muted" style="font-weight:400">· candidatos a quitar</span></h3>
+      <div class="uoPills" id="uoZero"></div>
     </div>
   </section>
 
@@ -2319,6 +2374,7 @@ function cambiarVista(name, desdeHistorial){
   if (name === "wa") cargarBandeja();
   if (name.startsWith("ad-")) cargarAdmin();
   if (name === "ad-usuarios") estrenarUsuarios();
+  if (name === "ad-uso") estrenarUso();
   avisoAdmin("");
   estrenar(vista);
 }
@@ -5960,7 +6016,6 @@ function pintarAdmin(m){
 
   lineChart("cSignups", m.signups_by_day, "#d0a55c");
   lineChart("cMov", m.movements_by_day, "#d0a55c");
-  barChart("cCat", m.top_categories);
 
   // Movimientos por fuente
   const SRC = { whatsapp:"WhatsApp", manual:"Manual (app)", yape:"Yape", plin:"Plin", bcp:"BCP" };
@@ -6036,39 +6091,7 @@ function pintarAdmin(m){
       + `</tbody></table>`
     : `<div class="muted">Todavía sin datos. Se llena cuando la gente actualice a la versión que reporta el sistema.</div>`;
 
-  // Distribución de uso
-  barChart("cDist", (m.movements_distribution || []).map(d => ({ c: d.b, n: d.n })));
-
-  // Movimientos por canal de entrada
-  const CH = { app:"App", wa_text:"WhatsApp texto", wa_voice:"WhatsApp voz",
-               wa_photo:"WhatsApp foto", email:"Correo", desconocido:"Desconocido" };
-  barChart("cChannel", (m.movements_by_channel || []).map(c => ({ c: CH[c.channel] || c.channel, n: c.n })));
-
-  // Mapa de calor de uso. Ordenado por USUARIOS distintos, no por el total:
-  // con una base chica, uno que abra cincuenta veces la misma pantalla la
-  // pondría primera él solo. Y se dice sobre cuántos usuarios se calcula, por
-  // la misma razón que en el embudo: un cero acá puede ser falta de versión.
-  const usoVacio = (texto) => `<div class="muted">${texto}</div>`;
-  const uso = m.usage || {};
-  const barra = (v, max) => `<div style="background:var(--surface-2);border-radius:4px;height:7px;width:100%">`
-    + `<div style="background:var(--gold);border-radius:4px;height:7px;width:${max ? Math.round((v/max)*100) : 0}%"></div></div>`;
-
-  const tabla = (filas, titulo, unidad) => {
-    if (!filas || !filas.length) return usoVacio("Todavía sin datos. Se llena cuando salga la versión que lo reporta.");
-    const max = Math.max(...filas.map(f => f.users));
-    return `<div class="muted" style="margin-bottom:9px">Sobre ${fmt(uso.cohort || 0)} usuarios con la versión instrumentada</div>`
-      + `<table><thead><tr><th>${titulo}</th><th>Usuarios</th><th>${unidad}</th><th style="width:28%"></th></tr></thead><tbody>`
-      + filas.map(f => `<tr><td>${f.label}</td><td>${fmt(f.users)}</td>`
-          + `<td>${unidad === "Minutos" ? fmt(Math.round(f.n / 60)) : fmt(f.n)}</td>`
-          + `<td>${barra(f.users, max)}</td></tr>`).join("")
-      + `</tbody></table>`;
-  };
-
-  $("usageTaps").innerHTML = tabla(uso.taps, "Elemento", "Toques");
-  $("usageScreens").innerHTML = tabla(uso.screens, "Pantalla", "Minutos");
-  $("usageZero").innerHTML = (uso.zero && uso.zero.length)
-    ? `<table><tbody>` + uso.zero.map(z => `<tr><td>${z.label}</td></tr>`).join("") + `</tbody></table>`
-    : usoVacio("Todo lo instrumentado se usó al menos una vez.");
+  pintarUso(m);
 
   $("gen").textContent = "Actualizado: " + new Date(m.generated_at).toLocaleString("es-PE");
 }
@@ -7596,55 +7619,132 @@ const rankFecha = (iso, anio) => iso
   ? new Date(iso).toLocaleDateString("es-PE", anio ? {day:"2-digit",month:"short",year:"2-digit"} : {day:"2-digit",month:"short"})
   : "-";
 let rankPag = 1;
+const CANAL_RK = [["app", "App"], ["whatsapp", "WhatsApp"], ["apple_pay", "Apple Pay"],
+  ["correo", "Correo"], ["fijos", "Fijos"], ["otros", "Otros"]];
+function filaRanking(u, i, max){
+  const mezcla = CANAL_RK.map(([k, l]) => u[k]
+    ? `<i class="m-${k}" style="flex:${u[k]}" title="${l} · ${fmt(u[k])}"></i>` : "").join("");
+  const wa = u.wa_linked_at
+    ? `<span class="rkWa">WhatsApp desde ${rankFecha(u.wa_linked_at, true)}</span>` : "sin WhatsApp";
+  // El id llega cuando la función SQL lo devuelve; sin él la fila no abre a nadie.
+  return `<button class="rk${u.rank <= 3 ? " top" : ""}" type="button" style="--i:${Math.min(i, 18)}"${
+      u.user_id ? ` data-uid="${esc(u.user_id)}"` : " disabled"}>
+    <span class="rkPos">${u.rank}</span>
+    <span class="ava ${tinte({ user_id: u.user_id || u.name || "" })}">${esc(iniciales({ name: u.name || "Sin nombre" }))}</span>
+    <span class="rkTxt">
+      <span class="rkF1"><b>${esc(u.name || "Sin nombre")}</b><span class="rkTot">${fmt(u.total)}</span></span>
+      <span class="rkMix" style="width:${(u.total / max * 100).toFixed(1)}%">${mezcla}</span>
+      <span class="rkF3">último ${rankFecha(u.last_tx)} · registro ${rankFecha(u.registered_at, true)} · ${wa}</span>
+    </span>
+  </button>`;
+}
 async function cargarRanking(){
-  const periodo = $("rankPeriodo").value;
+  const periodo = $("rankPeriodo").value, lista = $("ranking");
   $("rankPrev").disabled = $("rankNext").disabled = true;
+  lista.innerHTML = `<div class="cargando"><span></span><span></span><span></span><span></span></div>`;
   try{
     const orden = $("rankOrden").value;
     const r = await api(`/admin/ranking?period=${periodo}&page=${rankPag}&page_size=${RANK_TAM}&sort=${orden}&dir=${rankDir}`);
-    // data-l es la etiqueta que se ve cuando, en el teléfono, la fila se vuelve tarjeta.
-    $("ranking").innerHTML = (r.items || []).map(u => `<tr>`
-      + `<td class="num pos">${u.rank}</td><td class="nom">${esc(u.name || "Sin nombre")}</td>`
-      + `<td class="num tot" data-l="Total"><b>${fmt(u.total)}</b></td>`
-      + `<td class="num" data-l="App">${fmt(u.app)}</td><td class="num" data-l="WhatsApp">${fmt(u.whatsapp)}</td>`
-      + `<td class="num" data-l="Apple Pay">${fmt(u.apple_pay)}</td><td class="num" data-l="Correo">${fmt(u.correo)}</td>`
-      + `<td class="num" data-l="Fijos">${fmt(u.fijos)}</td><td class="num" data-l="Otros">${fmt(u.otros)}</td>`
-      + `<td class="muted fecha" data-l="Último">${rankFecha(u.last_tx)}</td>`
-      + `<td class="muted fecha" data-l="Registro">${rankFecha(u.registered_at, true)}</td>`
-      + `<td class="muted fecha" data-l="WA vinculado">${u.wa_linked_at ? rankFecha(u.wa_linked_at, true) : "No vinculado"}</td>`
-      + `</tr>`).join("") || `<tr><td colspan="12" class="muted">Sin movimientos en este período</td></tr>`;
+    const items = r.items || [], max = Math.max(1, ...items.map(u => u.total || 0));
+    lista.innerHTML = items.map((u, i) => filaRanking(u, i, max)).join("")
+      || `<div class="wavacio">Sin movimientos en este período</div>`;
+    for (const b of lista.querySelectorAll("[data-uid]")) b.onclick = () => irAClientes(b.dataset.uid);
+    // Cada carga (orden, página, período) vuelve a escalonar, corto: es la
+    // respuesta al gesto, no un estreno.
+    if (!quietito()) lista.querySelectorAll(".rk").forEach((f) => f.classList.add("entraFila"));
+    crecer(lista);
     const paginas = Math.max(1, Math.ceil((r.total_users || 0) / RANK_TAM));
     $("rankInfo").textContent = `Página ${rankPag} de ${paginas} · ${fmt(r.total_users)} usuarios`;
     $("rankPrev").disabled = rankPag <= 1;
     $("rankNext").disabled = rankPag >= paginas;
   }catch(e){
-    $("ranking").innerHTML = `<tr><td colspan="11" class="muted">No se pudo cargar el ranking: ${esc(e.message)}</td></tr>`;
+    lista.innerHTML = `<div class="wavacio">No se pudo cargar el ranking: ${esc(e.message)}</div>`;
   }
 }
 // El orden va al backend: con la página de 20, ordenar acá solo reordenaría esos 20.
-// En el escritorio se ordena tocando el encabezado (otra vez invierte el
-// sentido); en el teléfono el thead no se ve y lo hacen el selector y el botón.
+// Lo hacen el selector y el botón del sentido, en todos los tamaños.
 let rankDir = "desc";
 function ordenRanking(campo, dir){
   $("rankOrden").value = campo;
   rankDir = dir;
   $("rankDir").textContent = dir === "desc" ? "Mayor a menor" : "Menor a mayor";
-  for (const th of document.querySelectorAll("table.rank th[data-sort]")){
-    th.classList.toggle("on", th.dataset.sort === campo);
-    th.classList.toggle("asc", th.dataset.sort === campo && dir === "asc");
-  }
   rankPag = 1;
   cargarRanking();
 }
-for (const th of document.querySelectorAll("table.rank th[data-sort]"))
-  th.onclick = () => ordenRanking(th.dataset.sort,
-    th.dataset.sort === $("rankOrden").value && rankDir === "desc" ? "asc" : "desc");
 $("rankOrden").addEventListener("change", () => ordenRanking($("rankOrden").value, "desc"));
 $("rankDir").addEventListener("click", () => ordenRanking($("rankOrden").value, rankDir === "desc" ? "asc" : "desc"));
-document.querySelector('table.rank th[data-sort="total"]').classList.add("on");
 $("rankPeriodo").addEventListener("change", () => { rankPag = 1; cargarRanking(); });
 $("rankPrev").addEventListener("click", () => { rankPag--; cargarRanking(); });
 $("rankNext").addEventListener("click", () => { rankPag++; cargarRanking(); });
+
+// ── Uso: cuánto y por dónde ─────────────────────────────────────────────────
+// Mismo trato que Usuarios: se pinta una vez por juego de métricas y el
+// motion se estrena cuando la pestaña está a la vista (por el hash).
+let uoEstrenado = false, uoPintadoCon = null;
+const CANAL_ENTRADA = { app:"App", wa_text:"WhatsApp texto", wa_voice:"WhatsApp voz", wa_photo:"WhatsApp foto",
+  wa_split:"WhatsApp dividido", apple_pay:"Apple Pay", yape:"Yape", plin:"Plin", bcp:"BCP", email:"Correo",
+  recurring:"Fijos", desconocido:"Sin canal (antiguos)" };
+// Tramos de la distribución, en el orden del backend, con su tono de intensidad.
+const TRAMO_CLASE = { "0":"c-d0", "1-5":"c-d1", "6-20":"c-d2", "21-50":"c-d3", "50+":"c-d4" };
+function pintarUso(m){
+  if (uoPintadoCon === m) return estrenarUso();
+  uoPintadoCon = m;
+  const mv = m.movements || {}, canales = m.movements_by_channel || [], tramos = m.movements_distribution || [];
+  // Los de antes de entry_channel vienen como "desconocido": fuera del
+  // porcentaje, que si no se diluye con lo antiguo.
+  const total = canales.filter(c => c.channel !== "desconocido").reduce((a, c) => a + (c.n || 0), 0);
+  const porWa = canales.filter(c => (c.channel || "").startsWith("wa_")).reduce((a, c) => a + (c.n || 0), 0);
+  const registran = tramos.filter(t => t.b !== "0").reduce((a, t) => a + (t.n || 0), 0);
+  const ceros = (tramos.find(t => t.b === "0") || {}).n || 0;
+  $("uoKpis").innerHTML =
+    kpi("Movimientos", fmt(mv.total), "", `+${fmt(mv.today)} hoy · +${fmt(mv.d7)} en 7 días`, mv.total) +
+    kpi("Por WhatsApp", `${pct(porWa, total)}%`, "", `${fmt(porWa)} de ${fmt(total)} con canal`, pct(porWa, total)).replace('data-suf=""', 'data-suf="%"') +
+    kpi("Registran algo", fmt(registran), "", `${fmt(ceros)} con cero movimientos`, registran) +
+    kpi("En Otros", fmt(m.otros_count), "", "por recategorizar", m.otros_count);
+
+  if (canales.length) Charts.barList($("uoCanal"), canales.map(c => ({ label: CANAL_ENTRADA[c.channel] || c.channel, value: c.n })));
+  else $("uoCanal").innerHTML = `<div class="muted">Sin datos</div>`;
+
+  const base = tramos.reduce((a, t) => a + (t.n || 0), 0);
+  $("uoDist").innerHTML = base
+    ? `<div class="usBarra">${tramos.map(t => `<i class="${TRAMO_CLASE[t.b] || "c-d1"}" style="width:${(t.n / base * 100).toFixed(2)}%" title="${esc(t.b)} movimientos: ${fmt(t.n)}"></i>`).join("")}</div>`
+      + `<ul class="usLey">${tramos.map(t => `<li><i class="${TRAMO_CLASE[t.b] || "c-d1"}"></i><span>${esc(t.b)} movimientos</span><b>${fmt(t.n)}</b><small>${pct(t.n, base)}%</small></li>`).join("")}</ul>`
+    : `<div class="muted">Sin datos</div>`;
+
+  // El mapa de calor va por USUARIOS distintos, no por el total: con una base
+  // chica, uno que abra cincuenta veces la misma pantalla la pondría primera
+  // él solo. Son listas largas (220 pantallas): el top y un "ver todas".
+  const uso = m.usage || {};
+  const lista = (id, filas, tope) => {
+    const caja = $(id), boton = $(id + "Mas");
+    if (!filas || !filas.length){
+      caja.innerHTML = `<div class="muted">Todavía sin datos. Se llena cuando salga la versión que lo reporta.</div>`;
+      boton.style.display = "none"; return;
+    }
+    const pintar = (todo) => {
+      caja.innerHTML = `<div class="muted" style="margin-bottom:9px">Sobre ${fmt(uso.cohort || 0)} usuarios con la versión instrumentada</div>`;
+      const el = document.createElement("div"); caja.appendChild(el);
+      Charts.barList(el, (todo ? filas : filas.slice(0, tope)).map(f => ({ label: f.label, value: f.users })));
+      boton.style.display = filas.length > tope ? "" : "none";
+      boton.textContent = todo ? "Ver menos" : `Ver ${todo ? "" : "todas"} (${fmt(filas.length)})`;
+      boton.onclick = () => { pintar(!todo); if (!todo) crecer(caja); };
+    };
+    pintar(false);
+  };
+  lista("uoTaps", uso.taps, 10);
+  lista("uoScreens", uso.screens, 8);
+  $("uoZero").innerHTML = (uso.zero && uso.zero.length)
+    ? uso.zero.map(z => `<span class="badge idle">${esc(z.label)}</span>`).join("")
+    : `<div class="muted">Todo lo instrumentado se usó al menos una vez.</div>`;
+  estrenarUso();
+}
+function estrenarUso(){
+  if (uoEstrenado || uoPintadoCon === null || location.hash !== "#ad-uso") return;
+  uoEstrenado = true;
+  const vista = $("tab-ad-uso");
+  subirNumeros(vista, "#uoKpis .val[data-n]");
+  for (const id of ["uoCanal", "uoDist", "uoTaps", "uoScreens"]) crecer($(id));
+}
 
 // ── Usuarios: el pulso de la base ──────────────────────────────────────────
 // Se pinta con las métricas que ya llegaron; la lista de personas es la misma
