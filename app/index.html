@@ -272,6 +272,12 @@
   .planeta small{display:block;font-size:12px;color:var(--muted)}
   .planeta[data-i="0"]{--x:46%;--y:22%} .planeta[data-i="1"]{--x:60%;--y:11%} .planeta[data-i="2"]{--x:74%;--y:34%}
   .planeta[data-i="3"]{--x:78%;--y:7%} .planeta[data-i="4"]{--x:64%;--y:50%}
+  /* Los mundos en 3D: una sola escena para todos, debajo de las etiquetas.
+     Con WebGL la esfera CSS se esconde (sin perder su sitio); sin él, se queda. */
+  .mundos3d{position:absolute;inset:0;pointer-events:none}
+  .mundos3d .lienzo3d{position:absolute;inset:0;width:100% !important;height:100% !important}
+  .mundos3d .tip3d{display:none}
+  #planetas.en3d .planeta i{visibility:hidden}
   .orbVacio{position:absolute;left:50%;top:26%;transform:translateX(-50%);max-width:30ch;text-align:center;
     color:var(--muted);font-size:14px;line-height:1.5}
   /* El texto: lo que se lee primero. */
@@ -1822,6 +1828,7 @@
           </svg>
           <figure class="orbCosa orbBillete"><img src="billetera.webp" width="420" height="337" alt=""></figure>
           <figure class="orbCosa orbCobrar"><img src="cobrar.webp" width="420" height="385" alt=""><small id="orbMeta">fin de mes</small></figure>
+          <div class="mundos3d" id="mundos3d" aria-hidden="true"></div>
           <div id="planetas"></div>
           <div class="astroCapa" id="astroCapa" aria-hidden="true">
             <div class="astro"><img src="astronauta.webp" width="320" height="334" alt=""></div>
@@ -2966,6 +2973,7 @@ function pintarOrbita(){
         <i></i><b>${esc(nombre(c.cat))}</b><small>${esc(plata(c.total, mes.moneda))}</small></button>`).join("")
       : `<p class="orbVacio">Todavía no hay planetas: tu primer gasto del mes pone el primero.</p>`;
     for (const b of caja.querySelectorAll(".planeta")) b.onclick = () => tab("gastos");
+    mundos3d($("mundos3d"), [...caja.querySelectorAll(".planeta")]);
   }
   // El astronauta viaja desde la billetera la primera vez; después solo se recoloca.
   const capa = $("astroCapa");
@@ -2978,6 +2986,95 @@ function pintarOrbita(){
     }
   } else colocarAstro();
 }
+// ── Los mundos ──────────────────────────────────────────────────────────────
+// Cada planeta es una esfera con su textura dibujada al vuelo (gas dorado con
+// bandas, roca con cráteres, hielo veteado), gira despacio a su ritmo, sigue
+// la posición y el parallax del botón que la nombra y nace escalonada. Una
+// sola escena WebGL para todos; el botón HTML conserva el toque y el rótulo.
+function texturaMundo(THREE, tipo, semilla){
+  const c = document.createElement("canvas"); c.width = 512; c.height = 256;
+  const g = c.getContext("2d");
+  let a = semilla; const rnd = () => (a = (a * 16807) % 2147483647) / 2147483647;
+  const base = tipo === "oro" ? ["#e3bd78", "#b98a3e", "#7d5a22"]
+             : tipo === "roca" ? ["#9a9aa3", "#5e5e66", "#36363c"] : ["#b7bfcb", "#737b8a", "#474d59"];
+  g.fillStyle = base[1]; g.fillRect(0, 0, 512, 256);
+  if (tipo === "oro"){
+    for (let i = 0; i < 46; i++){ g.globalAlpha = .16 + rnd() * .3; g.fillStyle = rnd() < .5 ? base[0] : base[2];
+      g.fillRect(0, rnd() * 256, 512, 5 + rnd() * 26); }
+    for (let i = 0; i < 140; i++){ g.globalAlpha = .07 + rnd() * .12; g.fillStyle = rnd() < .5 ? "#fff3cf" : base[2];
+      g.beginPath(); g.ellipse(rnd() * 512, rnd() * 256, 30 + rnd() * 100, 3 + rnd() * 7, 0, 0, 7); g.fill(); }
+  } else {
+    for (let i = 0; i < 240; i++){ g.globalAlpha = .08 + rnd() * .22; g.fillStyle = rnd() < .5 ? base[0] : base[2];
+      g.beginPath(); g.ellipse(rnd() * 512, rnd() * 256, 10 + rnd() * 60, 8 + rnd() * 40, rnd() * 3, 0, 7); g.fill(); }
+    for (let i = 0; i < (tipo === "roca" ? 28 : 9); i++){
+      const x = rnd() * 512, y = rnd() * 256, r = 4 + rnd() * 18;
+      const gr = g.createRadialGradient(x - r * .3, y - r * .3, r * .1, x, y, r);
+      gr.addColorStop(0, "rgba(0,0,0,.5)"); gr.addColorStop(.7, "rgba(0,0,0,.15)"); gr.addColorStop(1, "rgba(255,255,255,.2)");
+      g.globalAlpha = 1; g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+    }
+  }
+  g.globalAlpha = 1;
+  const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping;
+  if (THREE.SRGBColorSpace) t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const TIPO_MUNDO = ["oro", "roca", "hielo", "roca", "hielo"];
+async function mundos3d(el, botones){
+  const caja = $("planetas");
+  caja.classList.remove("en3d");
+  if (!botones.length){ el._m3d?.matar(); el.innerHTML = ""; return; }
+  const alto = el.clientHeight || 300;
+  const m = await motor3d(el, alto, (m) => {
+    const { THREE, escena } = m;
+    // Cámara ortográfica en píxeles del contenedor: x hacia la derecha, y hacia abajo.
+    const camara = new THREE.OrthographicCamera(0, 1, 0, -1, .1, 2000);
+    camara.position.set(0, 0, 900); camara.lookAt(0, 0, 0);
+    camara.encuadre = (w) => { const h = el.clientHeight || alto; camara.left = 0; camara.right = w; camara.top = 0; camara.bottom = -h;
+      if (m.render && m.lienzo) m.render.setSize(w, h, false); };
+    const geo = new THREE.SphereGeometry(1, 48, 32);
+    const mundos = botones.map((b, i) => {
+      const tipo = TIPO_MUNDO[i] || "roca";
+      const mat = new THREE.MeshStandardMaterial({ map: texturaMundo(THREE, tipo, 101 + i * 37),
+        roughness: tipo === "oro" ? .55 : .9, metalness: tipo === "oro" ? .35 : .05 });
+      mat.bumpMap = mat.map; mat.bumpScale = tipo === "oro" ? .6 : 1.4;
+      if (tipo === "oro"){ mat.emissive = new THREE.Color(0x3a2a0c); mat.emissiveIntensity = .5; }
+      const esfera = new THREE.Mesh(geo, mat); escena.add(esfera);
+      // La atmósfera: un halo fino por detrás, dorado en el mundo grande y
+      // azulado en los de hielo. La roca no tiene.
+      if (tipo !== "roca"){
+        const halo = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: tipo === "oro" ? 0xf3ce7f : 0x9fc4e8,
+          transparent: true, opacity: tipo === "oro" ? .22 : .16, side: THREE.BackSide, depthWrite: false }));
+        halo.scale.set(1.09, 1.09, 1.09); esfera.add(halo);
+      }
+      esfera.rotation.z = .25 + (i % 3) * .12;
+      esfera.userData = { b, i, giro: (.08 + (i % 3) * .035) * (i % 2 ? -1 : 1), hover: 0, escala: 1 };
+      b.addEventListener("pointerenter", () => { esfera.userData.hover = 1; });
+      b.addEventListener("pointerleave", () => { esfera.userData.hover = 0; });
+      return esfera;
+    });
+    m.piezas = [];
+    const suave = (x) => 1 - Math.pow(1 - x, 3);
+    const cuadro = (t) => {
+      const r0 = el.getBoundingClientRect();
+      for (const e of mundos){
+        const { b, i, giro } = e.userData;
+        const rb = b.getBoundingClientRect(), esf = b.querySelector("i").getBoundingClientRect();
+        const radio = esf.width / 2 || 20;
+        e.position.set(rb.left - r0.left + rb.width / 2, -(esf.top - r0.top + esf.height / 2), 0);
+        const nace = m.quieto ? 1 : suave(Math.max(0, Math.min(1, (t - .4 - i * .07) / .52)));
+        e.userData.escala += ((e.userData.hover ? 1.06 : 1) - e.userData.escala) * .2;
+        const k = Math.max(.001, radio * nace * e.userData.escala);
+        e.scale.set(k, k, k);
+        if (!m.quieto) e.rotation.y = t * giro;
+      }
+    };
+    return { camara, cuadro, tocar: () => {} };
+  });
+  if (!m || m === VIEJO) return;        // sin WebGL quedan las esferas CSS
+  if (!el.isConnected){ m.matar(); return; }
+  caja.classList.add("en3d");
+}
+
 // Si el dato llega con la pestaña oculta, la escena mide cero y el astronauta
 // quedaría en la esquina: el observador lo recoloca en cuanto tiene tamaño,
 // y cubre también el cambio de ancho de la ventana.
