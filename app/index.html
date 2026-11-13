@@ -222,8 +222,11 @@
      el astronauta viaja por él hasta hoy. Las categorías son planetas con el
      tamaño de lo gastado. La nébula vive detrás. Arriba a la izquierda, lo
      único que se lee primero: el disponible, una frase y una acción. */
-  .mision{position:relative;height:540px;border-radius:20px;overflow:hidden;margin:56px 0 16px;
-    background:radial-gradient(120% 90% at 70% 40%, #171513 0%, #0f0f10 55%, #0b0b0c 100%);--px:0;--py:0}
+  .mision{position:relative;height:540px;border-radius:20px;margin:56px 0 16px;--px:0;--py:0}
+  /* El fondo es lo único recortado: los mundos, el astronauta y las chispas
+     se salen de la tarjeta, como objetos delante de ella. */
+  .orbFondo{position:absolute;inset:0;border-radius:20px;overflow:hidden;
+    background:radial-gradient(120% 90% at 70% 40%, #171513 0%, #0f0f10 55%, #0b0b0c 100%)}
   .orbEscena{position:absolute;inset:0}
   .mision .orbe{position:absolute;right:-6%;top:-10%;width:62%;height:120%;pointer-events:none;opacity:.9;
     mix-blend-mode:screen;-webkit-mask:radial-gradient(60% 55% at 55% 45%, #000 45%, transparent 100%);
@@ -274,7 +277,7 @@
   .planeta[data-i="3"]{--x:78%;--y:7%} .planeta[data-i="4"]{--x:64%;--y:50%}
   /* Los mundos en 3D: una sola escena para todos, debajo de las etiquetas.
      Con WebGL la esfera CSS se esconde (sin perder su sitio); sin él, se queda. */
-  .mundos3d{position:absolute;inset:0;pointer-events:none}
+  .mundos3d{position:absolute;inset:-110px -60px;pointer-events:none}
   .mundos3d .lienzo3d{position:absolute;inset:0;width:100% !important;height:100% !important}
   .mundos3d .tip3d{display:none}
   #planetas.en3d .planeta i{visibility:hidden}
@@ -1492,6 +1495,7 @@
        bloque normal, y debajo una franja de 300px con el camino, los planetas
        (a dos tercios) y el astronauta. El aro y el veredicto cierran abajo. */
     .mision{height:auto;margin-top:54px;padding:22px 18px 0;display:flex;flex-direction:column}
+    .mundos3d{inset:-60px 0}
     .misionGrid{position:static;max-width:none;order:1}
     .orbEscena{order:2} .orbPie{order:3;flex-direction:row}
     .mision .hero .val{font-size:40px}
@@ -1821,8 +1825,8 @@
 
     <section id="tab-resumen">
       <div class="mision">
+        <div class="orbFondo" aria-hidden="true"><canvas class="orbe" id="nebulaMes"></canvas></div>
         <div class="orbEscena" id="orbEscena">
-          <canvas class="orbe" id="nebulaMes" aria-hidden="true"></canvas>
           <svg class="orbRuta" viewBox="0 0 1000 540" preserveAspectRatio="none" aria-hidden="true">
             <path class="pista" id="orbPista" d=""/><path class="hecho" id="orbHecho" d="" pathLength="1" style="stroke-dashoffset:1"/>
           </svg>
@@ -3026,6 +3030,15 @@ async function mundos3d(el, botones){
   const alto = el.clientHeight || 300;
   const m = await motor3d(el, alto, (m) => {
     const { THREE, escena } = m;
+    // La luz del motor es para el cerebro y aplana una esfera. Acá: una clave
+    // fuerte desde arriba a la izquierda que deja un lado en sombra, un
+    // contraluz dorado que recorta el borde oscuro, y casi nada de ambiente.
+    for (const luz of escena.children.filter((o) => o.isLight)){
+      if (luz.isHemisphereLight) luz.intensity = .32;
+      else if (luz.color.getHex() === 0xffe2a8){ luz.position.set(-5, 6, 7); luz.intensity = 2.6; }
+      else if (luz.color.getHex() === 0x9fd2f2){ luz.intensity = .12; }
+      else { luz.position.set(6, -2, -5); luz.intensity = 1.8; }
+    }
     // Cámara ortográfica en píxeles del contenedor: x hacia la derecha, y hacia abajo.
     const camara = new THREE.OrthographicCamera(0, 1, 0, -1, .1, 2000);
     camara.position.set(0, 0, 900); camara.lookAt(0, 0, 0);
@@ -3036,7 +3049,7 @@ async function mundos3d(el, botones){
       const tipo = TIPO_MUNDO[i] || "roca";
       const mat = new THREE.MeshStandardMaterial({ map: texturaMundo(THREE, tipo, 101 + i * 37),
         roughness: tipo === "oro" ? .55 : .9, metalness: tipo === "oro" ? .35 : .05 });
-      mat.bumpMap = mat.map; mat.bumpScale = tipo === "oro" ? .6 : 1.4;
+      mat.bumpMap = mat.map; mat.bumpScale = tipo === "oro" ? 1.2 : 3;
       if (tipo === "oro"){ mat.emissive = new THREE.Color(0x3a2a0c); mat.emissiveIntensity = .5; }
       const esfera = new THREE.Mesh(geo, mat); escena.add(esfera);
       // La atmósfera: un halo fino por detrás, dorado en el mundo grande y
@@ -3046,7 +3059,7 @@ async function mundos3d(el, botones){
           transparent: true, opacity: tipo === "oro" ? .22 : .16, side: THREE.BackSide, depthWrite: false }));
         halo.scale.set(1.09, 1.09, 1.09); esfera.add(halo);
       }
-      esfera.rotation.z = .25 + (i % 3) * .12;
+      esfera.rotation.z = .25 + (i % 3) * .12; esfera.rotation.x = .18;
       esfera.userData = { b, i, giro: (.08 + (i % 3) * .035) * (i % 2 ? -1 : 1), hover: 0, escala: 1 };
       b.addEventListener("pointerenter", () => { esfera.userData.hover = 1; });
       b.addEventListener("pointerleave", () => { esfera.userData.hover = 0; });
