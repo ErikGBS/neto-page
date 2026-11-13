@@ -237,7 +237,16 @@
      diagonal (aro abajo a la izquierda, astronauta arriba a la derecha) y las
      chispas no se le meten entre los pies. */
   .anilloGrande{grid-column:2;grid-row:2;align-self:end;justify-self:start;
-    display:flex;align-items:center;gap:22px;margin:0 0 4px;padding:0}
+    display:flex;flex-direction:column;align-items:center;gap:12px;margin:0 0 4px 6px;padding:0;text-align:center}
+  /* El texto siempre por encima de las chispas: el lienzo del aro es más
+     grande que el anillo y, sin esto, pintaba sobre las cifras vecinas. */
+  .mision .hero, .saludo, .mision .kpis{position:relative;z-index:1}
+  .anillo .anillo3d{z-index:0}
+  /* El botón de la cabecera, por encima de la ilustración. */
+  .topbar .der{position:relative;z-index:3}
+  /* En una hoja estrecha la mitad derecha es corta: el astronauta se achica
+     para no pisar el aro. */
+  @container hoja (max-width:1000px){ .astroCapa{width:170px;height:194px;right:6px;top:-58px} }
   .anilloGrande .anillo{width:132px;height:132px;flex:none}
   .anilloGrande .anillo .foto{inset:26px;font-size:28px}
   .anilloGrande .anillo .pct{display:none}
@@ -247,7 +256,7 @@
   .anillo .foto.sinFoto{background:transparent;color:var(--text);font-weight:600;letter-spacing:-.02em;font-size:12px}
   .anilloGrande .anillo .foto.sinFoto{font-size:26px}
   .anilloGrande.sinFoto .anilloTexto .val{display:none}
-  .anilloGrande.sinFoto .anilloTexto .sub{margin-top:0;max-width:20ch}
+  .anilloGrande.sinFoto .anilloTexto .sub{margin-top:0;max-width:17ch}
   /* El anillo en 3D: un lienzo más grande que la caja, detrás de la foto, que
      la rodea con un toro que crece. Sin WebGL queda el SVG de siempre. */
   /* Más grande que el anillo: las chispas tienen que poder salirse de él. */
@@ -269,7 +278,7 @@
      que lo inclina hacia el puntero: eso es lo que lo hace leer como un
      objeto y no como una pegatina. La capa hace el parallax y la imagen
      flota: dos transforms en dos elementos, para que no se pisen. */
-  .astroCapa{position:absolute;right:14px;top:-118px;width:250px;height:284px;
+  .astroCapa{position:absolute;right:14px;top:-56px;width:250px;height:284px;
     pointer-events:none;z-index:2;perspective:900px;
     --px:0;--py:0}
   .astro{position:absolute;inset:0;width:100%;height:auto;pointer-events:none;
@@ -1424,17 +1433,22 @@
     .hoja{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
     .hoja{padding:16px 16px 28px}
     .mision{padding:22px 18px 20px;margin-top:54px}
-    .misionGrid{grid-template-columns:1fr;grid-template-rows:none;gap:18px}
-    .misionIzq, .misionDer{display:block;min-width:0}
-    .mision .hero, .saludo, .anilloGrande, .mision .kpis{grid-column:auto;grid-row:auto}
-    .anilloGrande{justify-self:start;align-self:auto;margin:26px 0 0}
+    /* Una columna y el mismo orden que en el escritorio: la cifra primero. El
+       astronauta ocupa la esquina, así que el Disponible le deja sitio. */
+    .misionGrid{grid-template-columns:1fr;grid-template-rows:auto auto auto auto;gap:16px}
+    .mision .hero{grid-column:1;grid-row:1;padding-right:120px}
+    .saludo{grid-column:1;grid-row:2}
+    .anilloGrande{grid-column:1;grid-row:3;justify-self:start;align-self:auto;flex-direction:row;
+      text-align:left;margin:8px 0 0}
+    .anilloGrande.sinFoto .anilloTexto .sub{max-width:20ch}
+    .mision .kpis{grid-column:1;grid-row:4}
     .mision .hero .val{font-size:34px}
     .anilloGrande .anillo{width:112px;height:112px}
     .anilloGrande .anillo .foto{inset:24px;font-size:26px}
     .anilloGrande{gap:22px}
     .anilloTexto .val{font-size:32px}
     .mision .orbe{display:none}
-    .saludo{max-width:none;min-height:0;padding-top:64px}
+    .saludo{max-width:none;min-height:0}
     .astroCapa{width:132px;height:auto;right:8px;top:-54px;perspective:none}
     .astro{position:static;transform:none;transition:none}
     .astro img{animation:none}
@@ -2815,9 +2829,14 @@ function pintarKpis(){
 
   // El ritmo, en palabras y con la ventana: solo el número lleva color, y solo
   // si gastas más que el mes pasado a estas alturas (la mala dirección).
+  // Pasado el 100 % el porcentaje asusta sin decir nada (un mes pasado flojo
+  // lo dispara): entonces manda el monto y el porcentaje acompaña.
   const ritmo = mes.ritmo && mes.ritmo.antes
-    ? `<span class="delta ${mes.ritmo.pct > 0 ? "mal" : mes.ritmo.pct < 0 ? "bien" : ""}">`
-      + `${Math.abs(mes.ritmo.pct)}% ${mes.ritmo.pct >= 0 ? "más" : "menos"}</span> que el mes pasado al día ${hoy.getDate()}`
+    ? (Math.abs(mes.ritmo.pct) >= 100
+      ? `<span class="delta ${mes.ritmo.pct > 0 ? "mal" : "bien"}">${esc(plata(Math.abs(gastado - mes.ritmo.antes), moneda))} ${mes.ritmo.pct > 0 ? "más" : "menos"}</span>`
+        + ` que el mes pasado al día ${hoy.getDate()} (${Math.abs(mes.ritmo.pct)}%)`
+      : `<span class="delta ${mes.ritmo.pct > 0 ? "mal" : mes.ritmo.pct < 0 ? "bien" : ""}">`
+        + `${Math.abs(mes.ritmo.pct)}% ${mes.ritmo.pct >= 0 ? "más" : "menos"}</span> que el mes pasado al día ${hoy.getDate()}`)
     : `${dias} ${dias === 1 ? "día" : "días"} con movimientos`;
   let html = tarjeta("Gastado", plata(gastado, moneda), ritmo, gastado, moneda)
     + tarjeta("Ingresos", plata(ingresos, moneda), "registrados este mes", ingresos, moneda);
