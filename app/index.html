@@ -32,6 +32,16 @@
     /* Tres tonos que dicen algo: dorado = lo tuyo, verde agua = lo que entra o
        va bien, coral = donde te pasas. Validados juntos sobre la superficie. */
     --tu:var(--gold); --entra:#4fc9a3; --pasa:var(--negative);
+    --lavanda:#8d86e8;   /* el neutro del mundo de arcilla (columnas, efectivo): no significa nada */
+    --cielo:#6fb7e6; --rosa:#e08ab8; --menta:#4fc9a3;   /* pastel para los gráficos de arcilla */
+    /* Arcilla oscura (claymorphism sobre negro): cada superficie tiene cuerpo.
+       Un brillo fino arriba, un canto grueso y oscuro abajo, y una sombra
+       blanda que la despega del fondo. Mismo material en tarjetas, botones,
+       píldoras y navegación; el pastel tiñe, el dorado sigue siendo el acento. */
+    --clay:#1f1e27; --clay-hi:#262530; --clay-lo:#17161d;
+    --clay-sombra:inset 0 1.5px 0 rgba(255,255,255,.07), inset 0 -5px 10px rgba(0,0,0,.32), inset 0 12px 24px rgba(255,255,255,.025),
+      0 18px 34px -14px rgba(0,0,0,.65), 0 2px 4px rgba(0,0,0,.35);
+    --clay-chica:inset 0 1px 0 rgba(255,255,255,.1), inset 0 -3px 0 rgba(0,0,0,.38), 0 8px 16px -8px rgba(0,0,0,.6);
     --chart-1:var(--tu); --chart-2:var(--entra); --chart-3:var(--pasa); --chart-muted:#3a3a3e;
     --grid:#242428; --axis-ink:var(--faint); --chart-ink:var(--text); --chart-span:.12;   /* --ink es el marrón sobre dorado, no vale para texto */
     --radius-card:16px; --radius-control:999px;
@@ -73,6 +83,10 @@
   button.primary,a.btn.primary{background:var(--gold-bright);
     color:var(--ink);border-color:transparent;font-weight:700}
   button.primary:hover{filter:brightness(1.04)}
+  /* En el portal el primario es una píldora de arcilla dorada; el admin se queda como estaba. */
+  button.primary:not(.admin *),a.btn.primary:not(.admin *){background:#e3bd74 linear-gradient(180deg,#f3d48f,#d9ad5b);border-radius:999px;
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(110,70,15,.45), 0 8px 16px -8px rgba(0,0,0,.6)}
+  button.primary:not(.admin *):active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(110,70,15,.45)}
   button[disabled]{opacity:.5;cursor:default}
   a.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
     text-decoration:none;font-weight:600;border-radius:11px;padding:10px 16px;
@@ -163,8 +177,8 @@
   #menu button:hover{background:rgba(255,255,255,.035);color:var(--text);transform:translateX(3px)}
   /* El activo se marca por brillo (gris a blanco) sobre una píldora neutra,
      no con el acento: el dorado queda para los datos. */
-  #menu button.on{background:var(--active);color:var(--text);font-weight:600;
-    view-transition-name:navActivo}
+  #menu button.on{background:linear-gradient(180deg,#2d2c38,#222129);color:var(--text);font-weight:600;
+    box-shadow:var(--clay-chica);view-transition-name:navActivo}
   ::view-transition-group(navActivo){animation-duration:280ms;animation-timing-function:var(--ease-out)}
   #menuAdmin button{position:relative;transition:background .18s ease,color .18s ease,
     transform .18s cubic-bezier(.22,.9,.3,1)}
@@ -200,12 +214,13 @@
   .topbar .sub{font-size:14px;color:var(--faint);margin-top:2px}
   .topbar .der{margin-left:auto;display:flex;gap:9px;align-items:center}
   .tabbar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:12;
-    grid-template-columns:repeat(4,1fr);background:var(--bg);border-top:1px solid var(--border);
-    padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+    grid-template-columns:repeat(4,1fr);background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));border-top:0;
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.07), 0 -10px 24px rgba(0,0,0,.45);
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
   .tabbar button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;
     background:none;border:none;border-radius:12px;padding:7px 4px;color:var(--mute);
     font-size:.75rem;font-weight:500;min-height:52px}
-  .tabbar button.on{color:var(--text);background:var(--active);font-weight:600}
+  .tabbar button.on{color:var(--text);background:linear-gradient(180deg,#2d2c38,#222129);font-weight:600;box-shadow:var(--clay-chica)}
   .tabbar svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;
     stroke-linecap:round;stroke-linejoin:round}
   .tabbar .pill{position:absolute;top:4px;left:calc(50% + 6px);min-width:17px;padding:0 5px;
@@ -225,8 +240,8 @@
   .mision{position:relative;height:540px;border-radius:20px;margin:56px 0 16px;--px:0;--py:0}
   /* El fondo es lo único recortado: los mundos, el astronauta y las chispas
      se salen de la tarjeta, como objetos delante de ella. */
-  .orbFondo{position:absolute;inset:0;border-radius:20px;overflow:hidden;
-    background:radial-gradient(120% 90% at 70% 40%, #171513 0%, #0f0f10 55%, #0b0b0c 100%)}
+  .orbFondo{position:absolute;inset:0;border-radius:28px;overflow:hidden;box-shadow:var(--clay-sombra);
+    background:radial-gradient(120% 90% at 70% 40%, #1d1a26 0%, #16151d 55%, #111017 100%)}
   .orbEscena{position:absolute;inset:0}
   .mision .orbe{position:absolute;right:-6%;top:-10%;width:62%;height:120%;pointer-events:none;opacity:.9;
     mix-blend-mode:screen;-webkit-mask:radial-gradient(60% 55% at 55% 45%, #000 45%, transparent 100%);
@@ -311,13 +326,16 @@
   .saludo p{font-size:17px;color:var(--text);max-width:36ch;margin-top:6px;line-height:1.4}
   .saludo .verGastos{margin-top:16px}
   .saludo .racha{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;margin-left:10px;border-radius:999px;
-    background:var(--raised);color:var(--muted);font-size:12px;vertical-align:middle}
+    background:linear-gradient(180deg,#2d2c38,#222129);box-shadow:var(--clay-chica);color:var(--muted);font-size:12px;vertical-align:middle}
   .saludo .racha b{color:var(--text);font-weight:600}
   /* Gastado e ingresos, en voz baja, bajo la acción. */
-  .mision .kpis{display:flex;flex-wrap:wrap;gap:4px 18px;margin:16px 0 0;border:0;padding:0}
-  .mision .kpi{padding:0;border:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;font-size:13px;min-width:0}
-  .mision .kpi .lbl{font-size:12px;color:var(--faint)}
-  .mision .kpi .val{font-size:14px;font-weight:500;margin:0;color:var(--text);overflow:visible}
+  .mision .kpis{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0;border:0;padding:0}
+  /* Tejas de arcilla teñidas: dorado para lo gastado, menta para lo que entra. */
+  .mision .kpi{flex:1 1 200px;padding:10px 16px 11px;border:0;border-radius:16px;display:flex;flex-direction:column;gap:2px;font-size:13px;min-width:0;
+    background:linear-gradient(180deg,color-mix(in srgb,var(--tu) 22%,var(--clay-hi)),color-mix(in srgb,var(--tu) 14%,var(--clay-lo)));box-shadow:var(--clay-chica)}
+  .mision .kpi:nth-child(2){background:linear-gradient(180deg,color-mix(in srgb,var(--menta) 22%,var(--clay-hi)),color-mix(in srgb,var(--menta) 14%,var(--clay-lo)))}
+  .mision .kpi .lbl{font-size:12px;color:var(--muted)}
+  .mision .kpi .val{font-size:16px;font-weight:600;margin:0;color:var(--text);overflow:visible;font-family:var(--cifra)}
   .mision .kpi .sub{font-size:12px;margin:0;color:var(--faint)}
   .mision .kpi .sub .delta{font-size:12px}
   /* Abajo a la derecha: el aro de lo consumido y el veredicto del mes. */
@@ -406,16 +424,16 @@
      adorno). La variante chica vive dentro de las filas de avisos y del
      veredicto. El único control distinto es el envío del buscador. */
   .accion{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px 0 16px;border-radius:999px;
-    border:1px solid var(--control);background:transparent;color:var(--text);font-weight:500;font-size:14px;
-    text-decoration:none;white-space:nowrap;cursor:pointer;
-    transition:background var(--t-hover) ease,border-color var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
+    border:0;background:linear-gradient(180deg,#2d2c38,#222129);color:var(--text);font-weight:500;font-size:14px;
+    box-shadow:var(--clay-chica);text-decoration:none;white-space:nowrap;cursor:pointer;
+    transition:background var(--t-hover) ease,box-shadow var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
   .accion::after{content:"";width:14px;height:14px;flex:none;background:currentColor;
     -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h13M12 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;
     mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h13M12 6l6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;
     transition:transform var(--t-hover) var(--ease-out)}
-  .accion:hover{background:var(--raised);border-color:var(--border-strong)}
+  .accion:hover{background:linear-gradient(180deg,#343340,#262530)}
   .accion:hover::after{transform:translateX(2px)}
-  .accion:active{transform:scale(.97)}
+  .accion:active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 -1px 0 rgba(0,0,0,.38), 0 3px 8px -6px rgba(0,0,0,.6)}
   .accion.chica{height:30px;padding:0 10px 0 12px;font-size:13px;gap:6px}
   .accion.chica::after{width:12px;height:12px}
   .verGastos{margin-top:14px}
@@ -460,14 +478,16 @@
     .mision .kpi:nth-child(n+3){border-top:1px solid var(--rule)}
     .mision .kpi:last-child:nth-child(odd){grid-column:1 / -1}
   }
+  /* Las tejas del hero no heredan la raya ni el padding de la tira de KPIs. */
+  .mision .kpi + .kpi, .mision .kpi:nth-child(2n), .mision .kpi:nth-child(n+3){border:0;padding-left:16px}
 
-  .card{background:var(--surface);border-radius:var(--radius-card);padding:24px;margin-bottom:16px}
+  .card{background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));border-radius:24px;padding:24px;margin-bottom:18px;box-shadow:var(--clay-sombra)}
   .card h2{font-size:16px;font-weight:600;margin-bottom:14px}
 
   /* Las señales del mes: un punto de 8px del color del estado, el texto en
      tinta y el enlace a la vista. Sin banda tintada: el color es señal, no
      fondo. El contenedor se esconde solo si no hay nada que decir. */
-  .estados{background:var(--surface);border-radius:var(--radius-card);padding:4px 22px;margin-bottom:16px}
+  .estados{background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));border-radius:24px;padding:4px 22px;margin-bottom:18px;box-shadow:var(--clay-sombra)}
   .estados:not(:has(.estadoLinea)){display:none}
   .estadoLinea{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;
     padding:13px 0;color:var(--muted);margin:0}
@@ -709,13 +729,14 @@
   /* ── Preguntarle al cerebro ─────────────────────────────────────────── */
   .consulta{display:flex;gap:8px;margin:0 0 12px;max-width:560px}
   .consulta input{flex:1;min-width:0;font:inherit;font-size:14px;color:var(--text);
-    background:var(--raised);border:1px solid var(--border);border-radius:999px;
+    background:var(--clay-lo);border:1px solid transparent;border-radius:999px;
+    box-shadow:inset 0 3px 8px rgba(0,0,0,.45), inset 0 -1px 0 rgba(255,255,255,.05);
     padding:11px 18px;transition:border-color .18s ease}
   .consulta input::placeholder{color:var(--faint)}
   .consulta input:hover{border-color:var(--control)}
   .consulta input:focus{outline:none;border-color:var(--gold)}
   .consulta button{flex:none;width:44px;padding:0;border-radius:999px;
-    background:var(--raised);border:1px solid var(--border);display:grid;place-items:center}
+    background:linear-gradient(180deg,#2d2c38,#222129);border:0;box-shadow:var(--clay-chica);display:grid;place-items:center}
   .consulta button:hover{border-color:var(--gold)}
   .consulta button svg{width:18px;height:18px;fill:none;stroke:var(--gold);
     stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -753,18 +774,12 @@
     border:1px dashed var(--control);border-radius:12px}
   .vacio b{display:block;color:var(--text);font-size:15px;margin-bottom:5px}
 
-  @container hoja (max-width:610px){
-    .panel table.rank td.desc{grid-column:1 / -1;font-weight:600}
-    .panel table.rank td.desc::before{content:none}
-    .panel table.rank td{overflow-wrap:anywhere}
-    .panel table.rank td .badge{white-space:normal;display:inline-block}
-  }
   /* La cabecera de una vista: nota a la izquierda, selector a la derecha. */
   .barraVista{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}
   .barraVista .der{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .barraVista input[type="search"]{min-width:250px}
   .barraVista select, .barraVista input{padding:0 16px;border-radius:999px;height:38px;
-    border:1px solid var(--border);background:var(--raised);color:var(--text);
+    border:1px solid transparent;background:linear-gradient(180deg,#2d2c38,#222129);color:var(--text);box-shadow:var(--clay-chica);
     font:inherit;font-size:14px}
   .panel .nota{color:var(--faint);font-size:13px;margin:-6px 0 12px}
   /* Movimientos: filas por día que se tocan, y el detalle que se abre al lado
@@ -824,33 +839,48 @@
   /* Los gráficos en tres dimensiones: el lienzo ocupa el ancho de su tarjeta,
      las etiquetas van en HTML debajo y el tooltip es una caja plana. */
   .lienzo3d{display:block;width:100%;height:240px}
+  .dona .lienzo3d{height:auto;aspect-ratio:1}   /* el motor pinta w x w: el canvas también */
+  .ejeCifras{position:absolute;top:0;left:0;right:0;pointer-events:none}   /* mide lo que el lienzo, no el .chart con su eje debajo */
+  .ejeCifras b{position:absolute;transform:translate(-50%,-115%);font-size:11px;font-weight:500;color:var(--text);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .donaTotal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;font-weight:600;font-size:15px;
+    pointer-events:none;font-variant-numeric:tabular-nums}
+  .donaTotal small{display:block;color:var(--faint);font-weight:400;font-size:11px;margin-top:2px}
   .ejeX{position:relative;height:18px;margin-top:2px;font-size:12px;color:var(--faint)}
   .ejeX span{position:absolute;transform:translateX(-50%);white-space:nowrap}
   .tip3d{position:absolute;pointer-events:none;padding:6px 9px;font-size:12px;line-height:1.3;border-radius:6px;
     white-space:nowrap;opacity:0;transition:opacity 120ms ease;background:var(--raised);color:var(--text);z-index:3}
   .panel .chart:has(.lienzo3d){cursor:default}
   /* Cómo pagas: la dona con volumen y, al lado, las cifras con su muestra. */
-  .donaCaja{display:grid;grid-template-columns:minmax(170px,230px) minmax(0,1fr);gap:18px;align-items:center}
+  .donaCaja{display:grid;grid-template-columns:minmax(200px,260px) minmax(0,1fr);gap:22px;align-items:center}
+  .donaCaja .dona{position:relative}
   .leyenda li{white-space:nowrap}
   .desvio .cab, .desvio li{display:grid;grid-template-columns:minmax(120px,30%) minmax(0,1fr);gap:4px 18px;align-items:center}
   .desvio .cab{margin-bottom:6px}
   .desvio .cab small{position:absolute;top:0;font-size:11px;color:var(--faint)}
   .desvio .cab small:first-child{right:calc(50% + 8px)} .desvio .cab small:last-child{left:calc(50% + 8px)}
-  .desvio ul{list-style:none;margin:0;padding:0}
-  .desvio li{padding:7px 0;border-radius:8px;transition:background 160ms var(--ease-out)}
-  .desvio li:hover{background:var(--raised)}
+  .desvio ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .desvio li{padding:10px 14px}
+  /* Tejas: la fila es una pieza de arcilla chica; entran una tras otra desde abajo. */
+  .tejas > li, .desvio li, .tejas2 > div{border-radius:14px;background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));box-shadow:var(--clay-chica);
+    transition:opacity 420ms var(--ease-out) calc(var(--i,0) * 45ms),transform 420ms var(--ease-out) calc(var(--i,0) * 45ms),background 160ms var(--ease-out)}
+  .tejas > li:hover, .desvio li:hover{background:linear-gradient(180deg,#2c2b36,#201f28)}
+  .tejas.brota > li, .desvio.brota li{opacity:0;transform:translateY(8px)}
   .desvio .nom{font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .desvio .nom em{display:block;font-style:normal;font-size:12px;color:var(--faint);margin-top:2px}
   .desvio .pista{position:relative;height:22px;min-width:0}
-  .desvio .pista::before{content:"";position:absolute;left:50%;top:-6px;bottom:-6px;width:1px;background:var(--control)}
+  .desvio .pista::before{content:"";position:absolute;left:50%;top:-10px;bottom:-10px;width:2px;border-radius:2px;background:var(--clay-lo);box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
   .desvio .cab .pista::before{display:none}
-  .desvio .pista b{position:absolute;top:5px;height:12px;border-radius:6px;width:calc((50% - var(--res, 84px)) * var(--w))}
-  .desvio .pista b.mas{left:50%;background:var(--pasa);transform-origin:left}
-  .desvio .pista b.menos{right:50%;background:var(--entra);transform-origin:right}
-  .desvio .delta{position:absolute;top:0;line-height:22px;font-size:13px;font-weight:500;white-space:nowrap;color:var(--muted)}
-  .desvio .delta.mal{color:var(--pasa);left:calc(50% + (50% - var(--res, 84px)) * var(--w) + 8px)}
-  .desvio .delta.bien{right:calc(50% + (50% - var(--res, 84px)) * var(--w) + 8px)}
-  .desvio .pista b{transition:transform 900ms cubic-bezier(.34,1.56,.64,1) calc(var(--i) * 45ms)}
+  /* La barra es una cápsula de arcilla: brillo arriba, canto abajo. */
+  .desvio .pista b{position:absolute;top:4px;height:14px;border-radius:999px;width:calc((50% - var(--res, 84px)) * var(--w));
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.28)}
+  .desvio .pista b.mas{left:50%;background:linear-gradient(180deg,#f0738a,var(--pasa));transform-origin:left}
+  .desvio .pista b.menos{right:50%;background:linear-gradient(180deg,#7fe0c0,var(--entra));transform-origin:right}
+  /* El desvío va en un chip teñido, como las píldoras de la referencia. */
+  .panel .desvio .delta{position:absolute;top:0;height:22px;line-height:22px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;
+    color:var(--muted);background:var(--active);box-shadow:var(--clay-chica)}   /* .panel: gana a la regla general del panel */
+  .desvio .delta.mal{color:var(--pasa);background:var(--pill-negative-bg);left:calc(50% + (50% - var(--res, 84px)) * var(--w) + 8px)}
+  .desvio .delta.bien{color:var(--entra);background:var(--pill-positive-bg);right:calc(50% + (50% - var(--res, 84px)) * var(--w) + 8px)}
+  .desvio .pista b{transition:transform 700ms var(--ease-expo) calc(var(--i) * 45ms)}
   .desvio .delta{transition:opacity 400ms var(--ease-out) calc(var(--i) * 45ms + 500ms)}
   .desvio.brota .pista b{transform:scaleX(0)} .desvio.brota .delta{opacity:0}
   @container hoja (max-width:560px){
@@ -864,9 +894,39 @@
   .donaSvg .gajo{transform-box:view-box;transform-origin:110px 66px;transition:transform 220ms var(--ease-out);cursor:default}
   .donaSvg .gajo:hover{transform:translate(var(--dx),var(--dy))}
   @container hoja (max-width:610px){ .donaCaja{grid-template-columns:1fr} }
+  /* En media anchura (row2) la leyenda no cabe al lado: la dona arriba, centrada, y la leyenda debajo. */
+  .row2 .donaCaja{grid-template-columns:1fr;justify-items:center}
+  .row2 .donaCaja .dona{width:min(100%,240px)}
+  .row2 .donaCaja .leyenda{width:100%}
+  /* En el teléfono el desvío no tiene sitio para un eje al centro: la cápsula
+     sale desde la izquierda y el chip va al final, en ambos sentidos. */
+  @container hoja (max-width:610px){
+    .desvio .cab{display:none}
+    .desvio li{grid-template-columns:1fr}
+    .desvio .pista::before{display:none}
+    .desvio .pista b.mas, .desvio .pista b.menos{left:0;right:auto;transform-origin:left;width:calc((100% - var(--res, 84px)) * var(--w))}
+    .desvio .delta.mal, .desvio .delta.bien{right:auto;left:calc((100% - var(--res, 84px)) * var(--w) + 8px)}
+    .pasado > li{grid-template-columns:minmax(0,1fr) auto}
+    .pasado > li .delta{grid-column:1 / -1;justify-self:start}   /* el chip baja a su fila: el nombre respira */
+  }
   .leyenda{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px}
   .leyenda li{display:flex;align-items:center;gap:10px}
-  .leyenda i{width:10px;height:10px;border-radius:50%;flex:none}
+  .leyenda i{width:12px;height:12px;border-radius:50%;flex:none;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(0,0,0,.3)}
+  .tejas{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-variant-numeric:tabular-nums}
+  .tejas > li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:10px 14px;font-size:14px}
+  .tejas .nom{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tejas .nom em{display:block;font-style:normal;font-size:12px;color:var(--faint);margin-top:1px}
+  .tejas > li > b{font-weight:600}
+  /* A quién le pagas: la cápsula bajo el nombre; la primera en dorado. */
+  .barras .capsula{grid-column:1 / -1;height:12px;border-radius:999px;background:var(--clay-lo);box-shadow:inset 0 2px 5px rgba(0,0,0,.45)}
+  .barras .capsula i{display:block;height:100%;border-radius:999px;background:linear-gradient(180deg,#a7a1f2,var(--lavanda));
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.25)}
+  .barras > li:first-child .capsula i{background:linear-gradient(180deg,#f3d48f,var(--gold))}
+  /* Contra el mes pasado: nombre y el mes anterior en voz baja, la cifra y el chip. */
+  .pasado > li{grid-template-columns:minmax(0,1fr) auto auto}
+  .tejas2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .tejas2 > div{padding:10px 14px;font-size:13px;color:var(--faint)}
+  .tejas2 > div b{display:block;color:var(--text);font-size:16px;font-weight:600;font-family:var(--cifra);margin-top:2px}
   .leyenda b{margin-left:auto;font-weight:500;font-variant-numeric:tabular-nums}
   .leyenda small{color:var(--faint);font-size:12px;margin-left:8px}
 
@@ -1549,8 +1609,7 @@
     .side.open{transform:translateX(0)}
     .velo.open{display:block}
     .tabbar{display:grid}
-    .hoja{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
-    .hoja{padding:16px 16px 28px}
+    .hoja{padding:16px 16px calc(96px + env(safe-area-inset-bottom))}   /* la barra de abajo mide 68px más el área segura */
     /* En el teléfono la escena se parte en dos: el texto arriba, como un
        bloque normal, y debajo una franja de 300px con el camino, los planetas
        (a dos tercios) y el astronauta. El aro y el veredicto cierran abajo. */
@@ -1670,10 +1729,10 @@
      una tira partida por hairlines, cifras en Inter a 24/400 en tinta,
      tablas con cabecera gris de 12px y cifras tabulares a la derecha,
      píldoras pálidas. Pisa las reglas que comparte con .admin, que no cambia. */
-  .panel .section{background:var(--surface);border:0;border-radius:var(--radius-card);padding:22px}
+  .panel .section{background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));border:0;border-radius:24px;padding:22px;box-shadow:var(--clay-sombra)}
   .panel .section h3{font-size:16px;font-weight:600;margin-bottom:14px}
   .panel .grid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:0;
-    background:var(--surface);border-radius:var(--radius-card);margin:0 0 14px;overflow:hidden}
+    background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));border-radius:24px;margin:0 0 14px;overflow:hidden;box-shadow:var(--clay-sombra)}
   .panel .kpi{background:none;border:0;border-radius:0;padding:16px 22px}
   .panel .kpi + .kpi{border-left:1px solid var(--rule)}
   .panel .kpi .label{font-size:13px;color:var(--faint);font-weight:400}
@@ -1701,6 +1760,10 @@
   /* La variación, en texto: flecha y signo siempre, color solo si es mala. */
   .panel .delta{display:inline;background:none;padding:0;font-size:inherit;font-weight:500;color:var(--muted)}
   .panel .delta.sube{color:var(--negative)}
+  .panel .pasado .delta{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:600;
+    background:var(--active);color:var(--muted);box-shadow:var(--clay-chica)}
+  .panel .pasado .delta.sube{background:var(--pill-negative-bg);color:var(--negative)}
+  .panel .pasado .delta.baja{background:var(--pill-positive-bg);color:var(--positive)}
   .panel .delta.baja{color:var(--positive)}
   .panel .chart{position:relative;min-width:0}
   /* Los gráficos llegan: la columna crece desde su base, la curva se descubre
@@ -5407,7 +5470,6 @@ const pedirTresGraf = () => cargaTresGraf ||= (async () => {
   const { RoundedBoxGeometry } = await import("three/addons/geometries/RoundedBoxGeometry.js");
   return { THREE, RoundedBoxGeometry };
 })().catch((e) => { cargaTresGraf = null; throw e; });
-const alivio = (t) => 1 + 2.3 * Math.pow(t - 1, 3) + 1.3 * Math.pow(t - 1, 2);   // sale con un pelín de rebote
 
 // Se pregunta una vez si hay WebGL: pedírselo a Three.js sin tenerlo deja
 // una ristra de errores en consola por cada gráfico.
@@ -5468,7 +5530,8 @@ async function motor3d(el, alto, montar){
   const ojo = "IntersectionObserver" in window ? new IntersectionObserver(([e]) => { m.aLaVista = e.isIntersecting; }) : null;
   ojo?.observe(lienzo);
   // El encuadre sigue al contenedor, no a la ventana: plegar el menú también cambia el ancho.
-  m.redibujar = () => { if (!m.vivo) return; medir(); m.alMedir?.(); cuadro(quieto ? 9 : (performance.now() - m.t0) / 1000); render.render(escena, camara); };
+  // alMedir va DESPUÉS de pintar: cuadro() mueve la cámara (lookAt) y render actualiza sus matrices; proyectar antes usaría la vista vieja.
+  m.redibujar = () => { if (!m.vivo) return; medir(); cuadro(quieto ? 9 : (performance.now() - m.t0) / 1000); render.render(escena, camara); m.alMedir?.(); };
   const regla = "ResizeObserver" in window ? new ResizeObserver(m.redibujar) : null;
   regla ? regla.observe(el) : addEventListener("resize", m.redibujar);
   m.matar = () => { m.vivo = false; ojo?.disconnect(); regla ? regla.disconnect() : removeEventListener("resize", m.redibujar);
@@ -5491,42 +5554,76 @@ async function motor3d(el, alto, montar){
 // Columnas redondeadas sobre una base, cámara ortográfica inclinada (así las
 // etiquetas de abajo caen exactamente bajo su columna). Suben escalonadas con
 // rebote; la columna que importa va en dorado, las demás en gris oscuro.
+// ── Arcilla: el material de todo lo 3D que no es un mundo ────────────────
+// Lisa, mate con un brillo redondo de laca (claymorphism), sin contorno. Los
+// colores son pastel: lavanda, cielo y rosa para lo que acompaña, menta para
+// lo que entra, el
+// dorado para lo tuyo, el coral para donde te pasas. Mismo mundo que las
+// tarjetas de arcilla de la interfaz. Los mundos tienen su propia textura.
+const ARCILLA = { lavanda: 0x8d86e8, cielo: 0x6fb7e6, rosa: 0xe08ab8, menta: 0x4fc9a3, oro: 0xe9c57c, coral: 0xe5566f, losa: 0x2a2836 };
+const PASTEL = [ARCILLA.lavanda, ARCILLA.cielo, ARCILLA.rosa];   // sin menta: ese verde significa "entra"
+function arcilla(THREE, color){
+  return new THREE.MeshPhysicalMaterial({ color, roughness: .5, metalness: 0, clearcoat: .55, clearcoatRoughness: .4 });
+}
+// Luz para la arcilla: envolvente y suave, con una clave cálida arriba a la
+// izquierda que deja el brillo de laca, y un contraluz frío que recorta.
+function luzArcilla(escena){
+  for (const luz of escena.children.filter((o) => o.isLight)){
+    if (luz.isHemisphereLight) luz.intensity = 1.1;
+    else if (luz.color.getHex() === 0xffe2a8){ luz.position.set(-4, 6, 7); luz.intensity = 1.5; luz.color.setHex(0xfff4e0); }
+    else if (luz.color.getHex() === 0x9fd2f2){ luz.intensity = .5; }
+    else { luz.position.set(5, 2, -5); luz.intensity = .5; }
+  }
+}
+
+// Columnas de arcilla sobre una losa, cámara ortográfica inclinada (así las
+// etiquetas de abajo caen exactamente bajo su columna). Suben escalonadas con
+// ease-out, sin rebote; la columna que importa va en dorado, las demás rotan
+// el pastel. La cifra va sobre la columna destacada y la más alta: esa es la
+// escala.
 async function columnas3d(el, { labels, values, highlight, format }){
   const n = values.length, max = Math.max(...values, 1), ALTO = 240;
   const m = await motor3d(el, ALTO, (m) => {
     const { THREE, RoundedBoxGeometry, escena } = m;
-    const paso = 1, ancho = .62;
-    // El ancho del encuadre lo dan las columnas; el alto sale del aspecto del
-    // lienzo (medir) y las barras, normalizadas a 1, escalan con él.
+    luzArcilla(escena);
+    const paso = 1, ancho = .56;
     const camara = new THREE.OrthographicCamera(-1, 1, 1, -1, .1, 100);
     camara.ancho = n * paso + 1.0;
-    camara.position.set(2.2, 3.2, 9);
+    // Encuadre por altura: en 240 px caben ALTO_U unidades y el ancho que sobre
+    // queda vacío a los lados. Así una tarjeta ancha no aplasta las columnas.
+    // Si el contenedor es estrecho (teléfono) manda el ancho, para que quepan.
+    const ALTO_U = 3.6;
+    camara.encuadre = (w, h) => {
+      const asp = w / h, altoU = Math.max(camara.ancho / asp, ALTO_U), anchoU = altoU * asp;
+      camara.left = -anchoU / 2; camara.right = anchoU / 2;
+      camara.top = altoU * .72; camara.bottom = -altoU * .28;
+      m.altoU = altoU; grupo.scale.y = altoU * .62;
+    };
+    camara.position.set(1.5, 2.3, 9);
     const grupo = new THREE.Group(); escena.add(grupo); m.grupo = grupo;
-    const base = new THREE.Mesh(new THREE.BoxGeometry(n * paso + .8, .06, 1.3),
-      new THREE.MeshStandardMaterial({ color: 0x1b1b1e, roughness: .9, metalness: .1 }));
-    base.position.y = -.03; escena.add(base);
-    const oro = new THREE.MeshStandardMaterial({ color: 0xd0a55c, metalness: .7, roughness: .32, emissive: 0x2a1e08 });
-    const gris = new THREE.MeshStandardMaterial({ color: 0x3a3a40, metalness: .25, roughness: .65 });
+    const losa = new THREE.Mesh(new RoundedBoxGeometry(n * paso + .7, .14, 1.3, 3, .06), arcilla(THREE, ARCILLA.losa));
+    losa.position.y = -.07; escena.add(losa);
     m.piezas = values.map((v, i) => {
       const h = Math.max(.02, v / max);
-      const g = new RoundedBoxGeometry(ancho, h, ancho, 4, Math.min(.08, h / 2));
+      const g = new RoundedBoxGeometry(ancho, h, ancho, 4, Math.min(.16, h / 2));
       g.translate(0, h / 2, 0);
-      const caja = new THREE.Mesh(g, (i === highlight ? oro : gris).clone());
+      const caja = new THREE.Mesh(g, arcilla(THREE, i === highlight ? ARCILLA.oro : PASTEL[i % PASTEL.length]));
       caja.position.x = (i - (n - 1) / 2) * paso;
-      caja.userData = { i, h, retardo: i * .06 };
+      caja.userData = { i, h, retardo: i * .05, tono: caja.material.color.clone() };
       caja.scale.y = 0.0001;
       grupo.add(caja); return caja;
     });
     let tocada = null;
+    const suave = (e) => 1 - Math.pow(1 - e, 4);
     const cuadro = (t) => {
       for (const c of m.piezas){
-        const e = Math.max(0, Math.min(1, (t - c.userData.retardo) / .7));
-        c.scale.y = Math.max(.0001, alivio(e));
+        const e = Math.max(0, Math.min(1, (t - c.userData.retardo) / .6));
+        c.scale.y = Math.max(.0001, suave(e));
         c.position.y += ((c === tocada ? .06 : 0) - c.position.y) * (m.quieto ? 1 : .25);
-        c.material.emissiveIntensity = c === tocada ? 1.6 : 1;
+        c.material.color.lerp(c === tocada ? c.userData.tono.clone().lerp(new THREE.Color(0xffffff), .18) : c.userData.tono, m.quieto ? 1 : .25);   // la tocada se aclara
       }
-      m.camara.position.x = 2.2 + Math.sin(t * .35) * .25;
-      m.camara.lookAt(0, (m.altoU || 4) * .26, 0);
+      m.camara.position.x = 1.5 + Math.sin(t * .35) * .25;
+      m.camara.lookAt(0, (m.altoU || 4) * .22, 0);
     };
     const tocar = (obj, px, py) => {
       tocada = obj;
@@ -5537,51 +5634,66 @@ async function columnas3d(el, { labels, values, highlight, format }){
   });
   if (m === VIEJO) return true;     // otra llamada más nueva ya pinta este el
   if (!m) return false;
-  // Las etiquetas van en HTML, bajo su columna: la cámara ortográfica las deja en línea.
+  // Las etiquetas van en HTML: las de abajo bajo su columna, la cifra sobre
+  // la destacada y la más alta, y la escala a la izquierda. La cámara
+  // ortográfica deja todo en línea.
   const eje = document.createElement("div"); eje.className = "ejeX";
+  const capa = document.createElement("div"); capa.className = "ejeCifras"; capa.style.height = ALTO + "px";
   const { THREE } = m, v = new THREE.Vector3();
-  const colocar = () => { eje.innerHTML = m.piezas.map((c, i) => { v.set(c.position.x, 0, 0).project(m.camara); return `<span style="left:${((v.x + 1) / 2 * 100).toFixed(2)}%">${esc(labels[i])}</span>`; }).join(""); };
+  // Las columnas viven en un grupo que `medir` estira en y; la altura se proyecta ya estirada.
+  const pct = (x, y) => { v.set(x, y * m.grupo.scale.y, 0).project(m.camara); return [((v.x + 1) / 2 * 100).toFixed(2), ((1 - v.y) / 2 * 100).toFixed(2)]; };
+  const iMax = values.indexOf(Math.max(...values));
+  const colocar = () => {
+    // En el teléfono doce meses no caben: se escribe uno sí y uno no, sin saltarse el destacado.
+    const hueco = el.clientWidth * Math.abs(pct(1, 0)[0] - pct(0, 0)[0]) / 100;
+    eje.innerHTML = m.piezas.map((c, i) => hueco < 36 && i % 2 !== Math.max(highlight, 0) % 2 ? "" : `<span style="left:${pct(c.position.x, 0)[0]}%">${esc(labels[i])}</span>`).join("");
+    // La escala es la propia cifra sobre la columna más alta (y la destacada); no hace falta un eje aparte.
+    const cifras = [...new Set([highlight, iMax])].filter((i) => i >= 0 && values[i] > 0);
+    capa.innerHTML = cifras.map((i) => { const [x, y] = pct(m.piezas[i].position.x, m.piezas[i].userData.h); return `<b style="left:${x}%;top:${y}%">${esc(format(values[i]))}</b>`; }).join("");
+  };
   colocar(); m.alMedir = colocar;
-  el.appendChild(eje);
+  el.appendChild(capa); el.appendChild(eje);
   return true;
 }
 
-// La dona: un toro partido en gajos, inclinado hacia la cámara, que giran
-// despacio. Cada gajo crece desde cero (se reconstruye su arco mientras entra)
-// y al pasar el puntero se separa del centro y se enciende.
+// La dona: un aro de arcilla partido en gajos con costuras, visto de
+// frente con cámara ortográfica (círculo de verdad, el total centrado) y
+// una inclinación leve y fija para que se vea el canto. No gira: el
+// movimiento es la entrada (los gajos crecen desde arriba, en el sentido del
+// reloj) y el hover (el gajo se separa). El total va al centro, en HTML.
 async function dona3d(el, partes, cur){
   const total = partes.reduce((a, p) => a + p.valor, 0) || 1;
-  const m = await motor3d(el, 230, (m) => {
+  const m = await motor3d(el, "cuadrado", (m) => {
     const { THREE, escena } = m;
-    const camara = new THREE.PerspectiveCamera(32, 1, .1, 100);
-    camara.position.set(0, 2.6, 4.6); camara.lookAt(0, 0, 0);
-    const grupo = new THREE.Group(); grupo.rotation.x = .25; escena.add(grupo);
-    const colores = { "var(--tu)": 0xd0a55c, "var(--entra)": 0x4fc9a3, "var(--faint)": 0x6b6b72 };
+    luzArcilla(escena);
+    const camara = new THREE.OrthographicCamera(-1.7, 1.7, 1.7, -1.7, .1, 100);
+    camara.encuadre = () => {};                    // el lienzo es cuadrado: el encuadre no cambia
+    camara.position.set(0, 0, 10); camara.lookAt(0, 0, 0);
+    const grupo = new THREE.Group(); escena.add(grupo);
+    grupo.rotation.x = .22; grupo.rotation.z = -Math.PI / 2; grupo.scale.x = -1;   // el espejo invierte el giro: empieza arriba y va en el sentido del reloj
+    const colores = { "var(--tu)": ARCILLA.oro, "var(--entra)": ARCILLA.menta, "var(--lavanda)": ARCILLA.lavanda, "var(--pasa)": ARCILLA.coral };
+    const COSTURA = .07, TUBO = .3;
+    const gajoGeo = (arco) => new THREE.TorusGeometry(1.15, TUBO, 24, 48, arco);
     let a = 0;
     m.piezas = partes.map((p, i) => {
-      const arco = p.valor / total * Math.PI * 2 - .05;
-      const mat = new THREE.MeshStandardMaterial({ color: colores[p.color] ?? 0xd0a55c,
-        metalness: p.color === "var(--tu)" ? .7 : .35, roughness: .35, emissive: 0x000000 });
-      const g = new THREE.Mesh(new THREE.TorusGeometry(1.15, .42, 24, 48, .001), mat);
-      g.rotation.x = Math.PI / 2; g.rotation.z = a;
-      g.userData = { i, arco, a0: a, medio: a + arco / 2, retardo: i * .18, p };
-      grupo.add(g); a += arco + .05; return g;
+      const arco = p.valor / total * Math.PI * 2 - COSTURA;
+      const g = new THREE.Mesh(gajoGeo(.001), arcilla(THREE, colores[p.color] ?? ARCILLA.oro));
+      g.rotation.z = a;
+      g.userData = { i, arco, a0: a, medio: a + arco / 2, retardo: i * .14, p };
+      grupo.add(g); a += arco + COSTURA; return g;
     });
-    let tocada = null, ultimo = -1;
+    let tocada = null;
     const cuadro = (t) => {
       for (const g of m.piezas){
-        const e = Math.max(0, Math.min(1, (t - g.userData.retardo) / .9));
-        const arco = Math.max(.001, g.userData.arco * (1 - Math.pow(1 - e, 3)));
+        const e = Math.max(0, Math.min(1, (t - g.userData.retardo) / .8));
+        const arco = Math.max(.001, g.userData.arco * (1 - Math.pow(1 - e, 4)));
         if (Math.abs(arco - (g.geometry.parameters.arc || 0)) > .004){
-          g.geometry.dispose(); g.geometry = new THREE.TorusGeometry(1.15, .42, 24, 48, arco);
+          g.geometry.dispose(); g.geometry = gajoGeo(arco);
         }
-        // El toro está acostado (rotation.x = π/2): su radial cae en el plano XZ del grupo.
-        const d = g === tocada ? .18 : 0, ang = g.userData.medio, k = m.quieto ? 1 : .25;
+        const d = g === tocada ? .14 : 0, ang = g.userData.medio, k = m.quieto ? 1 : .25;
         g.position.x += (Math.cos(ang) * d - g.position.x) * k;
-        g.position.z += (Math.sin(ang) * d - g.position.z) * k;
-        g.material.emissive.setHex(g === tocada ? 0x332611 : 0x000000);
+        g.position.y += (Math.sin(ang) * d - g.position.y) * k;
       }
-      grupo.rotation.y = t * .18;
     };
     const tocar = (obj, px, py) => {
       tocada = obj;
@@ -5590,13 +5702,28 @@ async function dona3d(el, partes, cur){
     };
     return { camara, cuadro, tocar };
   });
-  return m === VIEJO ? true : !!m;
+  if (m === VIEJO) return true;
+  if (!m) return false;
+  const centro = document.createElement("div"); centro.className = "donaTotal";
+  centro.innerHTML = `${esc(plata(total, cur))}<small>este mes</small>`;
+  el.appendChild(centro);
+  return true;
 }
 
 // Cada categoría contra tu promedio: el eje del medio es lo que sueles gastar,
 // la barra sale a la derecha (coral) si te pasas y a la izquierda (verde agua)
 // si gastas menos, con el desvío en cifra al final. Las barras brotan del eje
 // con rebote y las cifras cuentan. Una sola columna en el teléfono.
+// Las tejas entran una tras otra: se pintan escondidas y al siguiente cuadro se sueltan.
+function brotar(caja){ if (caja && !quietito()) requestAnimationFrame(() => requestAnimationFrame(() => caja.classList.remove("brota"))); }
+// Lista donde la fila es una teja con su cápsula: nombre, cifra y barra debajo.
+function tejasBarras(el, filas, format){
+  const max = Math.max(...filas.map((f) => f.value), 1);
+  el.innerHTML = `<ol class="tejas barras${quietito() ? "" : " brota"}">` + filas.map((f, i) =>
+    `<li style="--i:${i}"><span class="nom">${esc(f.label)}</span><b>${esc(format(f.value))}</b>
+     <span class="capsula"><i style="width:${(f.value / max * 100).toFixed(1)}%"></i></span></li>`).join("") + `</ol>`;
+  brotar(el.firstElementChild); crecer(el);
+}
 function desvios(el, filas, cur){
   const tope = Math.max(...filas.map((f) => Math.abs(f.value - f.target)), 1);
   const reserva = (Math.max(...filas.map((f) => plata(Math.abs(f.value - f.target), cur).length)) + 1) * 8 + 22;   // la cifra más larga con su signo, a 13px
@@ -5610,8 +5737,7 @@ function desvios(el, filas, cur){
         <span class="pista"><b class="${mas ? "mas" : "menos"}" style="--w:${w}"></b>
           <span class="delta ${mas ? "mal" : "bien"}" style="--w:${w}" data-k="${esc(f.label)}" data-n="${Math.abs(d)}" data-m="${esc(cur)}" data-pre="${signo}" data-suf="" data-fin="${esc(fin)}">${esc(fin)}</span></span>
       </li>`; }).join("") + `</ul></div>`;
-  const caja = el.firstElementChild;
-  if (!quietito()) requestAnimationFrame(() => requestAnimationFrame(() => caja.classList.remove("brota")));
+  brotar(el.firstElementChild);
 }
 
 // Una dona con volumen: vista inclinada (la elipse es el círculo visto desde
@@ -5759,8 +5885,7 @@ function pintarGastos(txs, cats, cur, dash){
   // 2. A quién le pagas: la fila es la barra.
   const quien = sumarPor(gastos, quienCobra).slice(0, 6);
   if (quien.length){
-    Charts.barList($("gaQuien"), quien.map(([nombre, monto]) => ({ label: corta(nombre, 28), value: monto })), { format: dinero });
-    crecer($("gaQuien"));
+    tejasBarras($("gaQuien"), quien.map(([nombre, monto]) => ({ label: corta(nombre, 28), value: monto })), dinero);
   }
   else $("gaQuien").innerHTML = vacio("Nada todavía", "Cuando registres gastos, acá verás a quién le pagas más.");
 
@@ -5770,11 +5895,11 @@ function pintarGastos(txs, cats, cur, dash){
     const k = t.card_type === "credito" ? "credito" : t.card_type === "debito" ? "debito" : "otro";
     metodo[k] += Number(t.amount) || 0;
   }
-  // Dorado, verde agua y gris: el coral es para lo que va mal, no para el efectivo.
+  // Dorado, verde agua y lavanda: el coral es para lo que va mal, no para el efectivo.
   const partes = [
     { nombre:"Tarjeta de crédito", valor:metodo.credito, color:"var(--tu)" },
     { nombre:"Tarjeta de débito",  valor:metodo.debito,  color:"var(--entra)" },
-    { nombre:"Efectivo u otro",    valor:metodo.otro,    color:"var(--faint)" },
+    { nombre:"Efectivo u otro",    valor:metodo.otro,    color:"var(--lavanda)" },
   ].filter((f) => f.valor > 0);
   $("gaComo").querySelector(".dona")?._m3d?.matar();
   $("gaComo").innerHTML = partes.length
@@ -5791,8 +5916,7 @@ function pintarGastos(txs, cats, cur, dash){
   // ese campo suma todas las monedas juntas (ADR-0011).
   const porCtx = sumarPor(gastos, (t) => t.context === "business" ? "Negocio" : "Personal");
   $("gaContexto").innerHTML = porCtx.length > 1
-    ? `<table style="margin-top:14px"><tbody>` + porCtx.map(([nombre, monto]) => `<tr><td>${esc(nombre)}</td>
-        <td class="num">${esc(plata(monto, cur))}</td></tr>`).join("") + `</tbody></table>`
+    ? `<div class="tejas2">` + porCtx.map(([nombre, monto]) => `<div>${esc(nombre)}<b>${esc(plata(monto, cur))}</b></div>`).join("") + `</div>`
     : "";
 
   // 4. Qué días se te va: siete columnas de un tono, la semana empieza el lunes.
@@ -5873,14 +5997,11 @@ async function pintarTendencia(cur){
     .sort((x, y) => Math.abs(y.a - y.b) - Math.abs(x.a - x.b))
     .slice(0, 6);
   $("gaDeltas").innerHTML = todas.length
-    ? `<table class="rank"><thead><tr><th>Categoría</th><th class="num">Este mes</th>
-        <th class="num">Mes pasado</th><th>Cambio</th></tr></thead><tbody>`
-      + todas.map((f) => `<tr><td class="desc"><b>${esc(f.cat)}</b></td>
-          <td class="num tot" data-l="Este mes">${esc(plata(f.a, cur))}</td>
-          <td class="num" data-l="Mes pasado">${esc(plata(f.b, cur))}</td>
-          <td data-l="Cambio">${f.b ? delta(f.a, f.b) : `<span class="delta">nuevo</span>`}</td></tr>`).join("")
-      + "</tbody></table>"
+    ? `<ul class="tejas pasado${quietito() ? "" : " brota"}">` + todas.map((f, i) => `<li style="--i:${i}">
+          <span class="nom">${esc(f.cat)}<em>mes pasado ${esc(plata(f.b, cur))}</em></span>
+          <b>${esc(plata(f.a, cur))}</b>${f.b ? delta(f.a, f.b) : `<span class="delta">nuevo</span>`}</li>`).join("") + "</ul>"
     : vacio("Sin mes anterior", "Cuando tengas dos meses registrados, acá verás qué subió y qué bajó.");
+  brotar($("gaDeltas").firstElementChild);
 }
 
 // ── Vista: Fin de mes ──────────────────────────────────────────────────────
