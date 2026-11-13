@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" href="/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600&display=swap">
 <style>
   :root{
     /* Negro neutro, sin azul: la jerarquía la da el tono (fondo, tarjeta,
@@ -51,6 +51,7 @@
   --t-press:140ms; --t-hover:180ms; --t-ui:240ms; --t-reveal:560ms;
   --paso:70ms;
   --tit:'Space Grotesk',-apple-system,'Segoe UI',Roboto,sans-serif;
+  --cifra:'Bricolage Grotesque',Inter,-apple-system,sans-serif;   /* solo las cifras grandes del Resumen */
     --cuerpo:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
     --radio:18px;
   }
@@ -215,105 +216,126 @@
   /* La tarjeta del mes: el saludo, la frase y las cifras juntas, con el
      astronauta en su cohete saliendo por la esquina, como la tarjeta del
      ranking en la pantalla Universo de la app. */
-  /* Un campo plano de dorado tenue: el único bloque de color de la pantalla,
-     para que el astronauta tenga de dónde salirse. Sin degradado ni borde. */
-  .mision{position:relative;background:color-mix(in srgb, var(--gold) 9%, var(--surface));
-    border-radius:20px;padding:26px 28px 24px;margin:56px 0 16px}
-  /* La cifra manda: el disponible arriba a la izquierda, en grande, porque es
-     la pregunta que responde la pantalla. Debajo el saludo y su botón. A la
-     derecha, bajo el astronauta, el anillo. La tira cierra la tarjeta a lo
-     ancho. Las dos mitades del HTML se disuelven (display:contents) para que
-     sus bloques se coloquen en una sola grilla. */
-  .misionGrid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);grid-template-rows:auto auto auto;
-    gap:18px 40px;align-items:start}
+  /* ── Tu mes en órbita ───────────────────────────────────────────────────
+     La portada es una escena, no un panel: el camino del mes va de la
+     billetera (lo que tienes) a la mano con la moneda (el próximo ingreso) y
+     el astronauta viaja por él hasta hoy. Las categorías son planetas con el
+     tamaño de lo gastado. La nébula vive detrás. Arriba a la izquierda, lo
+     único que se lee primero: el disponible, una frase y una acción. */
+  .mision{position:relative;height:540px;border-radius:20px;overflow:hidden;margin:56px 0 16px;
+    background:radial-gradient(120% 90% at 70% 40%, #171513 0%, #0f0f10 55%, #0b0b0c 100%);--px:0;--py:0}
+  .orbEscena{position:absolute;inset:0}
+  .mision .orbe{position:absolute;right:-6%;top:-10%;width:62%;height:120%;pointer-events:none;opacity:.9;
+    mix-blend-mode:screen;-webkit-mask:radial-gradient(60% 55% at 55% 45%, #000 45%, transparent 100%);
+    mask:radial-gradient(60% 55% at 55% 45%, #000 45%, transparent 100%)}
+  .orbRuta{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .orbRuta .pista{fill:none;stroke:rgba(255,255,255,.14);stroke-width:2;stroke-dasharray:3 7;stroke-linecap:round}
+  .orbRuta .hecho{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;stroke-dasharray:1;
+    filter:drop-shadow(0 0 6px rgba(243,206,127,.55));transition:stroke-dashoffset 1100ms var(--ease-expo)}
+  .orbCosa{position:absolute;margin:0;pointer-events:none;filter:drop-shadow(0 18px 22px rgba(0,0,0,.55))}
+  .orbCosa img{display:block;width:100%;height:auto}
+  .orbBillete{left:4.5%;bottom:5%;width:118px;transform:translate(calc(var(--px) * 3px), calc(var(--py) * 2px))}
+  .orbCobrar{right:5%;top:14%;width:116px;transform:translate(calc(var(--px) * -4px), calc(var(--py) * -3px))}
+  .orbCobrar small{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:2px;white-space:nowrap;
+    font-size:12px;color:var(--muted)}
+  /* El astronauta: la capa se coloca sobre el camino (lo hace el JS, con un
+     viaje de 1,3 s desde la billetera) y la imagen de dentro flota e inclina
+     hacia el puntero, como siempre. */
+  .astroCapa{position:absolute;left:0;top:0;width:150px;height:157px;margin:-78px 0 0 -75px;pointer-events:none;z-index:2;
+    perspective:900px;transition:transform 1300ms var(--ease-expo);will-change:transform}
+  .astroCapa .hoyTag{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:-4px;font-size:12px;
+    color:var(--gold-bright);white-space:nowrap;font-weight:500}
+  .astro{position:absolute;inset:0;width:100%;height:auto;pointer-events:none;
+    transform:translate(calc(var(--px) * 7px), calc(var(--py) * 5px))
+      rotateY(calc(var(--px) * 12deg)) rotateX(calc(var(--py) * -9deg));
+    transition:transform 220ms var(--ease-out);transform-style:preserve-3d;will-change:transform;
+    filter:drop-shadow(0 22px 24px rgba(0,0,0,.6))}
+  .astro img{display:block;width:100%;height:auto;animation:flota 6s ease-in-out infinite}
+  .sombra{display:none}
+  @keyframes flota{0%,100%{transform:translateY(0)}25%{transform:translateY(7px)}
+    75%{transform:translateY(-7px)}}
+  /* Los planetas: una esfera por categoría, el tamaño por lo gastado, la
+     mayor en dorado. Cada uno a su profundidad frente al puntero. */
+  .planeta{position:absolute;left:var(--x);top:var(--y);width:calc(var(--s) * var(--k, 1));
+    margin:calc(var(--s) * var(--k, 1) / -2) 0 0 calc(var(--s) * var(--k, 1) / -2);
+    background:none;border:0;padding:0;cursor:pointer;text-align:center;color:var(--text);white-space:normal;
+    transform:translate(calc(var(--px) * var(--z) * -5px), calc(var(--py) * var(--z) * -4px));
+    transition:transform 260ms var(--ease-out)}
+  .planeta i{display:block;width:calc(var(--s) * var(--k, 1));height:calc(var(--s) * var(--k, 1));border-radius:50%;
+    background:radial-gradient(circle at 32% 30%, #ececf0 0%, #9a9aa2 32%, #3a3a40 68%, #141416 100%);
+    box-shadow:0 20px 28px rgba(0,0,0,.55), inset -10px -12px 24px rgba(0,0,0,.45);
+    transition:transform var(--t-hover) var(--ease-out)}
+  .planeta.oro i{background:radial-gradient(circle at 32% 30%, #fff4d6 0%, var(--gold-bright) 28%, #8a6a30 66%, #2a1d08 100%)}
+  .planeta:hover i{transform:scale(1.06)}
+  .planeta:active{transform:scale(.97)}
+  .planeta b{display:block;margin-top:8px;font-size:13px;font-weight:600;white-space:nowrap}
+  .planeta small{display:block;font-size:12px;color:var(--muted)}
+  .planeta[data-i="0"]{--x:46%;--y:22%} .planeta[data-i="1"]{--x:60%;--y:11%} .planeta[data-i="2"]{--x:74%;--y:34%}
+  .planeta[data-i="3"]{--x:78%;--y:7%} .planeta[data-i="4"]{--x:64%;--y:50%}
+  .orbVacio{position:absolute;left:50%;top:26%;transform:translateX(-50%);max-width:30ch;text-align:center;
+    color:var(--muted);font-size:14px;line-height:1.5}
+  /* El texto: lo que se lee primero. */
+  .misionGrid{position:absolute;left:30px;top:28px;max-width:44%;z-index:3;display:flex;flex-direction:column}
   .misionIzq, .misionDer{display:contents}
-  .mision .hero{grid-column:1;grid-row:1;margin-top:0}
-  .mision .hero .val{font-size:52px;line-height:1}
-  .mision .hero .lbl{font-size:14px}
-  .saludo{grid-column:1;grid-row:2;min-height:0;margin-top:4px}
-  /* El aro va a la altura del saludo, al principio de la mitad derecha y con
-     la frase a su lado; el astronauta queda arriba y pegado al borde derecho,
-     más chico y más alto. Así los dos se reparten la mitad derecha en
-     diagonal (aro abajo a la izquierda, astronauta arriba a la derecha) y las
-     chispas no se le meten entre los pies. */
-  .anilloGrande{grid-column:2;grid-row:2;align-self:end;justify-self:start;
-    display:flex;flex-direction:column;align-items:center;gap:12px;margin:0 0 4px 6px;padding:0;text-align:center}
-  /* El texto siempre por encima de las chispas: el lienzo del aro es más
-     grande que el anillo y, sin esto, pintaba sobre las cifras vecinas. */
+  .mision .hero{margin:0}
+  .mision .hero .lbl{font-size:13px;color:var(--faint)}
+  .mision .hero .val{font-family:var(--cifra);font-size:58px;font-weight:600;letter-spacing:-.03em;line-height:1;margin-top:4px;
+    font-variation-settings:"opsz" 96}
+  .mision .hero .sub{font-size:14px;color:var(--muted);margin-top:8px}
+  .saludo{min-height:0;margin-top:18px}
+  .saludo h2{font-size:13px;font-weight:500;color:var(--faint);letter-spacing:.01em}
+  .saludo p{font-size:17px;color:var(--text);max-width:36ch;margin-top:6px;line-height:1.4}
+  .saludo .verGastos{margin-top:16px}
+  .saludo .racha{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;margin-left:10px;border-radius:999px;
+    background:var(--raised);color:var(--muted);font-size:12px;vertical-align:middle}
+  .saludo .racha b{color:var(--text);font-weight:600}
+  /* Gastado e ingresos, en voz baja, bajo la acción. */
+  .mision .kpis{display:flex;flex-wrap:wrap;gap:4px 18px;margin:16px 0 0;border:0;padding:0}
+  .mision .kpi{padding:0;border:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;font-size:13px;min-width:0}
+  .mision .kpi .lbl{font-size:12px;color:var(--faint)}
+  .mision .kpi .val{font-size:14px;font-weight:500;margin:0;color:var(--text);overflow:visible}
+  .mision .kpi .sub{font-size:12px;margin:0;color:var(--faint)}
+  .mision .kpi .sub .delta{font-size:12px}
+  /* Abajo a la derecha: el aro de lo consumido y el veredicto del mes. */
+  .orbPie{position:absolute;right:26px;bottom:20px;display:flex;flex-direction:row-reverse;align-items:center;gap:18px;z-index:3}
+  .anilloGrande{display:flex;align-items:center;gap:12px;margin:0;padding:0}
+  .anilloGrande .anillo{width:72px;height:72px;flex:none}
+  .anilloGrande .anillo .foto{inset:14px;font-size:15px}
+  .anilloGrande .anillo .pct{display:none}
+  .anilloTexto, .orbVeredicto{position:relative;z-index:1}
+  .anilloTexto .val{display:none}
+  .anilloTexto .sub{display:block;font-size:12px;color:var(--muted);max-width:14ch;line-height:1.35}
+  .orbVeredicto{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);padding-right:18px;border-right:1px solid var(--rule)}
+  .orbVeredicto i{width:8px;height:8px;border-radius:50%;background:var(--entra);flex:none}
+  .orbVeredicto.mal i{background:var(--pasa)}
+  .orbVeredicto b{color:var(--text)}
+  .orbVeredicto .accion{margin-left:4px}
+  .anillo .anillo3d{position:absolute;inset:-40px;pointer-events:none;z-index:0}
+  .anillo .anillo3d .lienzo3d{position:absolute;inset:0;width:100% !important;height:100% !important}
+  .anillo .foto{z-index:1}
+  .anillo.en3d svg{display:none}
+  .anillo .foto.sinFoto{background:transparent;color:var(--text);font-weight:600;letter-spacing:-.02em;font-family:var(--cifra)}
   .mision .hero, .saludo, .mision .kpis{position:relative;z-index:1}
-  /* Cuando llega el dato (no cuando entra la tarjeta, que ya tuvo su
-     entrada): la cifra manda y cuenta; el saludo y la tira la siguen con un
-     paso corto y menos recorrido; el aro se dibuja solo. Una vez por carga. */
+  .topbar .der{position:relative;z-index:3}
+  /* Llegada: la cifra manda; el saludo y la línea la siguen. Los planetas
+     nacen escalonados. Una vez por carga. */
   @media (prefers-reduced-motion:no-preference){
     @keyframes llegaDato{from{opacity:0;transform:translateY(8px)}}
     .mision.llegaDato .hero{animation:llegaDato 420ms var(--ease-expo) both}
-    .mision.llegaDato .saludo{animation:llegaDato 360ms var(--ease-expo) 90ms both;--dy:6px}
+    .mision.llegaDato .saludo{animation:llegaDato 360ms var(--ease-expo) 90ms both}
     .mision.llegaDato .kpis{animation:llegaDato 360ms var(--ease-expo) 150ms both}
-    /* Un aviso llega como una fila: sube un poco y su punto aterriza con ella. */
+    @keyframes planetaNace{from{opacity:0;scale:.6}}
+    .planeta.nace{animation:planetaNace 520ms var(--ease-expo) both;animation-delay:calc(400ms + var(--i) * 70ms)}
     @keyframes llegaFila{from{opacity:0;transform:translateY(6px)}}
     @keyframes aterriza{from{transform:scale(.4);opacity:0}60%{transform:scale(1.25)}to{transform:scale(1);opacity:1}}
     .estadoLinea{animation:llegaFila 320ms var(--ease-expo) both}
     .estadoLinea .punto{animation:aterriza 420ms var(--ease-out) 120ms both}
   }
-  .anillo .anillo3d{z-index:0}
-  /* El botón de la cabecera, por encima de la ilustración. */
-  .topbar .der{position:relative;z-index:3}
-  /* En una hoja estrecha la mitad derecha es corta: el astronauta se achica
-     para no pisar el aro. */
-  @container hoja (max-width:1000px){ .astroCapa{width:170px;height:194px;right:6px;top:-58px} }
-  .anilloGrande .anillo{width:132px;height:132px;flex:none}
-  .anilloGrande .anillo .foto{inset:26px;font-size:28px}
-  .anilloGrande .anillo .pct{display:none}
-  .mision .kpis{grid-column:1 / -1;grid-row:3;margin-top:6px}
-  /* El porcentaje ocupa el centro del anillo (la foto vive en la barra); el
-     texto grande de al lado sobra. */
-  .anillo .foto.sinFoto{background:transparent;color:var(--text);font-weight:600;letter-spacing:-.02em;font-size:12px}
-  .anilloGrande .anillo .foto.sinFoto{font-size:26px}
-  .anilloGrande.sinFoto .anilloTexto .val{display:none}
-  .anilloGrande.sinFoto .anilloTexto .sub{margin-top:0;max-width:17ch}
-  /* El anillo en 3D: un lienzo más grande que la caja, detrás de la foto, que
-     la rodea con un toro que crece. Sin WebGL queda el SVG de siempre. */
-  /* Más grande que el anillo: las chispas tienen que poder salirse de él. */
-  .anillo .anillo3d{position:absolute;inset:-70px;pointer-events:none}
-  .anillo .anillo3d .lienzo3d{position:absolute;inset:0;width:100% !important;height:100% !important}
-  .anillo .foto{z-index:1}
-  .anillo.en3d svg{display:none}
-  .anillo.en3d::after{content:"";position:absolute;left:10%;right:10%;bottom:-14px;height:18px;border-radius:50%;
-    background:radial-gradient(ellipse at center, rgba(0,0,0,.55), transparent 70%)}
-  .anilloTexto .val{display:block;font-size:34px;font-weight:600;letter-spacing:-.02em;line-height:1.05}
-  .anilloTexto .sub{display:block;font-size:14px;color:var(--muted);margin-top:6px;max-width:26ch}
-  .saludo h2{font-size:1.1rem;font-weight:600;letter-spacing:-.01em;line-height:1.25}
-  .saludo p{color:var(--muted);max-width:52ch;margin-top:6px}
-  .mision .orbe{position:absolute;right:-30px;top:-70px;width:400px;height:320px;
-    pointer-events:none}
-  /* El astronauta: el render de la marca, grande, saliéndose de la tarjeta por
-     arriba y por la derecha. Tres capas que se mueven a distinta velocidad
-     (la nébula atrás, la sombra en el suelo, él delante) y una perspectiva
-     que lo inclina hacia el puntero: eso es lo que lo hace leer como un
-     objeto y no como una pegatina. La capa hace el parallax y la imagen
-     flota: dos transforms en dos elementos, para que no se pisen. */
-  .astroCapa{position:absolute;right:14px;top:-56px;width:250px;height:284px;
-    pointer-events:none;z-index:2;perspective:900px;
-    --px:0;--py:0}
-  .astro{position:absolute;inset:0;width:100%;height:auto;pointer-events:none;
-    transform:translate(calc(var(--px) * 14px), calc(var(--py) * 10px))
-      rotateY(calc(var(--px) * 12deg)) rotateX(calc(var(--py) * -9deg));
-    transition:transform 220ms var(--ease-out);transform-style:preserve-3d;will-change:transform}
-  .astro img{display:block;width:100%;height:auto;animation:flota 6s ease-in-out infinite}
-  .sombra{position:absolute;left:38px;right:38px;bottom:4px;height:22px;border-radius:50%;
-    background:#000;opacity:.34;filter:blur(9px);
-    transform:translateX(calc(var(--px) * -10px));
-    animation:respira 6s ease-in-out infinite;transition:transform 220ms var(--ease-out)}
-  @keyframes respira{0%,100%{transform:translateX(calc(var(--px) * -10px)) scaleX(1)}
-    25%{transform:translateX(calc(var(--px) * -10px)) scaleX(.94)}75%{transform:translateX(calc(var(--px) * -10px)) scaleX(1.03)}}
-  /* La nébula va un paso por detrás: se mueve al revés y menos. */
-  .mision .orbe{transform:translate(calc(var(--px, 0) * -6px), calc(var(--py, 0) * -4px));
-    transition:transform 320ms var(--ease-out)}
   /* ── Acciones: un solo lenguaje ─────────────────────────────────────
      Toda navegación secundaria es la misma píldora: contorno fino, texto a
      14/500 y una flecha que avanza 2px al pasar por encima (respuesta, no
-     adorno). La variante chica vive dentro de las filas de avisos. El único
-     control distinto es el envío del buscador, que es un envío, no un enlace. */
+     adorno). La variante chica vive dentro de las filas de avisos y del
+     veredicto. El único control distinto es el envío del buscador. */
   .accion{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px 0 16px;border-radius:999px;
     border:1px solid var(--control);background:transparent;color:var(--text);font-weight:500;font-size:14px;
     text-decoration:none;white-space:nowrap;cursor:pointer;
@@ -481,15 +503,12 @@
   .llega #menu,.llega #menuAdmin{animation:none}
   /* Cambiar de pestaña no hereda el retraso de la llegada. */
   .hoja section.entra{animation-delay:0s}
-  /* El astronauta llega volando desde fuera y recién ahí se pone a flotar. */
-  .llega .mision .astroCapa{animation:aterriza .95s cubic-bezier(.2,.85,.25,1) .2s both}
   @media (prefers-reduced-motion:reduce){
     .entrar.entrando .saludo{animation:none;opacity:1}
     .shell.llega,.hoja section.entra,.llega .side > *,.llega .hoja > *,.llega .marca,
     .llega #menu button,.llega #menuAdmin button,.llega .grupo,.llega .mision,
     .llega .kpi,.llega .card,
     #menu button.on::before,#menuAdmin button.on::before{animation-duration:.01ms}
-    .llega .mision .astroCapa{animation:none}
   }
   .entrar h1{font-size:1.6rem;font-weight:700;margin-bottom:8px}
   .entrar p{color:var(--dim);margin-bottom:24px}
@@ -1463,32 +1482,34 @@
     .tabbar{display:grid}
     .hoja{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
     .hoja{padding:16px 16px 28px}
-    .mision{padding:22px 18px 20px;margin-top:54px}
+    /* En el teléfono la escena se parte en dos: el texto arriba, como un
+       bloque normal, y debajo una franja de 300px con el camino, los planetas
+       (a dos tercios) y el astronauta. El aro y el veredicto cierran abajo. */
+    .mision{height:auto;margin-top:54px;padding:22px 18px 0;display:flex;flex-direction:column}
+    .misionGrid{position:static;max-width:none;order:1}
+    .orbEscena{order:2} .orbPie{order:3;flex-direction:row}
+    .mision .hero .val{font-size:40px}
+    .saludo p{font-size:16px;max-width:none}
+    .orbEscena{position:relative;height:300px;margin:8px -18px 0}
+    .planeta{--k:.5}
+    .planeta[data-i="0"]{--x:18%;--y:26%} .planeta[data-i="1"]{--x:40%;--y:12%} .planeta[data-i="2"]{--x:62%;--y:30%}
+    .planeta[data-i="3"]{--x:86%;--y:60%} .planeta[data-i="4"]{--x:27%;--y:52%}
+    .planeta b{font-size:11px;margin-top:5px} .planeta small{font-size:10px}
+    .orbBillete{width:66px;left:4%;bottom:8%} .orbCobrar{width:58px;right:6%;top:2%}
+    .orbCobrar small{font-size:10px;transform:translateX(-62%)}
+    .orbVacio{top:30%;font-size:13px}
+    .astroCapa{width:84px;height:88px;margin:-44px 0 0 -42px}
+    .astroCapa .hoyTag{font-size:11px}
+    .mision .orbe{display:none}
+    .astro{transform:none;transition:none}
+    .orbPie{position:static;flex-direction:column;align-items:flex-start;gap:14px;padding:14px 0 18px;border-top:1px solid var(--rule)}
+    .anilloTexto .sub{max-width:24ch}
+    .orbVeredicto{padding:0;border:0;flex-wrap:wrap;font-size:13px}
     /* Un aviso en el teléfono: el punto pegado al texto y la acción debajo, a
        la derecha, en vez de un punto suelto en su propia línea. */
     .estadoLinea{display:grid;grid-template-columns:8px minmax(0,1fr);column-gap:12px;row-gap:10px;align-items:start}
     .estadoLinea .punto{margin-top:7px}
     .estadoLinea .accion{grid-column:2;justify-self:end;margin-left:0}
-    /* Una columna y el mismo orden que en el escritorio: la cifra primero. El
-       astronauta ocupa la esquina, así que el Disponible le deja sitio. */
-    .misionGrid{grid-template-columns:1fr;grid-template-rows:auto auto auto auto;gap:16px}
-    .mision .hero{grid-column:1;grid-row:1;padding-right:120px}
-    .saludo{grid-column:1;grid-row:2}
-    .anilloGrande{grid-column:1;grid-row:3;justify-self:start;align-self:auto;flex-direction:row;
-      text-align:left;margin:8px 0 0}
-    .anilloGrande.sinFoto .anilloTexto .sub{max-width:20ch}
-    .mision .kpis{grid-column:1;grid-row:4}
-    .mision .hero .val{font-size:34px}
-    .anilloGrande .anillo{width:112px;height:112px}
-    .anilloGrande .anillo .foto{inset:24px;font-size:26px}
-    .anilloGrande{gap:22px}
-    .anilloTexto .val{font-size:32px}
-    .mision .orbe{display:none}
-    .saludo{max-width:none;min-height:0}
-    .astroCapa{width:132px;height:auto;right:8px;top:-54px;perspective:none}
-    .astro{position:static;transform:none;transition:none}
-    .astro img{animation:none}
-    .sombra{display:none}
 
     .kpis{margin:14px 0 0}
     .kpi{padding:14px 18px 16px 0}
@@ -1571,6 +1592,7 @@
     .coHero .fig,.coIng .fig,.fmHero .fig,.fijo{transition:none} .fmHero .fig img{animation:none} .coHero .fig img,.coIng .fig img{animation:none} .linea .punto{animation:none}
     .astro img,.sombra{animation:none}
     .astro,.sombra,.mision .orbe{transition:none;transform:none}
+    .astroCapa,.orbRuta .hecho{transition:none}
   }
 
   /* ── El panel de las vistas de dinero ───────────────────────────────────
@@ -1793,42 +1815,50 @@
 
     <section id="tab-resumen">
       <div class="mision">
-        <canvas class="orbe" id="nebulaMes" aria-hidden="true"></canvas>
-        <div class="astroCapa" id="astroCapa" aria-hidden="true">
-          <i class="sombra"></i>
-          <div class="astro"><img src="astronauta.webp" width="320" height="334" alt=""></div>
+        <div class="orbEscena" id="orbEscena">
+          <canvas class="orbe" id="nebulaMes" aria-hidden="true"></canvas>
+          <svg class="orbRuta" viewBox="0 0 1000 540" preserveAspectRatio="none" aria-hidden="true">
+            <path class="pista" id="orbPista" d=""/><path class="hecho" id="orbHecho" d="" pathLength="1" style="stroke-dashoffset:1"/>
+          </svg>
+          <figure class="orbCosa orbBillete"><img src="billetera.webp" width="420" height="337" alt=""></figure>
+          <figure class="orbCosa orbCobrar"><img src="cobrar.webp" width="420" height="385" alt=""><small id="orbMeta">fin de mes</small></figure>
+          <div id="planetas"></div>
+          <div class="astroCapa" id="astroCapa" aria-hidden="true">
+            <div class="astro"><img src="astronauta.webp" width="320" height="334" alt=""></div>
+            <span class="hoyTag" id="orbHoy"></span>
+          </div>
         </div>
         <div class="misionGrid">
           <div class="misionIzq">
-            <div class="saludo">
-              <h2 id="hola">Tu mes</h2>
-              <p id="frase"><span class="hueso ancho" style="max-width:520px"></span>
-                <span class="hueso" style="width:60%"></span></p>
-              <button type="button" class="accion verGastos" id="verGastos">Ver en qué se te va</button>
-            </div>
-            <!-- Lo que manda: tu foto con el arco y el porcentaje en grande. -->
-            <div class="anilloGrande">
-              <div class="anillo" id="anilloGasto"><span class="hueso" style="width:100%;height:100%;border-radius:50%;margin:0"></span></div>
-              <div class="anilloTexto" id="anilloTexto"><span class="hueso val" style="width:90px"></span><span class="hueso lbl"></span></div>
-            </div>
-          </div>
-          <div class="misionDer">
             <div class="hero" id="hero">
               <span class="lbl">Disponible</span>
               <span class="hueso val" style="height:34px;width:230px;margin:8px 0 10px"></span>
               <span class="hueso lbl"></span>
             </div>
-            <div class="kpis" id="kpis">
-              <div class="kpi"><span class="lbl">Gastado</span><span class="hueso val"></span><span class="hueso lbl"></span></div>
-              <div class="kpi"><span class="lbl">Ingresos</span><span class="hueso val"></span><span class="hueso lbl"></span></div>
-              <div class="kpi"><span class="lbl">Racha</span><span class="hueso val"></span><span class="hueso lbl"></span></div>
+            <div class="saludo">
+              <h2 id="hola">Tu mes</h2>
+              <p id="frase"><span class="hueso ancho" style="max-width:520px"></span>
+                <span class="hueso" style="width:60%"></span></p>
+              <div><button type="button" class="accion verGastos" id="verGastos">Ver en qué se te va</button><span class="racha" id="orbRacha" style="display:none"></span></div>
             </div>
           </div>
+          <div class="misionDer">
+            <div class="kpis" id="kpis">
+              <div class="kpi"><span class="lbl">Gastado</span><span class="hueso val"></span></div>
+              <div class="kpi"><span class="lbl">Ingresos</span><span class="hueso val"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="orbPie">
+          <div class="anilloGrande">
+            <div class="anillo" id="anilloGasto"><span class="hueso" style="width:100%;height:100%;border-radius:50%;margin:0"></span></div>
+            <div class="anilloTexto" id="anilloTexto"><span class="hueso lbl"></span></div>
+          </div>
+          <div class="orbVeredicto" id="orbVeredicto" style="display:none"></div>
         </div>
       </div>
 
       <div class="estados">
-        <div id="reSemaforo"></div>
         <div id="reSalto"></div>
       </div>
 
@@ -2507,7 +2537,7 @@ $("verGastos").onclick = () => tab("gastos");
 // desplaza, la sombra y la nébula van al revés. Solo con puntero fino.
 if (matchMedia("(hover:hover) and (pointer:fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches){
   const tarjeta = document.querySelector(".mision");
-  const mover = (px, py) => { for (const el of [tarjeta, $("astroCapa")]){ el.style.setProperty("--px", px); el.style.setProperty("--py", py); } };
+  const mover = (px, py) => { tarjeta.style.setProperty("--px", px); tarjeta.style.setProperty("--py", py); };
   tarjeta.addEventListener("pointermove", (e) => {
     const r = tarjeta.getBoundingClientRect();
     mover(((e.clientX - r.left) / r.width - .5) * 2, ((e.clientY - r.top) / r.height - .5) * 2);
@@ -2876,10 +2906,12 @@ function pintarKpis(){
     : `${dias} ${dias === 1 ? "día" : "días"} con movimientos`;
   let html = tarjeta("Gastado", plata(gastado, moneda), ritmo, gastado, moneda)
     + tarjeta("Ingresos", plata(ingresos, moneda), "registrados este mes", ingresos, moneda);
-  if (mes.racha != null)
-    html += tarjeta("Racha", mes.racha + (mes.racha === 1 ? " día" : " días"),
-      mes.rachaHoy ? "hoy ya registraste" : "registra hoy para no cortarla",
-      mes.racha, "", mes.racha === 1 ? " día" : " días");
+  // La racha es un chip junto a la acción, no una columna de dinero.
+  const chip = $("orbRacha");
+  if (mes.racha != null){
+    chip.style.display = "";
+    chip.innerHTML = `<b>${mes.racha} ${mes.racha === 1 ? "día" : "días"}</b> de racha${mes.rachaHoy ? "" : " · registra hoy"}`;
+  } else chip.style.display = "none";
   if (kpisPintados++) $("app").classList.remove("llega");
   else {
     const caja = $("tab-resumen").querySelector(".mision");
@@ -2892,11 +2924,65 @@ function pintarKpis(){
   const parte = ingresos > 0 ? Math.min(1, gastado / ingresos) : null;
   anilloConFoto($("anilloGasto"), parte, parte != null && gastado > ingresos);   // sin ingresos no hay "te pasaste"
   $("anilloTexto").innerHTML = parte == null
-    ? `<span class="val">Sin ingresos</span><span class="sub">Anota tu sueldo en la app y acá verás cuánto de lo que entra ya se fue.</span>`
+    ? `<span class="val">Sin ingresos</span><span class="sub">sin ingresos anotados: anota tu sueldo</span>`
     : cifra("Consumido", `${Math.round(parte * 100)}%`, Math.round(parte * 100), "", "%")
       + `<span class="sub">${gastado > ingresos ? "de lo que entró ya se fue todo, y más" : "de lo que entró este mes ya se fue"}</span>`;
   subirNumeros();
+  pintarOrbita();
 }
+
+// ── Tu mes en órbita ────────────────────────────────────────────────────────
+// El camino va de la billetera al próximo ingreso. El astronauta se coloca
+// en la fracción del tramo que ya pasó (por defecto, el día del mes; cuando
+// llega la proyección, los días que faltan hasta el ingreso). Los planetas
+// son las categorías del mes por lo gastado; sin gastos, se dice.
+const ORB = { P0: [150, 430], P1: [380, 470], P2: [600, 230], P3: [870, 195], avance: null, planetasDe: null };
+const orbBez = (t) => { const u = 1 - t, { P0, P1, P2, P3 } = ORB; return [
+  u*u*u*P0[0] + 3*u*u*t*P1[0] + 3*u*t*t*P2[0] + t*t*t*P3[0],
+  u*u*u*P0[1] + 3*u*u*t*P1[1] + 3*u*t*t*P2[1] + t*t*t*P3[1]]; };
+function colocarAstro(){
+  const escena = $("orbEscena"), t = ORB.avance ?? .04, [x, y] = orbBez(t);
+  $("astroCapa").style.transform = `translate(${(x / 1000 * escena.clientWidth).toFixed(1)}px, ${(y / 540 * escena.clientHeight).toFixed(1)}px)`;
+  $("orbHecho").style.strokeDashoffset = (1 - t).toFixed(3);
+}
+function pintarOrbita(){
+  const hoy = new Date();
+  const d = `M ${ORB.P0} C ${ORB.P1}, ${ORB.P2}, ${ORB.P3}`;
+  $("orbPista").setAttribute("d", d); $("orbHecho").setAttribute("d", d);
+  $("orbHoy").textContent = `hoy, día ${hoy.getDate()}`;
+  if (ORB.avance == null) ORB.avance = Math.min(.96, Math.max(.04, hoy.getDate() / ultimoDelMes()));
+  // Los planetas, una vez por juego de gastos: repintar sin cambios haría nacer de nuevo a todos.
+  const gastos = mes.dias.flatMap((dd) => dd.gastos);
+  const firma = gastos.length + ":" + mes.gastado.toFixed(2);
+  if (ORB.planetasDe !== firma){
+    ORB.planetasDe = firma;
+    const cats = construirCerebro(gastos, mes.moneda).nodos
+      .filter((n) => n.tipo === "cat" && n.cat !== "otras" && n.total > 0).sort((a, b) => b.total - a.total).slice(0, 5);
+    const max = Math.max(...cats.map((c) => c.total), 1);
+    const nombre = (c) => { c = c.trim(); return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); };
+    const caja = $("planetas");
+    caja.innerHTML = cats.length ? cats.map((c, i) =>
+      `<button type="button" class="planeta${i === 0 ? " oro" : ""}${quietito() ? "" : " nace"}" data-i="${i}" style="--s:${Math.round(44 + 76 * Math.sqrt(c.total / max))}px;--z:${(1.4 - i * .2).toFixed(1)};--i:${i}" title="${esc(nombre(c.cat))}: ${esc(plata(c.total, mes.moneda))}">
+        <i></i><b>${esc(nombre(c.cat))}</b><small>${esc(plata(c.total, mes.moneda))}</small></button>`).join("")
+      : `<p class="orbVacio">Todavía no hay planetas: tu primer gasto del mes pone el primero.</p>`;
+    for (const b of caja.querySelectorAll(".planeta")) b.onclick = () => tab("gastos");
+  }
+  // El astronauta viaja desde la billetera la primera vez; después solo se recoloca.
+  const capa = $("astroCapa");
+  if (!capa.dataset.puesto){
+    capa.dataset.puesto = "1";
+    if (quietito()) colocarAstro();
+    else {
+      const t = ORB.avance; ORB.avance = .02; capa.style.transition = "none"; colocarAstro(); ORB.avance = t;
+      requestAnimationFrame(() => requestAnimationFrame(() => { capa.style.transition = ""; colocarAstro(); }));
+    }
+  } else colocarAstro();
+}
+// Si el dato llega con la pestaña oculta, la escena mide cero y el astronauta
+// quedaría en la esquina: el observador lo recoloca en cuanto tiene tamaño,
+// y cubre también el cambio de ancho de la ventana.
+new ResizeObserver(() => { if ($("astroCapa").dataset.puesto && $("orbEscena").clientWidth) colocarAstro(); }).observe($("orbEscena"));
+
 
 // El anillo del mes: tu foto (la misma de la barra) en medio y, alrededor, el
 // arco de lo que entró que ya se fue. Crece desde cero al pintarse.
@@ -3144,11 +3230,15 @@ async function cargarPanorama(){
     const notas = [];
     if (!pr.hayIngreso) notas.push("sin ingreso fijo configurado");
     if (!pr.conArrastre) notas.push("sin contar lo que traías de antes");
-    $("reSemaforo").innerHTML = `<p class="estadoLinea"><i class="punto ${pr.llega ? "bien" : "mal"}"></i>
-      <span>${pr.llega ? "Llegas" : "No llegas"} ${esc(pr.cuandoTxt)}:
-        ${pr.llega ? "te quedarían" : "te faltarían"} <b>${esc(plata(Math.abs(pr.alFinal), f.currency))}</b>
-        ${notas.length ? `(${notas.join(", ")})` : ""}</span>
-      <a href="#finmes" class="accion chica" id="reVerFin">Ver el detalle</a></p>`;
+    const ver = $("orbVeredicto");
+    ver.style.display = "";
+    ver.className = "orbVeredicto" + (pr.llega ? "" : " mal");
+    ver.innerHTML = `<i></i><span>${pr.llega ? "Llegas" : "No llegas"}: ${pr.llega ? "te quedarían" : "te faltarían"} <b>${esc(plata(Math.abs(pr.alFinal), f.currency))}</b>${
+      notas.length ? ` <span class="muted">(${notas.join(", ")})</span>` : ""}</span>
+      <a href="#finmes" class="accion chica" id="reVerFin">Ver el detalle</a>`;
+    $("orbMeta").textContent = pr.hayIngreso && f.next_income_date ? "próximo ingreso · " + fechaCorta(f.next_income_date) : "fin de mes";
+    // Con la proyección, el camino mide hasta el ingreso: lo que falta son sus días.
+    if (pr.hayIngreso && pr.dias > 0){ ORB.avance = Math.min(.96, Math.max(.04, 1 - pr.dias / ultimoDelMes())); if ($("astroCapa").dataset.puesto) colocarAstro(); }
     // El detalle se abre en la misma moneda que esta línea, no en la última
     // que se eligió en otra vista.
     $("reVerFin").onclick = (e) => { e.preventDefault(); monedaVista = f.currency; tab("finmes"); };
@@ -3170,6 +3260,7 @@ async function cargarPanorama(){
   }
 }
 
+const ultimoDelMes = () => { const h = new Date(); return new Date(h.getFullYear(), h.getMonth() + 1, 0).getDate(); };
 async function cargarMes(){
   const hoy = new Date();
   const m = hoy.getMonth() + 1, y = hoy.getFullYear();
