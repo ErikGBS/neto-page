@@ -806,14 +806,16 @@
   .dia h4{display:flex;justify-content:space-between;gap:12px;font-size:12px;font-weight:500;color:var(--faint);
     text-transform:uppercase;letter-spacing:.04em;padding:14px 10px 8px;margin:0}
   .dia h4 span{text-transform:none;letter-spacing:0;font-variant-numeric:tabular-nums}
-  .mov{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:center;width:100%;padding:10px;
-    border:0;background:none;color:var(--text);font:inherit;text-align:left;border-radius:12px;cursor:pointer;
-    transition:background var(--t-hover) ease,opacity 200ms ease,transform 120ms ease}
-  .mov:hover{background:var(--raised)} .mov:active{transform:translateY(1px) scale(.995)}
-  .mov:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
-  .mov.on{background:var(--active);box-shadow:inset 3px 0 0 var(--gold)}
+  #moTabla > .dia{display:grid;gap:8px;margin-bottom:6px}   /* solo el grupo de un día en Movimientos: .dia también es la ficha de fecha en Compromisos */
+  .mov{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:center;width:100%;padding:10px 12px;
+    border:0;background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));box-shadow:var(--clay-chica);color:var(--text);font:inherit;text-align:left;border-radius:14px;cursor:pointer;
+    transition:background var(--t-hover) ease,opacity 200ms ease,transform 120ms ease,box-shadow 120ms ease}
+  .mov:hover{background:linear-gradient(180deg,#2c2b36,#201f28)}
+  .mov:active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.08), inset 0 -1px 0 rgba(0,0,0,.38)}
+  .mov:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .mov.on{background:linear-gradient(180deg,color-mix(in srgb,var(--tu) 18%,var(--clay-hi)),color-mix(in srgb,var(--tu) 11%,var(--clay-lo)))}
   #moTabla.conSel .mov:not(.on){opacity:.55} #moTabla.conSel .mov:not(.on):hover{opacity:.9}
-  .mov .ficha{width:40px;height:40px;border-radius:12px;background:var(--raised);color:var(--muted);
+  .mov .ficha{width:40px;height:40px;border-radius:12px;background:var(--clay-lo);box-shadow:inset 0 2px 5px rgba(0,0,0,.45);color:var(--muted);
     display:grid;place-items:center;font-style:normal;font-weight:600;font-size:13px;transition:background 200ms ease,color 200ms ease}
   .mov.entra .ficha{background:color-mix(in srgb, var(--entra) 18%, var(--raised));color:var(--entra)}
   .mov.on .ficha{background:var(--gold);color:var(--ink)}
@@ -821,7 +823,7 @@
   .mov .quien b{display:block;font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mov .quien small{display:block;font-size:12px;color:var(--faint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .mov .monto{font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
-  .moDetalle{position:relative;background:var(--surface);border-radius:var(--radius-card);padding:22px;
+  .moDetalle{position:relative;background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));box-shadow:var(--clay-sombra);border-radius:24px;padding:22px;
     opacity:0;transition:opacity 320ms var(--ease-expo),transform 320ms var(--ease-expo)}
   /* Al lado (escritorio) entra deslizando desde la derecha y se queda pegado al
      hacer scroll. Como hoja (teléfono) sube desde abajo; vive colgada del body
@@ -953,7 +955,7 @@
      Universo de la app). El tramo recorrido se dora con una chispa en la punta,
      la próxima cuota marca hasta dónde te deja, y al 100% el trofeo brilla. */
   .metas{display:grid;gap:16px}
-  .metaCam{background:var(--surface);border-radius:var(--radius-card);padding:22px 24px 20px;position:relative;overflow:hidden}
+  .metaCam{background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));box-shadow:var(--clay-sombra);border-radius:24px;padding:22px 24px 20px;position:relative;overflow:hidden}
   .metaCam header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px}
   .metaCam h3{font-size:16px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .metaCam .falta{font-size:13px;color:var(--muted);white-space:nowrap}
@@ -966,8 +968,8 @@
   .metaCam .camino{position:relative;height:40px}
   .metaCam .pistaPuntos{position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;border-radius:2px;
     background:repeating-linear-gradient(90deg, var(--control) 0 6px, transparent 6px 13px)}
-  .metaCam .hecho{position:absolute;left:0;top:50%;height:6px;margin-top:-3px;border-radius:3px;background:var(--gold);
-    box-shadow:0 0 14px color-mix(in srgb, var(--gold) 55%, transparent)}
+  .metaCam .hecho{position:absolute;left:0;top:50%;height:10px;margin-top:-5px;border-radius:999px;background:linear-gradient(180deg,#f3d48f,var(--gold));
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.35), inset 0 -2px 0 rgba(0,0,0,.28)}
   .metaCam .chispa{position:absolute;right:-7px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--gold-bright);
     box-shadow:0 0 0 4px color-mix(in srgb, var(--gold) 28%, transparent), 0 0 18px var(--gold);animation:metaLate 1.6s ease-in-out infinite}
   .metaCam .cuota{position:absolute;top:-26px;left:clamp(60px, var(--x, 50%), calc(100% - 60px));transform:translateX(-50%);font-size:11px;font-weight:500;white-space:nowrap;padding:3px 8px;
