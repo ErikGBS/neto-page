@@ -911,6 +911,41 @@
   .admin .rankbar select, .panel .rankbar select{padding:7px 10px;border-radius:9px;border:1px solid var(--border);
     background:var(--surface-2);color:var(--text);font:inherit;font-size:.86rem}
   .admin .tscroll, .panel .tscroll{overflow-x:auto}
+  /* ── Usuarios: el pulso de la base ────────────────────────────────────
+     Mismo motion que el resto del portal: las cifras suben, las columnas
+     crecen desde su base, las tiras se llenan y las tarjetas entran
+     escalonadas. Todo una vez, y nada en `prefers-reduced-motion`. */
+  .admin .chart{position:relative;min-width:0}
+  .admin .chart svg{display:block;width:100%}
+  @media (prefers-reduced-motion:no-preference){
+    .admin .chart svg g.barra{transform-box:fill-box;transform-origin:50% 100%;
+      animation:crece 620ms cubic-bezier(.34,1.35,.64,1) backwards}
+  }
+  .admin .usBarra{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--raised)}
+  .admin .usBarra i{display:block;height:100%;transition:width 700ms var(--ease-expo)}
+  .admin .usBarra i + i{margin-left:2px}
+  .admin .c-activos_7d{background:var(--entra)}
+  .admin .c-dormido{background:var(--control)}
+  .admin .c-zombie{background:var(--pasa)}
+  .admin .c-nunca{background:repeating-linear-gradient(90deg,var(--control) 0 4px,transparent 4px 8px)}
+  .admin .usLey{list-style:none;margin:14px 0 0;padding:0;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 18px}
+  .admin .usLey li{display:flex;align-items:baseline;gap:8px;font-size:.84rem;color:var(--dim)}
+  .admin .usLey li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .admin .usLey li i{flex:none;width:10px;height:10px;border-radius:3px;align-self:center}
+  .admin .usLey li b{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--text)}
+  .admin .usLey li small{color:var(--mute);font-variant-numeric:tabular-nums}
+  .admin .usGente{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px}
+  .admin .usGente .wacard{background:var(--raised);border:0;border-radius:12px;
+    transition:background var(--t-hover) ease,transform var(--t-press) var(--ease-out)}
+  .admin .usGente .wacard:hover{background:var(--active)}
+  .admin .usGente .cargando{grid-column:1 / -1}
+  @container hoja (max-width:700px){
+    .admin #usKpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .admin #usKpis .kpi{padding:12px 12px 11px}
+    .admin #usKpis .kpi .val{font-size:1.35rem}
+    .admin .usGente{grid-template-columns:minmax(0,1fr)}
+  }
   .admin td.num, .admin th.num, .panel td.num, .panel th.num{text-align:right;font-variant-numeric:tabular-nums}
   .admin table.rank td.fecha, .panel table.rank td.fecha{white-space:nowrap}
   .admin table.rank th[data-sort]{cursor:pointer;user-select:none}
@@ -1972,22 +2007,29 @@
   </section>
 
 <section class="tab admin" id="tab-ad-usuarios" style="display:none">
+    <!-- El pulso de la base: cuántos son, cuántos llegan, dónde están y en
+         qué estado. Lo que se toca abre a la persona en Clientes. -->
+    <div class="grid" id="usKpis"></div>
     <div class="row2">
       <div class="section">
-        <h3>Países <span class="muted" style="font-weight:400">· usuarios que registran</span></h3>
-        <div class="chartbox"><canvas id="cCountry"></canvas></div>
+        <h3>Altas por día <span class="muted" style="font-weight:400">· últimos 30 días</span></h3>
+        <div class="chart" id="usAltas"></div>
       </div>
       <div class="section">
-        <h3>Detalle por país</h3>
-        <table><thead><tr><th>País</th><th class="num">Usuarios</th><th class="num">Movimientos</th><th class="num">Promedio</th></tr></thead>
-        <tbody id="countries"></tbody></table>
+        <h3>Dónde están <span class="muted" style="font-weight:400">· usuarios que registran, por país</span></h3>
+        <div class="chart" id="usPaises"></div>
       </div>
     </div>
-
     <div class="section">
-      <h3>Últimos registros</h3>
-      <table><thead><tr><th>Nombre</th><th>Correo</th><th>Fecha</th></tr></thead>
-      <tbody id="recent"></tbody></table>
+      <h3>Cómo está la base <span class="muted" style="font-weight:400">· por lo último que registraron</span></h3>
+      <div id="usCohortes"></div>
+    </div>
+    <div class="section">
+      <div class="rankbar">
+        <h3 style="margin:0">Últimos registros <span class="muted" style="font-weight:400">· toca a alguien para abrirlo en Clientes</span></h3>
+        <button class="chico" type="button" id="usVerTodos">Ver todos en Clientes</button>
+      </div>
+      <div class="usGente" id="usRecientes"><div class="cargando"><span></span><span></span><span></span></div></div>
     </div>
   </section>
 
@@ -2264,6 +2306,7 @@ function cambiarVista(name, desdeHistorial){
   if (name === "pagos") cargarPagos();
   if (name === "wa") cargarBandeja();
   if (name.startsWith("ad-")) cargarAdmin();
+  if (name === "ad-usuarios") estrenarUsuarios();
   avisoAdmin("");
   estrenar(vista);
 }
@@ -5907,11 +5950,6 @@ function pintarAdmin(m){
   lineChart("cMov", m.movements_by_day, "#d0a55c");
   barChart("cCat", m.top_categories);
 
-  $("recent").innerHTML = (m.recent_signups||[]).map(u=>{
-    const d = new Date(u.at).toLocaleDateString("es-PE",{day:"2-digit",month:"short"});
-    return `<tr><td>${u.name||"-"}</td><td>${u.email||"-"}</td><td>${d}</td></tr>`;
-  }).join("") || `<tr><td colspan="3" class="muted">Sin datos</td></tr>`;
-
   // Movimientos por fuente
   const SRC = { whatsapp:"WhatsApp", manual:"Manual (app)", yape:"Yape", plin:"Plin", bcp:"BCP" };
   barChart("cSource", (m.movements_by_source || []).map(s => ({ c: SRC[s.source] || s.source, n: s.n })));
@@ -5939,15 +5977,7 @@ function pintarAdmin(m){
       + `<div class="n">${p}% · ${sub}</div></div>`;
   }).join("");
 
-  // Países de quienes registran. El dato sale de la zona horaria del
-  // dispositivo: el campo "país" del perfil lo llena casi nadie.
-  const paises = m.by_country || [];
-  barChart("cCountry", paises.map(p => ({ c: p.country, n: p.users })));
-  $("countries").innerHTML = paises.map(p => {
-    const prom = p.users ? (p.movements / p.users).toFixed(1) : "0";
-    const zonas = p.timezones ? ` <span class="muted">(${p.timezones.join(", ")})</span>` : "";
-    return `<tr><td>${p.country}${zonas}</td><td class="num">${fmt(p.users)}</td><td class="num">${fmt(p.movements)}</td><td class="num">${prom}</td></tr>`;
-  }).join("") || `<tr><td colspan="4" class="muted">Todavía nadie registra movimientos</td></tr>`;
+  pintarUsuarios(m);
 
   // Usuarios dormidos / en riesgo
   $("dormant").innerHTML = (m.dormant || []).map(u => {
@@ -7603,6 +7633,102 @@ document.querySelector('table.rank th[data-sort="total"]').classList.add("on");
 $("rankPeriodo").addEventListener("change", () => { rankPag = 1; cargarRanking(); });
 $("rankPrev").addEventListener("click", () => { rankPag--; cargarRanking(); });
 $("rankNext").addEventListener("click", () => { rankPag++; cargarRanking(); });
+
+// ── Usuarios: el pulso de la base ──────────────────────────────────────────
+// Se pinta con las métricas que ya llegaron; la lista de personas es la misma
+// que usa Clientes (/admin/app-users) y se pide aparte para no frenar lo demás.
+// El movimiento (cifras, barras, tarjetas) se estrena cuando la vista se ve,
+// no cuando llegan los datos: pintarAdmin corre con la pestaña escondida.
+let usEstrenado = false, usListo = false, usPintadoCon = null;
+const COHORTE_LABEL = { activos_7d: "Activos · 7 días", dormido: "Dormidos · 7 a 19 días",
+  zombie: "Zombies · 20 días o más", nunca: "Nunca registraron" };
+function pintarUsuarios(m){
+  // pintarAdmin corre en cada pestaña admin con las mismas métricas: volver a
+  // pintar repetiría la petición de cuentas y las columnas volverían a crecer.
+  if (usPintadoCon === m) return estrenarUsuarios();
+  usPintadoCon = m;
+  const r = m.registered || {}, a = m.active || {}, pl = m.plans || {};
+  $("usKpis").innerHTML =
+    kpi("Usuarios", fmt(r.total), "", `+${fmt(r.today)} hoy · +${fmt(r.d7)} esta semana`, r.total) +
+    kpi("Con WhatsApp", fmt(m.whatsapp_linked), "", `${pct(m.whatsapp_linked, r.total)}% de la base`, m.whatsapp_linked) +
+    kpi("Activos 30 días", fmt(a.d30), "", `${pct(a.d30, r.total)}% · ${fmt(a.d7)} en 7 días`, a.d30) +
+    kpi("Pro", fmt(pl.pro), "", `${pct(pl.pro, r.total)}% de la base`, pl.pro);
+
+  // Altas por día: columnas con canto, en el dorado de "lo tuyo".
+  const dias = m.signups_by_day || [];
+  const etiqueta = (d) => new Date(d + "T12:00:00").toLocaleDateString("es-PE", { day:"2-digit", month:"short" });
+  if (dias.length) Charts.bars($("usAltas"), {
+    labels: dias.map(d => etiqueta(d.d)), values: dias.map(d => d.n), height: 220, depth: 3,
+    xAt: dias.map((_, i) => i).filter(i => (dias.length - 1 - i) % 7 === 0),   // de hoy hacia atrás, de semana en semana
+  });
+  else $("usAltas").innerHTML = `<div class="muted">Sin altas todavía</div>`;
+
+  // Países: la fila es la barra. El dato sale de la zona horaria del
+  // dispositivo: el campo "país" del perfil lo llena casi nadie.
+  const paises = (m.by_country || []).filter(p => p.users);
+  if (paises.length) Charts.barList($("usPaises"), paises.slice(0, 8).map(p => ({ label: p.country, value: p.users })));
+  else $("usPaises").innerHTML = `<div class="muted">Todavía nadie registra movimientos</div>`;
+
+  // Cohortes: una sola tira partida por estado, con la leyenda debajo.
+  const cuentas = (m.activity || {}).buckets || [], base = (m.activity || {}).total || 0;
+  $("usCohortes").innerHTML = base
+    ? `<div class="usBarra">${cuentas.map(c => `<i class="c-${esc(c.key)}" style="width:${(c.n / base * 100).toFixed(2)}%" title="${esc(COHORTE_LABEL[c.key] || c.label)}: ${fmt(c.n)}"></i>`).join("")}</div>`
+      + `<ul class="usLey">${cuentas.map(c => `<li><i class="c-${esc(c.key)}"></i><span>${esc(COHORTE_LABEL[c.key] || c.label)}</span><b>${fmt(c.n)}</b><small>${pct(c.n, base)}%</small></li>`).join("")}</ul>`
+    : `<div class="muted">Sin datos</div>`;
+
+  usListo = true;
+  cargarRecientes();
+  estrenarUsuarios();
+}
+
+async function cargarRecientes(){
+  const caja = $("usRecientes");
+  try{
+    const r = await api("/admin/app-users");
+    appUsers = r.items; pushLocks = r.push_locks || {};   // Clientes los reusa tal cual
+    const nuevos = appUsers.slice().sort((x, y) => (y.registered_at || "").localeCompare(x.registered_at || "")).slice(0, 12);
+    caja.innerHTML = nuevos.map(tarjetaUsuario).join("") || `<div class="wavacio">Todavía no hay cuentas.</div>`;
+    for (const b of caja.querySelectorAll("[data-uid]")) b.onclick = () => irAClientes(b.dataset.uid);
+    estrenarUsuarios(true);
+  }catch(e){
+    caja.innerHTML = `<div class="wavacio">No se pudieron cargar las cuentas: ${esc(e.message)}</div>`;
+  }
+}
+
+// Las cifras suben, la tira se llena y las tarjetas entran: la primera vez
+// que la vista está a la vista. Las tarjetas llegan después y van aparte.
+function estrenarUsuarios(soloTarjetas){
+  const vista = $("tab-ad-usuarios");
+  // Por el hash y no por si se ve: pintarAdmin despliega las pestañas un
+  // instante para que Chart.js mida, y en ese instante contaría a escondidas.
+  if (!usListo || location.hash !== "#ad-usuarios") return;
+  if (!soloTarjetas && !usEstrenado){
+    usEstrenado = true;
+    subirNumeros(vista, "#usKpis .val[data-n]");
+    crecer($("usCohortes"));
+    crecer($("usPaises"));
+  }
+  if (!quietito()) vista.querySelectorAll("#usRecientes .wacard:not(.entraFila)").forEach((f, i) => {
+    f.style.setProperty("--i", Math.min(i, 18)); f.classList.add("entraFila"); });
+}
+
+// Abrir a la persona en Clientes, en el modo App. cambiarModo limpia la
+// elección y vuelve a pedir la lista, así que la persona se fija después y
+// cargarApp la abre al terminar; si ya se estaba en App, se abre al instante.
+async function irAClientes(uid){
+  tab("wa");
+  // El hilo de WhatsApp de la persona sale de la lista de conversaciones, que
+  // solo se pide en el modo WhatsApp: si Clientes no se abrió antes, sin esto
+  // se abría sin chat y sin poder contestarle.
+  if (!waConvs.length){
+    try{ waConvs = (await api("/admin/whatsapp/conversations")).items || []; }catch{}
+  }
+  if (waModo !== "app") cambiarModo("app");
+  waActiva = uid;
+  if (appUsers.some(u => u.user_id === uid)) abrirUsuario(uid);
+  $("waLista").closest(".wa2").classList.add("enDetalle");
+}
+$("usVerTodos").onclick = () => { tab("wa"); if (waModo !== "app") cambiarModo("app"); };
 
 // Ser admin se pregunta al backend, que es quien manda. Una llamada barata.
 async function mirarSiEsAdmin(){
