@@ -259,6 +259,12 @@
   .hoja{flex:1;min-width:0;padding:28px 32px 36px;max-width:1760px;
     margin-inline:auto;container:hoja / inline-size}
 
+  .avisoApp{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 18px;margin-bottom:18px;
+    border-radius:16px;background:linear-gradient(180deg,#262530,#17161d);box-shadow:var(--clay-chica)}
+  .avisoApp b{display:block;font-size:15px} .avisoApp p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+  .avisoApp .botones{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap} .avisoApp a.accion{text-decoration:none}
+  .avisoApp .cerrar{width:32px;height:32px;border-radius:50%;border:0;background:var(--raised);color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+  .avisoApp .cerrar:hover{color:var(--text)}
   .topbar{display:flex;align-items:center;gap:14px;margin-bottom:22px}
   .topbar h1{font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
   .topbar .sub{font-size:14px;color:var(--faint);margin-top:2px}
@@ -2021,6 +2027,17 @@
   </nav>
 
   <main class="hoja">
+    <!-- Quien entra por la web sin haber anotado nada (casi siempre, sin la app)
+         ve dónde se registra la plata y los botones a las tiendas. -->
+    <div class="avisoApp" id="avisoApp" hidden>
+      <div><b>Tus registros se hacen en la app</b>
+        <p>Aquí solo se mira tu mes. Anota tus gastos desde el celular y aparecen al instante.</p></div>
+      <div class="botones">
+        <a class="accion" href="https://apps.apple.com/app/id6778281655" target="_blank" rel="noopener">App Store</a>
+        <a class="accion" href="https://play.google.com/store/apps/details?id=com.erikgbs.finance_app&amp;pcampaignid=web_share" target="_blank" rel="noopener">Google Play</a>
+      </div>
+      <button type="button" class="cerrar" id="avisoAppCerrar" aria-label="Cerrar el aviso">×</button>
+    </div>
     <div class="topbar">
       <div><h1 id="titulo">Resumen</h1><p class="sub" id="mesTit"></p></div>
       <span class="muted" id="gen"></span>
@@ -2768,6 +2785,8 @@ try{ if (localStorage.getItem("menuPlegado") === "1") plegar(true); }catch{}
 $("velo").onclick = () => menu(false);
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") menu(false); });
 $("ctaPro").onclick = () => tab("pro");
+// Cerrar el aviso lo esconde y se recuerda en este navegador, como el menú plegado.
+$("avisoAppCerrar").onclick = () => { $("avisoApp").hidden = true; try{ localStorage.setItem("avisoApp", "1"); }catch{} };
 $("verGastos").onclick = () => tab("gastos");
 // El astronauta sigue al puntero sobre la tarjeta: la capa se inclina y se
 // desplaza, la sombra y la nébula van al revés. Solo con puntero fino.
@@ -3759,6 +3778,11 @@ async function cargarMes(){
   mes.gastado = mes.total;
   mes.ingresos = entradas.get(mes.moneda) || 0;
   mes.cargado = true;
+  // ponytail: "usuario nuevo" es "sin movimientos este mes"; si molesta a quien
+  // tiene historial y abre el portal el día 1, mirar también el mes anterior.
+  let avisoVisto = false;
+  try{ avisoVisto = localStorage.getItem("avisoApp") === "1"; }catch{}
+  $("avisoApp").hidden = txs.length > 0 || avisoVisto;
   pintarKpis();
   pintar();
   pintarCategorias();
