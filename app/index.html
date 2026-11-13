@@ -3073,34 +3073,99 @@ function pintarOrbita(){
 // bandas, roca con cráteres, hielo veteado), gira despacio a su ritmo, sigue
 // la posición y el parallax del botón que la nombra y nace escalonada. Una
 // sola escena WebGL para todos; el botón HTML conserva el toque y el rótulo.
+// Los mundos, en el estilo de los objetos del Universo: esfera lisa y
+// brillante (arcilla lacada), continentes de color plano con un poco de
+// relieve y luz suave. Cada estilo recuerda a un planeta del sistema solar sin
+// copiarlo: el dorado con anillo es Saturno y va al mundo grande; después
+// Tierra, Marte, Neptuno, Venus, Luna y Júpiter. La textura se pinta al vuelo.
+// Dos acabados: "laca" (arcilla brillante) y "plastilina" (mate, gruesa, con
+// huella de dedos). Se elige acá; el motor lee el valor al montar cada escena.
+let MUNDO_ESTILO = "plastilina";
+const MUNDOS = {
+  saturno: { base: ["#e9c77a", "#d4a855"], tierra: ["#f1dc9a", "#c89a3c"], bandas: true, anillo: "#f3ce7f" },
+  tierra:  { base: ["#3f8fe0", "#2a6cc0"], tierra: ["#8ccf4a", "#5aa533"], capas: true },
+  marte:   { base: ["#e0754a", "#c45a33"], tierra: ["#a9442a", "#8a3521"], crateres: 10 },
+  neptuno: { base: ["#5a7ff0", "#3d5fd0"], tierra: ["#9fb9ff", "#7f9bf2"], bandas: true },
+  venus:   { base: ["#f1d49a", "#d9b56a"], tierra: ["#f8e8c2", "#e3c88c"], bandas: true },
+  luna:    { base: ["#c9c9cf", "#a8a8b0"], tierra: ["#8d8d96", "#75757e"], crateres: 18 },
+  jupiter: { base: ["#e8b482", "#cf9460"], tierra: ["#f5dcc0", "#b97649"], bandas: true, mancha: "#d55a3c" },
+  hielo:   { base: ["#bfe0f0", "#93c4de"], tierra: ["#eaf7ff", "#d2ecfa"], capas: true },
+};
 function texturaMundo(THREE, tipo, semilla){
-  const c = document.createElement("canvas"); c.width = 512; c.height = 256;
-  const g = c.getContext("2d");
+  const m = MUNDOS[tipo] || MUNDOS.luna;
+  const W = 1024, H = 512;
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const b = document.createElement("canvas"); b.width = W; b.height = H;     // el relieve: continentes en claro
+  const g = c.getContext("2d"), gb = b.getContext("2d");
   let a = semilla; const rnd = () => (a = (a * 16807) % 2147483647) / 2147483647;
-  const base = tipo === "oro" ? ["#e3bd78", "#b98a3e", "#7d5a22"]
-             : tipo === "roca" ? ["#9a9aa3", "#5e5e66", "#36363c"] : ["#b7bfcb", "#737b8a", "#474d59"];
-  g.fillStyle = base[1]; g.fillRect(0, 0, 512, 256);
-  if (tipo === "oro"){
-    for (let i = 0; i < 46; i++){ g.globalAlpha = .16 + rnd() * .3; g.fillStyle = rnd() < .5 ? base[0] : base[2];
-      g.fillRect(0, rnd() * 256, 512, 5 + rnd() * 26); }
-    for (let i = 0; i < 140; i++){ g.globalAlpha = .07 + rnd() * .12; g.fillStyle = rnd() < .5 ? "#fff3cf" : base[2];
-      g.beginPath(); g.ellipse(rnd() * 512, rnd() * 256, 30 + rnd() * 100, 3 + rnd() * 7, 0, 0, 7); g.fill(); }
-  } else {
-    for (let i = 0; i < 240; i++){ g.globalAlpha = .08 + rnd() * .22; g.fillStyle = rnd() < .5 ? base[0] : base[2];
-      g.beginPath(); g.ellipse(rnd() * 512, rnd() * 256, 10 + rnd() * 60, 8 + rnd() * 40, rnd() * 3, 0, 7); g.fill(); }
-    for (let i = 0; i < (tipo === "roca" ? 28 : 9); i++){
-      const x = rnd() * 512, y = rnd() * 256, r = 4 + rnd() * 18;
-      const gr = g.createRadialGradient(x - r * .3, y - r * .3, r * .1, x, y, r);
-      gr.addColorStop(0, "rgba(0,0,0,.5)"); gr.addColorStop(.7, "rgba(0,0,0,.15)"); gr.addColorStop(1, "rgba(255,255,255,.2)");
-      g.globalAlpha = 1; g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+  // El fondo: un degradado vertical suave entre los dos tonos base.
+  const fondo = g.createLinearGradient(0, 0, 0, H); fondo.addColorStop(0, m.base[0]); fondo.addColorStop(1, m.base[1]);
+  g.fillStyle = fondo; g.fillRect(0, 0, W, H);
+  gb.fillStyle = "#808080"; gb.fillRect(0, 0, W, H);
+  const mancha = (ctx, x, y, r, color, alto) => {
+    // Un continente: un racimo de círculos que se pisan, con borde redondeado.
+    ctx.fillStyle = color; ctx.beginPath();
+    for (let i = 0, cx = x, cy = y; i < 7; i++){ ctx.moveTo(cx + r, cy); ctx.arc(cx, cy, r * (.55 + rnd() * .6), 0, 7);
+      cx += (rnd() - .5) * r * 1.6; cy += (rnd() - .5) * r * 1.1; }
+    ctx.fill();
+    if (alto){ gb.fillStyle = alto; gb.beginPath(); ctx.getTransform(); }
+  };
+  if (m.bandas){
+    for (let i = 0; i < 9; i++){
+      const y = (i + .5) / 9 * H + (rnd() - .5) * 40, h = 18 + rnd() * 46;
+      g.globalAlpha = .55 + rnd() * .35; g.fillStyle = i % 2 ? m.tierra[0] : m.tierra[1];
+      g.beginPath();
+      for (let x = 0; x <= W; x += 32) g.lineTo(x, y + Math.sin(x / W * 6.28 * 2 + i) * 9);
+      for (let x = W; x >= 0; x -= 32) g.lineTo(x, y + h + Math.sin(x / W * 6.28 * 2 + i + 1) * 9);
+      g.closePath(); g.fill();
     }
+    g.globalAlpha = 1;
+    if (m.mancha){ g.fillStyle = m.mancha; g.beginPath(); g.ellipse(W * .62, H * .6, 70, 36, 0, 0, 7); g.fill();
+      gb.fillStyle = "#a0a0a0"; gb.beginPath(); gb.ellipse(W * .62, H * .6, 70, 36, 0, 0, 7); gb.fill(); }
+  } else {
+    // Continentes: unos pocos grandes y varios chicos, repartidos por la esfera
+    // (menos cerca de los polos, que en la textura se estiran).
+    const n = 6 + Math.floor(rnd() * 4);
+    for (let i = 0; i < n; i++){
+      const x = rnd() * W, y = H * (.2 + rnd() * .6), r = 40 + rnd() * 90;
+      for (const ctx of [g, gb]){
+        const color = ctx === g ? (rnd() < .5 ? m.tierra[0] : m.tierra[1]) : "#c8c8c8";
+        ctx.fillStyle = color; ctx.beginPath();
+        let cx = x, cy = y, ca = a;
+        a = ca; for (let k = 0; k < 7; k++){ const rr = r * (.55 + rnd() * .6); ctx.moveTo(cx + rr, cy); ctx.arc(cx, cy, rr, 0, 7);
+          cx += (rnd() - .5) * r * 1.6; cy += (rnd() - .5) * r * 1.1; }
+        ctx.fill();
+        if (ctx === g) a = ca;                     // el relieve repite exactamente la misma forma
+      }
+    }
+    // Un borde más oscuro bajo cada continente le da el canto de arcilla.
+    g.globalCompositeOperation = "source-atop";
   }
-  g.globalAlpha = 1;
-  const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping;
-  if (THREE.SRGBColorSpace) t.colorSpace = THREE.SRGBColorSpace;
-  return t;
+  if (m.capas){ g.fillStyle = m.tierra[0]; g.globalAlpha = .9; g.fillRect(0, 0, W, 26); g.fillRect(0, H - 26, W, 26); g.globalAlpha = 1;
+    gb.fillStyle = "#c0c0c0"; gb.fillRect(0, 0, W, 26); gb.fillRect(0, H - 26, W, 26); }
+  if (m.crateres){
+    for (let i = 0; i < m.crateres; i++){
+      const x = rnd() * W, y = rnd() * H, r = 10 + rnd() * 28;
+      g.globalAlpha = .35; g.fillStyle = m.tierra[1]; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+      g.globalAlpha = .45; g.fillStyle = m.base[0]; g.beginPath(); g.arc(x - r * .25, y - r * .25, r * .55, 0, 7); g.fill();
+      gb.fillStyle = "#5a5a5a"; gb.beginPath(); gb.arc(x, y, r, 0, 7); gb.fill();
+    }
+    g.globalAlpha = 1;
+  }
+  if (MUNDO_ESTILO === "plastilina"){
+    // La huella de los dedos: un grano fino y suave sobre todo el relieve, y
+    // un velo claro que apaga un poco los colores, como la plastilina real.
+    for (let i = 0; i < 2600; i++){ gb.globalAlpha = .06 + rnd() * .08; gb.fillStyle = rnd() < .5 ? "#6a6a6a" : "#9a9a9a";
+      gb.beginPath(); gb.ellipse(rnd() * W, rnd() * H, 3 + rnd() * 9, 1.5 + rnd() * 4, rnd() * 3, 0, 7); gb.fill(); }
+    gb.globalAlpha = 1;
+    g.globalCompositeOperation = "source-over"; g.globalAlpha = .14; g.fillStyle = "#fff4e6"; g.fillRect(0, 0, W, H); g.globalAlpha = 1;
+  }
+  const hacer = (lienzo) => { const t = new THREE.CanvasTexture(lienzo); t.wrapS = THREE.RepeatWrapping;
+    if (THREE.SRGBColorSpace && lienzo === c) t.colorSpace = THREE.SRGBColorSpace; return t; };
+  return { map: hacer(c), bump: hacer(b), anillo: m.anillo };
 }
-const TIPO_MUNDO = ["oro", "roca", "hielo", "roca", "hielo"];
+const TIPO_MUNDO = ["saturno", "tierra", "marte", "neptuno", "venus", "luna", "jupiter", "hielo"];
+const ALIAS_MUNDO = { oro: "saturno", roca: "luna" };
 async function mundos3d(el, botones, tipos, caja){
   caja = caja || botones[0]?.parentElement;
   caja?.classList.remove("en3d");
@@ -3115,10 +3180,11 @@ async function mundos3d(el, botones, tipos, caja){
     // fuerte desde arriba a la izquierda que deja un lado en sombra, un
     // contraluz dorado que recorta el borde oscuro, y casi nada de ambiente.
     for (const luz of escena.children.filter((o) => o.isLight)){
-      if (luz.isHemisphereLight) luz.intensity = .32;
-      else if (luz.color.getHex() === 0xffe2a8){ luz.position.set(-5, 6, 7); luz.intensity = 2.6; }
-      else if (luz.color.getHex() === 0x9fd2f2){ luz.intensity = .12; }
-      else { luz.position.set(6, -2, -5); luz.intensity = 1.8; }
+      const mate = MUNDO_ESTILO === "plastilina";       // la plastilina quiere luz más envolvente y menos filo
+      if (luz.isHemisphereLight) luz.intensity = mate ? 1.3 : .9;
+      else if (luz.color.getHex() === 0xffe2a8){ luz.position.set(-5, 6, 7); luz.intensity = mate ? 1.7 : 2.2; luz.color.setHex(0xfff4e0); }
+      else if (luz.color.getHex() === 0x9fd2f2){ luz.intensity = mate ? .5 : .35; }
+      else { luz.position.set(6, -2, -5); luz.intensity = mate ? .7 : 1.1; }
     }
     // Cámara ortográfica en píxeles del contenedor: x hacia la derecha, y hacia abajo.
     const camara = new THREE.OrthographicCamera(0, 1, 0, -1, .1, 2000);
@@ -3127,18 +3193,23 @@ async function mundos3d(el, botones, tipos, caja){
       if (m.render && m.lienzo) m.render.setSize(w, h, false); };
     const geo = new THREE.SphereGeometry(1, 48, 32);
     const mundos = botones.map((b, i) => {
-      const tipo = (tipos && tipos[i]) || TIPO_MUNDO[i] || "roca";
-      const mat = new THREE.MeshStandardMaterial({ map: texturaMundo(THREE, tipo, 101 + i * 37),
-        roughness: tipo === "oro" ? .55 : .9, metalness: tipo === "oro" ? .35 : .05 });
-      mat.bumpMap = mat.map; mat.bumpScale = tipo === "oro" ? 1.2 : 3;
-      if (tipo === "oro"){ mat.emissive = new THREE.Color(0x3a2a0c); mat.emissiveIntensity = .5; }
+      let tipo = (tipos && tipos[i]) || TIPO_MUNDO[i] || "luna"; tipo = ALIAS_MUNDO[tipo] || tipo;
+      const tx = texturaMundo(THREE, tipo, 101 + i * 37);
+      // Arcilla lacada: poco metal, rugosidad media y una capa de laca encima
+      // que da el brillo redondo de la referencia. El relieve son los continentes.
+      const plastilina = MUNDO_ESTILO === "plastilina";
+      const mat = plastilina
+        ? new THREE.MeshStandardMaterial({ map: tx.map, bumpMap: tx.bump, bumpScale: 5, roughness: .96, metalness: 0 })
+        : new THREE.MeshPhysicalMaterial({ map: tx.map, bumpMap: tx.bump, bumpScale: 2.2,
+            roughness: .5, metalness: 0, clearcoat: 1, clearcoatRoughness: .18 });
       const esfera = new THREE.Mesh(geo, mat); escena.add(esfera);
-      // La atmósfera: un halo fino por detrás, dorado en el mundo grande y
-      // azulado en los de hielo. La roca no tiene.
-      if (tipo !== "roca"){
-        const halo = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: tipo === "oro" ? 0xf3ce7f : 0x9fc4e8,
-          transparent: true, opacity: tipo === "oro" ? .22 : .16, side: THREE.BackSide, depthWrite: false }));
-        halo.scale.set(1.09, 1.09, 1.09); esfera.add(halo);
+      if (tx.anillo){
+        // El anillo, inclinado, en el mismo dorado; gira con el mundo.
+        // Plano y sin luz, como un recorte de cartulina: con material iluminado
+        // salía negro y además el estilo cartoon pide justo esto.
+        const ring = new THREE.Mesh(new THREE.RingGeometry(1.32, 1.92, 72),
+          new THREE.MeshBasicMaterial({ color: tx.anillo, side: THREE.DoubleSide, transparent: true, opacity: .88 }));
+        ring.rotation.x = 1.12; esfera.add(ring);
       }
       esfera.rotation.z = .25 + (i % 3) * .12; esfera.rotation.x = .18;
       esfera.userData = { b, i, giro: (.08 + (i % 3) * .035) * (i % 2 ? -1 : 1), hover: 0, escala: 1 };
@@ -5758,7 +5829,7 @@ function pintarMundosGastos(gastos, cats, cur){
     const nodo = cerebro.nodos.find((n) => n.k === b.dataset.k);
     b.onclick = () => nodo && abrirNodo(nodo);
   }
-  mundos3d($("gaMundos3d"), [...caja.querySelectorAll(".planeta")], mundos.map((_, i) => i === 0 ? "oro" : (i % 2 ? "hielo" : "roca")), caja);
+  mundos3d($("gaMundos3d"), [...caja.querySelectorAll(".planeta")], null, caja);
 }
 $("gaVerMovs").onclick = () => tab("movs");
 
@@ -6008,7 +6079,7 @@ function pintarFinMes(f, fijos, dash){
       "green", hayIngreso ? `en ${dias} ${dias === 1 ? "día" : "días"}`
         : "configúralo en la app y esta cuenta mejora", f.next_income_amount || 0, cur);
   subirNumeros($("tab-finmes"), "#fmKpis .val, #fmHero .val");
-  mundos3d($("fmMundos3d"), [...$("fmAsteroides").querySelectorAll(".planeta")], pendientes.map(() => "roca"), $("fmAsteroides"));
+  mundos3d($("fmMundos3d"), [...$("fmAsteroides").querySelectorAll(".planeta")], pendientes.map(() => "luna"), $("fmAsteroides"));
 
   // La curva, como área que se descubre, con cada fijo marcado en su día y el
   // valor al final; punteada desde hoy porque es una proyección. Con el
