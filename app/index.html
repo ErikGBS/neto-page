@@ -1013,10 +1013,12 @@
   @keyframes puntoPop{from{transform:scale(0)}}
   .fijos h4{font-size:12px;font-weight:500;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between;gap:12px;padding:12px 10px 6px;margin:0}
   .fijos h4 span{text-transform:none;letter-spacing:0;font-variant-numeric:tabular-nums}
-  .fijo{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:center;padding:9px 10px;border-radius:12px;
-    transition:background var(--t-hover) ease}
-  .fijo:hover{background:var(--raised)}
-  .fijo .dia{width:40px;height:40px;border-radius:12px;background:var(--raised);color:var(--muted);display:grid;place-items:center;font-style:normal;font-weight:600;font-size:14px;line-height:1}
+  .fijos{display:grid;gap:8px}
+  .fijos .nota{margin:8px 0 0}   /* la nota de otra moneda no se monta sobre la sombra de la teja anterior */
+  .fijo{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:center;padding:10px 12px;border-radius:14px;
+    background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));box-shadow:var(--clay-chica);transition:background var(--t-hover) ease}
+  .fijo:hover{background:linear-gradient(180deg,#2c2b36,#201f28)}
+  .fijo .dia{width:40px;height:40px;border-radius:12px;background:var(--clay-lo);box-shadow:inset 0 2px 5px rgba(0,0,0,.45);color:var(--muted);display:grid;place-items:center;font-style:normal;font-weight:600;font-size:14px;line-height:1}
   .fijo .dia small{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.02em;margin-top:1px}
   .fijo.pagado .dia{background:var(--gold);color:var(--ink)}
   .fijo.vencido .dia{background:color-mix(in srgb, var(--pasa) 22%, var(--raised));color:var(--pasa)}
@@ -1039,7 +1041,7 @@
      de hoy al próximo ingreso con los fijos marcados en su día, y el deslizador
      que recalcula la cuenta al instante. */
   .panel .section.fmHero{display:grid;grid-template-columns:minmax(0,1fr);gap:8px 24px;align-items:start;
-    background:radial-gradient(120% 90% at 70% 40%, #171513 0%, #0f0f10 55%, #0b0b0c 100%);padding:22px 24px 20px}
+    background:radial-gradient(120% 90% at 70% 40%, #1d1a26 0%, #16151d 55%, #111017 100%);padding:22px 24px 20px}
   .fmHero .lbl{display:block;font-size:14px;color:var(--muted)}
   .fmHero .veredicto{display:block;font-size:15px;font-weight:500;margin-top:10px;color:var(--entra)}
   .fmHero .veredicto.mal{color:var(--pasa)}
@@ -1751,22 +1753,27 @@
      píldoras pálidas. Pisa las reglas que comparte con .admin, que no cambia. */
   .panel .section{background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));border:0;border-radius:24px;padding:22px;box-shadow:var(--clay-sombra)}
   .panel .section h3{font-size:16px;font-weight:600;margin-bottom:14px}
-  .panel .grid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:0;
-    background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));border-radius:24px;margin:0 0 14px;overflow:hidden;box-shadow:var(--clay-sombra)}
-  .panel .kpi{background:none;border:0;border-radius:0;padding:16px 22px}
-  .panel .kpi + .kpi{border-left:1px solid var(--rule)}
-  .panel .kpi .label{font-size:13px;color:var(--faint);font-weight:400}
+  /* Los KPIs de los paneles son tejas de arcilla sueltas, como las del hero del
+     Resumen: cada vista tiñe y pone icono a las suyas (#fmKpis, ...). */
+  .panel .grid{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px}
+  .panel .kpi{flex:1 1 200px;min-width:0;position:relative;border:0;border-radius:16px;padding:14px 18px;
+    background:linear-gradient(180deg,var(--clay-hi),var(--clay-lo));box-shadow:var(--clay-chica)}
+  .panel .kpi + .kpi{border-left:0}
+  .panel .kpi .label{font-size:13px;color:var(--muted);font-weight:400}
   .panel .kpi .val{font-family:var(--cuerpo);font-size:24px;font-weight:400;letter-spacing:-.01em;
     line-height:1.15;margin-top:6px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .panel .kpi .val.pink,.panel .kpi .val.green,.panel .kpi .val.gold,.panel .kpi .val.cyan{color:var(--text)}
   .panel .kpi .sub{font-size:13px;color:var(--faint);margin-top:4px}
-  @container hoja (max-width:700px){
-    .panel .grid{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr))}
-    .panel .kpi + .kpi{border-left:0}
-    .panel .kpi:nth-child(2n){border-left:1px solid var(--rule)}
-    .panel .kpi:nth-child(n+3){border-top:1px solid var(--rule)}
-    #coKpis .kpi:last-child:nth-child(odd){grid-column:1 / -1}
-  }
+  @container hoja (max-width:700px){ .panel .kpi{flex-basis:calc(50% - 5px)} }
+  @container hoja (max-width:840px){ #fmKpis .kpi{flex-basis:100%} }   /* con icono, tres tejas por fila cortan la cifra antes de los 700px */
+  /* Fin de mes: lo que tienes (dorado), lo que falta pagar (coral), lo que entra (menta). */
+  #fmKpis .kpi{padding-left:70px}
+  #fmKpis .kpi::before{content:"";position:absolute;left:16px;top:50%;width:42px;height:42px;transform:translateY(-50%);background:url(ico-monedas.webp) center/contain no-repeat}
+  #fmKpis .kpi:nth-child(1){background:linear-gradient(180deg,color-mix(in srgb,var(--tu) 22%,var(--clay-hi)),color-mix(in srgb,var(--tu) 14%,var(--clay-lo)))}
+  #fmKpis .kpi:nth-child(2){background:linear-gradient(180deg,color-mix(in srgb,var(--pasa) 18%,var(--clay-hi)),color-mix(in srgb,var(--pasa) 11%,var(--clay-lo)))}
+  #fmKpis .kpi:nth-child(2)::before{background-image:url(ico-calendario.webp)}
+  #fmKpis .kpi:nth-child(3){background:linear-gradient(180deg,color-mix(in srgb,var(--menta) 22%,var(--clay-hi)),color-mix(in srgb,var(--menta) 14%,var(--clay-lo)))}
+  #fmKpis .kpi:nth-child(3)::before{background-image:url(ico-ingreso.webp)}
   .panel table{font-size:14px}
   .panel th{font-size:12px;color:var(--faint);font-weight:400;padding:0 10px 10px 0;border-bottom:1px solid var(--rule)}
   .panel td{padding:11px 10px 11px 0;border-bottom:1px solid var(--rule);vertical-align:baseline}
