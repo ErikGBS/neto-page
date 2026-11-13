@@ -145,15 +145,13 @@
   /* La rotura: un hueco rasgado en la pared del menú (borde claro de papel
      roto, fondo que se hunde) y la cara saliendo por él, más grande que el
      hueco. Al entrar, la pared se rasga y después la cara asoma. */
-  .rotura{position:relative;height:150px;margin:-4px 0 0;pointer-events:none}
-  /* La pared es un papel claro (el único claro del menú) para que la cara se
-     recorte contra él; el hueco rasgado deja ver la oscuridad de detrás, con
-     el canto del papel más claro, y la cara sale por delante con su sombra. */
-  .roturaHueco{position:absolute;left:50%;top:6px;width:190px;height:132px;transform:translateX(-50%);overflow:visible;
-    filter:drop-shadow(0 14px 22px rgba(0,0,0,.55))}
-  .roturaHueco .papel{fill:url(#roturaPapel)}
-  .roturaHueco .borde{fill:#ffffff}                                   /* el canto del papel roto */
-  .roturaHueco .fondo{stroke:#c9c4b8;stroke-width:1;filter:drop-shadow(0 0 7px rgba(0,0,0,.95))}
+  .rotura{position:relative;flex:none;height:150px;margin:-4px 0 0;pointer-events:none}   /* flex:none: en una ventana baja el menú no la aplasta */
+  /* La pared es el propio menú, oscuro. El hueco rasgado deja ver un fondo
+     gris claro detrás (ahí se recorta la cara), con el canto blanco del papel
+     roto alrededor, y la cara sale por delante con su sombra sobre el gris. */
+  .roturaHueco{position:absolute;left:50%;top:6px;width:190px;height:132px;transform:translateX(-50%);overflow:visible}
+  .roturaHueco .borde{fill:#f7f7f9;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}   /* el canto del papel roto */
+  .roturaHueco .fondo{stroke:#a9a9b2;stroke-width:1}
   .roturaCara{position:absolute;left:50%;top:12px;width:100px;height:100px;margin-left:-50px;border-radius:50%;overflow:hidden;
     background:linear-gradient(180deg,#f3d48f,#d9ad5b);color:var(--ink);display:flex;align-items:center;justify-content:center;
     font-family:var(--tit);font-weight:700;font-size:2.2rem;
@@ -1894,8 +1892,7 @@
     <!-- La rotura: la pared del menú se rasga y la cara del usuario asoma por el hueco. -->
     <div class="rotura" id="rotura" aria-hidden="true">
       <svg class="roturaHueco" viewBox="0 0 190 132">
-        <defs><linearGradient id="roturaPapel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f3ec"/><stop offset="1" stop-color="#e3dfd4"/></linearGradient><radialGradient id="roturaFondo" cx="50%" cy="45%" r="62%"><stop offset="0" stop-color="#050506"/><stop offset="1" stop-color="#1b1a22"/></radialGradient></defs>
-        <rect class="papel" x="0" y="0" width="190" height="132" rx="18"/>
+        <defs><radialGradient id="roturaFondo" cx="50%" cy="42%" r="64%"><stop offset="0" stop-color="#ececef"/><stop offset=".7" stop-color="#d4d4d9"/><stop offset="1" stop-color="#b6b6bd"/></radialGradient></defs>
         <path class="borde" d="M157.2 72.0 L155.1 91.5 L144.6 109.2 L128.5 123.7 L106.1 128.2 L83.4 130.6 L68.2 113.4 L49.1 106.4 L32.1 92.4 L32.4 72.0 L32.7 51.8 L53.0 40.6 L65.0 25.6 L85.2 22.1 L105.6 18.3 L125.8 24.4 L135.8 41.4 L147.9 54.8 Z"/>
         <path class="fondo" d="M152.1 72.0 L150.2 89.9 L140.5 106.1 L125.7 119.5 L105.2 123.6 L84.4 125.7 L70.4 110.0 L52.9 103.6 L37.3 90.7 L37.6 72.0 L37.8 53.4 L56.5 43.2 L67.5 29.5 L86.0 26.2 L104.7 22.7 L123.2 28.4 L132.5 43.9 L143.5 56.2 Z" fill="url(#roturaFondo)"/>
       </svg>
