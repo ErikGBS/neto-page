@@ -1658,25 +1658,26 @@
      ya no caben juntos en la escena. */
   @container hoja (max-width:1040px){
     .mision{min-height:0;margin-top:54px;padding:22px 18px 0;display:flex;flex-direction:column}
-    .mundos3d{inset:-60px 0}
+    .mision .mundos3d{inset:-60px 0}
     .misionGrid{position:static;max-width:none;padding:0;order:1}
     .orbEscena{order:2} .orbPie{order:3;flex-direction:row}
     .mision .hero .val{font-size:40px}
     .saludo p{font-size:16px;max-width:none}
-    .orbEscena{position:relative;height:300px;margin:8px -18px 0}
-    .planeta{--k:.5}
-    .planeta[data-i="0"]{--x:18%;--y:26%} .planeta[data-i="1"]{--x:40%;--y:12%} .planeta[data-i="2"]{--x:62%;--y:30%}
-    .planeta[data-i="3"]{--x:86%;--y:60%} .planeta[data-i="4"]{--x:27%;--y:52%}
-    .planeta b{font-size:11px;margin-top:5px} .planeta small{font-size:10px}
-    .orbBillete{width:66px;left:4%;bottom:8%} .orbCobrar{width:58px;right:6%;top:2%}
-    .orbCobrar small{font-size:10px;transform:translateX(-62%)}
-    .orbVacio{top:30%;font-size:13px}
-    .astroCapa{width:40px;height:40px;margin:-20px 0 0 -20px}
+    .orbEscena{position:relative;height:320px;margin:8px -18px 0}   /* 320: el cohete y su marca caben también el día 1, abajo del todo */
+    .mision .planeta{--k:.5}
+    .mision .planeta[data-i="0"]{--x:18%;--y:26%} .mision .planeta[data-i="1"]{--x:40%;--y:12%} .mision .planeta[data-i="2"]{--x:62%;--y:30%}
+    .mision .planeta[data-i="3"]{--x:86%;--y:60%} .mision .planeta[data-i="4"]{--x:27%;--y:52%}
+    .mision .planeta b{font-size:11px;margin-top:5px} .mision .planeta small{font-size:10px}
+    .mision .orbBillete{width:66px;left:4%;bottom:8%} .mision .orbCobrar{width:58px;right:6%;top:2%}
+    .mision .orbCobrar small{font-size:10px;transform:translateX(-62%)}
+    .mision .orbVacio{top:30%;font-size:13px}
+    .mision .astroCapa{width:40px;height:40px;margin:-20px 0 0 -20px}
     .mascota{width:112px;margin:-6px 0 -8px -12px}
-    .astroCapa .hoyTag{font-size:11px}
+    .mision .astroCapa .hoyTag{font-size:11px}
     .mision .orbe{display:none}
-    .astro{transform:none;transition:none}
-    .orbPie{position:static;flex-direction:column;align-items:flex-start;gap:14px;padding:14px 0 18px;border-top:1px solid var(--rule)}
+    .mision .astro{transform:none;transition:none}
+    .orbPie{position:static;flex-direction:row;align-items:center;gap:22px;padding:14px 0 18px;border-top:1px solid var(--rule)}
+    @container hoja (max-width:610px){ .orbPie{flex-direction:column;align-items:flex-start;gap:14px} }   /* en el teléfono, apilado */
     .anilloTexto .sub{max-width:24ch}
     .orbVeredicto{padding:0;border:0;flex-wrap:wrap;font-size:13px}
   }
@@ -3162,7 +3163,7 @@ function pintarKpis(){
 // El camino del Resumen sale de la billetera, pasa por debajo de las tejas
 // (que ocupan la mitad izquierda) y sube a cobrar. Fin de mes tiene su hero
 // sin tejas y conserva el trazo original.
-const ORB = { P0: [150, 500], P1: [480, 560], P2: [560, 250], P3: [870, 195], avance: null, planetasDe: null };
+const ORB = { P0: [150, 480], P1: [480, 530], P2: [560, 250], P3: [870, 195], avance: null, planetasDe: null };
 const CAMINO_FM = { P0: [150, 430], P1: [380, 470], P2: [600, 230], P3: [870, 195] };
 const orbBez = (t, P = ORB) => { const u = 1 - t, { P0, P1, P2, P3 } = P; return [
   u*u*u*P0[0] + 3*u*u*t*P1[0] + 3*u*t*t*P2[0] + t*t*t*P3[0],
