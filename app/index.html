@@ -237,7 +237,7 @@
   .anilloGrande .anillo .foto{inset:26px;font-size:28px}
   .anilloGrande .anillo .pct{display:none}
   .mision .kpis{grid-column:1 / -1;grid-row:3;margin-top:6px}
-  /* Sin foto no va la inicial: el porcentaje ocupa el centro del anillo y el
+  /* El porcentaje ocupa el centro del anillo (la foto vive en la barra); el
      texto grande de al lado sobra. */
   .anillo .foto.sinFoto{background:transparent;color:var(--text);font-weight:600;letter-spacing:-.02em;font-size:12px}
   .anilloGrande .anillo .foto.sinFoto{font-size:26px}
@@ -246,7 +246,7 @@
   /* El anillo en 3D: un lienzo más grande que la caja, detrás de la foto, que
      la rodea con un toro que crece. Sin WebGL queda el SVG de siempre. */
   /* Más grande que el anillo: las chispas tienen que poder salirse de él. */
-  .anillo .anillo3d{position:absolute;inset:-48px;pointer-events:none}
+  .anillo .anillo3d{position:absolute;inset:-70px;pointer-events:none}
   .anillo .anillo3d .lienzo3d{position:absolute;inset:0;width:100% !important;height:100% !important}
   .anillo .foto{z-index:1}
   .anillo.en3d svg{display:none}
@@ -2843,10 +2843,8 @@ function anilloConFoto(el, parte, pasado){
     <circle cx="32" cy="32" r="${R}" fill="none" stroke="var(--raised)" stroke-width="6"${parte == null ? ' stroke-dasharray="3 5"' : ""}/>
     <circle class="arco" cx="32" cy="32" r="${R}" fill="none" stroke="${pasado ? "var(--pasa)" : "var(--tu)"}" stroke-width="6"
       stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}" transform="rotate(-90 32 32)"/></svg>
-    ${$("ava").querySelector("img")
-      ? `<div class="foto">${$("ava").innerHTML}</div>${parte == null ? "" : `<span class="pct">${Math.round(v * 100)}%</span>`}`
-      : `<div class="foto sinFoto">${parte == null ? "" : Math.round(v * 100) + "%"}</div>`}`;
-  el.closest(".anilloGrande")?.classList.toggle("sinFoto", !$("ava").querySelector("img"));
+    <div class="foto sinFoto">${parte == null ? "" : Math.round(v * 100) + "%"}</div>`;
+  el.closest(".anilloGrande")?.classList.add("sinFoto");
   const arco = el.querySelector(".arco"), fin = C * (1 - v);
   if (quietito()) arco.setAttribute("stroke-dashoffset", fin);
   else requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -2874,8 +2872,8 @@ function anilloChispas(el, parte, pasado){
     a: .14 + rnd() * .22, f: rnd() * 6.28, v: .6 + rnd() * .8 }));
   // Hebras: trazos cortos a distintos radios, como un aro cepillado de luz.
   // Cada una vive en un tramo del arco y se desplaza despacio por él.
-  const hebras = Array.from({ length: 26 }, () => ({ d: (rnd() - .5) * 26, w: .5 + rnd() * .9, a: .08 + rnd() * .2,
-    p: rnd(), l: .08 + rnd() * .35, v: (rnd() - .5) * .25 }));
+  const hebras = Array.from({ length: 44 }, () => ({ d: (rnd() - .5) * 38, w: .4 + rnd() * .9, a: .06 + rnd() * .18,
+    p: rnd(), l: .05 + rnd() * .3, v: (rnd() - .5) * .35 }));
   const chispas = [];
   const medir = () => {
     const d = Math.min(devicePixelRatio || 1, 2), w = cv.clientWidth, h = cv.clientHeight;
@@ -2919,24 +2917,43 @@ function anilloChispas(el, parte, pasado){
     }
     for (const c of chispas){
       const vida = 1 - c.e / c.dur;
-      cx.strokeStyle = color(vida * .9); cx.lineWidth = c.w;
+      if (c.aguja){
+        // Aguja: un trazo radial fijo que nace, se estira y se apaga.
+        const lar = c.lar * Math.sin(Math.min(1, c.e / c.dur) * Math.PI);
+        cx.strokeStyle = color(vida * .7); cx.lineWidth = c.w;
+        cx.beginPath(); cx.moveTo(c.x, c.y); cx.lineTo(c.x + Math.cos(c.dir) * lar, c.y + Math.sin(c.dir) * lar); cx.stroke();
+        continue;
+      }
+      cx.strokeStyle = color(vida * .95); cx.lineWidth = c.w;
       cx.beginPath(); cx.moveTo(c.x - c.vx * c.cola, c.y - c.vy * c.cola); cx.lineTo(c.x, c.y); cx.stroke();
+      if (c.brasa){                                                  // pavesa: un punto que brilla
+        const g = cx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 4);
+        g.addColorStop(0, `rgba(255,250,230,${(vida * .9).toFixed(3)})`); g.addColorStop(1, color(0));
+        cx.fillStyle = g; cx.beginPath(); cx.arc(c.x, c.y, 4, 0, 7); cx.fill();
+      }
     }
     cx.globalCompositeOperation = "source-over";
   };
   // Las chispas salen sobre todo de la punta, hacia adelante y afuera, y unas
   // pocas de cualquier punto del trazo. Caen un poco y se apagan.
   const emitir = (ang, n) => {
-    for (let i = 0; i < n && chispas.length < 140; i++){
-      const dePunta = rnd() < .5, a = INI + (dePunta ? ang - rnd() * .15 : rnd() * ang);
+    for (let i = 0; i < n && chispas.length < 320; i++){
+      const dePunta = rnd() < .35, a = INI + (dePunta ? ang - rnd() * .12 : rnd() * ang);
       const x = W / 2 + Math.cos(a) * R, y = H / 2 + Math.sin(a) * R;
-      // Rayos: unas pocas salen radiales, rápidas y cortas, como las agujas de
-      // luz de la referencia. Las demás, tangentes y hacia afuera, caen y se apagan.
-      const rayo = rnd() < .3;
-      const dir = rayo ? a + (rnd() - .5) * .3 : a + (dePunta ? .9 : 0) + (rnd() - .5) * 1.2;
-      const vel = (rayo ? 90 + rnd() * 120 : 30 + rnd() * 80) / 60, afuera = rayo ? 0 : (rnd() - .35) * 1.8;
+      const suerte = rnd();
+      if (suerte < .45){
+        // Agujas: trazos radiales por todo el trazo, hacia afuera y algunos
+        // hacia adentro, que nacen, se estiran y se apagan. Son el "pelo" de
+        // luz de la referencia.
+        const dir = a + (rnd() - .5) * .5 + (rnd() < .22 ? Math.PI : 0);
+        chispas.push({ aguja: true, x, y, dir, lar: 10 + rnd() * 34, e: 0, dur: 140 + rnd() * 260, w: .4 + rnd() * .7 });
+        continue;
+      }
+      // Pavesas: salen tangentes y hacia afuera (de la punta, hacia adelante),
+      // caen un poco y se apagan. Algunas brillan como un punto.
+      const dir = a + (dePunta ? 1 : 0) + (rnd() - .5) * 1.4, vel = (30 + rnd() * 100) / 60, afuera = (rnd() - .3) * 2.4;
       chispas.push({ x, y, vx: Math.cos(dir) * vel + Math.cos(a) * afuera, vy: Math.sin(dir) * vel + Math.sin(a) * afuera,
-        e: 0, dur: rayo ? 160 + rnd() * 220 : 400 + rnd() * 800, w: rayo ? .5 + rnd() * .6 : .7 + rnd() * 1.3, cola: rayo ? 9 : 5 });
+        e: 0, dur: 400 + rnd() * 900, w: .6 + rnd() * 1.4, cola: 4 + rnd() * 5, brasa: rnd() < .25 });
     }
   };
   const ciclo = (ms) => {
@@ -2948,7 +2965,7 @@ function anilloChispas(el, parte, pasado){
     // El arco crece desde cero con la misma curva que el SVG de respaldo.
     const e = Math.max(0, Math.min(1, (t - .25) / 1.1)), ang = fin * (1 - Math.pow(1 - e, 3));
     const angVivo = parte == null ? (t * .8) % (Math.PI * 2) : ang;   // sin ingresos, la punta orbita sola
-    emitir(angVivo, e < 1 ? 6 : (rnd() < .7 ? 2 : 1));   // muchas mientras crece, un goteo después
+    emitir(angVivo, e < 1 ? 16 : 6);                     // muchas mientras crece, y nunca se apaga del todo
     for (let i = chispas.length - 1; i >= 0; i--){
       const c = chispas[i]; c.e += dt;
       c.x += c.vx * dt / 16; c.y += c.vy * dt / 16; c.vx *= .985; c.vy = c.vy * .985 + .02;
