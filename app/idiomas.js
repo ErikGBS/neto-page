@@ -623,6 +623,25 @@ function ponerIdioma(lang){
   return true;
 }
 
+// Las categorías que crea el backend (DEFAULT_CATEGORIES) se muestran en el
+// idioma elegido, con las mismas traducciones que la app (finance-app:
+// strings.dart, _categoryI18n). Las que creó el usuario se quedan tal cual.
+// Solo cambia lo que se ve: filtros y claves siguen con el nombre guardado.
+const CATEGORIAS = {
+  "alimentación": ["Food", "Alimentação"], "transporte": ["Transport", "Transporte"],
+  "entretenimiento": ["Entertainment", "Entretenimento"], "servicios": ["Utilities", "Serviços"],
+  "salud": ["Health", "Saúde"], "compras": ["Shopping", "Compras"], "educación": ["Education", "Educação"],
+  "vivienda": ["Housing", "Moradia"], "transferencia": ["Transfer", "Transferência"], "banco": ["Bank", "Banco"],
+  "ingreso": ["Income", "Receita"], "otros": ["Other", "Outros"],
+};
+function nombreCategoria(c){
+  c = String(c ?? "");
+  const tr = LANG !== "es" && CATEGORIAS[c.trim().toLowerCase()];
+  if (!tr) return c;
+  const x = tr[LANG === "en" ? 0 : 1];
+  return c.trim()[0] === c.trim()[0].toLowerCase() ? x.toLowerCase() : x;   // respeta "alimentación" / "Alimentación"
+}
+
 // Países y monedas: los nombres los trae el navegador en cada idioma.
 function nombreEn(tipo, codigo, enEspanol){
   if (LANG === "es") return enEspanol;

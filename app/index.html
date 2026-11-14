@@ -3693,7 +3693,7 @@ function pintarOrbita(){
     const cats = construirCerebro(gastos, mes.moneda).nodos
       .filter((n) => n.tipo === "cat" && n.cat !== "otras" && n.total > 0).sort((a, b) => b.total - a.total).slice(0, 5);
     const max = Math.max(...cats.map((c) => c.total), 1);
-    const nombre = (c) => { c = c.trim(); return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); };
+    const nombre = (c) => { c = nombreCategoria(c.trim()); return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); };
     const caja = $("planetas");
     caja.innerHTML = cats.length ? cats.map((c, i) =>
       `<button type="button" class="planeta${i === 0 ? " oro" : ""}${quietito() ? "" : " nace"}" data-i="${i}" style="--s:${Math.round(44 + 76 * Math.sqrt(c.total / max))}px;--z:${(1.4 - i * .2).toFixed(1)};--i:${i}" title="${esc(nombre(c.cat))}: ${esc(plata(c.total, mes.moneda))}">
@@ -4401,7 +4401,7 @@ function pintarCategorias(){
   $("cats").hidden = !filas.length;
   if (!filas.length) return;
   const top = filas.slice(0, 5), resto = filas.slice(5);
-  const nombre = (c) => { c = c.trim(); return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); };
+  const nombre = (c) => { c = nombreCategoria(c.trim()); return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); };
   // La fila es la barra: un tono, la cifra tabular a la derecha, sin puntos de
   // color ni porcentajes. Lo dibuja charts.js; si no cargó, la lista en texto.
   if (window.Charts){
@@ -5830,7 +5830,7 @@ function abrirNodo(nodo){
   ajustarFondo();
 }
 
-const nombreCat = (c) => { c = String(c || "").trim(); return c.charAt(0).toUpperCase() + c.slice(1); };
+const nombreCat = (c) => { c = nombreCategoria(String(c || "").trim()); return c.charAt(0).toUpperCase() + c.slice(1); };
 
 // La barra: enviar pregunta, y vaciarla devuelve el cerebro entero.
 (() => {
@@ -6495,7 +6495,7 @@ function pintarGastos(txs, cats, cur, dash){
     .sort((a, b) => b.spent_month - a.spent_month)
     .slice(0, 10)
     .map((c) => ({
-      label: c.category, techo: c.budget ? plata(c.budget, cur) : "",
+      label: nombreCategoria(c.category), techo: c.budget ? plata(c.budget, cur) : "",
       value: c.spent_month, target: c.avg_monthly || 0, tolerance: 0,
     }));
   if (filas.length && filas.some((f) => f.target > 0)){
@@ -6564,7 +6564,7 @@ function pintarMundosGastos(gastos, cats, cur){
     .sort((a, b) => b.total - a.total).slice(0, 8);
   const max = Math.max(...mundos.map((m) => m.total), 1);
   const prom = new Map((cats || []).filter((c) => c.currency === cur && c.avg_monthly > 0).map((c) => [c.category.trim().toLowerCase(), c.avg_monthly]));
-  const nombre = (c) => { c = c.trim(); return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); };
+  const nombre = (c) => { c = nombreCategoria(c.trim()); return c.charAt(0).toUpperCase() + c.slice(1).toLowerCase(); };
   const caja = $("gaPlanetas");
   caja.innerHTML = mundos.length ? mundos.map((m, i) => {
     const avg = prom.get(m.cat.trim().toLowerCase()), d = avg ? m.total - avg : null;
@@ -6614,7 +6614,7 @@ async function pintarTendencia(cur){
   const antes = new Map(sumarPor(anterior, catNorm));
   const bonito = new Map();
   for (const t of [...esteMes, ...anterior])
-    if (!bonito.has(catNorm(t))) bonito.set(catNorm(t), (t.category || "").trim() || "Otros");
+    if (!bonito.has(catNorm(t))) bonito.set(catNorm(t), nombreCategoria((t.category || "").trim() || "Otros"));
   const todas = [...new Set([...ahora.keys(), ...antes.keys()])]
     .map((c) => ({ cat:bonito.get(c) || c, a:ahora.get(c) || 0, b:antes.get(c) || 0 }))
     .sort((x, y) => Math.abs(y.a - y.b) - Math.abs(x.a - x.b))
@@ -6918,7 +6918,7 @@ async function pedirMesMovs(){
   const cats = [...new Set(movsDelMes.map((t) => t.category).filter(Boolean))].sort();
   const elegida = $("moCat").value;
   $("moCat").innerHTML = `<option value="">Todas las categorías</option>`
-    + cats.map((c) => `<option value="${esc(c)}"${c === elegida ? " selected" : ""}>${esc(c)}</option>`).join("");
+    + cats.map((c) => `<option value="${esc(c)}" translate="no"${c === elegida ? " selected" : ""}>${esc(nombreCategoria(c))}</option>`).join("");
   pintarMovs();
 }
 
@@ -7011,11 +7011,11 @@ function pintarTablaMovs(filas){
     return `<div class="dia"><h4>${esc(nombreDia(d.f))}<span>${esc(total)}</span></h4>` + d.items.map(({ t, i }) => {
       const gasto = t.type !== "income", quien = sinPrefijoTarjeta(t.description) || "Sin detalle";
       // Datos del usuario (categoría, contraparte) aparte de las etiquetas, que sí se traducen.
-      const sub = [[t.category || "Otros", 1], [CANALES[t.source] || t.source], [METODO[t.card_type]],
+      const sub = [[nombreCategoria(t.category || "Otros"), 1], [CANALES[t.source] || t.source], [METODO[t.card_type]],
         [t.counterpart && t.counterpart.trim().toLowerCase() !== quien.toLowerCase() ? t.counterpart : "", 1]]
         .filter(([v]) => v).map(([v, dato]) => dato ? propio(v) : esc(v)).join(" · ");
       return `<button type="button" class="mov${gasto ? "" : " entra"}" data-i="${i}" style="--i:${Math.min(n++, 18)}">
-        <i class="ficha" aria-hidden="true">${esc(siglaCat(t.category))}</i>
+        <i class="ficha" aria-hidden="true">${esc(siglaCat(nombreCategoria(t.category || "Otros")))}</i>
         <span class="quien"><b translate="no">${esc(corta(quien, 44))}</b><small>${sub}</small></span>
         <span class="monto"${gasto ? "" : ' style="color:var(--positive)"'}>${gasto ? "−" : "+"}${esc(plata(Number(t.amount) || 0, t.currency))}</span>
       </button>`;
@@ -7057,7 +7057,7 @@ function abrirDetalleMov(i){
     <p class="cuando">${esc(mayuscula(f.toLocaleDateString(LOC, { weekday:"long", day:"numeric", month:"long", year:"numeric" })))}
       · ${esc(f.toLocaleTimeString(LOC, { hour:"2-digit", minute:"2-digit" }))}</p>
     <div class="filas">
-      ${fila("Categoría", t.category || "Otros", true)}
+      ${fila("Categoría", nombreCategoria(t.category || "Otros"), true)}
       ${fila("Método", METODO[t.card_type] || (gasto ? "Sin tarjeta" : ""))}
       ${fila("Dónde", CANALES[t.source] || t.source)}
       ${fila(gasto ? "A quién" : "De quién", t.counterpart && t.counterpart.trim().toLowerCase() !== quien.toLowerCase() ? t.counterpart : "", true)}
@@ -7068,7 +7068,7 @@ function abrirDetalleMov(i){
       <p class="cifra">${mismos.length} veces · ${esc(plata(sumaMismos, cur))}</p>
       <div class="mini">${mismos.map((x, k) => `<i style="--i:${k};height:${Math.max(8, (Number(x.amount) || 0) / maxMismo * 100).toFixed(0)}%"${mismoId(x) ? ' class="yo"' : ""}></i>`).join("")}</div>
       <p class="sub">promedio ${esc(plata(sumaMismos / mismos.length, cur))} · el dorado es este</p></div>` : ""}
-    ${esDelMes && gasto && cat ? `<div class="ctx"><p class="lbl">Peso en ${propio(t.category || "Otros")}</p>
+    ${esDelMes && gasto && cat ? `<div class="ctx"><p class="lbl">Peso en ${propio(nombreCategoria(t.category || "Otros"))}</p>
       <p class="cifra">${Math.round(peso * 100)}% de ${esc(plata(cat, cur))} este mes</p>
       <div class="pista"><i style="width:${(peso * 100).toFixed(1)}%"></i></div></div>` : ""}`;
   $("moCerrar").onclick = () => cerrarDetalleMov();
