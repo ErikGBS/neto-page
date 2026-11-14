@@ -590,8 +590,65 @@
   .waForm{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
   .waForm input{font:inherit;flex:1 1 220px;min-width:0;height:44px;padding:0 14px;border-radius:11px;
     border:1px solid var(--border);background:var(--surface);color:var(--text)}
-  .waForm input:focus{outline:none;border-color:rgba(208,165,92,.68)}
+  .waForm input:focus,.waForm select:focus{outline:none;border-color:rgba(208,165,92,.68)}
+  .waForm select{font:inherit;flex:0 1 170px;min-width:0;height:44px;padding:0 10px;border-radius:11px;
+    border:1px solid var(--border);background:var(--surface);color:var(--text)}
+  .waForm input{flex-basis:180px}
+  .waLabel{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-top:14px}
+  .waLabel + .waForm{margin-top:8px}
   .waNota{font-size:.85rem;color:var(--dim);margin-top:10px} .waNota a{color:var(--gold-bright)}
+  /* Ajustes: filas con su selector a la derecha; el tono en tarjetas. */
+  .ajFila{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 0;border-top:1px solid var(--rule)}
+  .ajFila:first-of-type{border-top:0;padding-top:0}
+  .ajFila > div:first-child{flex:1 1 260px;min-width:0} .ajFila b{display:block;font-size:15px;font-weight:600}
+  .ajFila > div:first-child span{display:block;font-size:13px;color:var(--faint);max-width:60ch}
+  .ajFila select{font:inherit;font-size:14px;height:40px;padding:0 14px;border-radius:999px;min-width:220px;max-width:100%;
+    border:1px solid transparent;background:linear-gradient(180deg,#2d2c38,#222129);color:var(--text);box-shadow:var(--clay-chica)}
+  .ajFila select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .ajFila.col{flex-direction:column;align-items:stretch} .ajFila.col > div:first-child{flex:none}
+  /* flex y no grid auto-fit: Chrome mide el botón a ancho mínimo y estira la fila */
+  .ajFila .tonos{display:flex;flex-wrap:wrap} .ajFila .tono{flex:1 1 240px;width:auto}
+  .ajGuardado{font-size:13px;color:var(--positive);min-height:18px;margin:4px 0 0}
+  .ajGuardado.mal{color:var(--negative)}
+  .tonos{display:grid;gap:10px}
+  .tono{--acento:var(--gold);display:grid;grid-template-columns:44px minmax(0,1fr) 22px;gap:12px;align-items:start;width:100%;
+    text-align:left;white-space:normal;padding:14px;border-radius:16px;border:1.5px solid transparent;color:var(--text);
+    background:linear-gradient(180deg,#2d2c38,#222129);box-shadow:var(--clay-chica)}
+  .tono.light{--acento:#ec9bc0} .tono.rude{--acento:#f87171}
+  .tono .sol{display:block;width:44px;height:44px;margin-top:-4px}
+  .tono b{font-size:15px;font-weight:600} .tono p{margin:2px 0 8px;color:var(--muted);font-size:13px}
+  .tono q{display:inline-block;quotes:none;background:var(--raised);border-radius:12px 12px 12px 4px;padding:8px 11px;font-size:13px;line-height:1.35}
+  .tono .chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--control);box-sizing:border-box}
+  .tono[aria-pressed="true"]{border-color:var(--acento)}
+  .tono[aria-pressed="true"] .chk{background:var(--acento);border-color:var(--acento)}
+  /* Bienvenida: una caja de arcilla sobre el cielo, un paso a la vez. */
+  .bienvenida{position:fixed;inset:0;z-index:60;display:grid;place-items:center;
+    padding:max(20px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+    background:radial-gradient(70% 60% at 50% 30%,rgba(208,165,92,.13),transparent 70%),rgba(6,6,8,.84);backdrop-filter:blur(6px)}
+  .bienvenida[hidden]{display:none}
+  .bvCaja{width:100%;max-width:520px;max-height:calc(100dvh - 40px);overflow:auto;display:flex;flex-direction:column;gap:14px;
+    padding:24px;border-radius:24px;background:linear-gradient(180deg,#262530,#17161d);box-shadow:var(--clay-sombra);
+    animation:llegada .45s var(--ease-expo) both}
+  .bvCab{display:flex;align-items:center;gap:10px;font-family:var(--tit);font-size:17px} .bvCab img{border-radius:50%}
+  .bvProgreso{display:flex;gap:6px} .bvProgreso i{flex:1;height:4px;border-radius:2px;background:var(--control)} .bvProgreso i.on{background:var(--gold)}
+  .bvPaso h2{font-family:var(--tit);font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.2;margin:0 0 6px;text-wrap:balance}
+  .bvPaso > p{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .bvOps{display:grid;gap:8px}
+  .bvOp{display:flex;align-items:center;gap:12px;width:100%;text-align:left;white-space:normal;padding:12px 14px;border-radius:14px;
+    border:1.5px solid transparent;color:var(--text);background:linear-gradient(180deg,#2d2c38,#222129);box-shadow:var(--clay-chica)}
+  .bvOp[aria-pressed="true"]{border-color:var(--gold)} .bvOp[hidden]{display:none}
+  .bvOp .ban{font-size:22px;line-height:1} .bvOp b{display:block;font-size:15px;font-weight:600} .bvOp small{display:block;color:var(--faint);font-size:12px}
+  .bvOp .sim{min-width:42px;font-family:var(--tit);font-weight:700;color:var(--gold-bright)} .bvOp .cod{margin-left:auto;color:var(--faint);font-size:12px}
+  .bvBuscar{font:inherit;width:100%;height:42px;padding:0 14px;margin-bottom:10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text)}
+  .bvBuscar:focus{outline:none;border-color:rgba(208,165,92,.68)}
+  .bvLista{max-height:min(320px,42dvh);overflow:auto;padding:2px}
+  .bvWa{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;margin:4px auto 14px;background:color-mix(in srgb,var(--entra) 16%,transparent)}
+  .bvWa svg{width:46px;height:46px} .bvOjo{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+  .bvPaso > p b{color:var(--text);font-weight:600}
+  .bvTiendas{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px} .bvTiendas a.accion{text-decoration:none} .bvPaso.centro{text-align:center} .bvPaso.centro > p{max-width:42ch;margin-inline:auto}
+  .bvPie{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap} .bvPie .texto{background:none;border:0;box-shadow:none;color:var(--muted)}
+  .bvError{color:var(--negative);font-size:13px;margin:0;min-height:0} .bvError:empty{display:none}
+  body.conBienvenida{overflow:hidden}
   /* Selector de plan: dos tarjetas que se tocan, no un desplegable. */
   .planes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 4px}
   .plan-op{display:flex;flex-direction:column;gap:4px;align-items:flex-start;
@@ -1962,6 +2019,10 @@
         <img class="ico3d" src="ico-estrella.webp" alt="" width="22" height="22">
         Activar Pro
       </button>
+      <button data-tab="ajustes" style="--i:11">
+        <img class="ico3d" src="ico-tuerca.webp" alt="" width="22" height="22">
+        Ajustes
+      </button>
     </nav>
 
     <nav id="menuAdmin" style="display:none">
@@ -1997,6 +2058,7 @@
         <p class="muted" id="correo"></p>
         <p class="muted" id="miniSub"></p>
         <button role="menuitem" data-tab="plan">Ver mi plan</button>
+        <button role="menuitem" data-tab="ajustes">Ajustes</button>
         <button role="menuitem" id="logoutBtn">Salir</button>
       </div>
       <button class="yo" id="cuentaBtn" aria-haspopup="menu" aria-expanded="false"
@@ -2041,7 +2103,7 @@
       <div class="botones">
         <a class="accion" href="https://apps.apple.com/app/id6778281655" target="_blank" rel="noopener">App Store</a>
         <a class="accion" href="https://play.google.com/store/apps/details?id=com.erikgbs.finance_app&amp;pcampaignid=web_share" target="_blank" rel="noopener">Google Play</a>
-        <a class="accion" href="#plan">Vincular WhatsApp</a>
+        <a class="accion" href="#ajustes">Vincular WhatsApp</a>
       </div>
       <button type="button" class="cerrar" id="avisoAppCerrar" aria-label="Cerrar el aviso">×</button>
     </div>
@@ -2152,10 +2214,6 @@
         <h2>Tu plan</h2>
         <div id="estado" aria-live="polite"><p class="muted">Cargando…</p></div>
       </div>
-      <div class="card" id="waCard">
-        <h2>Tu WhatsApp</h2>
-        <div id="waEstado" aria-live="polite"><p class="muted">Cargando…</p></div>
-      </div>
       <div class="card">
         <h2>Qué incluye</h2>
         <p class="muted" style="margin-bottom:12px">
@@ -2166,6 +2224,38 @@
         <div id="queIncluye" class="muted"></div>
         <p class="muted" style="margin-top:12px">Se paga por Yape y se activa a mano,
         así que no guardamos ninguna tarjeta ni se renueva solo.</p>
+      </div>
+    </section>
+
+    <section id="tab-ajustes" style="display:none">
+      <div class="card" id="waCard">
+        <h2>Tu WhatsApp</h2>
+        <div id="waEstado" aria-live="polite"><p class="muted">Cargando…</p></div>
+      </div>
+      <div class="card">
+        <h2>Preferencias</h2>
+        <div class="ajFila">
+          <div><b>Idioma</b><span>Así te hablan la app y el asistente de WhatsApp.</span></div>
+          <select id="ajIdioma" aria-label="Idioma"></select>
+        </div>
+        <div class="ajFila">
+          <div><b>País</b><span>Para ubicar tu número y tus fechas.</span></div>
+          <select id="ajPais" aria-label="País"></select>
+        </div>
+        <div class="ajFila">
+          <div><b>Moneda</b><span>Se usará en tus nuevos movimientos. Los anteriores se mantienen en la moneda con la que los registraste.</span></div>
+          <select id="ajMoneda" aria-label="Moneda"></select>
+        </div>
+        <div class="ajFila col">
+          <div><b>Cómo te habla</b><span>Así te hablará Y Altoque en la app y por WhatsApp.</span></div>
+          <div class="tonos" id="ajTonos" role="group" aria-label="Cómo te habla"></div>
+        </div>
+        <p class="ajGuardado" id="ajGuardado" aria-live="polite"></p>
+      </div>
+      <div class="card">
+        <h2>Bienvenida</h2>
+        <p class="muted">Los primeros pasos: tu idioma, tu moneda, cómo te habla y tu WhatsApp.</p>
+        <div class="acciones"><button id="ajVerBienvenida">Ver la bienvenida otra vez</button></div>
       </div>
     </section>
 
@@ -2559,6 +2649,17 @@
 
 </div>
 
+<!-- ── Bienvenida: los primeros pasos de la app, para quien llega nuevo ──── -->
+<div class="bienvenida" id="bienvenida" hidden role="dialog" aria-modal="true" aria-labelledby="bvTitulo">
+  <div class="bvCaja">
+    <header class="bvCab"><img src="/logo.png" width="40" height="40" alt=""><b>Y Altoque</b></header>
+    <div class="bvProgreso" id="bvProgreso" aria-hidden="true"></div>
+    <div class="bvPaso" id="bvPaso"></div>
+    <p class="bvError" id="bvError" aria-live="polite"></p>
+    <div class="bvPie" id="bvPie"></div>
+  </div>
+</div>
+
 <!-- ── Entrar ─────────────────────────────────────────────────────────────── -->
 <div id="login" class="entrar" style="display:none">
   <div class="saludo" role="status">
@@ -2676,14 +2777,14 @@ const DEL_PROVEEDOR = /(access_token|[?&]code)=/.test(location.hash + location.s
 const $ = (id) => document.getElementById(id);
 const show = (v) => { for (const x of ["login","app"]) $(x).style.display = (x===v ? "" : "none"); };
 
-const TABS = ["resumen","gastos","finmes","movs","compromisos","metas","plan","pro",
+const TABS = ["resumen","gastos","finmes","movs","compromisos","metas","plan","pro","ajustes",
   "pagos","wa","ad-resumen","ad-crecimiento","ad-uso","ad-usuarios"];
 // Las tres que caben en la barra del teléfono: lo que se mira a diario.
 const DIARIO = ["resumen","gastos","finmes"];
 const TITULO = {
   resumen:"Resumen", gastos:"En qué se te va", finmes:"¿Llegas a fin de mes?",
   movs:"Movimientos", compromisos:"Compromisos", metas:"Metas",
-  plan:"Mi plan", pro:"Activar Pro",
+  plan:"Mi plan", pro:"Activar Pro", ajustes:"Ajustes",
   pagos:"Pagos por revisar", wa:"Clientes",
   "ad-resumen":"Métricas", "ad-crecimiento":"Crecimiento",
   "ad-uso":"Uso", "ad-usuarios":"Usuarios",
@@ -2728,7 +2829,7 @@ function cambiarVista(name, desdeHistorial){
     history[desdeHistorial || !location.hash ? "replaceState" : "pushState"](null, "", destino);
   menu(false);                        // en el teléfono, elegir cierra la barra
   if (name === "pro") cargarPro();
-  if (name === "plan") cargarWhatsApp(); else clearInterval(waSondeo);
+  if (name === "ajustes"){ cargarWhatsApp(); cargarAjustes(); } else clearInterval(waSondeo);
   if (name === "resumen"){
     pintar();                         // el SVG necesita medir su contenedor ya visible
     subirNumeros();                   // si se entró por otra pestaña, cuentan aquí
@@ -2970,9 +3071,214 @@ function pintarYo(nombre, correo, foto){
   $("escotillaCara").innerHTML = $("ava").innerHTML;        // la cara que mira desde la escotilla del menú
 }
 
+// ── Ajustes y bienvenida. Las listas y los textos son los de la app
+// (finance-app: app_language.dart, currency.dart, countries.dart y
+// strings_voice.dart), para que la web y la app digan lo mismo.
+const IDIOMAS = [["es","🇵🇪","Español","Spanish"],["en","🇺🇸","English","English"],["pt","🇧🇷","Português","Portuguese"]];
+const MONEDAS = [["PEN","S/","Sol peruano"],["USD","$","Dólar estadounidense"],["EUR","€","Euro"],["COP","$","Peso colombiano"],
+  ["MXN","$","Peso mexicano"],["CLP","$","Peso chileno"],["ARS","$","Peso argentino"],["BRL","R$","Real brasileño"],["BOB","Bs","Boliviano"],
+  ["UYU","$U","Peso uruguayo"],["PYG","₲","Guaraní"],["VES","Bs","Bolívar venezolano"],["GTQ","Q","Quetzal"],["CRC","₡","Colón costarricense"],
+  ["DOP","RD$","Peso dominicano"],["HNL","L","Lempira"],["NIO","C$","Córdoba"],["PAB","B/.","Balboa"],["GBP","£","Libra esterlina"],["CAD","C$","Dólar canadiense"]];
+// [ISO, nombre, prefijo]: la lista de finance-app (lib/core/constants/countries.dart).
+const PAISES = [["AR","Argentina","54"],["BO","Bolivia","591"],["BR","Brasil","55"],["CA","Canadá","1"],["CL","Chile","56"],
+  ["CO","Colombia","57"],["CR","Costa Rica","506"],["CU","Cuba","53"],["DO","República Dominicana","1"],["EC","Ecuador","593"],
+  ["SV","El Salvador","503"],["GT","Guatemala","502"],["HN","Honduras","504"],["MX","México","52"],["NI","Nicaragua","505"],
+  ["PA","Panamá","507"],["PY","Paraguay","595"],["PE","Perú","51"],["PR","Puerto Rico","1"],["UY","Uruguay","598"],
+  ["VE","Venezuela","58"],["ES","España","34"],["PT","Portugal","351"],["US","Estados Unidos","1"],["GB","Reino Unido","44"],
+  ["FR","Francia","33"],["DE","Alemania","49"],["IT","Italia","39"],["NL","Países Bajos","31"],["BE","Bélgica","32"],
+  ["AT","Austria","43"],["IE","Irlanda","353"],["GR","Grecia","30"],["FI","Finlandia","358"],["EE","Estonia","372"],
+  ["LV","Letonia","371"],["LT","Lituania","370"],["LU","Luxemburgo","352"],["MT","Malta","356"],["SK","Eslovaquia","421"],
+  ["SI","Eslovenia","386"],["HR","Croacia","385"],["CY","Chipre","357"],["CN","China","86"],["JP","Japón","81"],["AU","Australia","61"]]
+  .sort((a, b) => a[1].localeCompare(b[1], "es"));
+const TONOS_ASISTENTE = [
+  ["light","Cariño","Cálido y cariñoso, siempre pendiente de ti.","Holi 🤍 anoté tus {p}240 de hoy. Cuídate un poquito ¿ya?"],
+  ["normal","Pana","Un pata de confianza, al natural.","Ojo, hoy van {p}240. Vamos tranqui pero atentos 👀"],
+  ["rude","Sargento","Directo y sin rodeos. Te jala las orejas.","{p}240 en un día. Para la mano YA. Esto no va."]];
+const bandera = (iso) => String.fromCodePoint(...[...iso].map((c) => 127397 + c.charCodeAt(0)));
+const prefijo = (cod) => { const m = MONEDAS.find((x) => x[0] === cod); return m ? m[1] + (m[1].length > 1 ? " " : "") : ""; };
+
+// Las preferencias viven en el backend (las mismas que lee la app); se leen
+// una vez y cada cambio se guarda en el momento.
+let prefs = null;
+async function cargarPrefs(){
+  if (prefs) return prefs;
+  const [l, c, t, p] = await Promise.all([api("/users/me/language"), api("/users/me/currency"),
+    api("/users/me/tone"), api("/users/me/profile")]);
+  prefs = { language: l.language, currency: c.currency, tone: t.tone, country: p.country || "" };
+  return prefs;
+}
+const RUTA_PREF = { language:"/users/me/language", currency:"/users/me/currency", tone:"/users/me/tone", country:"/users/me/profile" };
+async function guardarPref(campo, valor){
+  const r = await api(RUTA_PREF[campo], { method:"PUT", headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ [campo]: valor }) });
+  prefs[campo] = (r && r[campo] != null) ? r[campo] : valor;
+  return prefs[campo];
+}
+// La carita del sol de la app (finance-app: mood_sun.dart, MoodSunPainter) pasada
+// a SVG con sus mismas medidas: cariño con ojitos felices, pana guiñando y
+// sargento con el ceño recto. Mismos acentos que tone_option_card.dart.
+const ACENTO_TONO = { light:"#ec9bc0", normal:"#d0a55c", rude:"#f87171" };
+let solN = 0;
+function carita(tono){
+  const a = ACENTO_TONO[tono] || ACENTO_TONO.normal, id = "sol" + (++solN), c = 22, R = 17.6, P = Math.PI;
+  const claro = "#" + [1, 3, 5].map((i) => Math.round(parseInt(a.slice(i, i + 2), 16) * .65 + 255 * .35).toString(16).padStart(2, "0")).join("");
+  const f = (n) => n.toFixed(2);
+  const arco = (x, y, r, s, sw) => `M${f(x + r * Math.cos(s))} ${f(y + r * Math.sin(s))}A${f(r)} ${f(r)} 0 ${sw > P ? 1 : 0} 1 ${f(x + r * Math.cos(s + sw))} ${f(y + r * Math.sin(s + sw))}`;
+  const linea = (x0, y0, x1, y1) => `M${f(x0)} ${f(y0)}L${f(x1)} ${f(y1)}`;
+  const ey = c - R * .04, dx = R * .32, er = R * .14;
+  let trazo, punto = "";
+  if (tono === "light") trazo = arco(c - dx, ey, er, P * 1.15, P * .7) + arco(c + dx, ey, er, P * 1.15, P * .7) + arco(c, c + R * .26, R * .18, P * .14, P * .72);
+  else if (tono === "rude") trazo = linea(c - dx - er, ey - er * .5, c - dx + er, ey + er * .25) + linea(c + dx + er, ey - er * .5, c + dx - er, ey + er * .25) + linea(c - R * .16, c + R * .28, c + R * .16, c + R * .28);
+  else { trazo = arco(c - dx, ey, er, P * 1.05, P * .9) + arco(c + R * .02, c + R * .24, R * .2, P * .08, P * .52); punto = `<circle cx="${f(c + dx)}" cy="${f(ey)}" r="${f(er * .6)}" fill="#2a1c08"/>`; }
+  return `<svg class="sol" viewBox="0 0 44 44" width="44" height="44" aria-hidden="true"><defs>
+      <radialGradient id="${id}h"><stop offset=".3" stop-color="${a}" stop-opacity=".5"/><stop offset="1" stop-color="${a}" stop-opacity="0"/></radialGradient>
+      <radialGradient id="${id}c" cx=".35" cy=".35" r=".5"><stop offset="0" stop-color="#fffef8"/><stop offset=".5" stop-color="${claro}"/><stop offset="1" stop-color="${a}"/></radialGradient></defs>
+    <circle cx="22" cy="22" r="22" fill="url(#${id}h)"/><circle cx="22" cy="22" r="${R}" fill="url(#${id}c)"/>
+    <ellipse cx="${f(c - R * .5)}" cy="${f(c + R * .18)}" rx="${f(R * .16)}" ry="${f(R * .09)}" fill="#ff7eb0" fill-opacity=".5"/>
+    <ellipse cx="${f(c + R * .5)}" cy="${f(c + R * .18)}" rx="${f(R * .16)}" ry="${f(R * .09)}" fill="#ff7eb0" fill-opacity=".5"/>
+    <path d="${trazo}" fill="none" stroke="#2a1c08" stroke-width="${f(R * .09)}" stroke-linecap="round"/>${punto}</svg>`;
+}
+function tarjetasTono(sel, moneda){
+  const p = prefijo(moneda || "PEN");
+  return TONOS_ASISTENTE.map(([id, nombre, desc, ej]) => `<button type="button" class="tono ${id}" data-tono="${id}" aria-pressed="${id === sel}">
+      ${carita(id)}
+      <span><b>${nombre}</b><p>${desc}</p><q>${esc(ej.replace("{p}", p))}</q></span>
+      <span class="chk" aria-hidden="true"></span></button>`).join("");
+}
+
+async function cargarAjustes(){
+  const aviso = (txt, mal) => { const g = $("ajGuardado"); g.textContent = txt; g.classList.toggle("mal", !!mal); };
+  try{ await cargarPrefs(); }catch(e){ aviso("No pudimos leer tus preferencias: " + e.message, true); return; }
+  $("ajIdioma").innerHTML = IDIOMAS.map(([c, b, n]) => `<option value="${c}">${b}  ${n}</option>`).join("");
+  $("ajPais").innerHTML = `<option value="">🌎  Elige tu país</option>` + PAISES.map(([c, n]) => `<option value="${c}">${bandera(c)}  ${n}</option>`).join("");
+  $("ajMoneda").innerHTML = MONEDAS.map(([c, s, n]) => `<option value="${c}">${n} (${s})</option>`).join("");
+  $("ajIdioma").value = prefs.language; $("ajPais").value = prefs.country; $("ajMoneda").value = prefs.currency;
+  const pintarTonos = () => {
+    $("ajTonos").innerHTML = tarjetasTono(prefs.tone, prefs.currency);
+    for (const b of $("ajTonos").querySelectorAll(".tono")) b.onclick = () => cambiar("tone", b.dataset.tono, null, "Tono activado");
+  };
+  async function cambiar(campo, valor, sel, listo){
+    const antes = prefs[campo];
+    if (valor === antes) return;
+    aviso("Guardando…");
+    try{
+      await guardarPref(campo, valor);
+      aviso(listo);
+      if (campo === "tone" || campo === "currency") pintarTonos();
+    }catch(e){
+      if (sel) sel.value = antes;
+      aviso("No se pudo guardar: " + (e.detail || e.message), true);
+    }
+  }
+  $("ajIdioma").onchange = (e) => cambiar("language", e.target.value, e.target, "Idioma guardado");
+  $("ajPais").onchange = (e) => cambiar("country", e.target.value, e.target, "País guardado");
+  $("ajMoneda").onchange = (e) => cambiar("currency", e.target.value, e.target,
+    "Moneda cambiada a " + (MONEDAS.find((m) => m[0] === e.target.value) || [])[2]);
+  pintarTonos();
+  $("ajVerBienvenida").onclick = abrirBienvenida;
+}
+
+// ── La bienvenida: los pasos de la app (idioma, moneda, tono y WhatsApp). La
+// app decide con marcas locales; la web hace lo mismo y además solo la abre a
+// quien no tiene movimientos este mes y sigue con todo por defecto.
+const BV = { pasos: ["idioma","moneda","tono","whatsapp"], i: 0, sel: {}, abierta: false };
+async function revisarBienvenida(movimientos){
+  let vista = false;
+  try{ vista = localStorage.getItem("bienvenidaWeb") === "1"; }catch{}
+  if (vista || movimientos > 0 || BV.abierta) return;
+  try{
+    const p = await cargarPrefs();
+    if (p.language === "es" && p.currency === "PEN" && p.tone === "normal") abrirBienvenida();
+  }catch{}
+}
+async function abrirBienvenida(){
+  try{ await cargarPrefs(); }catch{ return; }
+  Object.assign(BV, { i: 0, abierta: true, sel: { language: prefs.language, currency: prefs.currency, tone: prefs.tone } });
+  $("bienvenida").hidden = false; document.body.classList.add("conBienvenida");
+  pintarPaso();
+}
+function cerrarBienvenida(){
+  BV.abierta = false; $("bienvenida").hidden = true; document.body.classList.remove("conBienvenida");
+  if ($("tab-ajustes").style.display !== "none") cargarAjustes();
+  try{ localStorage.setItem("bienvenidaWeb", "1"); }catch{}
+  api("/users/me/events", { method:"POST", headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ event:"onboarding_done", platform:"web" }) }).catch(() => {});
+}
+const WA_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4fc9a3" d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35m-5.42 7.4a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88a9.87 9.87 0 0 1 9.88 9.89c0 5.45-4.44 9.88-9.89 9.88M20.46 3.49A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.69 1.45c6.55 0 11.89-5.34 11.89-11.9 0-3.17-1.24-6.16-3.48-8.41"/></svg>`;
+// "Ahora no" no cierra de una: antes deja claro que la web solo muestra, y que
+// los movimientos entran por la app o por WhatsApp.
+function avisoSinWhatsApp(){
+  const caja = $("bvPaso"), pie = $("bvPie");
+  caja.classList.add("centro");
+  caja.innerHTML = `<div class="bvWa bvOjo"><img src="ico-cohete.webp" width="56" height="56" alt=""></div>
+    <h2 id="bvTitulo">Antes de seguir</h2>
+    <p>Desde la web no se anotan movimientos: aquí solo ves tu mes. Tus gastos e ingresos se registran
+      <b>únicamente desde la app o por WhatsApp</b>.</p>
+    <div class="bvTiendas">
+      <a class="accion" href="https://apps.apple.com/app/id6778281655" target="_blank" rel="noopener">App Store</a>
+      <a class="accion" href="https://play.google.com/store/apps/details?id=com.erikgbs.finance_app&amp;pcampaignid=web_share" target="_blank" rel="noopener">Google Play</a>
+    </div>`;
+  pie.innerHTML = `<button type="button" class="texto" id="bvEntendido">Entendido, usaré la app</button><button type="button" class="primary" id="bvConectar">Conectar WhatsApp</button>`;
+  $("bvEntendido").onclick = cerrarBienvenida;
+  $("bvConectar").onclick = () => { waEnfocar = true; cerrarBienvenida(); tab("ajustes"); };
+  $("bvConectar").focus();
+}
+function pintarPaso(){
+  const paso = BV.pasos[BV.i], caja = $("bvPaso"), pie = $("bvPie");
+  $("bvError").textContent = "";
+  $("bvProgreso").innerHTML = BV.pasos.map((_, k) => `<i class="${k <= BV.i ? "on" : ""}"></i>`).join("");
+  caja.classList.toggle("centro", paso === "whatsapp");
+  const op = (campo, valor, html) => `<button type="button" class="bvOp" data-campo="${campo}" data-valor="${valor}" aria-pressed="${BV.sel[campo] === valor}">${html}</button>`;
+  if (paso === "idioma"){
+    caja.innerHTML = `<h2 id="bvTitulo">Elige tu idioma</h2><p>Así verás toda la app. Podrás cambiarlo luego en Ajustes.</p>
+      <div class="bvOps">${IDIOMAS.map(([c, b, n, en]) => op("language", c, `<span class="ban">${b}</span><span><b>${n}</b><small>${en}</small></span>`)).join("")}</div>`;
+  } else if (paso === "moneda"){
+    caja.innerHTML = `<h2 id="bvTitulo">¿En qué moneda manejas tu dinero?</h2>
+      <p>La usaremos para registrar tus movimientos (también desde WhatsApp). Podrás cambiarla luego en Ajustes.</p>
+      <input class="bvBuscar" id="bvBuscar" type="search" placeholder="Buscar (sol, dólar, euro…)" aria-label="Buscar moneda" autocomplete="off">
+      <div class="bvOps bvLista" id="bvLista">${MONEDAS.map(([c, sim, n]) => op("currency", c, `<span class="sim">${sim}</span><span><b>${n}</b></span><span class="cod">${c}</span>`)).join("")}</div>`;
+    $("bvBuscar").oninput = (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      for (const b of $("bvLista").children) b.hidden = !!q && !b.textContent.toLowerCase().includes(q);
+    };
+  } else if (paso === "tono"){
+    caja.innerHTML = `<h2 id="bvTitulo">¿Cómo quieres que te hable?</h2>
+      <p>Tu asistente Y Altoque puede tratarte de tres formas. Lo cambias cuando quieras desde Ajustes.</p>
+      <div class="tonos" id="bvTonos">${tarjetasTono(BV.sel.tone, BV.sel.currency)}</div>`;
+  } else {
+    caja.innerHTML = `<div class="bvWa">${WA_SVG}</div><h2 id="bvTitulo">Conecta tu WhatsApp</h2>
+      <p>Registra gastos mandándole un mensaje, una nota de voz o la foto de tu boleta. Es totalmente opcional: puedes activarlo cuando quieras desde Ajustes.</p>`;
+  }
+  for (const b of caja.querySelectorAll(".bvOp")) b.onclick = () => {
+    BV.sel[b.dataset.campo] = b.dataset.valor;
+    for (const o of caja.querySelectorAll(".bvOp")) o.setAttribute("aria-pressed", o === b);
+  };
+  for (const b of caja.querySelectorAll(".tono")) b.onclick = () => {
+    BV.sel.tone = b.dataset.tono;
+    for (const o of caja.querySelectorAll(".tono")) o.setAttribute("aria-pressed", o === b);
+  };
+  if (paso === "whatsapp"){
+    pie.innerHTML = `<button type="button" class="texto" id="bvAhoraNo">Ahora no</button><button type="button" class="primary" id="bvConectar">Conectar WhatsApp</button>`;
+    $("bvAhoraNo").onclick = avisoSinWhatsApp;
+    $("bvConectar").onclick = () => { waEnfocar = true; cerrarBienvenida(); tab("ajustes"); };
+    $("bvConectar").focus();
+  } else {
+    pie.innerHTML = `<button type="button" class="primary" id="bvSeguir">Continuar</button>`;
+    $("bvSeguir").onclick = async () => {
+      const campo = { idioma:"language", moneda:"currency", tono:"tone" }[paso];
+      const b = $("bvSeguir"); b.disabled = true;
+      try{ if (BV.sel[campo] !== prefs[campo]) await guardarPref(campo, BV.sel[campo]); }
+      catch(e){ b.disabled = false; $("bvError").textContent = "No se pudo guardar: " + (e.detail || e.message); return; }
+      BV.i++; pintarPaso();
+    };
+    (caja.querySelector('[aria-pressed="true"]') || $("bvSeguir")).focus();
+  }
+}
+
 // ── Vincular WhatsApp desde la web, con los mismos endpoints que usa la app:
 // por número (le mandamos un WhatsApp con Aceptar) y, si no llega, por código.
 let waSondeo = 0;
+let waEnfocar = false;   // la bienvenida pide el campo del número listo para escribir
 async function cargarWhatsApp(){
   clearInterval(waSondeo);
   let st;
@@ -3013,46 +3319,41 @@ function pintarWhatsApp(st){
   if (st.pending){
     caja.innerHTML = `<p>Te mandamos un WhatsApp${st.phone ? ` al número terminado en ${esc(st.phone)}` : ""}.
         Tócale <b>Aceptar</b> y esta tarjeta se actualiza sola.</p>
-      <p class="waNota">¿No te llegó? <a href="#plan" id="waCodigo">Vincular con un código</a>
-        o <a href="#plan" id="waOtro">probar con otro número</a>.</p>`;
-    $("waCodigo").onclick = (e) => { e.preventDefault(); vincularPorCodigo(); };
+      <p class="waNota">¿No te llegó? Revisa el número y <a href="#ajustes" id="waOtro">usa otro número</a>.</p>`;
     $("waOtro").onclick = (e) => { e.preventDefault(); clearInterval(waSondeo); pintarWhatsApp({ linked:false, pending:false }); };
     sondearWhatsApp();
     return;
   }
   caja.innerHTML = `<p class="muted">Con tu WhatsApp vinculado registras tu plata desde el chat y le mandas fotos de vouchers.</p>
+    <label class="waLabel" for="waTel">Tu número de WhatsApp</label>
     <form class="waForm" id="waForm">
-      <input id="waTel" type="tel" inputmode="tel" autocomplete="tel" required
-             placeholder="Tu número de WhatsApp" aria-label="Tu número de WhatsApp">
-      <button class="primary" type="submit" id="waMandar">Mandarme el WhatsApp</button>
+      <select id="waPrefijo" aria-label="Código del país">${PAISES.map(([c, n, d]) =>
+        `<option value="${c}">${bandera(c)} +${d} · ${n}</option>`).join("")}</select>
+      <input id="waTel" type="tel" inputmode="tel" autocomplete="tel-national" required
+             placeholder="Sin el código de país" aria-label="Tu número de WhatsApp, sin el código de país">
+      <button class="primary" type="submit" id="waMandar">Enviarme el WhatsApp</button>
     </form>
-    <p class="waNota">Te llega un mensaje de Y Altoque con un botón para confirmar. Si no es de Perú, con el código de país.
-      <a href="#plan" id="waCodigo">Prefiero vincular con un código</a>.</p>`;
+    <p class="waNota">Te llega un mensaje de Y Altoque con un botón para confirmar.</p>`;
+  // El país del perfil, si lo hay; si no, Perú, como la app.
+  const iso = (prefs && prefs.country) || (perfil && perfil.country) || "PE";
+  $("waPrefijo").value = PAISES.some((p) => p[0] === iso) ? iso : "PE";
+  if (waEnfocar){ waEnfocar = false; $("waTel").focus(); }
   $("waForm").onsubmit = async (e) => {
     e.preventDefault();
     const b = $("waMandar"); b.disabled = true; b.textContent = "Enviando…";
     try{
+      const dial = PAISES.find((p) => p[0] === $("waPrefijo").value)[2];
+      const escrito = $("waTel").value.trim(), digitos = escrito.replace(/\D/g, "");
+      // Si lo pegaron ya con su código (+51… o 0051…), va tal cual.
+      const phone = /^(\+|00)/.test(escrito) ? "+" + digitos.replace(/^00/, "") : "+" + dial + digitos;
       const r = await api("/whatsapp/link/phone", { method:"POST", headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ phone: $("waTel").value }) });
+        body: JSON.stringify({ phone }) });
       pintarWhatsApp({ linked:false, pending:true, phone: r.phone });
     }catch(err){
-      b.disabled = false; b.textContent = "Mandarme el WhatsApp";
-      if (err.status === 502) vincularPorCodigo(err.detail);   // Meta no lo mandó: queda el camino del código
-      else avisoWa(err.detail || "No se pudo mandar el WhatsApp: " + err.message);
+      b.disabled = false; b.textContent = "Enviarme el WhatsApp";
+      avisoWa((err.detail || "No pudimos enviarte el WhatsApp.").replace(/,? o vincula con un código/, ""));
     }
   };
-  $("waCodigo").onclick = (e) => { e.preventDefault(); vincularPorCodigo(); };
-}
-async function vincularPorCodigo(motivo){
-  const caja = $("waEstado");
-  let r;
-  try{ r = await api("/whatsapp/link/start", { method:"POST" }); }
-  catch(e){ avisoWa("No se pudo generar el código: " + e.message); return; }
-  caja.innerHTML = `${motivo ? `<p class="muted">${esc(motivo)}</p>` : ""}
-    <p>Abre WhatsApp y manda <b>VINCULAR ${esc(r.code)}</b> al asistente. El código vale 24 horas.</p>
-    <div class="acciones"><a class="btn primary" href="${esc(r.whatsapp_link)}" target="_blank" rel="noopener">Abrir WhatsApp con el mensaje listo</a></div>
-    <p class="waNota">Cuando lo mandes, esta tarjeta se actualiza sola.</p>`;
-  sondearWhatsApp();
 }
 async function cargarPlan(){
   try{
@@ -3884,6 +4185,7 @@ async function cargarMes(){
   let avisoVisto = false;
   try{ avisoVisto = localStorage.getItem("avisoApp") === "1"; }catch{}
   $("avisoApp").hidden = txs.length > 0 || avisoVisto;
+  mes.movimientos = txs.length;   // boot() abre la bienvenida con esto, después de la intro
   pintarKpis();
   pintar();
   pintarCategorias();
@@ -9055,13 +9357,16 @@ async function boot(){
     // aparece con el mes puesto y no con el esqueleto vacío.
     cargarPerfil();
     const plan = cargarPlan().catch(() => {});
-    cargarMes();
+    const delMes = cargarMes();
     cargarExtras();
     mirarSiEsAdmin();
 
     if (intro){ await intro; $("login").classList.remove("entrando"); }
     else NEB.parar();
     show("app");
+    // La bienvenida va recién con el portal a la vista: abrirla en medio de la
+    // intro la tapaba. Sin datos del mes (falló la lectura) no se abre.
+    delMes.then(() => revisarBienvenida(mes.movimientos ?? 1));
     if (!yaLlego){
       yaLlego = true;
       $("app").classList.add("llega");
