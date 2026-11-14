@@ -9,8 +9,9 @@
 //   toma en orden y `{1}`, `{2}`... permiten reordenarlos. Cada trozo se traduce
 //   a su vez.
 // - Lo marcado con translate="no" (el panel admin) no se toca.
-// - Los nombres de categoría son datos del usuario y no se traducen (igual que
-//   en la app, strings_categories.dart).
+// - Los datos del usuario (comercios, nombres, descripciones, categorías que
+//   creó él) no pasan por aquí: van con translate="no". Las 12 categorías
+//   predeterminadas se traducen aparte con nombreCategoria(), como en la app.
 // - Fechas y cifras no pasan por aquí: usan LOC al pintarse.
 const IDIOMAS_LOC = { es:"es-PE", en:"en-US", pt:"pt-BR" };
 let LANG = "es", LOC = "es-PE";
