@@ -1965,7 +1965,7 @@
 <dialog id="dlgNodo" aria-labelledby="dlgTit">
   <header>
     <span class="neurona" aria-hidden="true"></span>
-    <h3 id="dlgTit"></h3>
+    <h3 id="dlgTit" translate="no"></h3>
     <button type="button" id="dlgCerrar" aria-label="Cerrar">✕</button>
   </header>
   <div id="dlgCuerpo"></div>
@@ -2027,7 +2027,7 @@
       </button>
     </nav>
 
-    <nav id="menuAdmin" style="display:none">
+    <nav id="menuAdmin" style="display:none" translate="no">
       <div class="grupo" style="--i:1">Administración</div>
       <button data-tab="pagos" style="--i:2">
         <svg viewBox="0 0 24 24"><path d="M3 7h18v12H3z"/><path d="M7 11h4"/></svg>
@@ -2206,7 +2206,7 @@
           </div>
           <aside class="cats" id="cats" hidden>
             <h3>Top categorías del mes</h3>
-            <div class="lista" id="catsLista"></div>
+            <div class="lista" id="catsLista" translate="no"></div>
             <p class="resto" id="catsResto"></p>
           </aside>
         </div>
@@ -2239,7 +2239,7 @@
       <div class="card">
         <h2>Preferencias</h2>
         <div class="ajFila">
-          <div><b>Idioma</b><span>Así te hablan la app y el asistente de WhatsApp.</span></div>
+          <div><b>Idioma</b><span>El de la web, la app y el asistente de WhatsApp.</span></div>
           <select id="ajIdioma" aria-label="Idioma"></select>
         </div>
         <div class="ajFila">
@@ -2411,7 +2411,7 @@
 
     <div id="adminAviso" class="admin" style="display:none" aria-live="polite"></div>
 
-<section class="tab admin" id="tab-ad-resumen" style="display:none">
+<section class="tab admin" translate="no" id="tab-ad-resumen" style="display:none">
     <div class="grid" id="adminKpis"></div>
     <div class="muted" id="kpisExtra"></div>
 
@@ -2421,7 +2421,7 @@
     </div>
   </section>
 
-<section class="tab admin" id="tab-ad-crecimiento" style="display:none">
+<section class="tab admin" translate="no" id="tab-ad-crecimiento" style="display:none">
     <div class="row2">
       <div class="section">
         <h3>Retención <span class="muted" style="font-weight:400">· apagada a propósito</span></h3>
@@ -2461,7 +2461,7 @@
     </div>
   </section>
 
-<section class="tab admin" id="tab-ad-uso" style="display:none">
+<section class="tab admin" translate="no" id="tab-ad-uso" style="display:none">
     <div class="grid" id="uoKpis"></div>
     <div class="section">
       <div class="rankbar">
@@ -2529,7 +2529,7 @@
     </div>
   </section>
 
-<section class="tab admin" id="tab-ad-usuarios" style="display:none">
+<section class="tab admin" translate="no" id="tab-ad-usuarios" style="display:none">
     <!-- El pulso de la base: cuántos son, cuántos llegan, dónde están y en
          qué estado. Lo que se toca abre a la persona en Clientes. -->
     <div class="grid" id="usKpis"></div>
@@ -2568,7 +2568,7 @@
     </div>
   </section>
 
-<section class="tab admin" id="tab-pagos" style="display:none">
+<section class="tab admin" translate="no" id="tab-pagos" style="display:none">
     <div class="grid" id="pgKpis"></div>
     <div class="wa2 pg2" id="pg2">
       <div class="wapanel walado">
@@ -2588,7 +2588,7 @@
     </div>
   </section>
 
-<section class="tab admin" id="tab-wa" style="display:none">
+<section class="tab admin" translate="no" id="tab-wa" style="display:none">
     <div class="wamodos" id="waModos" role="tablist">
       <button class="on" data-modo="wa" role="tab">WhatsApp</button>
       <button data-modo="app" role="tab">App</button>
@@ -2766,6 +2766,7 @@
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="idiomas.js"></script>
 <script src="charts.js"></script>
 <script>
 const SUPABASE_URL  = "https://dwqzsgonkkrctnrtlkdz.supabase.co";
@@ -2781,6 +2782,7 @@ const VUELTA = location.href.split("#")[0];
 const DEL_PROVEEDOR = /(access_token|[?&]code)=/.test(location.hash + location.search);
 const $ = (id) => document.getElementById(id);
 const show = (v) => { for (const x of ["login","app"]) $(x).style.display = (x===v ? "" : "none"); };
+ponerIdioma(idiomaInicial());   // idiomas.js: el login ya sale en el idioma de la última visita
 
 const TABS = ["resumen","gastos","finmes","movs","compromisos","metas","plan","pro","ajustes",
   "pagos","wa","ad-resumen","ad-crecimiento","ad-uso","ad-usuarios"];
@@ -2993,7 +2995,7 @@ async function api(path, opts){
 }
 
 const fecha = (iso) => iso
-  ? new Date(iso).toLocaleDateString("es-PE", { day:"numeric", month:"long", year:"numeric" })
+  ? new Date(iso).toLocaleDateString(LOC, { day:"numeric", month:"long", year:"numeric" })
   : "";
 
 // El periodo de un plan sale SIEMPRE de los días que manda el backend. Cuando
@@ -3066,7 +3068,7 @@ function pintarYo(nombre, correo, foto){
     ? `<img src="${foto}" alt="" width="44" height="44" referrerpolicy="no-referrer"
          onerror="this.replaceWith(document.createTextNode('${(n[0] || '·').toUpperCase()}'))">`
     : (n[0] || "·").toUpperCase();
-  $("cuentaBtn").setAttribute("aria-label", `Cuenta de ${n || correo || "usuario"}`);
+  $("cuentaBtn").setAttribute("aria-label", tf("~Cuenta de {}", n || correo || "usuario"));
   const hora = new Date().getHours();
   const saludo = hora < 12 ? "Buenos días" : hora < 19 ? "Buenas tardes" : "Buenas noches";
   $("hola").textContent = `${saludo}${n ? ", " + n.split(" ")[0] : ""}`;
@@ -3116,7 +3118,15 @@ async function guardarPref(campo, valor){
   const r = await api(RUTA_PREF[campo], { method:"PUT", headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({ [campo]: valor }) });
   prefs[campo] = (r && r[campo] != null) ? r[campo] : valor;
+  if (campo === "language") cambiarIdioma(prefs.language);
   return prefs[campo];
+}
+// Lo que ya tiene fechas pintadas se vuelve a pintar con el nuevo LOC; las demás
+// vistas se repintan solas al entrar.
+function cambiarIdioma(lang){
+  if (!ponerIdioma(lang)) return;
+  cargarPlan().catch(() => {});        // "activo hasta el ..." en la barra y en Mi plan
+  if (mes.cargado) cargarMes();
 }
 // La carita del sol de la app (finance-app: mood_sun.dart, MoodSunPainter) pasada
 // a SVG con sus mismas medidas: cariño con ojitos felices, pana guiñando y
@@ -3146,7 +3156,7 @@ function tarjetasTono(sel, moneda){
   const p = prefijo(moneda || "PEN");
   return TONOS_ASISTENTE.map(([id, nombre, desc, ej]) => `<button type="button" class="tono ${id}" data-tono="${id}" aria-pressed="${id === sel}">
       ${carita(id)}
-      <span><b>${nombre}</b><p>${desc}</p><q>${esc(ej.replace("{p}", p))}</q></span>
+      <span><b>${nombre}</b><p>${desc}</p><q>${esc(t(ej).replace("{p}", p))}</q></span>
       <span class="chk" aria-hidden="true"></span></button>`).join("");
 }
 
@@ -3154,8 +3164,9 @@ async function cargarAjustes(){
   const aviso = (txt, mal) => { const g = $("ajGuardado"); g.textContent = txt; g.classList.toggle("mal", !!mal); };
   try{ await cargarPrefs(); }catch(e){ aviso("No pudimos leer tus preferencias: " + e.message, true); return; }
   $("ajIdioma").innerHTML = IDIOMAS.map(([c, b, n]) => `<option value="${c}">${b}  ${n}</option>`).join("");
-  $("ajPais").innerHTML = `<option value="">🌎  Elige tu país</option>` + PAISES.map(([c, n]) => `<option value="${c}">${bandera(c)}  ${n}</option>`).join("");
-  $("ajMoneda").innerHTML = MONEDAS.map(([c, s, n]) => `<option value="${c}">${n} (${s})</option>`).join("");
+  const paises = PAISES.map(([c, n]) => [c, nombreEn("region", c, n)]).sort((a, b) => a[1].localeCompare(b[1], LOC));
+  $("ajPais").innerHTML = `<option value="">🌎  Elige tu país</option>` + paises.map(([c, n]) => `<option value="${c}">${bandera(c)}  ${n}</option>`).join("");
+  $("ajMoneda").innerHTML = MONEDAS.map(([c, s, n]) => `<option value="${c}">${nombreEn("currency", c, n)} (${s})</option>`).join("");
   $("ajIdioma").value = prefs.language; $("ajPais").value = prefs.country; $("ajMoneda").value = prefs.currency;
   const pintarTonos = () => {
     $("ajTonos").innerHTML = tarjetasTono(prefs.tone, prefs.currency);
@@ -3169,6 +3180,7 @@ async function cargarAjustes(){
       await guardarPref(campo, valor);
       aviso(listo);
       if (campo === "tone" || campo === "currency") pintarTonos();
+      if (campo === "language") return cargarAjustes();   // países y monedas en el idioma nuevo
       if (campo === "currency" && mes.cargado) cargarMes();
     }catch(e){
       if (sel) sel.value = antes;
@@ -3178,7 +3190,7 @@ async function cargarAjustes(){
   $("ajIdioma").onchange = (e) => cambiar("language", e.target.value, e.target, "Idioma guardado");
   $("ajPais").onchange = (e) => cambiar("country", e.target.value, e.target, "País guardado");
   $("ajMoneda").onchange = (e) => cambiar("currency", e.target.value, e.target,
-    "Moneda cambiada a " + (MONEDAS.find((m) => m[0] === e.target.value) || [])[2]);
+    "Moneda cambiada a " + nombreEn("currency", e.target.value, (MONEDAS.find((m) => m[0] === e.target.value) || [])[2]));
   pintarTonos();
   $("ajVerBienvenida").onclick = abrirBienvenida;
 }
@@ -3242,7 +3254,7 @@ function pintarPaso(){
     caja.innerHTML = `<h2 id="bvTitulo">¿En qué moneda manejas tu dinero?</h2>
       <p>La usaremos para registrar tus movimientos (también desde WhatsApp). Podrás cambiarla luego en Ajustes.</p>
       <input class="bvBuscar" id="bvBuscar" type="search" placeholder="Buscar (sol, dólar, euro…)" aria-label="Buscar moneda" autocomplete="off">
-      <div class="bvOps bvLista" id="bvLista">${MONEDAS.map(([c, sim, n]) => op("currency", c, `<span class="sim">${sim}</span><span><b>${n}</b></span><span class="cod">${c}</span>`)).join("")}</div>`;
+      <div class="bvOps bvLista" id="bvLista">${MONEDAS.map(([c, sim, n]) => op("currency", c, `<span class="sim">${sim}</span><span><b>${nombreEn("currency", c, n)}</b></span><span class="cod">${c}</span>`)).join("")}</div>`;
     $("bvBuscar").oninput = (e) => {
       const q = e.target.value.trim().toLowerCase();
       for (const b of $("bvLista").children) b.hidden = !!q && !b.textContent.toLowerCase().includes(q);
@@ -3518,7 +3530,6 @@ async function pedirPlan(monto){
   if ($("bajarQR")) $("bajarQR").onclick = async (ev) => {
     ev.preventDefault();
     const enlace = ev.currentTarget;
-    const antes = enlace.textContent;
     enlace.textContent = "Descargando…";
     try{
       const r = await fetch(datos.yape_qr_url);
@@ -3531,7 +3542,7 @@ async function pedirPlan(monto){
     }catch{
       window.open(datos.yape_qr_url, "_blank", "noopener");
     }
-    enlace.textContent = antes;
+    enlace.textContent = "Descargar QR";   // el español: idiomas.js lo vuelve a traducir
   };
 }
 
@@ -3544,14 +3555,21 @@ const mes = { dias: [], moneda: "PEN", total: 0,
   apertura: null,      // lo que traías de los meses anteriores, en la moneda del mes
   ritmo: null };       // { antes, pct } contra el mes pasado al mismo día
 
+// Fuera de es-PE, Intl no conoce el símbolo del sol y escribe "PEN 1,450.00":
+// solo para el sol se pone "S/". Las demás monedas se quedan como las da Intl,
+// para no juntar USD, MXN y COP bajo un mismo "$" (ADR-0011).
 const plata = (v, cur) => {
-  try { return new Intl.NumberFormat("es-PE", { style:"currency", currency:cur || "PEN",
-    minimumFractionDigits: 2 }).format(v); }
+  try { return new Intl.NumberFormat(LOC, { style:"currency", currency:cur || "PEN",
+    minimumFractionDigits: 2 }).formatToParts(v).map((p) => p.type === "currency" && p.value === "PEN" ? "S/" : p.value).join(""); }
   catch { return esc((cur || "") + " " + v.toFixed(2)); }
 };
 const corta = (t, n) => { t = (t || "").trim(); return t.length > n ? t.slice(0, n - 1) + "…" : (t || "Sin detalle"); };
-const diaSemana = (d) => ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][d.getDay()];
+const diaSemana = (d) => LANG === "es" ? ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"][d.getDay()]
+  : d.toLocaleDateString(LOC, { weekday:"long" });
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+// Lo que escribió el usuario (categorías, comercios, nombres) no pasa por el
+// traductor de idiomas.js: "Deudas" es una categoría, no la palabra "Debts".
+const propio = (t) => `<span translate="no">${esc(t)}</span>`;
 
 // El día LOCAL de una fecha, en texto y con cero delante: es la clave con la
 // que se agrupan los gastos y con la que el cerebro nombra sus nodos.
@@ -3679,7 +3697,7 @@ function pintarOrbita(){
     const caja = $("planetas");
     caja.innerHTML = cats.length ? cats.map((c, i) =>
       `<button type="button" class="planeta${i === 0 ? " oro" : ""}${quietito() ? "" : " nace"}" data-i="${i}" style="--s:${Math.round(44 + 76 * Math.sqrt(c.total / max))}px;--z:${(1.4 - i * .2).toFixed(1)};--i:${i}" title="${esc(nombre(c.cat))}: ${esc(plata(c.total, mes.moneda))}">
-        ${i === 0 ? '<span class="resplandor"></span>' : ""}<span class="sombraM"></span><i></i><b>${esc(nombre(c.cat))}</b><small>${esc(plata(c.total, mes.moneda))}</small></button>`).join("")
+        ${i === 0 ? '<span class="resplandor"></span>' : ""}<span class="sombraM"></span><i></i><b translate="no">${esc(nombre(c.cat))}</b><small>${esc(plata(c.total, mes.moneda))}</small></button>`).join("")
       : `<p class="orbVacio">Todavía no hay planetas: tu primer gasto del mes pone el primero.</p>`;
     for (const b of caja.querySelectorAll(".planeta")) b.onclick = () => tab("gastos");
     mundos3d($("mundos3d"), [...caja.querySelectorAll(".planeta")], null, caja);
@@ -4175,7 +4193,7 @@ const ultimoDelMes = () => { const h = new Date(); return new Date(h.getFullYear
 async function cargarMes(){
   const hoy = new Date();
   const m = hoy.getMonth() + 1, y = hoy.getFullYear();
-  $("mesTit").textContent = hoy.toLocaleDateString("es-PE", { month:"long", year:"numeric" });
+  $("mesTit").textContent = hoy.toLocaleDateString(LOC, { month:"long", year:"numeric" });
   let txs = [];
   // La moneda preferida se pide a la vez que el mes, para no sumar una espera.
   const prefP = cargarPrefs().then((p) => p.currency).catch(() => null);
@@ -4391,7 +4409,7 @@ function pintarCategorias(){
       { format: (v) => plata(v, mes.moneda) });
   } else {
     $("catsLista").innerHTML = top.map(([c, v]) =>
-      `<div>${esc(nombre(c))} <b>${esc(plata(v, mes.moneda))}</b></div>`).join("");
+      `<div>${propio(nombre(c))} <b>${esc(plata(v, mes.moneda))}</b></div>`).join("");
   }
   crecer($("catsLista"));
   $("catsResto").textContent = resto.length
@@ -5103,7 +5121,7 @@ function construirHistorial(){
     const f = new Date(Number(k.slice(0, 4)), Number(k.slice(5)) - 1, 1);
     idx.set("mes:" + k, nodos.length);
     nodos.push({ k: "mes:" + k, tipo: "mes", cat: k,
-      etiqueta: f.toLocaleDateString("es-PE", { month:"long", year:"numeric" }),
+      etiqueta: f.toLocaleDateString(LOC, { month:"long", year:"numeric" }),
       total, n: suyos.length, gastos: suyos, moneda, deQue: base.total });
     aristas.push({ a: 0, b: idx.get("mes:" + k), peso: total });
     // Y con las categorías en las que gastó ese mes.
@@ -5643,20 +5661,23 @@ async function responderConsulta(pregunta){
   }
 
   const cuenta = calcular(filtro, txs);
-  const donde = filtro.cat ? "en " + nombreCat(filtro.cat)
-    : filtro.texto ? `en "${filtro.texto}"` : "";
-  const cuando = filtro.etiqueta ? " " + filtro.etiqueta : "";
+  // Las frases se arman con tf(): los nombres (categoría, comercio) entran
+  // tal cual y solo se traduce lo demás.
+  const donde = filtro.cat ? tf("~en {}", nombreCat(filtro.cat))
+    : filtro.texto ? tf("~en {}", `"${filtro.texto}"`) : "";
+  const cuando = filtro.etiqueta ? " " + traducir(filtro.etiqueta) : "";
+  const gastosN = (n) => `${n} ${traducir(n === 1 ? "gasto" : "gastos")}`;
 
   if (!cuenta.n && filtro.texto && filtro.pordefecto){
     QUE_PASO(`No lo encontré este mes, buscando en tu historial…`);
     const hallado = await buscarEnTodo(filtro.texto);
     if (mio !== turnoConsulta) return;
     limpiarConsulta(true);
-    if (!hallado) return QUE_PASO(`No encontré gastos ${donde} en tu historial.`);
+    if (!hallado) return QUE_PASO(tf("~No encontré gastos {} en tu historial.", donde));
     const { total, moneda, n, gastos, desde } = hallado;
-    QUE_PASO(`${donde[0].toUpperCase() + donde.slice(1)} no hay nada este mes, pero desde `
-      + `${MESES_NOMBRE[desde.getMonth()]} de ${desde.getFullYear()} llevas `
-      + `${plata(total, moneda)} en ${n} ${n === 1 ? "gasto" : "gastos"}.`);
+    QUE_PASO(mayuscula(tf("~{} no hay nada este mes, pero desde {} llevas {} en {}.", donde,
+      LANG === "es" ? `${MESES_NOMBRE[desde.getMonth()]} de ${desde.getFullYear()}` : desde.toLocaleDateString(LOC, { month:"long", year:"numeric" }),
+      plata(total, moneda), gastosN(n))));
     // El detalle se enseña en el panel de siempre, con un nodo de mentira que
     // solo existe para esta respuesta.
     return abrirNodo({ tipo: "cat", etiqueta: filtro.texto, cat: filtro.texto,
@@ -5664,28 +5685,29 @@ async function responderConsulta(pregunta){
   }
   if (!cuenta.n){
     limpiarConsulta(true);
-    return QUE_PASO(`No encontré gastos ${donde}${cuando}.`.replace("  ", " "));
+    return QUE_PASO(tf("~No encontré gastos{}{}.", donde ? " " + donde : "", cuando));
   }
 
   let frase;
   if (filtro.intencion === "rank_cat"){
     const [c, v] = cuenta.porCat[0];
     const pct = cuenta.total ? Math.round(v / cuenta.total * 100) : 0;
-    frase = `Donde más gastaste${cuando} fue ${nombreCat(c)}: ${plata(v, cuenta.moneda)}, el ${pct}% del total.`;
+    frase = tf("~Donde más gastaste{} fue {}: {}, el {}% del total.", cuando, nombreCat(c), plata(v, cuenta.moneda), pct);
   } else if (filtro.intencion === "rank_dia"){
     const [d, v] = cuenta.porDia[0];
     const f = new Date(d + "T12:00:00");
-    frase = `Tu día más caro${cuando} fue el ${f.getDate()} de ${MESES_NOMBRE[f.getMonth()]}: ${plata(v, cuenta.moneda)}.`;
+    frase = tf("~Tu día más caro{} fue el {}: {}.", cuando, LANG === "es" ? `${f.getDate()} de ${MESES_NOMBRE[f.getMonth()]}`
+      : f.toLocaleDateString(LOC, { day:"numeric", month:"long" }), plata(v, cuenta.moneda));
   } else if (filtro.intencion === "cuenta"){
-    frase = `Tienes ${cuenta.n} ${cuenta.n === 1 ? "gasto" : "gastos"} ${donde}${cuando}, ${plata(cuenta.total, cuenta.moneda)} en total.`;
+    frase = tf("~Tienes {}{}{}, {} en total.", gastosN(cuenta.n), donde ? " " + donde : "", cuando, plata(cuenta.total, cuenta.moneda));
   } else {
-    frase = `${donde ? donde[0].toUpperCase() + donde.slice(1) : "En total"}${cuando} gastaste `
-      + `${plata(cuenta.total, cuenta.moneda)} en ${cuenta.n} ${cuenta.n === 1 ? "gasto" : "gastos"}.`;
+    frase = mayuscula(tf("~{}{} gastaste {} en {}.", donde || traducir("En total"), cuando,
+      plata(cuenta.total, cuenta.moneda), gastosN(cuenta.n)));
   }
   if (cuenta.otras.length)
-    frase += cuenta.otras.length === 1 ? " Hay otra moneda que no entra en ese total."
-      : " Hay otras monedas que no entran en ese total.";
-  if (faltan.length) frase += " Faltan meses que no pude traer.";
+    frase += " " + traducir(cuenta.otras.length === 1 ? "Hay otra moneda que no entra en ese total."
+      : "Hay otras monedas que no entran en ese total.");
+  if (faltan.length) frase += " " + traducir("Faltan meses que no pude traer.");
 
   // El cerebro se filtra, y si la respuesta es una sola neurona se acerca.
   const cual = enGrande ? CEREBRO_TODO : CEREBRO;
@@ -5713,7 +5735,7 @@ async function responderConsulta(pregunta){
   if (filtro.cat || filtro.texto || filtro.intencion !== "suma"){
     const titulo = filtro.cat ? nombreCat(filtro.cat)
       : filtro.texto ? filtro.texto
-      : filtro.intencion === "rank_dia" ? "Tu día más caro" : "Donde más gastaste";
+      : traducir(filtro.intencion === "rank_dia" ? "Tu día más caro" : "Donde más gastaste");
     setTimeout(() => {
       if (mio !== turnoConsulta) return;        // la pregunta ya no es esta
       abrirNodo({ tipo: "cat", etiqueta: titulo, cat: filtro.cat || filtro.texto || "otros",
@@ -5756,14 +5778,14 @@ function abrirNodo(nodo){
     const m = nodo.tipo === "centro" ? modeloDelMes()
       : construirCerebro(nodo.gastos, nodo.moneda);
     const cats = m.nodos.filter((n) => n.tipo === "cat").sort((a, b) => b.total - a.total);
-    titulo = nodo.tipo === "centro" ? "Tu mes, por categorías"
-      : `${nombreCat(nodo.etiqueta)}, por categorías`;
+    titulo = nodo.tipo === "centro" ? traducir("Tu mes, por categorías")
+      : tf("~{}, por categorías", nombreCat(nodo.etiqueta));
     cuerpo = `<div class="cifra">${plata(nodo.total, nodo.moneda)}</div>
       <p class="pie">${nodo.n} ${nodo.n === 1 ? "gasto" : "gastos"} en ${cats.length}
         ${cats.length === 1 ? "categoría" : "categorías"}</p>
       <ol>` + cats.map((c) => {
         const pct = nodo.total ? Math.round(c.total / nodo.total * 100) : 0;
-        return fila(tono(c.cat), esc(nombreCat(c.etiqueta)),
+        return fila(tono(c.cat), propio(nombreCat(c.etiqueta)),
           `${c.n} ${c.n === 1 ? "gasto" : "gastos"} · ${pct}%`,
           plata(c.total, c.moneda), pct);
       }).join("") + "</ol>";
@@ -5771,7 +5793,7 @@ function abrirNodo(nodo){
     const gastos = [...nodo.gastos].sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at));
     const tope = gastos.slice(0, 40);
     titulo = nodo.tipo === "cat" ? nombreCat(nodo.etiqueta)
-      : `${nombreCat(nodo.etiqueta)} de ${nodo.fecha.toLocaleDateString("es-PE", { month:"long" })}`;
+      : tf("~{} de {}", nombreCat(nodo.etiqueta), nodo.fecha.toLocaleDateString(LOC, { month:"long" }));
     const sobre = nodo.deQue || mes.total;
     const pct = sobre ? Math.round(nodo.total / sobre * 100) : 0;
     cuerpo = `<div class="cifra">${plata(nodo.total, nodo.moneda)}</div>
@@ -5782,13 +5804,13 @@ function abrirNodo(nodo){
         const hoyM = new Date();
         const esteMes = cuando.getMonth() === hoyM.getMonth()
           && cuando.getFullYear() === hoyM.getFullYear();
+        const dia = LANG === "es" ? `${diaSemana(cuando)} ${cuando.getDate()}` + (esteMes ? "" : ` de ${MESES_NOMBRE[cuando.getMonth()]}`)
+          : cuando.toLocaleDateString(LOC, esteMes ? { weekday:"long", day:"numeric" } : { weekday:"long", day:"numeric", month:"long" });
         const dato = nodo.tipo === "cat"
-          ? `${diaSemana(cuando)} ${cuando.getDate()}`
-            + (esteMes ? "" : ` de ${MESES_NOMBRE[cuando.getMonth()]}`)
-            + (nodo.sinPct ? ` · ${nombreCat(catNorm(t))}` : "")
-          : nombreCat(catNorm(t));
+          ? esc(dia) + (nodo.sinPct ? " · " + propio(nombreCat(catNorm(t))) : "")
+          : propio(nombreCat(catNorm(t)));
         const parte = nodo.total ? (Number(t.amount) || 0) / nodo.total * 100 : 0;
-        return fila(tono(catNorm(t)), esc(corta(t.description, 90)), esc(dato),
+        return fila(tono(catNorm(t)), propio(corta(t.description, 90)), dato,
           plata(Number(t.amount) || 0, t.currency), parte);
       }).join("") + "</ol>"
       + (gastos.length > tope.length ? `<p class="pie">y ${gastos.length - tope.length} más</p>` : "");
@@ -5855,7 +5877,7 @@ function listaAccesible(m, destino = "cerebroLista", claves = null){
     .filter(([n]) => !filtro || filtro.has(n.k))
     .map(([n, i]) => {
     const q = n.tipo === "centro" ? `Todo el mes, ${plata(n.total, n.moneda)}, ${n.n} gastos`
-      : n.tipo === "cat" ? `Categoría ${esc(n.etiqueta)}, ${plata(n.total, n.moneda)}, ${n.n} gastos`
+      : n.tipo === "cat" ? `Categoría ${propio(n.etiqueta)}, ${plata(n.total, n.moneda)}, ${n.n} gastos`
       : n.tipo === "mes" ? `Mes de ${esc(n.etiqueta)}, ${plata(n.total, n.moneda)}, ${n.n} gastos`
       : `${esc(n.etiqueta)}, ${plata(n.total, n.moneda)}, ${n.n} gastos`;
     return `<li><button type="button" data-n="${i}">${q}</button></li>`;
@@ -5925,7 +5947,7 @@ const TOOLTIP = {
 
 
 
-function fmt(n){ return (n ?? 0).toLocaleString("es-PE"); }
+function fmt(n){ return (n ?? 0).toLocaleString(LOC); }
 function pct(a,b){ return b ? Math.round((a/b)*100) : 0; }
 
 function kpi(label,val,cls,sub,n,m){
@@ -6317,7 +6339,7 @@ function brotar(caja){ if (caja && !quietito()) requestAnimationFrame(() => requ
 function tejasBarras(el, filas, format){
   const max = Math.max(...filas.map((f) => f.value), 1);
   el.innerHTML = `<ol class="tejas barras${quietito() ? "" : " brota"}">` + filas.map((f, i) =>
-    `<li style="--i:${i}"><span class="nom">${esc(f.label)}</span><b>${esc(format(f.value))}</b>
+    `<li style="--i:${i}"><span class="nom" translate="no">${esc(f.label)}</span><b>${esc(format(f.value))}</b>
      <span class="capsula"><i style="width:${(f.value / max * 100).toFixed(1)}%"></i></span></li>`).join("") + `</ol>`;
   brotar(el.firstElementChild); crecer(el);
 }
@@ -6330,7 +6352,7 @@ function desvios(el, filas, cur){
       const d = f.value - f.target, mas = d >= 0, w = (Math.abs(d) / tope).toFixed(3);
       const signo = mas ? "+" : "-", fin = signo + plata(Math.abs(d), cur);
       return `<li style="--i:${i}">
-        <span class="nom">${esc(f.label)}<em>${esc(plata(f.value, cur))} este mes · sueles ${esc(plata(f.target, cur))}</em></span>
+        <span class="nom">${propio(f.label)}${f.techo ? " · techo " + esc(f.techo) : ""}<em>${esc(plata(f.value, cur))} este mes · sueles ${esc(plata(f.target, cur))}</em></span>
         <span class="pista"><b class="${mas ? "mas" : "menos"}" style="--w:${w}"></b>
           <span class="delta ${mas ? "mal" : "bien"}" style="--w:${w}" data-k="${esc(f.label)}" data-n="${Math.abs(d)}" data-m="${esc(cur)}" data-pre="${signo}" data-suf="" data-fin="${esc(fin)}">${esc(fin)}</span></span>
       </li>`; }).join("") + `</ul></div>`;
@@ -6390,7 +6412,7 @@ const huesoTabla = (filas, cols) => `<tbody>` + Array.from({ length: filas }, ()
 // Una fecha ISO (solo día, sin hora) en texto corto. El mediodía evita que la
 // zona horaria la mueva un día hacia atrás.
 const fechaCorta = (iso) => iso
-  ? new Date(iso + "T12:00:00").toLocaleDateString("es-PE", { day:"numeric", month:"short" })
+  ? new Date(iso + "T12:00:00").toLocaleDateString(LOC, { day:"numeric", month:"short" })
   : "";
 const vacio = (titulo, texto) => `<div class="vacio"><b>${esc(titulo)}</b>${esc(texto)}</div>`;
 // La variación siempre lleva signo y flecha: el color solo acompaña.
@@ -6411,6 +6433,10 @@ function delta(ahora, antes){
 const sinPrefijoTarjeta = (t) => String(t || "").replace(/^(TC|TD)\s+/i, "").trim();
 const quienCobra = (t) => sinPrefijoTarjeta(t.counterpart || t.description) || "Sin detalle";
 const DIAS_CORTOS = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+// En otro idioma los da el navegador (el 4 de enero de 2026 fue domingo). No
+// van al diccionario: "Mar" es martes y también marzo en el gráfico del año.
+const diaCorto = (i) => LANG === "es" ? DIAS_CORTOS[i]
+  : mayuscula(new Date(2026, 0, 4 + i).toLocaleDateString(LOC, { weekday:"short" }).replace(".", ""));
 
 // Gastos de UNA moneda: las monedas no se suman nunca (ADR-0011).
 const gastosDe = (txs, cur) =>
@@ -6469,7 +6495,7 @@ function pintarGastos(txs, cats, cur, dash){
     .sort((a, b) => b.spent_month - a.spent_month)
     .slice(0, 10)
     .map((c) => ({
-      label: c.category + (c.budget ? ` · techo ${plata(c.budget, cur)}` : ""),
+      label: c.category, techo: c.budget ? plata(c.budget, cur) : "",
       value: c.spent_month, target: c.avg_monthly || 0, tolerance: 0,
     }));
   if (filas.length && filas.some((f) => f.target > 0)){
@@ -6523,7 +6549,7 @@ function pintarGastos(txs, cats, cur, dash){
     if (!isNaN(f.getTime())) porDia[f.getDay()] += Number(t.amount) || 0;
   }
   const orden = [1,2,3,4,5,6,0];
-  const dias = { labels: orden.map((i) => DIAS_CORTOS[i]), values: orden.map((i) => porDia[i]), format: dinero };
+  const dias = { labels: orden.map((i) => diaCorto(i)), values: orden.map((i) => porDia[i]), format: dinero };
   const tope = Math.max(...dias.values);
   columnas3d($("gaDias"), { ...dias, highlight: tope > 0 ? dias.values.indexOf(tope) : -1 })
     .then((ok) => { if (!ok) Charts.bars($("gaDias"), { ...dias, tickFormat: sinCentavos(cur), height: 200 }); });
@@ -6544,7 +6570,7 @@ function pintarMundosGastos(gastos, cats, cur){
     const avg = prom.get(m.cat.trim().toLowerCase()), d = avg ? m.total - avg : null;
     const desvio = d == null ? "" : `<em class="${d > 0 ? "mal" : "bien"}">${d > 0 ? "+" : "\u2212"}${esc(plata(Math.abs(d), cur))} vs. tu promedio</em>`;
     return `<button type="button" class="planeta${i === 0 ? " oro" : ""}${quietito() ? "" : " nace"}" data-i="${i}" data-k="${esc(m.k)}" style="--s:${Math.round(40 + 70 * Math.sqrt(m.total / max))}px;--z:${(1.3 - i * .12).toFixed(2)};--i:${i}" title="${esc(nombre(m.cat))}: ${esc(plata(m.total, cur))}">
-      ${i === 0 ? '<span class="resplandor"></span>' : ""}<span class="sombraM"></span><i></i><b>${esc(nombre(m.cat))}</b><small>${esc(plata(m.total, cur))}</small>${desvio}</button>`; }).join("")
+      ${i === 0 ? '<span class="resplandor"></span>' : ""}<span class="sombraM"></span><i></i><b translate="no">${esc(nombre(m.cat))}</b><small>${esc(plata(m.total, cur))}</small>${desvio}</button>`; }).join("")
     : `<p class="orbVacio">Todavía no hay mundos: tu primer gasto del mes pone el primero.</p>`;
   for (const b of caja.querySelectorAll(".planeta")){
     const nodo = cerebro.nodos.find((n) => n.k === b.dataset.k);
@@ -6569,7 +6595,7 @@ async function pintarTendencia(cur){
   cur = cur || monedaVista || mes.moneda;
   const nombreMes = (k) => {
     const [y, m] = k.split("-").map(Number);
-    return new Date(y, m - 1, 1).toLocaleDateString("es-PE", { month:"short" });
+    return new Date(y, m - 1, 1).toLocaleDateString(LOC, { month:"short" });
   };
   // Una pregunta, una serie: el gasto de cada mes en columnas de un tono, con
   // el mes en curso en dorado. Siete colores apilados no se leían.
@@ -6705,7 +6731,7 @@ function curvaDeSaldo(saldoHoy, diario, dias, fijosTotal, pendientes, hoy){
     if (i > 0) saldo -= diario;
     saldo -= porIndice.get(i) || 0;
     if (i === dias) saldo -= resto;
-    etiquetas.push(f2.getDate() + (f2.getDate() === 1 || i === 0 ? " " + f2.toLocaleDateString("es-PE", { month:"short" }) : ""));
+    etiquetas.push(f2.getDate() + (f2.getDate() === 1 || i === 0 ? " " + f2.toLocaleDateString(LOC, { month:"short" }) : ""));
     valores.push(Math.round(saldo * 100) / 100);
   });
   return { etiquetas, valores, marcas };
@@ -6754,7 +6780,7 @@ function pintarFinMes(f, fijos, dash){
         <path class="pista" d="${caminoD()}"/><path class="hecho" d="${caminoD()}" pathLength="1" style="stroke-dashoffset:${(1 - Math.min(.96, Math.max(.04, Math.min(dias, 1) / Math.max(1, dias)))).toFixed(3)}"/>
       </svg>
       <figure class="orbCosa orbBillete"><img src="billetera.webp" width="420" height="337" alt=""></figure>
-      <figure class="orbCosa orbCobrar"><img src="cobrar.webp" width="420" height="385" alt=""><small>${esc(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + dias).toLocaleDateString("es-PE", { day:"numeric", month:"short" }))}${f.next_income_amount ? " · +" + esc(plata(f.next_income_amount, cur)) : ""}</small></figure>
+      <figure class="orbCosa orbCobrar"><img src="cobrar.webp" width="420" height="385" alt=""><small>${esc(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + dias).toLocaleDateString(LOC, { day:"numeric", month:"short" }))}${f.next_income_amount ? " · +" + esc(plata(f.next_income_amount, cur)) : ""}</small></figure>
       <span class="meta${llega ? "" : " mal"}" style="left:${caminoPct(.98)[0]}%;top:${caminoPct(.98)[1]}%"></span>
       <div class="mundos3d" id="fmMundos3d" aria-hidden="true"></div>
       <div id="fmAsteroides">${asteroides}</div>
@@ -6762,7 +6788,7 @@ function pintarFinMes(f, fijos, dash){
         <div class="astro"><img src="astronauta.webp" width="320" height="334" alt=""></div>
         <span class="hoyTag">hoy ${hoy.getDate()} · faltan ${dias} ${dias === 1 ? "día" : "días"}</span>
       </div>
-      <span class="finViejo" hidden>${esc(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + dias).toLocaleDateString("es-PE", { day:"numeric", month:"short" }))}${f.next_income_amount ? " · +" + esc(plata(f.next_income_amount, cur)) : ""}</span>
+      <span class="finViejo" hidden>${esc(new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + dias).toLocaleDateString(LOC, { day:"numeric", month:"short" }))}${f.next_income_amount ? " · +" + esc(plata(f.next_income_amount, cur)) : ""}</span>
     </div>
     <div class="siGasto"><span>Si gastara</span>
       <input type="range" id="fmRango" min="0" max="${Math.max(10, Math.ceil(diario * 2))}" step="any" value="${diario}" aria-label="Gasto diario supuesto">
@@ -6805,7 +6831,7 @@ function pintarFinMes(f, fijos, dash){
   const pintarCurva = (gastoDiario) => {
     const { etiquetas, valores, marcas } = curvaDeSaldo(saldoHoy, gastoDiario, dias, fijosTotal, pendientes, hoy);
     const llega2 = valores.at(-1) >= 0;
-    Charts.line($("fmSaldo"), { labels: etiquetas, series: [{ name: "Saldo", values: valores, colour: colorDe(llega2 ? "--entra" : "--pasa") }],
+    Charts.line($("fmSaldo"), { labels: etiquetas, series: [{ name: t("Saldo"), values: valores, colour: colorDe(llega2 ? "--entra" : "--pasa") }],
       format: plataDe(cur), tickFormat: sinCentavos(cur), height: 240, fill: true,
       annotations: marcas.map((m) => ({ at: m.i, label: `${m.label} −${plata(m.monto, cur)}`, short: corta(m.label, 10) })),
       today: 0, todayLabel: "Hoy", endLabel: true, reference: { value: 0, label: "" } });
@@ -6817,7 +6843,7 @@ function pintarFinMes(f, fijos, dash){
   $("fmFijos").innerHTML = pendientes.length
     ? `<div class="fijos">` + [...pendientes].sort((a, b) => (a.dia || 99) - (b.dia || 99)).map((p) => `<div class="fijo ${p.dia && p.dia < diaHoy ? "vencido" : "viene"}">
         <i class="dia">${p.dia || "·"} <small>día</small></i>
-        <span class="quien"><b>${esc(p.label)}</b><small>cada mes</small></span>
+        <span class="quien"><b translate="no">${esc(p.label)}</b><small>cada mes</small></span>
         <span class="monto">${p.monto != null ? esc(plata(p.monto, cur)) : "-"}<small>${p.dia ? esc(enDias(p.dia)) : "sin fecha"}</small></span>
       </div>`).join("") + `</div>`
     : vacio("Nada pendiente", "No te queda ningún gasto fijo por pagar.");
@@ -6848,7 +6874,7 @@ async function cargarMovs(){
       : [{ year:hoy.getFullYear(), month:hoy.getMonth() + 1 }];
     $("moMes").innerHTML = periodos.map(({ year, month }) =>
       `<option value="${year}-${month}">`
-      + esc(new Date(year, month - 1, 1).toLocaleDateString("es-PE", { month:"long", year:"numeric" }))
+      + esc(new Date(year, month - 1, 1).toLocaleDateString(LOC, { month:"long", year:"numeric" }))
       + `</option>`).join("");
     $("moMes").onchange = () => pedirMesMovs();
     for (const id of ["moTipo","moCat"]) $(id).onchange = () => pintarMovs();
@@ -6909,7 +6935,7 @@ async function buscarMovs(){
   $("moKpis").innerHTML = t
     ? kpi("Encontrados", fmt(datos.total), "cyan", otras ? `en todo tu historial · ${esc(otras)} aparte` : `en todo tu historial`)
       + kpi("Suman", plata(t.expense || 0, cur), "pink", `gastos en ${esc(cur)}`)
-      + kpi("Ingresos", plata(t.income || 0, cur), "green", `en ${esc(cur)}`)
+      + kpi("Ingresos", plata(t.income || 0, cur), "green", esc(tf("~en {}", cur)))
     : "";
   $("moNota").innerHTML = `Resultados de "${esc(q)}"`
     + (datos.truncated ? " · hay más historial sin revisar" : "")
@@ -6938,8 +6964,8 @@ function pintarMovs(){
   $("moKpis").innerHTML =
     kpi("Movimientos", fmt(filas.length), "cyan", orden.length > 1
       ? `${orden.length} monedas, se muestra ${esc(cur)}` : "en este mes", filas.length) +
-    kpi("Gastado", plata(s.expense, cur), "pink", `en ${esc(cur)}`, s.expense, cur) +
-    kpi("Ingresos", plata(s.income, cur), "green", `en ${esc(cur)}`, s.income, cur) +
+    kpi("Gastado", plata(s.expense, cur), "pink", esc(tf("~en {}", cur)), s.expense, cur) +
+    kpi("Ingresos", plata(s.income, cur), "green", esc(tf("~en {}", cur)), s.income, cur) +
     kpi("Neto", plata(s.income - s.expense, cur), s.income - s.expense >= 0 ? "green" : "pink",
       "del mes, sin lo que traías", s.income - s.expense, cur);
   subirNumeros($("tab-movs"), "#moKpis .val");
@@ -6956,7 +6982,7 @@ let movsPintados = [], movSel = null, movBoton = null;
 const nombreDia = (f) => {
   const hoy = new Date(), d0 = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
   const d = new Date(f.getFullYear(), f.getMonth(), f.getDate()), dif = Math.round((d0 - d) / 864e5);
-  const fecha = f.toLocaleDateString("es-PE", { weekday:"short", day:"numeric", month:"short" });
+  const fecha = f.toLocaleDateString(LOC, { weekday:"short", day:"numeric", month:"short" });
   return dif === 0 ? `Hoy · ${fecha}` : dif === 1 ? `Ayer · ${fecha}` : fecha;
 };
 const siglaCat = (c) => { c = (c || "Otros").trim(); return c[0].toUpperCase() + (c[1] || "").toLowerCase(); };
@@ -6984,11 +7010,13 @@ function pintarTablaMovs(filas){
     const total = [...porCur.entries()].map(([c, v]) => "−" + plata(v, c)).join(" · ");
     return `<div class="dia"><h4>${esc(nombreDia(d.f))}<span>${esc(total)}</span></h4>` + d.items.map(({ t, i }) => {
       const gasto = t.type !== "income", quien = sinPrefijoTarjeta(t.description) || "Sin detalle";
-      const sub = [t.category || "Otros", CANALES[t.source] || t.source, METODO[t.card_type],
-        t.counterpart && t.counterpart.trim().toLowerCase() !== quien.toLowerCase() ? t.counterpart : ""].filter(Boolean).join(" · ");
+      // Datos del usuario (categoría, contraparte) aparte de las etiquetas, que sí se traducen.
+      const sub = [[t.category || "Otros", 1], [CANALES[t.source] || t.source], [METODO[t.card_type]],
+        [t.counterpart && t.counterpart.trim().toLowerCase() !== quien.toLowerCase() ? t.counterpart : "", 1]]
+        .filter(([v]) => v).map(([v, dato]) => dato ? propio(v) : esc(v)).join(" · ");
       return `<button type="button" class="mov${gasto ? "" : " entra"}" data-i="${i}" style="--i:${Math.min(n++, 18)}">
         <i class="ficha" aria-hidden="true">${esc(siglaCat(t.category))}</i>
-        <span class="quien"><b>${esc(corta(quien, 44))}</b><small>${esc(sub)}</small></span>
+        <span class="quien"><b translate="no">${esc(corta(quien, 44))}</b><small>${sub}</small></span>
         <span class="monto"${gasto ? "" : ' style="color:var(--positive)"'}>${gasto ? "−" : "+"}${esc(plata(Number(t.amount) || 0, t.currency))}</span>
       </button>`;
     }).join("") + `</div>`;
@@ -7020,27 +7048,27 @@ function abrirDetalleMov(i){
   const cat = movsDelMes.filter((x) => delMes(x) && (x.category || "Otros") === (t.category || "Otros"))
     .reduce((a, x) => a + (Number(x.amount) || 0), 0);
   const peso = cat ? monto / cat : 0;
-  const fila = (k, v) => v ? `<div class="fila"><span>${k}</span><b>${esc(v)}</b></div>` : "";
+  const fila = (k, v, dato) => v ? `<div class="fila"><span>${k}</span><b${dato ? ' translate="no"' : ""}>${esc(v)}</b></div>` : "";
   $("moDetalle").innerHTML = `
     <button type="button" class="cerrar" id="moCerrar" aria-label="Cerrar">×</button>
     <p class="lbl">${gasto ? "Gasto" : "Ingreso"}</p>
-    <h3>${esc(quien)}</h3>
+    <h3 translate="no">${esc(quien)}</h3>
     <p class="val${gasto ? "" : " entra"}" data-k="${esc(t.id || "i" + i)}" data-n="${monto}" data-m="${esc(cur)}" data-pre="${gasto ? "−" : "+"}" data-suf="" data-fin="${esc(cifra)}">${esc(cifra)}</p>
-    <p class="cuando">${esc(mayuscula(f.toLocaleDateString("es-PE", { weekday:"long", day:"numeric", month:"long", year:"numeric" })))}
-      · ${esc(f.toLocaleTimeString("es-PE", { hour:"2-digit", minute:"2-digit" }))}</p>
+    <p class="cuando">${esc(mayuscula(f.toLocaleDateString(LOC, { weekday:"long", day:"numeric", month:"long", year:"numeric" })))}
+      · ${esc(f.toLocaleTimeString(LOC, { hour:"2-digit", minute:"2-digit" }))}</p>
     <div class="filas">
-      ${fila("Categoría", t.category || "Otros")}
+      ${fila("Categoría", t.category || "Otros", true)}
       ${fila("Método", METODO[t.card_type] || (gasto ? "Sin tarjeta" : ""))}
       ${fila("Dónde", CANALES[t.source] || t.source)}
-      ${fila(gasto ? "A quién" : "De quién", t.counterpart && t.counterpart.trim().toLowerCase() !== quien.toLowerCase() ? t.counterpart : "")}
+      ${fila(gasto ? "A quién" : "De quién", t.counterpart && t.counterpart.trim().toLowerCase() !== quien.toLowerCase() ? t.counterpart : "", true)}
       ${fila("Contexto", t.context === "business" ? "Negocio" : t.context === "personal" ? "Personal" : "")}
       ${t.is_deductible ? fila("Deducible", "Sí") : ""}
     </div>
-    ${esDelMes && mismos.length > 1 ? `<div class="ctx"><p class="lbl">${gasto ? "A" : "De"} ${esc(quienCobra(t))} este mes</p>
+    ${esDelMes && mismos.length > 1 ? `<div class="ctx"><p class="lbl">${gasto ? "A" : "De"} ${propio(quienCobra(t))} este mes</p>
       <p class="cifra">${mismos.length} veces · ${esc(plata(sumaMismos, cur))}</p>
       <div class="mini">${mismos.map((x, k) => `<i style="--i:${k};height:${Math.max(8, (Number(x.amount) || 0) / maxMismo * 100).toFixed(0)}%"${mismoId(x) ? ' class="yo"' : ""}></i>`).join("")}</div>
       <p class="sub">promedio ${esc(plata(sumaMismos / mismos.length, cur))} · el dorado es este</p></div>` : ""}
-    ${esDelMes && gasto && cat ? `<div class="ctx"><p class="lbl">Peso en ${esc(t.category || "Otros")}</p>
+    ${esDelMes && gasto && cat ? `<div class="ctx"><p class="lbl">Peso en ${propio(t.category || "Otros")}</p>
       <p class="cifra">${Math.round(peso * 100)}% de ${esc(plata(cat, cur))} este mes</p>
       <div class="pista"><i style="width:${(peso * 100).toFixed(1)}%"></i></div></div>` : ""}`;
   $("moCerrar").onclick = () => cerrarDetalleMov();
@@ -7165,7 +7193,7 @@ async function cargarCompromisos(){
   // moneda, que no se mezclan: la de más peso primero, las otras debajo.
   const fila = (f, estado, sub, nota) => `<div class="fijo ${estado}">
       <i class="dia">${diaEf(f)} <small>día</small></i>
-      <span class="quien"><b>${esc(f.label)}</b><small>${esc(sub)}</small></span>
+      <span class="quien"><b translate="no">${esc(f.label)}</b><small>${esc(sub)}</small></span>
       <span class="monto">${esc(plata(monto(f), f.currency))}<small>${esc(nota)}</small></span>
     </div>`;
   if (!fijos) $("coFijos").innerHTML = falloBloque;
@@ -7189,8 +7217,8 @@ async function cargarCompromisos(){
     ? `<div class="fijos">` + vivos.map((i) => {
         const prox = i.next_date ? new Date(i.next_date + "T12:00:00") : null;
         return `<div class="fijo entra">
-          <i class="dia">${prox ? prox.getDate() : "·"} <small>${prox ? esc(prox.toLocaleDateString("es-PE", { month:"short" }).replace(".", "")) : "día"}</small></i>
-          <span class="quien"><b>${esc(i.label)}</b><small>${esc(CADA[i.frequency] || i.frequency)}</small></span>
+          <i class="dia">${prox ? prox.getDate() : "·"} <small>${prox ? esc(prox.toLocaleDateString(LOC, { month:"short" }).replace(".", "")) : "día"}</small></i>
+          <span class="quien"><b translate="no">${esc(i.label)}</b><small>${esc(CADA[i.frequency] || i.frequency)}</small></span>
           <span class="monto" style="color:var(--positive)">+${esc(plata(Number(i.expected_amount) || 0, i.currency))}</span>
         </div>`; }).join("") + `</div>`
     : vacio("Sin ingresos fijos", "Si tienes sueldo o una renta, configúralo y la proyección mejora.");
@@ -7200,9 +7228,9 @@ async function cargarCompromisos(){
         const vence = d.due_date ? new Date(d.due_date + "T12:00:00") : null;
         const tarde = vence && vence < hoy;
         return `<div class="fijo${tarde ? " vencido" : ""}">
-          <i class="dia">${vence ? vence.getDate() : "·"} <small>${vence ? esc(vence.toLocaleDateString("es-PE", { month:"short" }).replace(".", "")) : "sin fecha"}</small></i>
-          <span class="quien"><b>${esc(d.counterpart)}</b><small>${d.direction === "owed_to_me" ? "te debe" : "le debes"}${d.description ? " · " + esc(corta(d.description, 40)) : ""}</small></span>
-          <span class="monto"${d.direction === "owed_to_me" ? ' style="color:var(--positive)"' : ""}>${esc(plata(Number(d.amount) || 0, d.currency))}<small>${vence ? (tarde ? "vencida" : "vence el " + esc(vence.toLocaleDateString("es-PE", { day:"numeric", month:"short" }))) : "sin fecha"}</small></span>
+          <i class="dia">${vence ? vence.getDate() : "·"} <small>${vence ? esc(vence.toLocaleDateString(LOC, { month:"short" }).replace(".", "")) : "sin fecha"}</small></i>
+          <span class="quien"><b translate="no">${esc(d.counterpart)}</b><small>${d.direction === "owed_to_me" ? "te debe" : "le debes"}${d.description ? " · " + propio(corta(d.description, 40)) : ""}</small></span>
+          <span class="monto"${d.direction === "owed_to_me" ? ' style="color:var(--positive)"' : ""}>${esc(plata(Number(d.amount) || 0, d.currency))}<small>${vence ? (tarde ? "vencida" : "vence el " + esc(vence.toLocaleDateString(LOC, { day:"numeric", month:"short" }))) : "sin fecha"}</small></span>
         </div>`; }).join("") + `</div>`
     : vacio("Sin deudas abiertas", "Acá salen los préstamos que hiciste y los que te hicieron.");
   if (!quietito()) $("tab-compromisos").querySelectorAll(".fijo").forEach((r, i) => { r.style.setProperty("--i", Math.min(i, 18)); r.classList.add("entraFila"); });
@@ -7245,19 +7273,19 @@ async function cargarMetas(){
     const proxima = Number(g.next_amount) || 0;
     const conCuota = proxima > 0 && objetivo > 0 && !lograda ? Math.min(100, (ahorrado + proxima) / objetivo * 100) : null;
     return `<article class="metaCam${lograda ? " lograda" : ""}" style="--i:${i}">
-      <header><h3>${esc(g.name)}</h3><span class="falta">${lograda ? "¡Lograda!" : "faltan " + esc(plata(falta, g.currency))}</span></header>
+      <header><h3 translate="no">${esc(g.name)}</h3><span class="falta">${lograda ? "¡Lograda!" : "faltan " + esc(plata(falta, g.currency))}</span></header>
       <div class="ruta">
         <span class="fig caja"><img src="caja-fuerte.webp" alt="" width="108" height="72" loading="lazy"></span>
         <div class="camino" role="img" aria-label="${pct}% de ${esc(plata(objetivo, g.currency))}">
           <i class="pistaPuntos"></i>
           <i class="hecho" style="width:${pct}%"><b class="chispa"></b></i>
-          ${conCuota != null ? `<span class="cuota" style="--x:${conCuota.toFixed(1)}%">+${esc(plata(proxima, g.currency))}${g.next_due ? `<span class="cuando"> el ${esc(fechaCorta(g.next_due))}</span>` : ""}</span>` : ""}
+          ${conCuota != null ? `<span class="cuota" style="--x:${conCuota.toFixed(1)}%">+${esc(plata(proxima, g.currency))}${g.next_due ? `<span class="cuando"> ${esc(tf("~el {}", fechaCorta(g.next_due)))}</span>` : ""}</span>` : ""}
         </div>
         <span class="fig trofeo"><img src="trofeo.webp" alt="" width="108" height="93" loading="lazy">
           ${lograda ? [.1, .5, .9, .3, .7].map((d, k) => `<i class="destello" style="--d:${d};left:${15 + k * 17}%;top:${20 + (k % 2) * 30}%"></i>`).join("") : ""}</span>
       </div>
       <div class="cifras"><span class="val" data-k="${esc(g.name)}" data-n="${pct}" data-m="" data-suf="%" data-fin="${pct}%">${pct}%</span>
-        <span>${esc(plata(ahorrado, g.currency))} de ${esc(plata(objetivo, g.currency))}</span></div>
+        <span>${esc(tf("~{} de {}", plata(ahorrado, g.currency), plata(objetivo, g.currency)))}</span></div>
       <p class="nota">${g.installments_saved ?? 0} de ${g.installments_total ?? 0} cuotas${g.next_due
         ? ` · la próxima el ${esc(fechaCorta(g.next_due))}` : ""}${proxima
         ? ` (${esc(plata(proxima, g.currency))})` : ""}</p>
@@ -7279,24 +7307,29 @@ $("meLista").addEventListener("pointermove", (e) => {
 });
 $("meLista").addEventListener("pointerleave", () => { for (const c of $("meLista").querySelectorAll(".metaCam")){ c.style.setProperty("--px", 0); c.style.setProperty("--py", 0); } }, true);
 
+// El panel admin queda en español (translate="no"): sus cifras y fechas usan
+// es-PE aunque el portal de quien lo mira esté en otro idioma.
+const enEspanol = (f) => (...a) => { const antes = LOC; LOC = "es-PE"; try { return f(...a); } finally { LOC = antes; } };
+const fmtEs = enEspanol(fmt), fechaEs = enEspanol(fecha), plataEs = enEspanol(plata);
+
 function pintarAdmin(m){
   const r=m.registered, a=m.active, mv=m.movements;
   // Cinco KPI, no nueve. "Usuarios con registros hoy" y "Movimientos hoy" ya
   // viven en el subtítulo de Activos y de Movimientos: repetirlos en tarjeta
   // propia hacía que la fila no entrara de un vistazo, que es su único trabajo.
   $("adminKpis").innerHTML =
-    kpi("Registrados", fmt(r.total), "cyan", `+${fmt(r.today)} hoy · +${fmt(r.d7)} 7d`) +
-    kpi("Activos (7d)", fmt(a.d7), "green", `${fmt(a.today)} hoy · ${pct(a.total,r.total)}% activación`) +
-    kpi("Movimientos", fmt(mv.total), "gold", `+${fmt(mv.today)} hoy · +${fmt(mv.d7)} 7d`) +
-    kpi("WhatsApp vinculados", fmt(m.whatsapp_linked), "green", `${pct(m.whatsapp_linked, r.total)}% de la base`) +
+    kpi("Registrados", fmtEs(r.total), "cyan", `+${fmtEs(r.today)} hoy · +${fmtEs(r.d7)} 7d`) +
+    kpi("Activos (7d)", fmtEs(a.d7), "green", `${fmtEs(a.today)} hoy · ${pct(a.total,r.total)}% activación`) +
+    kpi("Movimientos", fmtEs(mv.total), "gold", `+${fmtEs(mv.today)} hoy · +${fmtEs(mv.d7)} 7d`) +
+    kpi("WhatsApp vinculados", fmtEs(m.whatsapp_linked), "green", `${pct(m.whatsapp_linked, r.total)}% de la base`) +
     kpi("Prom. mov/activo", a.total?(mv.total/a.total).toFixed(1):"0", "gold", "intensidad de uso");
 
   // Plataforma y calidad del dato: importan, pero no todos los días.
   const plat = m.platforms || {};
   $("kpisExtra").innerHTML =
-    `iOS ${fmt(plat.ios)} · Android ${fmt(plat.android)}`
-    + (plat.unknown ? ` · ${fmt(plat.unknown)} sin token de push` : "")
-    + ` &nbsp;|&nbsp; ${fmt(m.otros_count)} movimientos en "Otros" por recategorizar`;
+    `iOS ${fmtEs(plat.ios)} · Android ${fmtEs(plat.android)}`
+    + (plat.unknown ? ` · ${fmtEs(plat.unknown)} sin token de push` : "")
+    + ` &nbsp;|&nbsp; ${fmtEs(m.otros_count)} movimientos en "Otros" por recategorizar`;
 
   lineChart("cSignups", m.signups_by_day, "#d0a55c");
   lineChart("cMov", m.movements_by_day, "#d0a55c");
@@ -7344,10 +7377,10 @@ function pintarAdmin(m){
   // (app/features/admin/funnel.py) y trae la caída de cada paso.
   const paso = (s, tope) => {
     const w = Math.round((s.n / (tope || 1)) * 100);
-    const caida = s.drop > 0 ? ` <span class="muted">· -${fmt(s.drop)}</span>` : "";
+    const caida = s.drop > 0 ? ` <span class="muted">· -${fmtEs(s.drop)}</span>` : "";
     return `<div class="fn"><div class="fill" style="width:${w}%"></div>`
       + `<span class="lbl">${s.label}${caida}</span>`
-      + `<span class="val">${fmt(s.n)} · ${s.pct}%</span></div>`;
+      + `<span class="val">${fmtEs(s.n)} · ${s.pct}%</span></div>`;
   };
   const embudo = m.funnel || {};
   const pasos = embudo.base || [];
@@ -7362,7 +7395,7 @@ function pintarAdmin(m){
   const evPasos = ev.steps || [];
   $("funnelEvents").innerHTML = !ev.cohort
     ? `<div class="muted">Todavía nadie con la versión que manda eventos. Aparece solo cuando se publique la 1.1.1.</div>`
-    : `<div class="muted" style="margin-bottom:9px">Sobre ${fmt(ev.cohort)} usuarios con la versión instrumentada</div>`
+    : `<div class="muted" style="margin-bottom:9px">Sobre ${fmtEs(ev.cohort)} usuarios con la versión instrumentada</div>`
       + `<div class="funnel">${evPasos.map(s => paso(s, evPasos[0].n)).join("")}</div>`;
 
   // Origen web: cuentas que nacieron en el portal (web_open en sus primeros
@@ -7382,7 +7415,7 @@ function pintarAdmin(m){
                   ["Después instalaron la app", web.recent_then_app]])
       + `<div class="muted" style="margin:16px 0 9px">Desde que se mide (13 de noviembre de 2026)</div>`
       + filasWeb([["Nacieron en la web", web.web_first], ["Después instalaron la app", web.then_app]])
-      + `<div class="muted" style="margin-top:9px">${fmt(web.web_only)} siguen solo en la web</div>`;
+      + `<div class="muted" style="margin-top:9px">${fmtEs(web.web_only)} siguen solo en la web</div>`;
 
   // Versiones de sistema. Solo existe para quien tenga la app instrumentada,
   // así que se dice: un cero acá es falta de datos, no falta de usuarios.
@@ -7390,7 +7423,7 @@ function pintarAdmin(m){
   $("osList").innerHTML = os.length
     ? `<table><thead><tr><th>Sistema</th><th>Versión</th><th>Usuarios</th></tr></thead><tbody>`
       + os.map(o => `<tr><td>${o.platform === "ios" ? "iOS" : o.platform === "android" ? "Android" : o.platform}</td>`
-          + `<td>${o.os_version}</td><td>${fmt(o.users)}</td></tr>`).join("")
+          + `<td>${o.os_version}</td><td>${fmtEs(o.users)}</td></tr>`).join("")
       + `</tbody></table>`
     : `<div class="muted">Todavía sin datos. Se llena cuando la gente actualice a la versión que reporta el sistema.</div>`;
 
@@ -7895,7 +7928,7 @@ function pintarColas(){
     const activa = cola === waFiltro;
     return `<button class="wacola${activa ? " on" : ""}${n && TONO[cola] ? " " + TONO[cola] : ""}" data-filtro="${cola}"
       aria-pressed="${activa}" title="${esc(m.ayudas[cola] || "")}">
-      <span class="l">${esc(m.rotulos[cola])}</span><span class="n">${fmt(n)}</span>
+      <span class="l">${esc(m.rotulos[cola])}</span><span class="n">${fmtEs(n)}</span>
     </button>`;
   }).join("");
   for (const b of $("waFiltros").querySelectorAll("[data-filtro]"))
@@ -7913,12 +7946,12 @@ function contarColas(){
     const nunca = appUsers.filter(COLAS_APP.nunca).length;
     const zomb = appUsers.filter(COLAS_APP.zombies).length;
     const partes = [];
-    if (act) partes.push(`<b>${fmt(act)}</b> ${act === 1 ? "activo" : "activos"} esta semana`);
-    if (nunca) partes.push(`<b>${fmt(nunca)}</b> sin registrar nada todavía`);
-    if (zomb) partes.push(`<b>${fmt(zomb)}</b> ${zomb === 1 ? "lleva" : "llevan"} más de 20 días sin volver`);
+    if (act) partes.push(`<b>${fmtEs(act)}</b> ${act === 1 ? "activo" : "activos"} esta semana`);
+    if (nunca) partes.push(`<b>${fmtEs(nunca)}</b> sin registrar nada todavía`);
+    if (zomb) partes.push(`<b>${fmtEs(zomb)}</b> ${zomb === 1 ? "lleva" : "llevan"} más de 20 días sin volver`);
     $("waHallazgo").innerHTML = partes.length
-      ? partes.join(" · ") + `. De <b>${fmt(appUsers.length)}</b> cuentas.`
-      : `<b>${fmt(appUsers.length)}</b> cuentas en la app.`;
+      ? partes.join(" · ") + `. De <b>${fmtEs(appUsers.length)}</b> cuentas.`
+      : `<b>${fmtEs(appUsers.length)}</b> cuentas en la app.`;
     return;
   }
   const partes = [];
@@ -7927,8 +7960,8 @@ function contarColas(){
   if (n("pendientes")) partes.push(`<b>${n("pendientes")}</b> sin responder`);
   if (n("vencen")) partes.push(`a <b>${n("vencen")}</b> se le cierra la ventana hoy`);
   $("waHallazgo").innerHTML = partes.length
-    ? partes.join(" · ") + `. De <b>${fmt(waConvs.length)}</b> clientes en la lista.`
-    : `Nada pendiente. <b>${fmt(waConvs.length)}</b> clientes en la lista.`;
+    ? partes.join(" · ") + `. De <b>${fmtEs(waConvs.length)}</b> clientes en la lista.`
+    : `Nada pendiente. <b>${fmtEs(waConvs.length)}</b> clientes en la lista.`;
 }
 
 // Qué espera esta persona, en palabras del oficio: es lo que decide si se abre
@@ -8018,8 +8051,8 @@ function tarjetaUsuario(u){
     <span class="ava ${tinte(u)} e-${esc(estadoUso(u))}">${caraDe(u)}</span>
     <span class="txt">
       <span class="f1"><b>${esc(nombreCorto(u))}</b>${esNuevo(u) ? '<span class="nuevo">NUEVO</span>' : ""}<time>${esc(cuando)}</time></span>
-      <span class="msg">${u.registered_at ? "se registró " + esc(haceCorto(u.registered_at)) + " · " : ""}${fmt(movs.total || 0)} ${
-        movs.total === 1 ? "movimiento" : "movimientos"} · ${fmt(movs.days || 0)} ${
+      <span class="msg">${u.registered_at ? "se registró " + esc(haceCorto(u.registered_at)) + " · " : ""}${fmtEs(movs.total || 0)} ${
+        movs.total === 1 ? "movimiento" : "movimientos"} · ${fmtEs(movs.days || 0)} ${
         movs.days === 1 ? "día con registros" : "días con registros"}</span>
       <span class="f2">${marcas.filter(x => x[0]).map(([txt, cls]) =>
         `<span class="marca ${cls}">${esc(txt)}</span>`).join("")}</span>
@@ -8124,7 +8157,7 @@ function pintarLista(){
   const lote = items.slice(0, waTope);
   cuerpo.innerHTML = lote.length
     ? lote.map(app ? tarjetaUsuario : tarjeta).join("") + (items.length > lote.length
-      ? `<div class="wamas" id="waMas">${fmt(lote.length)} de ${fmt(items.length)}<button class="chico" type="button" id="waMasBtn">Mostrar más</button></div>` : "")
+      ? `<div class="wamas" id="waMas">${fmtEs(lote.length)} de ${fmtEs(items.length)}<button class="chico" type="button" id="waMasBtn">Mostrar más</button></div>` : "")
     : `<div class="wavacio">${!hay ? "Todavía no hay nada que mirar acá."
         : waBusca.trim() ? "Nada con esa búsqueda." : "Nada en esta cola."}</div>`;
   const mas = () => { waTope += 80; const y = cuerpo.scrollTop; pintarLista(); cuerpo.scrollTop = y; };
@@ -8440,7 +8473,7 @@ function bloqueCupo(q){
   if (!q.tope){
     return `<div class="fgrupo">
       <h4>Mensajes de WhatsApp</h4>
-      ${dato("Este mes", fmt(q.usados_mes || 0))}
+      ${dato("Este mes", fmtEs(q.usados_mes || 0))}
       ${q.en_prueba && dias > 0 ? dato("Prueba", "le quedan " + dias + " d", true) : ""}
       <div class="muted" style="font-size:.73rem;margin-top:6px">Sin tope: el cupo está apagado.</div>
     </div>`;
@@ -8451,8 +8484,8 @@ function bloqueCupo(q){
     <div class="fbarra">
       <div class="pista"><div class="lleno${parte >= 1 ? " tope" : ""}" style="width:${
         Math.round(parte * 100)}%"></div></div>
-      <div class="pies"><span>${fmt(q.usados_mes || 0)} usados</span><span>${
-        fmt(q.tope)} ${q.en_prueba ? "de la prueba" : "este mes"}</span></div>
+      <div class="pies"><span>${fmtEs(q.usados_mes || 0)} usados</span><span>${
+        fmtEs(q.tope)} ${q.en_prueba ? "de la prueba" : "este mes"}</span></div>
     </div>
     ${q.en_prueba && dias > 0 ? dato("La prueba termina en", dias + " d", true) : ""}
   </div>`;
@@ -8521,8 +8554,8 @@ function bloquePerfil(movs){
     ${horas.length ? dato("Registra sobre todo", `${FRANJA[horas[0][0]]} (${
       Math.round((horas[0][1] / total) * 100)}%)`, true) : ""}
     ${dato("Días con registros, último mes",
-            movs.days_30 === undefined ? "" : fmt(movs.days_30))}
-    ${cats.map(c => dato(c.category, fmt(c.n), true)).join("")}
+            movs.days_30 === undefined ? "" : fmtEs(movs.days_30))}
+    ${cats.map(c => dato(c.category, fmtEs(c.n), true)).join("")}
     ${movs.parcial ? `<div class="muted" style="font-size:.73rem;margin-top:6px">
       Calculado sobre sus últimos 500 movimientos.</div>` : ""}
   </div>`;
@@ -8536,9 +8569,9 @@ function bloqueMes(mes){
     <h4>Este mes</h4>
     ${monedas.map(([cur, v]) => `<div class="fmes">
       <div class="lado"><div class="k">Gastos ${esc(cur)}</div>
-        <div class="v gasto">${plata(v.gastos, cur)}</div></div>
+        <div class="v gasto">${plataEs(v.gastos, cur)}</div></div>
       <div class="lado"><div class="k">Ingresos ${esc(cur)}</div>
-        <div class="v ingreso">${plata(v.ingresos, cur)}</div></div>
+        <div class="v ingreso">${plataEs(v.ingresos, cur)}</div></div>
     </div>`).join("")}
   </div>`;
 }
@@ -8564,8 +8597,8 @@ function bloqueAvisos(f){
   if (!n.last && !n.daily_reminder_on && !alertas.length) return "";
   return `<div class="fgrupo">
     <h4>Lo que ya le escribimos</h4>
-    ${n.last ? dato(NUDGE[n.last] || n.last, n.last_on ? fecha(n.last_on) : "", true) : ""}
-    ${n.daily_reminder_on ? dato("Recordatorio diario", fecha(n.daily_reminder_on), true) : ""}
+    ${n.last ? dato(NUDGE[n.last] || n.last, n.last_on ? fechaEs(n.last_on) : "", true) : ""}
+    ${n.daily_reminder_on ? dato("Recordatorio diario", fechaEs(n.daily_reminder_on), true) : ""}
     ${alertas.map(a => dato(a.alert_key, cuando(a.sent_at), true)).join("")}
   </div>`;
 }
@@ -8584,7 +8617,7 @@ function subcabecera(f, conv){
   if (plan) partes.push(plan.is_pro ? "Pro" : plan.tier === "pro" ? "Pro vencido" : "Free");
   if (prefs.country) partes.push(prefs.country);
   if (movs.total !== undefined)
-    partes.push(movs.total === 1 ? "1 movimiento" : fmt(movs.total) + " movimientos");
+    partes.push(movs.total === 1 ? "1 movimiento" : fmtEs(movs.total) + " movimientos");
   $("waCabSub").textContent = partes.join(" · ");
 }
 
@@ -8592,7 +8625,7 @@ function pintarFicha(f){
   const caja = $("waFicha"), movs = f.movements || {}, wa = f.whatsapp || {};
   const canales = Object.entries(movs.by_channel || {})
     .sort((a, b) => b[1] - a[1])
-    .map(([k, n]) => dato(CANAL[k] || k, fmt(n), true)).join("");
+    .map(([k, n]) => dato(CANAL[k] || k, fmtEs(n), true)).join("");
   const entrega = wa.delivery || null;
 
   caja.className = "cuerpo";
@@ -8607,7 +8640,7 @@ function pintarFicha(f){
     ${bloqueImagenes(f.images)}
     <div class="fgrupo">
       <h4>Movimientos</h4>
-      ${dato("Total", movs.total === undefined ? "" : fmt(movs.total))}
+      ${dato("Total", movs.total === undefined ? "" : fmtEs(movs.total))}
       ${canales}
       ${movs.parcial ? `<div class="muted" style="font-size:.73rem;margin-top:6px">
         El desglose cuenta los últimos 500.</div>` : ""}
@@ -8617,15 +8650,15 @@ function pintarFicha(f){
       <h4>Cuenta</h4>
       ${dato("Correo", f.email, true)}
       ${dato("Moneda", (f.prefs || {}).currency, true)}
-      ${dato("Se registró", f.registered_at ? fecha(f.registered_at) : "", true)}
+      ${dato("Se registró", f.registered_at ? fechaEs(f.registered_at) : "", true)}
       ${dato("Nombre en WhatsApp", wa.profile_name, true)}
-      ${dato("WhatsApp desde", wa.linked_at ? fecha(wa.linked_at) : "", true)}
+      ${dato("WhatsApp desde", wa.linked_at ? fechaEs(wa.linked_at) : "", true)}
     </div>
     ${entrega ? `<div class="fgrupo">
       <h4>Entrega de WhatsApp</h4>
-      ${dato("Entregados", fmt(entrega.entregados || 0), true)}
-      ${dato("Leídos", fmt(entrega.leidos || 0), true)}
-      ${dato("Fallidos", fmt(entrega.fallidos || 0), true)}
+      ${dato("Entregados", fmtEs(entrega.entregados || 0), true)}
+      ${dato("Leídos", fmtEs(entrega.leidos || 0), true)}
+      ${dato("Fallidos", fmtEs(entrega.fallidos || 0), true)}
       ${entrega.last_error ? `<div class="ferror">${esc(entrega.last_error)}</div>` : ""}
     </div>` : ""}
     ${bloqueAvisos(f)}`;
@@ -8926,7 +8959,7 @@ const CANAL_RK = [["app", "App"], ["whatsapp", "WhatsApp"], ["apple_pay", "Apple
   ["correo", "Correo"], ["fijos", "Fijos"], ["otros", "Otros"]];
 function filaRanking(u, i, max){
   const mezcla = CANAL_RK.map(([k, l]) => u[k]
-    ? `<i class="m-${k}" style="flex:${u[k]}" title="${l} · ${fmt(u[k])}"></i>` : "").join("");
+    ? `<i class="m-${k}" style="flex:${u[k]}" title="${l} · ${fmtEs(u[k])}"></i>` : "").join("");
   const wa = u.wa_linked_at
     ? `<span class="rkWa">WhatsApp desde ${rankFecha(u.wa_linked_at, true)}</span>` : "sin WhatsApp";
   // El id llega cuando la función SQL lo devuelve; sin él la fila no abre a nadie.
@@ -8935,7 +8968,7 @@ function filaRanking(u, i, max){
     <span class="rkPos">${u.rank}</span>
     <span class="ava ${tinte({ user_id: u.user_id || u.name || "" })}">${esc(iniciales({ name: u.name || "Sin nombre" }))}</span>
     <span class="rkTxt">
-      <span class="rkF1"><b>${esc(u.name || "Sin nombre")}</b><span class="rkTot">${fmt(u.total)}</span></span>
+      <span class="rkF1"><b>${esc(u.name || "Sin nombre")}</b><span class="rkTot">${fmtEs(u.total)}</span></span>
       <span class="rkMix" style="width:${(u.total / max * 100).toFixed(1)}%">${mezcla}</span>
       <span class="rkF3">último ${rankFecha(u.last_tx)} · registro ${rankFecha(u.registered_at, true)} · ${wa}</span>
     </span>
@@ -8957,7 +8990,7 @@ async function cargarRanking(){
     if (!quietito()) lista.querySelectorAll(".rk").forEach((f) => f.classList.add("entraFila"));
     crecer(lista);
     const paginas = Math.max(1, Math.ceil((r.total_users || 0) / RANK_TAM));
-    $("rankInfo").textContent = `Página ${rankPag} de ${paginas} · ${fmt(r.total_users)} usuarios`;
+    $("rankInfo").textContent = `Página ${rankPag} de ${paginas} · ${fmtEs(r.total_users)} usuarios`;
     $("rankPrev").disabled = rankPag <= 1;
     $("rankNext").disabled = rankPag >= paginas;
   }catch(e){
@@ -9000,18 +9033,18 @@ function pintarUso(m){
   const registran = tramos.filter(t => t.b !== "0").reduce((a, t) => a + (t.n || 0), 0);
   const ceros = (tramos.find(t => t.b === "0") || {}).n || 0;
   $("uoKpis").innerHTML =
-    kpi("Movimientos", fmt(mv.total), "", `+${fmt(mv.today)} hoy · +${fmt(mv.d7)} en 7 días`, mv.total) +
-    kpi("Por WhatsApp", `${pct(porWa, total)}%`, "", `${fmt(porWa)} de ${fmt(total)} con canal`, pct(porWa, total)).replace('data-suf=""', 'data-suf="%"') +
-    kpi("Registran algo", fmt(registran), "", `${fmt(ceros)} con cero movimientos`, registran) +
-    kpi("En Otros", fmt(m.otros_count), "", "por recategorizar", m.otros_count);
+    kpi("Movimientos", fmtEs(mv.total), "", `+${fmtEs(mv.today)} hoy · +${fmtEs(mv.d7)} en 7 días`, mv.total) +
+    kpi("Por WhatsApp", `${pct(porWa, total)}%`, "", `${fmtEs(porWa)} de ${fmtEs(total)} con canal`, pct(porWa, total)).replace('data-suf=""', 'data-suf="%"') +
+    kpi("Registran algo", fmtEs(registran), "", `${fmtEs(ceros)} con cero movimientos`, registran) +
+    kpi("En Otros", fmtEs(m.otros_count), "", "por recategorizar", m.otros_count);
 
   if (canales.length) Charts.barList($("uoCanal"), canales.map(c => ({ label: CANAL_ENTRADA[c.channel] || c.channel, value: c.n })));
   else $("uoCanal").innerHTML = `<div class="muted">Sin datos</div>`;
 
   const base = tramos.reduce((a, t) => a + (t.n || 0), 0);
   $("uoDist").innerHTML = base
-    ? `<div class="usBarra">${tramos.map(t => `<i class="${TRAMO_CLASE[t.b] || "c-d1"}" style="width:${(t.n / base * 100).toFixed(2)}%" title="${esc(t.b)} movimientos: ${fmt(t.n)}"></i>`).join("")}</div>`
-      + `<ul class="usLey">${tramos.map(t => `<li><i class="${TRAMO_CLASE[t.b] || "c-d1"}"></i><span>${esc(t.b)} movimientos</span><b>${fmt(t.n)}</b><small>${pct(t.n, base)}%</small></li>`).join("")}</ul>`
+    ? `<div class="usBarra">${tramos.map(t => `<i class="${TRAMO_CLASE[t.b] || "c-d1"}" style="width:${(t.n / base * 100).toFixed(2)}%" title="${esc(t.b)} movimientos: ${fmtEs(t.n)}"></i>`).join("")}</div>`
+      + `<ul class="usLey">${tramos.map(t => `<li><i class="${TRAMO_CLASE[t.b] || "c-d1"}"></i><span>${esc(t.b)} movimientos</span><b>${fmtEs(t.n)}</b><small>${pct(t.n, base)}%</small></li>`).join("")}</ul>`
     : `<div class="muted">Sin datos</div>`;
 
   // El mapa de calor va por USUARIOS distintos, no por el total: con una base
@@ -9025,11 +9058,11 @@ function pintarUso(m){
       boton.style.display = "none"; return;
     }
     const pintar = (todo) => {
-      caja.innerHTML = `<div class="muted" style="margin-bottom:9px">Sobre ${fmt(uso.cohort || 0)} usuarios con la versión instrumentada</div>`;
+      caja.innerHTML = `<div class="muted" style="margin-bottom:9px">Sobre ${fmtEs(uso.cohort || 0)} usuarios con la versión instrumentada</div>`;
       const el = document.createElement("div"); caja.appendChild(el);
       Charts.barList(el, (todo ? filas : filas.slice(0, tope)).map(f => ({ label: f.label, value: f.users })));
       boton.style.display = filas.length > tope ? "" : "none";
-      boton.textContent = todo ? "Ver menos" : `Ver ${todo ? "" : "todas"} (${fmt(filas.length)})`;
+      boton.textContent = todo ? "Ver menos" : `Ver ${todo ? "" : "todas"} (${fmtEs(filas.length)})`;
       boton.onclick = () => { pintar(!todo); if (!todo) crecer(caja); };
     };
     pintar(false);
@@ -9064,10 +9097,10 @@ function pintarUsuarios(m){
   usPintadoCon = m;
   const r = m.registered || {}, a = m.active || {}, pl = m.plans || {};
   $("usKpis").innerHTML =
-    kpi("Usuarios", fmt(r.total), "", `+${fmt(r.today)} hoy · +${fmt(r.d7)} esta semana`, r.total) +
-    kpi("Con WhatsApp", fmt(m.whatsapp_linked), "", `${pct(m.whatsapp_linked, r.total)}% de la base`, m.whatsapp_linked) +
-    kpi("Activos 30 días", fmt(a.d30), "", `${pct(a.d30, r.total)}% · ${fmt(a.d7)} en 7 días`, a.d30) +
-    kpi("Pro", fmt(pl.pro), "", `${pct(pl.pro, r.total)}% de la base`, pl.pro);
+    kpi("Usuarios", fmtEs(r.total), "", `+${fmtEs(r.today)} hoy · +${fmtEs(r.d7)} esta semana`, r.total) +
+    kpi("Con WhatsApp", fmtEs(m.whatsapp_linked), "", `${pct(m.whatsapp_linked, r.total)}% de la base`, m.whatsapp_linked) +
+    kpi("Activos 30 días", fmtEs(a.d30), "", `${pct(a.d30, r.total)}% · ${fmtEs(a.d7)} en 7 días`, a.d30) +
+    kpi("Pro", fmtEs(pl.pro), "", `${pct(pl.pro, r.total)}% de la base`, pl.pro);
 
   // Canales: cada usuario en UN grupo según con qué canales tiene señal
   // (app/features/admin/channels.py). Los cuatro primeros salen siempre; los
@@ -9076,11 +9109,11 @@ function pintarUsuarios(m){
   const SIEMPRE = new Set(["app", "app_wa", "app_web", "web"]);
   $("usCanales").innerHTML = segs.length
     ? segs.filter((g) => SIEMPRE.has(g.key) || g.n).map((g) =>
-        kpi(g.label, fmt(g.n), "", `${g.pct}% · ${fmt(g.active)} activos`, g.n)).join("")
+        kpi(g.label, fmtEs(g.n), "", `${g.pct}% · ${fmtEs(g.active)} activos`, g.n)).join("")
     : `<div class="muted">Sin datos de canales todavía.</div>`;
   const al = ch.reach || {};
   $("usAlcance").textContent = segs.length
-    ? `Alcance de cada canal: app ${fmt(al.app)} · WhatsApp ${fmt(al.wa)} · web ${fmt(al.web)} de ${fmt(ch.total)} usuarios.`
+    ? `Alcance de cada canal: app ${fmtEs(al.app)} · WhatsApp ${fmtEs(al.wa)} · web ${fmtEs(al.web)} de ${fmtEs(ch.total)} usuarios.`
     : "";
 
   // Altas por día: columnas con canto, en el dorado de "lo tuyo".
@@ -9110,8 +9143,8 @@ function pintarUsuarios(m){
   // Cohortes: una sola tira partida por estado, con la leyenda debajo.
   const cuentas = (m.activity || {}).buckets || [], base = (m.activity || {}).total || 0;
   $("usCohortes").innerHTML = base
-    ? `<div class="usBarra">${cuentas.map(c => `<i class="c-${esc(c.key)}" style="width:${(c.n / base * 100).toFixed(2)}%" title="${esc(COHORTE_LABEL[c.key] || c.label)}: ${fmt(c.n)}"></i>`).join("")}</div>`
-      + `<ul class="usLey">${cuentas.map(c => `<li><i class="c-${esc(c.key)}"></i><span>${esc(COHORTE_LABEL[c.key] || c.label)}</span><b>${fmt(c.n)}</b><small>${pct(c.n, base)}%</small></li>`).join("")}</ul>`
+    ? `<div class="usBarra">${cuentas.map(c => `<i class="c-${esc(c.key)}" style="width:${(c.n / base * 100).toFixed(2)}%" title="${esc(COHORTE_LABEL[c.key] || c.label)}: ${fmtEs(c.n)}"></i>`).join("")}</div>`
+      + `<ul class="usLey">${cuentas.map(c => `<li><i class="c-${esc(c.key)}"></i><span>${esc(COHORTE_LABEL[c.key] || c.label)}</span><b>${fmtEs(c.n)}</b><small>${pct(c.n, base)}%</small></li>`).join("")}</ul>`
     : `<div class="muted">Sin datos</div>`;
 
   usListo = true;
@@ -9139,7 +9172,7 @@ function verPais(pais){
   const quienes = appUsers
     .filter(u => (u.country || {}).code === pais.code && (u.movements || {}).total > 0)
     .sort((x, y) => (y.movements.total - x.movements.total) || (y.movements.days - x.movements.days));
-  $("usPaisTit").innerHTML = `${esc(pais.country)} <span class="muted" style="font-weight:400">· ${fmt(quienes.length)} ${quienes.length === 1 ? "usuario que registra" : "usuarios que registran"}</span>`;
+  $("usPaisTit").innerHTML = `${esc(pais.country)} <span class="muted" style="font-weight:400">· ${fmtEs(quienes.length)} ${quienes.length === 1 ? "usuario que registra" : "usuarios que registran"}</span>`;
   gente.innerHTML = quienes.map(tarjetaUsuario).join("")
     || `<div class="wavacio">Las cuentas de este país todavía no tienen país en la lista: hay que desplegar el backend.</div>`;
   for (const b of gente.querySelectorAll("[data-uid]")) b.onclick = () => irAClientes(b.dataset.uid);
@@ -9435,8 +9468,10 @@ async function boot(){
           body: JSON.stringify({ event:"web_open", platform:"web" }) }).catch(() => {});
       }
     }catch{}
-    const plan = cargarPlan().catch(() => {});
-    const delMes = cargarMes();
+    // El idioma va antes que lo que pinta fechas con LOC (el plan, el mes).
+    const idioma = cargarPrefs().then((p) => ponerIdioma(p.language), () => {});
+    const plan = idioma.then(() => cargarPlan()).catch(() => {});
+    const delMes = idioma.then(() => cargarMes());
     cargarExtras();
     mirarSiEsAdmin();
 
