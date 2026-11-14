@@ -264,7 +264,9 @@
     border-radius:16px;background:linear-gradient(180deg,#262530,#17161d);box-shadow:var(--clay-chica)}
   .avisoApp b{display:block;font-size:15px} .avisoApp p{margin:2px 0 0;font-size:13px;color:var(--muted)}
   .avisoApp .botones{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap} .avisoApp a.accion{text-decoration:none}
-  .avisoApp .cerrar{position:absolute;right:12px;top:12px;width:32px;height:32px;border-radius:50%;border:0;background:var(--raised);color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+  /* padding:0 y grid: el padding global de los botones corría la x fuera del círculo */
+  .avisoApp .cerrar{position:absolute;right:12px;top:12px;width:32px;height:32px;padding:0;display:grid;place-items:center;
+    border-radius:50%;border:0;background:var(--raised);color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
   .avisoApp .cerrar:hover{color:var(--text)}
   .topbar{display:flex;align-items:center;gap:14px;margin-bottom:22px}
   .topbar h1{font-size:24px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
@@ -3258,9 +3260,13 @@ function pintarPaso(){
     $("bvSeguir").onclick = async () => {
       const campo = { idioma:"language", moneda:"currency", tono:"tone" }[paso];
       const b = $("bvSeguir"); b.disabled = true;
+      // Si no se guarda, se sigue igual: atascar a alguien en la bienvenida
+      // (que no tiene botón de cerrar) es peor que una preferencia por defecto.
+      let fallo = "";
       try{ if (BV.sel[campo] !== prefs[campo]) await guardarPref(campo, BV.sel[campo]); }
-      catch(e){ b.disabled = false; $("bvError").textContent = "No se pudo guardar: " + (e.detail || e.message); return; }
+      catch{ fallo = "No pudimos guardar tu elección. Puedes cambiarla luego en Ajustes."; }
       BV.i++; pintarPaso();
+      $("bvError").textContent = fallo;
     };
     (caja.querySelector('[aria-pressed="true"]') || $("bvSeguir")).focus();
   }
