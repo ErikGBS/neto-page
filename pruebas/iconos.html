@@ -78,6 +78,20 @@ const ICONOS = {
     g.add(at(esfera(.2, C.oro), 0, -.85));
   },
   diana2(g){ ICONOS.diana(g); const f = caja(.12, .9, .12, .05, C.oro); f.rotation.z = -.8; at(f, .35, .35, .4); g.add(f); },
+  // Ajustes: un engranaje de ocho dientes con una tuerca dorada en el eje.
+  tuerca(g){
+    const s = new THREE.Shape(), n = 8, R = .92, r = .7;
+    for (let i = 0; i < n * 4; i++){
+      const a = i / (n * 4) * Math.PI * 2, rr = (i % 4 === 1 || i % 4 === 2) ? R : r;
+      i ? s.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : s.moveTo(Math.cos(a) * rr, Math.sin(a) * rr);
+    }
+    s.closePath();
+    const hueco = new THREE.Path(); hueco.absarc(0, 0, .36, 0, Math.PI * 2, true); s.holes.push(hueco);
+    const e = new THREE.Mesh(new THREE.ExtrudeGeometry(s, { depth: .24, bevelEnabled: true, bevelThickness: .07, bevelSize: .06, bevelSegments: 4, curveSegments: 24 }), mat(C.cielo));
+    e.rotation.z = Math.PI / n / 2; at(e, 0, 0, -.12); g.add(e);
+    const tuerca = cil(.3, .3, C.oro, 6); tuerca.rotation.x = Math.PI / 2; at(tuerca, 0, 0, .12); g.add(tuerca);
+    const eje = cil(.12, .32, C.sombra, 24); eje.rotation.x = Math.PI / 2; at(eje, 0, 0, .14); g.add(eje);
+  },
 };
 
 const TAM = 256;
