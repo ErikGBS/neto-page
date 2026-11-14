@@ -2448,6 +2448,8 @@
       <div id="funnel" class="funnel"></div>
       <h3 style="margin-top:22px">Dentro de la app <span class="muted" style="font-weight:400">· dónde se traba el primer registro</span></h3>
       <div id="funnelEvents"></div>
+      <h3 style="margin-top:22px">Entraron por la web <span class="muted" style="font-weight:400">· cuentas que nacieron en yaltoque.com</span></h3>
+      <div id="funnelWeb"></div>
       <h3 style="margin-top:22px">Versión de sistema <span class="muted" style="font-weight:400">· a quién deja fuera subir el mínimo</span></h3>
       <div id="osList"></div>
     </div>
@@ -7358,6 +7360,25 @@ function pintarAdmin(m){
     : `<div class="muted" style="margin-bottom:9px">Sobre ${fmt(ev.cohort)} usuarios con la versión instrumentada</div>`
       + `<div class="funnel">${evPasos.map(s => paso(s, evPasos[0].n)).join("")}</div>`;
 
+  // Origen web: cuentas que nacieron en el portal (web_open en sus primeros
+  // minutos y antes de abrir la app). Sirve para medir campañas como la de
+  // TikTok: de las altas de la semana, cuántas llegaron por la web y cuántas
+  // de esas terminaron instalando la app. Se mide desde el 13-11-2026.
+  const web = embudo.web;
+  const filasWeb = (filas) => {
+    const base = filas[0][1] || 0;
+    return `<div class="funnel">${filas.map(([label, n], i) => paso({ label, n,
+      pct: base ? Math.round(1000 * n / base) / 10 : 0, drop: i ? filas[i - 1][1] - n : 0 }, base)).join("")}</div>`;
+  };
+  $("funnelWeb").innerHTML = !web
+    ? `<div class="muted">Sin datos de origen web todavía.</div>`
+    : `<div class="muted" style="margin-bottom:9px">Altas de los últimos ${web.days} días</div>`
+      + filasWeb([["Se registraron", web.recent_signups], ["Entraron primero por la web", web.recent_web_first],
+                  ["Después instalaron la app", web.recent_then_app]])
+      + `<div class="muted" style="margin:16px 0 9px">Desde que se mide (13 de noviembre de 2026)</div>`
+      + filasWeb([["Nacieron en la web", web.web_first], ["Después instalaron la app", web.then_app]])
+      + `<div class="muted" style="margin-top:9px">${fmt(web.web_only)} siguen solo en la web</div>`;
+
   // Versiones de sistema. Solo existe para quien tenga la app instrumentada,
   // así que se dice: un cero acá es falta de datos, no falta de usuarios.
   const os = m.by_os || [];
@@ -9386,6 +9407,15 @@ async function boot(){
     // Los datos se piden mientras corre la animación, no después: el portal
     // aparece con el mes puesto y no con el esqueleto vacío.
     cargarPerfil();
+    // Para medir quién llega por la web: el backend guarda solo la primera vez.
+    // Una por pestaña basta; recargar no aporta nada.
+    try{
+      if (!sessionStorage.getItem("webOpen")){
+        sessionStorage.setItem("webOpen", "1");
+        api("/users/me/events", { method:"POST", headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ event:"web_open", platform:"web" }) }).catch(() => {});
+      }
+    }catch{}
     const plan = cargarPlan().catch(() => {});
     const delMes = cargarMes();
     cargarExtras();
