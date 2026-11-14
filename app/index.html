@@ -2533,6 +2533,11 @@
     <!-- El pulso de la base: cuántos son, cuántos llegan, dónde están y en
          qué estado. Lo que se toca abre a la persona en Clientes. -->
     <div class="grid" id="usKpis"></div>
+    <div class="section">
+      <h3>Por dónde usan Y Altoque <span class="muted" style="font-weight:400">· cada usuario en un solo grupo, con sus activos de 30 días. La web se mide desde el 13 de noviembre.</span></h3>
+      <div class="grid" id="usCanales"></div>
+      <p class="muted" id="usAlcance" style="margin:4px 0 0"></p>
+    </div>
     <div class="row2">
       <div class="section">
         <h3>Altas por día <span class="muted" style="font-weight:400">· últimos 30 días</span></h3>
@@ -9063,6 +9068,20 @@ function pintarUsuarios(m){
     kpi("Con WhatsApp", fmt(m.whatsapp_linked), "", `${pct(m.whatsapp_linked, r.total)}% de la base`, m.whatsapp_linked) +
     kpi("Activos 30 días", fmt(a.d30), "", `${pct(a.d30, r.total)}% · ${fmt(a.d7)} en 7 días`, a.d30) +
     kpi("Pro", fmt(pl.pro), "", `${pct(pl.pro, r.total)}% de la base`, pl.pro);
+
+  // Canales: cada usuario en UN grupo según con qué canales tiene señal
+  // (app/features/admin/channels.py). Los cuatro primeros salen siempre; los
+  // raros, solo si tienen gente.
+  const ch = m.channels || {}, segs = ch.segments || [];
+  const SIEMPRE = new Set(["app", "app_wa", "app_web", "web"]);
+  $("usCanales").innerHTML = segs.length
+    ? segs.filter((g) => SIEMPRE.has(g.key) || g.n).map((g) =>
+        kpi(g.label, fmt(g.n), "", `${g.pct}% · ${fmt(g.active)} activos`, g.n)).join("")
+    : `<div class="muted">Sin datos de canales todavía.</div>`;
+  const al = ch.reach || {};
+  $("usAlcance").textContent = segs.length
+    ? `Alcance de cada canal: app ${fmt(al.app)} · WhatsApp ${fmt(al.wa)} · web ${fmt(al.web)} de ${fmt(ch.total)} usuarios.`
+    : "";
 
   // Altas por día: columnas con canto, en el dorado de "lo tuyo".
   const dias = m.signups_by_day || [];
