@@ -738,8 +738,6 @@
   .btn-google:hover{border-color:rgba(208,165,92,.68)}
   .btn-google svg{width:22px;height:22px;flex:none}
   .btn-google[disabled]{opacity:.65}
-  .btn-apple{margin-top:11px;border-color:rgba(255,255,255,.22)}
-  .btn-apple:hover{border-color:rgba(255,255,255,.42)}
   .spin{width:22px;height:22px;border:2.5px solid rgba(208,165,92,.25);
     border-top-color:var(--gold);border-radius:50%;animation:gira .8s linear infinite}
   @keyframes gira{to{transform:rotate(360deg)}}
@@ -2680,12 +2678,6 @@
       </svg>
       <span>Continuar con Google</span>
     </button>
-    <button class="btn-google btn-apple" id="loginApple">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M17.05 12.04c-.03-2.4 1.96-3.55 2.05-3.61-1.12-1.64-2.86-1.86-3.48-1.89-1.48-.15-2.89.87-3.64.87-.75 0-1.91-.85-3.14-.83-1.61.02-3.1.94-3.93 2.38-1.68 2.91-.43 7.22 1.2 9.58.8 1.16 1.75 2.46 3 2.41 1.21-.05 1.67-.78 3.13-.78 1.46 0 1.87.78 3.14.75 1.3-.02 2.12-1.18 2.91-2.34.92-1.34 1.3-2.64 1.32-2.71-.03-.01-2.53-.97-2.56-3.86zM14.63 5.16c.66-.8 1.11-1.92.99-3.03-.95.04-2.11.63-2.8 1.43-.61.71-1.15 1.85-1.01 2.94 1.06.08 2.15-.54 2.82-1.34z" fill="#fff"/>
-      </svg>
-      <span>Continuar con Apple</span>
-    </button>
     <p class="muted" id="avisoApple" style="margin-top:14px;display:none"></p>
   </div>
 </div>
@@ -2956,7 +2948,6 @@ async function entrar(boton, proveedor, etiqueta){
   }
 }
 
-$("loginApple").onclick = (e) => entrar(e.currentTarget, "apple", "Apple");
 
 $("loginBtn").onclick = (e) => entrar(e.currentTarget, "google", "Google");
 const cuenta = (abrir) => {
