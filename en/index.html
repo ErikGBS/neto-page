@@ -210,13 +210,16 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
    nadie lo encontraba. La cabecera del teléfono queda en logo, login y menú;
    idioma y tema bajan al menú para hacerle sitio. */
 .nav-login{min-height:40px}
-.nav-login:focus-visible,.nav-login-m:focus-visible,.hero-login a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.nav-login:focus-visible,.nav-login-m:focus-visible,.btn-login:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .nav-login-m,.menu-tools{display:none}
-.hero-login{margin:18px 0 0;color:var(--dim);font-size:.92rem}
-.hero-login a{color:var(--gold);font-weight:600;text-decoration:underline;text-underline-offset:4px;text-decoration-color:rgba(208,165,92,.45);transition:text-decoration-color .2s}
-.hero-login a:hover{text-decoration-color:currentColor}
-[data-theme="light"] .nav-login,[data-theme="light"] .nav-login-m,[data-theme="light"] .hero-login a{color:var(--gold-deep)!important}
+.cta-login{margin-top:34px}
+.cta-login+.cta-row{margin-top:12px}
+.btn.btn-login{background:rgba(208,165,92,.08);color:var(--gold);border:1.5px solid rgba(208,165,92,.6);font-weight:500}
+.btn-login b{font-weight:700}
+.btn.btn-login:hover{transform:translateY(-2px);background:rgba(208,165,92,.15);border-color:var(--gold)}
+[data-theme="light"] .nav-login,[data-theme="light"] .nav-login-m,[data-theme="light"] .btn-login{color:var(--gold-deep)!important}
 @media(max-width:760px){
+  .btn-login{width:100%;justify-content:center}
   .brand .brand-tag,.nav-in>.pill.lang,.nav-in>.theme-toggle,.nav-links .nav-login{display:none!important}
   .nav-login-m{display:inline-flex;align-items:center;margin:0 10px 0 auto;min-height:40px;padding:0 15px;border:1px solid rgba(208,165,92,.55);border-radius:999px;
     color:var(--gold);font-size:.86rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .2s,border-color .2s}
@@ -613,6 +616,7 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
     <span class="eyebrow reveal">Born in Peru 🇵🇪 · now also in Spain 🇪🇸 · built for the world</span>
     <h1 class="reveal" data-d="1">Your money,<br><span class="accent">under control.</span></h1>
     <p class="lead reveal" data-d="2">Track your expenses on <strong>WhatsApp</strong>: text it or send the <strong>photo</strong> of your receipt (Yape, Plin or any bank), and let <strong>artificial intelligence</strong> categorize them in a real-time dashboard. <strong>Free</strong>, in Spanish, English and Portuguese.</p>
+    <div class="cta-login reveal" data-d="3"><a class="btn btn-login" href="/app/">Already have an account? <b>Sign in</b><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
     <div class="cta-row reveal" data-d="3">
       <a href="https://apps.apple.com/app/id6778281655" target="_blank" rel="noopener" class="btn btn-primary">Download for iPhone
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#04141a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -622,7 +626,6 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
       </a>
       <a href="#como" class="btn btn-ghost">See how it works</a>
     </div>
-    <p class="hero-login reveal" data-d="3">Already have an account? <a href="/app/">Sign in</a></p>
     <div class="trust reveal" data-d="4">
       <span class="chip"><i class="dot" style="background:var(--magenta)"></i>Yape</span>
       <span class="chip"><i class="dot" style="background:var(--cyan)"></i>Plin</span>
