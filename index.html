@@ -235,6 +235,16 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
   .nav-login-m{padding:0 12px;font-size:.8rem}
 }
 
+/* ---------- film del portal (15-11-2026) ----------
+   Va después del hero y no dentro: dura 80 s, tiene rótulos y sonido, y como
+   fondo en loop se cortaría el relato y pesaría 9 MB en datos móviles. Con
+   preload="none" no baja nada hasta que alguien le da play. */
+.film{padding:clamp(40px,7vw,90px) 0}
+.film-lead{color:var(--dim);font-size:1.08rem;max-width:34em;margin:16px 0 0}
+.film-frame{margin-top:36px;border-radius:20px;overflow:hidden;border:1px solid var(--border-strong);background:#000;box-shadow:0 30px 80px -30px rgba(0,0,0,.7)}
+.film-frame video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#000}
+.film .cta-login{margin-top:26px}
+@media(max-width:760px){.film-frame{border-radius:14px;margin-top:26px}}
 /* ---------- hero ---------- */
 .hero{padding-top:clamp(60px,9vw,120px);padding-bottom:80px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
 .hero h1{font-family:var(--font-display);font-weight:600;font-size:clamp(2.7rem,6vw,4.6rem);line-height:.98;letter-spacing:-.03em;margin:22px 0 0}
@@ -673,6 +683,20 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
     </div>
   </div>
 </header>
+
+<!-- FILM DEL PORTAL -->
+<section class="film" id="video">
+  <div class="wrap">
+    <h2 class="section-title reveal">Tu mes, <span class="accent">también en la web.</span></h2>
+    <p class="film-lead reveal" data-d="1">Lo que anotas en el celular o por WhatsApp aparece al instante en tu panel: en qué se te va, si llegas a fin de mes y lo fijo que viene.</p>
+    <div class="film-frame reveal" data-d="2">
+      <video controls playsinline preload="none" poster="/video/tu-mes-poster.webp" width="1920" height="1080" aria-label="Video: recorrido por el panel web de Y Altoque">
+        <source src="/video/tu-mes.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="cta-login reveal" data-d="3"><a class="btn btn-login" href="/app/">Míralo con tus datos: <b>Inicia sesión</b><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+  </div>
+</section>
 
 <!-- PARTNERS -->
 <section class="partners">
