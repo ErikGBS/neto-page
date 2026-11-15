@@ -1235,6 +1235,15 @@
   .admin tbody tr:hover, .panel tbody tr:hover{background:rgba(120,150,210,.05)}
   .admin tbody tr:last-child td, .panel tbody tr:last-child td{border-bottom:none}
   .admin td b, .panel td b{color:var(--text)}
+  .admin .fnTabla th.num, .admin .fnTabla td.num{text-align:right}
+  .admin .fnTabla td.num{white-space:nowrap}
+  .admin .fnTabla tfoot td{border-top:1px solid var(--border);border-bottom:none;font-weight:700;color:var(--text)}
+  .admin .fnTag{margin-left:6px;padding:1px 7px;border-radius:999px;font-size:.72rem;
+    color:var(--mute);background:var(--surface-2)}
+  .admin .fnNota{margin:12px 0 0;font-size:.8rem}
+  .admin .fnEstado:empty{display:none}
+  .admin .fnSeg{display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin-bottom:12px}
+  .admin .fnSeg .barra{grid-column:1 / -1}
   .admin .err{color:var(--red);text-align:center;margin:13vh auto;max-width:430px}
   .admin .retgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;text-align:center}
   .admin .ret{background:var(--surface-2);border-radius:14px;padding:16px 8px}
@@ -2041,6 +2050,10 @@
         <svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
         Métricas
       </button>
+      <button data-tab="ad-finanzas" style="--i:5">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.6-1-1.7-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.7 3 2 3 .9 3 2-1.3 2-3 2c-1.3 0-2.4-.5-3-1.5M12 6.5v11"/></svg>
+        Finanzas
+      </button>
       <button data-tab="ad-crecimiento" style="--i:5">
         <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg>
         Crecimiento
@@ -2529,6 +2542,30 @@
     </div>
   </section>
 
+<section class="tab admin" translate="no" id="tab-ad-finanzas" style="display:none">
+    <!-- Cuánto entra, cuánto sale y cuántos Pro hacen falta para no perder.
+         Lo pide /admin/finanzas, aparte de /admin/metrics. -->
+    <p class="muted fnEstado" id="fnEstado"></p>
+    <div class="grid" id="fnKpis"></div>
+    <div class="section">
+      <h3>Gastos del mes <span class="muted" style="font-weight:400" id="fnMes"></span></h3>
+      <div id="fnGastos"></div>
+      <p class="muted fnNota">Los fijos se editan en Railway con <code>FINANZAS_FIJOS_USD</code>. La IA sale de lo que registra cada llamada.</p>
+    </div>
+    <div class="row2">
+      <div class="section">
+        <h3>Quién genera el gasto de Meta <span class="muted" style="font-weight:400">· respuestas del bot este mes</span></h3>
+        <div id="fnMeta"></div>
+        <p class="muted fnNota" id="fnMetaNota"></p>
+      </div>
+      <div class="section">
+        <h3>Pruebas de WhatsApp <span class="muted" style="font-weight:400">· las que terminaron este mes</span></h3>
+        <div class="grid" id="fnPruebas"></div>
+        <p class="muted fnNota">Una prueba termina a los 30 días de vincular WhatsApp. Pagó: tiene un pago confirmado.</p>
+      </div>
+    </div>
+  </section>
+
 <section class="tab admin" translate="no" id="tab-ad-usuarios" style="display:none">
     <!-- El pulso de la base: cuántos son, cuántos llegan, dónde están y en
          qué estado. Lo que se toca abre a la persona en Clientes. -->
@@ -2785,7 +2822,7 @@ const show = (v) => { for (const x of ["login","app"]) $(x).style.display = (x==
 ponerIdioma(idiomaInicial());   // idiomas.js: el login ya sale en el idioma de la última visita
 
 const TABS = ["resumen","gastos","finmes","movs","compromisos","metas","plan","pro","ajustes",
-  "pagos","wa","ad-resumen","ad-crecimiento","ad-uso","ad-usuarios"];
+  "pagos","wa","ad-resumen","ad-finanzas","ad-crecimiento","ad-uso","ad-usuarios"];
 // Las tres que caben en la barra del teléfono: lo que se mira a diario.
 const DIARIO = ["resumen","gastos","finmes"];
 const TITULO = {
@@ -2793,7 +2830,7 @@ const TITULO = {
   movs:"Movimientos", compromisos:"Compromisos", metas:"Metas",
   plan:"Mi plan", pro:"Activar Pro", ajustes:"Ajustes",
   pagos:"Pagos por revisar", wa:"Clientes",
-  "ad-resumen":"Métricas", "ad-crecimiento":"Crecimiento",
+  "ad-resumen":"Métricas", "ad-finanzas":"Finanzas", "ad-crecimiento":"Crecimiento",
   "ad-uso":"Uso", "ad-usuarios":"Usuarios",
 };
 const quietito = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -2828,7 +2865,8 @@ function cambiarVista(name, desdeHistorial){
   $("mesTit").style.display = name === "resumen" ? "" : "none";   // el mes es del Resumen
   // El sello de frescura es de las métricas: en Clientes o en Pagos quedaba
   // colgado del título diciendo cuándo se cargó otra pantalla.
-  if (!name.startsWith("ad-")) $("gen").textContent = "";
+  // El sello "Actualizado" es de /admin/metrics: Finanzas no lo comparte.
+  if (!name.startsWith("ad-") || name === "ad-finanzas") $("gen").textContent = "";
   // Moverse de vista apila una entrada (para eso existe el botón atrás); la
   // primera de la visita, y las que vienen del propio historial, reemplazan.
   const destino = "#" + name;
@@ -2848,7 +2886,9 @@ function cambiarVista(name, desdeHistorial){
   if (name === "metas") cargarMetas();
   if (name === "pagos") cargarPagos();
   if (name === "wa") cargarBandeja();
-  if (name.startsWith("ad-")) cargarAdmin();
+  // Finanzas trae lo suyo: no necesita las siete lecturas de /admin/metrics.
+  if (name.startsWith("ad-") && name !== "ad-finanzas") cargarAdmin();
+  if (name === "ad-finanzas") cargarFinanzas();
   if (name === "ad-usuarios") estrenarUsuarios();
   if (name === "ad-uso") estrenarUso();
   avisoAdmin("");
@@ -9080,6 +9120,70 @@ function estrenarUso(){
   const vista = $("tab-ad-uso");
   subirNumeros(vista, "#uoKpis .val[data-n]");
   for (const id of ["uoCanal", "uoDist", "uoTaps", "uoScreens"]) crecer($(id));
+}
+
+// ── Finanzas: cuánto entra, cuánto sale ────────────────────────────────────
+// Meta es estimado: respuestas del bot por la tarifa medida, porque Meta no
+// expone su factura. Lo variable se proyecta al mes; los fijos van enteros.
+const fnSoles = (n) => (Number(n) < 0 ? "-" : "") + "S/ " + Math.abs(Number(n || 0)).toLocaleString("es-PE",
+  { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fnPlural = (n, una, varias) => `${fmtEs(n)} ${n === 1 ? una : varias}`;
+const FN_SEG = [["prueba", "En prueba"], ["sin_cuenta", "Sin cuenta (primer mensaje)"],
+  ["pro", "Pro"], ["gratis", "Prueba vencida"]];
+async function cargarFinanzas(){
+  const estado = $("fnEstado");
+  estado.textContent = "Cargando finanzas…";
+  estado.classList.remove("err");
+  try{
+    pintarFinanzas(await api("/admin/finanzas"));
+    estado.textContent = "";
+  }catch(e){
+    // Sin datos viejos debajo del error: parecerían de hoy.
+    for (const id of ["fnKpis", "fnGastos", "fnMeta", "fnPruebas"]) $(id).innerHTML = "";
+    $("fnMes").textContent = $("fnMetaNota").textContent = "";
+    estado.textContent = "No se pudieron cargar las finanzas: " + e.message;
+    estado.classList.add("err");
+  }
+}
+function pintarFinanzas(f){
+  const malo = f.margen_proyectado_pen < 0, cubre = f.pro_para_cubrir;
+  $("fnKpis").innerHTML =
+    kpi("Margen del mes", fnSoles(f.margen_proyectado_pen), malo ? "pink" : "green",
+      `al cierre, con ${fnSoles(f.ingresos.renovaciones_esperadas_pen)} de renovaciones esperadas · hoy ${fnSoles(f.margen_pen)}`) +
+    kpi("Gasto del mes", fnSoles(f.total_proyectado_pen), "",
+      `proyectado · van ${fnSoles(f.total_pen)} en ${f.dias_transcurridos} días`) +
+    kpi("Cobrado", fnSoles(f.ingresos.pen), "green",
+      `${fnPlural(f.ingresos.pagos, "pago confirmado", "pagos confirmados")} este mes`) +
+    kpi("Pro activos", fmtEs(f.pro.activos), "",
+      `${fnPlural(f.pro.pagados, "pagado", "pagados")} · ${fnPlural(f.pro.regalados, "regalado", "regalados")}`) +
+    kpi("Pro para cubrir el mes", cubre == null ? "No alcanza" : fmtEs(cubre), cubre == null ? "pink" : "",
+      cubre == null ? "cada Pro cuesta más de lo que paga" : `cada Pro cuesta ${fnSoles(f.costo_por_pro_pen)} al mes`);
+
+  $("fnMes").textContent = `· ${f.mes}, día ${f.dias_transcurridos} de ${f.dias}`;
+  const fila = (g) => `<tr><td>${esc(g.concepto)}${g.estimado ? '<span class="fnTag">estimado</span>'
+      : g.fijo ? '<span class="fnTag">fijo</span>' : ""}</td>
+    <td class="num">${fnSoles(g.pen)}</td><td class="num">${fnSoles(g.proyectado_pen)}</td></tr>`;
+  $("fnGastos").innerHTML = `<table class="fnTabla"><thead><tr><th>Concepto</th>
+      <th class="num">Hasta hoy</th><th class="num">Proyectado al mes</th></tr></thead>
+    <tbody>${f.gastos.map(fila).join("")}</tbody>
+    <tfoot><tr><td>Total</td><td class="num">${fnSoles(f.total_pen)}</td>
+      <td class="num">${fnSoles(f.total_proyectado_pen)}</td></tr></tfoot></table>`;
+
+  const seg = f.meta_respuestas || {}, total = Object.values(seg).reduce((a, b) => a + b, 0);
+  const tope = Math.max(1, ...Object.values(seg));
+  $("fnMeta").innerHTML = total ? FN_SEG.map(([k, l]) => `<div class="fnSeg">
+      <span>${l}</span><span class="muted">${fmtEs(seg[k] || 0)} · ${fnSoles((seg[k] || 0) * f.meta_respuesta_pen)} · ${pct(seg[k] || 0, total)}%</span>
+      <div class="barra"><i style="width:${((seg[k] || 0) / tope * 100).toFixed(1)}%"></i></div>
+    </div>`).join("") : `<div class="wavacio">Sin respuestas este mes</div>`;
+  $("fnMetaNota").textContent = `Tarifa usada: ${fnSoles(f.meta_respuesta_pen)} por respuesta. ` +
+    "Compárala cada tanto con Facturación de Meta.";
+
+  const p = f.pruebas || {};
+  $("fnPruebas").innerHTML =
+    kpi("Terminaron", fmtEs(p.terminadas || 0), "", "este mes") +
+    kpi("Pagaron", fmtEs(p.pagaron || 0), "green",
+      p.conversion_pct == null ? "sin pruebas terminadas aún" : `${String(p.conversion_pct).replace(".", ",")}% de conversión`) +
+    kpi("En curso", fmtEs(p.en_curso || 0), "", "todavía en sus 30 días");
 }
 
 // ── Usuarios: el pulso de la base ──────────────────────────────────────────
