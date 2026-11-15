@@ -1654,7 +1654,10 @@
     font-variant-numeric:tabular-nums;padding-top:2px;white-space:nowrap}
   /* La línea cuelga del punto hasta el siguiente: con una altura fija se
      quedaba corta en cuanto una fecha ocupaba dos renglones. */
-  .admin .hecho .linea{position:relative;width:11px;align-self:stretch}
+  /* La .linea global es el riel de cuotas: sin esto le ganaba a la fila y la
+     partía en tres renglones. */
+  .admin .hecho .linea{position:relative;width:11px;align-self:stretch;
+    grid-column:auto;height:auto;margin:0}
   .admin .hecho .linea::before{content:"";position:absolute;top:3px;left:0;
     width:11px;height:11px;border-radius:50%;box-sizing:border-box;
     background:var(--surface-2);border:2px solid var(--border)}
@@ -1685,6 +1688,22 @@
   .admin .fpago .acc{display:flex;gap:8px;margin-top:12px}
   .admin .fpago .acc button{flex:1;height:36px;padding:0 10px;font-size:.83rem}
   .admin .ferror{color:var(--red);font-size:.8rem;word-break:break-word}
+
+  /* ── Seguimiento: lo que hablaste con la persona y lo que te toca ─────── */
+  .admin .fnota textarea{margin-top:4px}
+  .admin .fnota .fila{display:flex;gap:8px;margin-top:8px;align-items:center}
+  .admin .fnota input[type="date"]{flex:1;min-width:0;height:40px;padding:0 10px;
+    border-radius:10px;border:1px solid var(--border);background:var(--surface-2);
+    color:var(--text);font:inherit;font-size:.84rem;color-scheme:dark}
+  .admin .fnota input[type="date"]:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+  .admin .fnota .fila button{height:40px;padding:0 16px}
+  .admin .fseg{display:flex;gap:10px;align-items:center;padding:9px 0;
+    border-top:1px solid var(--border)}
+  .admin .fseg:first-of-type{border-top:0;padding-top:0}
+  .admin .fseg .txt{flex:1;min-width:0;font-size:.86rem;line-height:1.4;word-break:break-word}
+  .admin .fseg .dia{display:block;color:var(--mute);font-size:.74rem;margin-top:2px}
+  .admin .fseg.vencido .dia{color:var(--red)}
+  .admin .fseg button.chico{height:40px;flex:none}
 
   /* ── El trámite de Pro: en qué paso está y qué toca hacer ─────────────── */
   .admin .fpaso{background:var(--surface-2);border:1px solid var(--border);
@@ -1726,11 +1745,11 @@
 
   /* ── La respuesta ──────────────────────────────────────────────────────── */
   .admin #waCaja{border-top:1px solid var(--border);padding:14px 20px 16px}
-  .admin #waTexto{width:100%;background:var(--surface);color:var(--text);
+  .admin #waTexto, .admin .fnota textarea{width:100%;background:var(--surface);color:var(--text);
     border:1px solid var(--border);border-radius:12px;padding:10px 13px;
     font:inherit;font-size:.87rem;resize:vertical;min-height:44px}
-  .admin #waTexto:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
-  .admin #waTexto:disabled{opacity:.45;cursor:not-allowed}
+  .admin #waTexto:focus-visible, .admin .fnota textarea:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+  .admin #waTexto:disabled, .admin .fnota textarea:disabled{opacity:.45;cursor:not-allowed}
   .admin .waenviar{display:flex;align-items:center;gap:12px;margin-top:10px}
   .admin .waenviar .muted{font-size:.78rem;flex:1;min-width:0}
   .admin button.primario{background:var(--gold);border-color:transparent;color:var(--ink);
@@ -7895,18 +7914,23 @@ const abierto = () => waModo === "app"
   ? appUsers.find(u => u.user_id === waActiva)
   : waConvs.find(c => c.phone === waActiva);
 const telefonoAbierto = () => (abierto() || {}).phone || null;
+// Hoy en la zona del navegador, como YYYY-MM-DD: contra eso se compara el
+// due_on de un seguimiento, que es una fecha sin hora.
+const hoyLocal = () => new Date().toLocaleDateString("en-CA");
 const COLAS_APP = {
   todos: () => true,
+  seguimientos: (u) => !!u.follow_up_due && u.follow_up_due <= hoyLocal(),
   activos: (u) => estadoUso(u) === "activo",
   dormidos: (u) => estadoUso(u) === "dormido",
   zombies: (u) => estadoUso(u) === "zombie",
   nunca: (u) => estadoUso(u) === "nunca",
   pro: (u) => !!(u.plan || {}).is_pro,
 };
-const ROTULO_APP = { todos:"Todos", activos:"Activos", dormidos:"Dormidos",
+const ROTULO_APP = { todos:"Todos", seguimientos:"Seguimientos", activos:"Activos", dormidos:"Dormidos",
   zombies:"Zombies", nunca:"Nunca registró", pro:"Pro" };
 const AYUDA_APP = {
   todos: "Todas las cuentas de la app",
+  seguimientos: "Les dejaste algo pendiente para hoy, o ya se venció",
   activos: "Registraron algo en los últimos 7 días",
   dormidos: "Entre 7 y 19 días sin registrar nada",
   zombies: "Más de 20 días sin registrar nada",
@@ -7962,7 +7986,7 @@ const modo = () => MODO[waModo];
 function pintarColas(){
   const m = modo(), colas = m.colas(), datos = m.datos();
   // Coral donde alguien espera o se fue; verde agua donde va bien.
-  const TONO = { revisar:"mal", pendientes:"mal", vencen:"mal", dudas:"mal", zombies:"mal", nunca:"mal", dormidos:"mal", activos:"bien", pro:"bien" };
+  const TONO = { seguimientos:"mal", revisar:"mal", pendientes:"mal", vencen:"mal", dudas:"mal", zombies:"mal", nunca:"mal", dormidos:"mal", activos:"bien", pro:"bien" };
   $("waFiltros").innerHTML = Object.keys(colas).map(cola => {
     const n = datos.filter(colas[cola]).length;
     const activa = cola === waFiltro;
@@ -7985,7 +8009,9 @@ function contarColas(){
     const act = appUsers.filter(COLAS_APP.activos).length;
     const nunca = appUsers.filter(COLAS_APP.nunca).length;
     const zomb = appUsers.filter(COLAS_APP.zombies).length;
+    const seg = appUsers.filter(COLAS_APP.seguimientos).length;
     const partes = [];
+    if (seg) partes.push(`<b>${fmtEs(seg)}</b> ${seg === 1 ? "seguimiento te toca" : "seguimientos te tocan"} hoy`);
     if (act) partes.push(`<b>${fmtEs(act)}</b> ${act === 1 ? "activo" : "activos"} esta semana`);
     if (nunca) partes.push(`<b>${fmtEs(nunca)}</b> sin registrar nada todavía`);
     if (zomb) partes.push(`<b>${fmtEs(zomb)}</b> ${zomb === 1 ? "lleva" : "llevan"} más de 20 días sin volver`);
@@ -8672,6 +8698,7 @@ function pintarFicha(f){
   caja.innerHTML = `
     ${chipsPlan(f)}
     ${bloquePago(f.pending_payment)}
+    ${bloqueSeguimiento(f)}
     ${bloqueCupo(f.quota)}
     ${waModo === "app" ? bloqueDias(movs.by_day, movs.parcial)
                        : bloqueSemanas(movs.by_week, movs.week_parcial)}
@@ -8710,6 +8737,87 @@ function pintarFicha(f){
     b.onclick = () => resolver(b.dataset.ok, true, b, tras);
   for (const b of caja.querySelectorAll("[data-no]"))
     b.onclick = () => resolver(b.dataset.no, false, b, tras);
+  engancharSeguimiento(f);
+}
+
+// ── Seguimiento: notas y pendientes del admin sobre esta persona ────────────
+// Con fecha es un seguimiento y entra en la cola del día; sin fecha, una nota.
+// Lo que se le mandó (push, WhatsApp) va a Actividad, junto con lo demás.
+const fechaSeguimiento = (d) => new Date(d + "T12:00:00").toLocaleDateString("es-PE",
+  { weekday:"short", day:"numeric", month:"short" });
+
+function bloqueSeguimiento(f){
+  const hoy = hoyLocal();
+  const segs = (f.follow_ups || []).map(s => {
+    const vencido = s.due_on < hoy;
+    const cuandoEs = vencido ? "Venció el " : s.due_on === hoy ? "Hoy, " : "Para el ";
+    return `<div class="fseg${vencido ? " vencido" : ""}">
+      <div class="txt">${esc(s.body || "")}<span class="dia">${cuandoEs}${fechaSeguimiento(s.due_on)}</span></div>
+      <button class="chico" data-hecho="${esc(s.id)}">Hecho</button>
+    </div>`;
+  }).join("");
+  const notas = (f.log || []).filter(x => x.kind === "note").slice(0, 3).map(n => `
+    <div class="fseg"><div class="txt">${esc(n.body || "")}<span class="dia">Nota, ${
+      haceCorto(n.created_at)}</span></div></div>`).join("");
+  return `<div class="fgrupo fnota">
+    <h4>Seguimiento</h4>
+    ${segs}${notas}
+    <textarea id="fNotaTexto" rows="2" placeholder="Una nota, o algo que te toca hacer con esta persona"
+      aria-label="Nota sobre esta persona"></textarea>
+    <div class="fila">
+      <input id="fNotaDia" type="date" min="${hoy}" aria-label="Recordármelo el día (opcional)"
+        title="Con fecha queda como seguimiento y entra en la cola del día">
+      <button class="primario" id="fNotaGuardar">Guardar</button>
+    </div>
+    <div class="ferror" id="fNotaError" hidden></div>
+  </div>`;
+}
+
+function engancharSeguimiento(f){
+  const uid = f.user_id;
+  // Solo si sigue abierta la misma persona: mientras volaba la petición el
+  // admin pudo abrir otra ficha.
+  // Con el mismo conv con el que se pintó: en modo App la fila de la lista no
+  // trae el último mensaje de WhatsApp y Actividad lo perdería.
+  const conv = fichaConv;
+  const recargar = () => { const c = abierto(); if (c && c.user_id === uid && conv) cargarFicha(conv); };
+  const guardar = $("fNotaGuardar");
+  guardar.onclick = async () => {
+    const texto = $("fNotaTexto").value.trim();
+    if (!texto){ $("fNotaTexto").focus(); return; }
+    // Una fecha a medias llega vacía y se guardaría como nota sin avisar.
+    if ($("fNotaDia").validity.badInput){
+      const err = $("fNotaError");
+      err.textContent = "La fecha está incompleta: complétala o bórrala.";
+      err.hidden = false;
+      return;
+    }
+    guardar.disabled = true;
+    try{
+      await api(`/admin/users/${encodeURIComponent(uid)}/notes`, {
+        method:"POST", headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ text: texto, due_on: $("fNotaDia").value || null }),
+      });
+      recargar();
+    }catch(e){
+      // El texto se queda en la caja: no se pierde lo que escribió.
+      const err = $("fNotaError");
+      err.textContent = "No se guardó: " + e.message;
+      err.hidden = false;
+      guardar.disabled = false;
+    }
+  };
+  for (const b of $("waFicha").querySelectorAll("[data-hecho]"))
+    b.onclick = async () => {
+      b.disabled = true;
+      try{
+        await api(`/admin/follow-ups/${encodeURIComponent(b.dataset.hecho)}/done`, { method:"POST" });
+        recargar();
+      }catch(e){
+        alert("No se pudo: " + e.message);
+        b.disabled = false;
+      }
+    };
 }
 
 // Un número sin cuenta igual tiene historia: el panel enseña la que hay en vez
@@ -8754,6 +8862,10 @@ function pintarHechos(f, conv){
     }
     if ((f.plan || {}).renews_at)
       mas(f.plan.renews_at, f.plan.is_pro ? "Se le vence el Pro" : "Se le venció el Pro");
+    // Lo que el equipo hizo con esta persona, desde el panel.
+    const DICHO = { note: "Nota", follow_up: "Seguimiento", push: "Le mandaste un push",
+      whatsapp: "Le contestaste por WhatsApp" };
+    for (const x of f.log || []) mas(x.created_at, `${DICHO[x.kind] || x.kind}: ${x.body || ""}`);
   }
   mas(conv.last_at, conv.last_direction === "out" ? "Le contestamos" : "Te escribió");
 
@@ -8766,7 +8878,10 @@ function pintarHechos(f, conv){
     </div>`).join("") : `<div class="muted">Nada que contar todavía.</div>`;
 }
 
+// El conv con el que se pintó la ficha abierta, para recargarla igual.
+let fichaConv = null;
 async function cargarFicha(conv){
+  fichaConv = conv;
   const caja = $("waFicha");
   // Quién está abierto se identifica distinto en cada modo: comparar siempre
   // contra el teléfono dejaba la ficha cargando para siempre en la vista App.
@@ -8786,6 +8901,13 @@ async function cargarFicha(conv){
     pintarFicha(f);
     subcabecera(f, conv);
     pintarHechos(f, conv);
+    // La cola de Seguimientos sale de la lista: si acá cambió (se guardó o se
+    // cerró uno), se corrige sin volver a pedir la lista entera.
+    const u = appUsers.find(x => x.user_id === conv.user_id);
+    if (u && f.follow_ups){
+      const prox = (f.follow_ups[0] || {}).due_on || null;
+      if (u.follow_up_due !== prox){ u.follow_up_due = prox; contarColas(); pintarLista(); }
+    }
   }catch(e){
     caja.innerHTML = `<div class="ferror">No se pudo cargar la ficha: ${esc(e.message)}</div>`;
     pintarHechos(null, conv);
