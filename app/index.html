@@ -8864,7 +8864,7 @@ function pintarHechos(f, conv){
       mas(f.plan.renews_at, f.plan.is_pro ? "Se le vence el Pro" : "Se le venció el Pro");
     // Lo que el equipo hizo con esta persona, desde el panel.
     const DICHO = { note: "Nota", follow_up: "Seguimiento", push: "Le mandaste un push",
-      whatsapp: "Le contestaste por WhatsApp" };
+      whatsapp: "Por WhatsApp" };
     for (const x of f.log || []) mas(x.created_at, `${DICHO[x.kind] || x.kind}: ${x.body || ""}`);
   }
   mas(conv.last_at, conv.last_direction === "out" ? "Le contestamos" : "Te escribió");
