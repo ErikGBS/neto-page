@@ -8690,7 +8690,9 @@ function subcabecera(f, conv){
   if (plan) partes.push(plan.is_pro ? "Pro" : plan.tier === "pro" ? "Pro vencido" : "Free");
   if (prefs.country) partes.push(prefs.country);
   if (movs.total !== undefined)
-    partes.push(movs.total === 1 ? "1 movimiento" : fmtEs(movs.total) + " movimientos");
+    partes.push((movs.total === 1 ? "1 movimiento" : fmtEs(movs.total) + " movimientos")
+      // Lo que borró con "empezar de cero": sin esto un 0 parece que nunca la usó.
+      + (movs.cleared ? ` (${fmtEs(movs.cleared)} ${movs.cleared === 1 ? "borrado" : "borrados"})` : ""));
   $("waCabSub").textContent = partes.join(" · ");
 }
 
