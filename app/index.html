@@ -7943,6 +7943,8 @@ const AYUDA_APP = {
 // así que esta cola se llena y se vacía sola. Lo que el bot no acierta lo
 // corrige el botón del hilo: ver `cambiarDuda`.
 const conDuda = (c) => !!(c.duda && c.duda.at);
+// Tocó un plan Pro en el bot y todavía no es Pro. No caduca, a diferencia de la duda.
+const pidioPro = (c) => !!(c.pro_pedido && c.pro_pedido.at) && !(c.plan || {}).is_pro;
 const DUDA = { no_entendi: "El bot no la entendió", ayuda: "Pidió ayuda",
   manual: "La marcaste tú" };
 
@@ -7952,6 +7954,7 @@ const COLAS = {
   revisar: (c) => proEstado(c) === "por_revisar",
   pendientes: sinResponder,
   vencen: porVencer,
+  pidieron_pro: pidioPro,
   pro: (c) => !!(c.plan || {}).is_pro,
   cerradas: (c) => !sinChat(c) && !ventanaViva(c),
   dormidos: dormido,
@@ -7960,7 +7963,7 @@ const COLAS = {
   nunca: (c) => !!c.user_id && (c.usage || {}).cohort === "nunca",
 };
 const ROTULO_WA = { todas:"Todas", dudas:"Con dudas", revisar:"Por revisar", pendientes:"Sin responder",
-  vencen:"Por vencer", pro:"Pro activos", cerradas:"Ventana cerrada",
+  vencen:"Por vencer", pidieron_pro:"Pidieron Pro", pro:"Pro activos", cerradas:"Ventana cerrada",
   dormidos:"Dormidos", nunca:"Nunca registró" };
 const AYUDA_WA = {
   todas: "Conversaciones de los últimos 30 días, más tus Pro y los que están en prueba",
@@ -7968,6 +7971,7 @@ const AYUDA_WA = {
   revisar: "Mandaron su captura del Yape y esperan que la apruebes",
   pendientes: "Su último mensaje es el que nadie contestó",
   vencen: "Les quedan menos de 4 h de la ventana de 24 h de Meta",
+  pidieron_pro: "Tocaron un plan Pro en WhatsApp y todavía no son Pro. Los de fuera de Perú esperan que les escribas",
   pro: "Pro vigente hoy. Un Pro vencido no cuenta acá",
   cerradas: "Pasaron 24 h desde su último mensaje: Meta ya no entrega texto libre",
   dormidos: "Registraron alguna vez y llevan 7 días o más sin anotar nada",
@@ -7986,7 +7990,7 @@ const modo = () => MODO[waModo];
 function pintarColas(){
   const m = modo(), colas = m.colas(), datos = m.datos();
   // Coral donde alguien espera o se fue; verde agua donde va bien.
-  const TONO = { seguimientos:"mal", revisar:"mal", pendientes:"mal", vencen:"mal", dudas:"mal", zombies:"mal", nunca:"mal", dormidos:"mal", activos:"bien", pro:"bien" };
+  const TONO = { seguimientos:"mal", revisar:"mal", pendientes:"mal", vencen:"mal", dudas:"mal", pidieron_pro:"mal", zombies:"mal", nunca:"mal", dormidos:"mal", activos:"bien", pro:"bien" };
   $("waFiltros").innerHTML = Object.keys(colas).map(cola => {
     const n = datos.filter(colas[cola]).length;
     const activa = cola === waFiltro;
@@ -8042,6 +8046,9 @@ function espera(c){
   if (conDuda(c) && !porVencer(c))
     return [DUDA[c.duda.kind] || "Se quedó con una duda", "idle", "Duda", 1];
   if (paso === "falta_captura") return ["Pidió Pro, falta su captura", "idle", "Media", 1];
+  // Sin Yape no hay QR ni pago colgado: solo queda esta marca para no perderlo.
+  if (pidioPro(c) && c.pro_pedido.via === "fuera")
+    return ["Pidió Pro desde fuera de Perú", "idle", "Media", 1];
   if (sinResponder(c) && ventanaViva(c))
     return [porVencer(c) ? "Se le cierra la ventana" : "Esperando respuesta", "idle", "Media", 2];
   if (conDuda(c)) return [DUDA[c.duda.kind] || "Se quedó con una duda", "idle", "Duda", 2];
