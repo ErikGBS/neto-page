@@ -110,7 +110,6 @@
 [data-theme="light"] nav{background:rgba(255,255,255,.7)}
 [data-theme="light"] nav.scrolled{background:rgba(255,255,255,.86)}
 [data-theme="light"] .priv-badge,
-[data-theme="light"] .notify input,
 [data-theme="light"] .social-link{background:rgba(12,42,52,.04)}
 @media(max-width:760px){
   [data-theme="light"] .nav-links{background:rgba(255,255,255,.97)}
@@ -495,15 +494,9 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
 .final-card{text-align:center;border-radius:30px;border:1px solid var(--border-strong);background:radial-gradient(ellipse at 50% 0%,rgba(208,165,92,.12),var(--surface) 60%);padding:clamp(40px,6vw,72px) clamp(24px,5vw,60px);position:relative;overflow:hidden}
 .final-card h2{font-family:var(--font-display);font-weight:600;font-size:clamp(2rem,5vw,3.3rem);line-height:1.04;letter-spacing:-.025em}
 .final-card p{color:var(--dim);font-size:1.08rem;margin:18px auto 0;max-width:34em}
-.notify{display:flex;gap:11px;justify-content:center;margin:34px auto 0;max-width:480px;flex-wrap:wrap}
-.notify input{flex:1;min-width:220px;background:rgba(8,16,21,.7);border:1px solid var(--border-strong);border-radius:13px;padding:15px 18px;color:var(--text);font-family:var(--font-body);font-size:1rem;outline:none;transition:border-color .2s}
-.notify input:focus{border-color:var(--cyan)}
-.notify .ok{color:var(--teal);font-weight:600;font-family:var(--font-display)}
-.notify .hp{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
-.notify-msg{margin:16px auto 0;min-height:1.3em;font-family:var(--font-display);font-weight:600;font-size:1rem;text-align:center}
-.notify-msg.ok{color:var(--teal)}
-.notify-msg.err{color:var(--magenta)}
-.notify button[disabled]{opacity:.6;cursor:not-allowed;transform:none}
+/* Respuesta al toque: el teléfono no tiene hover. La clase doble gana a los :hover
+   de botones (incluido .btn.btn-login:hover), que en touch quedan pegados. */
+.btn.btn:active,.store-badge.store-badge:active{transform:scale(.97);transition-duration:.12s}
 .final-note{margin-top:18px;font-size:.82rem;color:var(--mute);font-family:var(--font-mono);letter-spacing:.04em}
 
 /* ---------- footer ---------- */
@@ -557,8 +550,6 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
   .priv-badges{flex-direction:column}
   .priv-badge{text-align:center}
   .donut-wrap{justify-content:center}
-  .notify{flex-direction:column}
-  .notify .btn{justify-content:center}
   .foot-in{flex-direction:column}
   footer .meta{text-align:left;line-height:2.2}
 }
@@ -1258,47 +1249,6 @@ const bObs=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){
   barWrap.querySelectorAll('.bar').forEach((b,i)=>setTimeout(()=>{b.style.height=b.dataset.h+'%';},i*80));
   bObs.disconnect();}})},{threshold:.4});
 bObs.observe(barWrap);
-
-// notify form -> waitlist API
-const WAITLIST_API = "https://finance-tracker-production-450d.up.railway.app/waitlist";
-const nForm=document.getElementById('notifyForm');
-const nEmail=document.getElementById('email');
-const nHp=document.getElementById('hp_website');
-const nBtn=document.getElementById('notifyBtn');
-const nMsg=document.getElementById('notifyMsg');
-
-if(nForm)nForm.addEventListener('submit', async (ev)=>{
-  ev.preventDefault();
-  const email=nEmail.value.trim();
-  nMsg.className='notify-msg';
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    nMsg.textContent='Ingresa un correo válido.';nMsg.classList.add('err');return;
-  }
-  const label=nBtn.textContent;
-  nBtn.disabled=true;nBtn.textContent='Enviando…';
-  try{
-    const res=await fetch(WAITLIST_API,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email, website:nHp.value})
-    });
-    if(res.ok){
-      nForm.style.display='none';
-      nMsg.textContent='✓ ¡Listo! Te avisaremos a '+email;
-      nMsg.classList.add('ok');
-    } else if(res.status===409){
-      nMsg.textContent='Ese correo ya está en la lista 🙌';
-      nMsg.classList.add('ok');
-      nBtn.disabled=false;nBtn.textContent=label;
-    } else {
-      throw new Error('status '+res.status);
-    }
-  }catch(err){
-    nMsg.textContent='No pudimos registrarte ahora. Intenta de nuevo.';
-    nMsg.classList.add('err');
-    nBtn.disabled=false;nBtn.textContent=label;
-  }
-});
 </script>
 
 <!-- 3D al scrollear: parallax por capas + tilt de secciones + tilt de tarjetas. -->
