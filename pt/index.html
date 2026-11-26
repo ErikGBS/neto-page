@@ -1,9 +1,10 @@
 <!-- Y Altoque - Landing page (showcase) -->
+<html lang="pt-BR">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <!-- Tema (oscuro por defecto; claro si el usuario lo eligió); se aplica antes de pintar -->
-<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script>document.documentElement.setAttribute('data-theme','dark');</script>
 
 <!-- Google Analytics (GA4) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-FLSYGLPE9R"></script>
@@ -30,6 +31,7 @@
 <meta name="twitter:title" content="Y Altoque · Seu dinheiro, sob controle" />
 <meta name="twitter:description" content="Y Altoque: registre seus gastos pelo WhatsApp (texto ou foto) e a IA categoriza tudo em um dashboard. Grátis, multimoeda e multilíngue." />
 <meta name="twitter:image" content="https://yaltoque.com/logo.jpg" />
+
 <link rel="canonical" href="https://yaltoque.com/pt/" />
 <link rel="alternate" hreflang="es" href="https://yaltoque.com/" />
 <link rel="alternate" hreflang="en" href="https://yaltoque.com/en/" />
@@ -39,7 +41,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700,500&f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
@@ -57,8 +58,6 @@
   --gold-bright:#f3ce7f;
   --gold-deep:#a8803f;
   --gold-glow:rgba(208,165,92,.28);
-  --grad-gold:linear-gradient(145deg,#f3ce7f,#d0a55c);
-  --glow-hero:radial-gradient(120% 95% at 22% 80%, rgba(208,165,92,.16), transparent 52%);
   /* Funcionales (finanzas) */
   --teal:#4ade80;
   --positive:#4ade80;
@@ -74,57 +73,6 @@
   --mute:#8893a6;
   --font-display:'Clash Display',sans-serif;
   --font-body:'Satoshi',sans-serif;
-  --font-mono:'Space Mono',monospace;
-}
-/* ---------- tema claro (oscuro = default) ---------- */
-[data-theme="light"]{
-  --bg:#eef1f6;
-  --bg-2:#e3e8f0;
-  --surface:#ffffff;
-  --surface-2:#f3f6fb;
-  --border:rgba(20,30,55,.16);
-  --border-strong:rgba(20,30,55,.30);
-  --cyan:#a8803f;
-  --cyan-bright:#c79a4f;
-  --gold:#a8803f;
-  --gold-bright:#c79a4f;
-  --gold-deep:#7c5d2b;
-  --gold-glow:rgba(168,128,63,.22);
-  --grad-gold:linear-gradient(145deg,#c79a4f,#a8803f);
-  --teal:#1f9d57;
-  --positive:#1f9d57;
-  --negative:#d24b4b;
-  --info:#1f8fb0;
-  --accent-3:#6a4fd0;
-  --magenta:#1f8fb0;
-  --purple:#6a4fd0;
-  --text:#0f1626;
-  --dim:#3a4254;
-  --mute:#5a6478;
-}
-/* fondos oscuros hardcodeados (no mockups) → claros en tema claro */
-[data-theme="light"] .glow{opacity:.16}
-[data-theme="light"] .glow.b{opacity:.13}
-[data-theme="light"] .glow.c{opacity:.1}
-[data-theme="light"] nav{background:rgba(255,255,255,.7)}
-[data-theme="light"] nav.scrolled{background:rgba(255,255,255,.86)}
-[data-theme="light"] .priv-badge,
-[data-theme="light"] .notify input,
-[data-theme="light"] .social-link{background:rgba(12,42,52,.04)}
-@media(max-width:760px){
-  [data-theme="light"] .nav-links{background:rgba(255,255,255,.97)}
-}
-/* botón de tema en el menú */
-.theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;border:1px solid var(--border-strong);background:var(--surface);cursor:pointer;font-size:1.05rem;line-height:1;transition:border-color .2s,background .2s;margin-left:6px}
-.theme-toggle:hover{border-color:var(--cyan)}
-/* los mockups de teléfono SIEMPRE usan la paleta oscura (muestran el app), en
-   ambos temas → re-declaran las variables en su subárbol */
-.phone,.float-card{
-  --bg:#080b12;--bg-2:#0a0f1a;--surface:#0d1320;--surface-2:#111a2b;
-  --border:#1c2740;--border-strong:rgba(120,150,210,.28);
-  --cyan:#d0a55c;--cyan-bright:#f3ce7f;--teal:#4ade80;--magenta:#5bd6f0;
-  --purple:#8b6cf0;--gold:#d0a55c;--text:#f3f5fa;--dim:#b3bccd;--mute:#8893a6;
-  color:var(--text);  /* texto base claro: los que no fijan color lo heredan */
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -138,73 +86,53 @@ body{
 }
 ::selection{background:var(--cyan);color:#04141a}
 
-/* ---------- atmosphere ---------- */
-.bg-layer{position:fixed;inset:0;z-index:-2;pointer-events:none}
-.glow{position:absolute;border-radius:50%;filter:blur(90px);opacity:.5}
-.glow.a{width:620px;height:620px;background:radial-gradient(circle,#d0a55c 0%,transparent 70%);top:-220px;left:-120px}
-.glow.b{width:560px;height:560px;background:radial-gradient(circle,#16243f 0%,transparent 70%);top:38%;right:-200px;opacity:.4}
-.glow.c{width:500px;height:500px;background:radial-gradient(circle,#a8803f 0%,transparent 70%);bottom:-160px;left:30%;opacity:.28}
-.grid-bg{position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background-image:linear-gradient(rgba(120,150,210,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(120,150,210,.04) 1px,transparent 1px);
-  background-size:64px 64px;
-  mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 30%,transparent 80%);
-}
-.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 /* ---------- layout ---------- */
 .wrap{max-width:1180px;margin:0 auto;padding:0 26px}
 section{position:relative}
-.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);display:inline-flex;align-items:center;gap:9px}
-.eyebrow::before{content:"";width:22px;height:1px;background:var(--cyan)}
-h2.section-title{font-family:var(--font-display);font-weight:600;font-size:clamp(2rem,4.4vw,3.1rem);line-height:1.05;letter-spacing:-.02em;margin:16px 0 0}
 
 /* ---------- nav ---------- */
-nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
-  background:rgba(6,10,13,.62);border-bottom:1px solid transparent;transition:border-color .3s,background .3s}
-nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
+nav{position:sticky;top:0;z-index:50;background:#080b12}
 .nav-in{display:flex;align-items:center;justify-content:space-between;height:72px}
 .brand{display:flex;align-items:center;gap:11px;font-family:var(--font-display);font-weight:700;font-size:1.32rem;letter-spacing:-.01em}
 .brand .plus{color:var(--gold)}
 .brand-text{display:flex;flex-direction:column;justify-content:center;line-height:1.02}
 .brand .wordmark{font-family:var(--font-display);font-weight:700;font-size:1.32rem;letter-spacing:-.01em;color:var(--text)}
-.brand .brand-tag{font-family:var(--font-mono);font-weight:400;font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:3px;white-space:nowrap}
-.logo-mark{width:34px;height:34px;flex:0 0 auto;filter:drop-shadow(0 0 10px rgba(208,165,92,.45))}
-.logo-img{height:46px;width:auto;border-radius:50%;flex:0 0 auto;object-fit:contain;filter:drop-shadow(0 0 14px rgba(208,165,92,.5))}
+.brand .brand-tag{display:none}
+.logo-mark{width:34px;height:34px;flex:0 0 auto}
+.logo-img{height:46px;width:auto;border-radius:50%;flex:0 0 auto;object-fit:contain}
 .nav-links{display:flex;gap:34px;align-items:center}
 .nav-links a{color:var(--dim);text-decoration:none;font-size:.94rem;font-weight:500;transition:color .2s;white-space:nowrap}
 .nav-links a:hover{color:var(--text)}
 .nav-login{display:inline-flex;align-items:center;color:var(--gold)!important;
-  border:1px solid rgba(208,165,92,.45);border-radius:999px;padding:8px 17px;
+  border:0;background:rgba(208,165,92,.12);border-radius:999px;padding:8px 17px;
   font-size:.88rem;font-weight:600;line-height:1;transition:.2s;flex:0 0 auto}
 .nav-login:hover{background:rgba(208,165,92,.12);border-color:var(--gold)}
 
 /* Entre el burger y el escritorio ancho el nav va apretado: se le quita aire al
    gap y se guarda el distintivo de las tiendas, que es informativo y compite
    con lo único que ahí es una acción. */
-@media(min-width:761px) and (max-width:1280px){
+@media(min-width:1024px) and (max-width:1280px){
   .nav-links{gap:22px}
   .nav-links a{font-size:.89rem}
   .pill:not(.lang){display:none}
 }
-.pill{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
-  padding:7px 14px;border-radius:999px;border:1px solid var(--border-strong);color:var(--cyan);background:rgba(208,165,92,.07)}
-.burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:42px;height:42px;border-radius:11px;border:1px solid var(--border-strong);background:var(--surface);cursor:pointer;padding:0 11px}
+.pill{font-family:var(--font-body);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+  padding:7px 14px;border-radius:999px;border:0;color:var(--cyan);background:#0d1320}
+.burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:42px;height:42px;border-radius:11px;border:0;background:#111a2b;cursor:pointer;padding:0 11px}
 .burger span{height:2px;width:100%;background:var(--text);border-radius:2px;transition:transform .3s,opacity .3s}
 .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .burger.open span:nth-child(2){opacity:0}
 .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-@media(max-width:760px){
+@media(max-width:1023px){
   .burger{display:flex}
   .pill{display:none}.pill.lang{display:inline-flex;align-items:center;gap:9px;padding:6px 10px;letter-spacing:0}.pill.lang .lc,.pill.lang .lsep{display:none}.pill.lang a{opacity:.45}
   .nav-links{position:absolute;top:72px;left:0;right:0;flex-direction:column;align-items:stretch;gap:0;
-    background:rgba(8,13,17,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);
+    background:#080b12;
     max-height:0;overflow:hidden;transition:max-height .35s ease}
   .nav-links.open{max-height:340px}
-  .nav-links a{padding:16px 26px;border-top:1px solid var(--border);font-size:1.02rem}
+  .nav-links a{padding:16px 26px;font-size:1.02rem}
   .nav-links a:first-child{border-top:none}
-  .nav-login{border:none;border-top:1px solid var(--border)!important;border-radius:0;padding:16px 26px}
+  .nav-login{border:none!important;border-radius:0;padding:16px 26px}
 }
 /* Login siempre a la vista (15-11-2026): en mobile vivía al fondo del menú y
    nadie lo encontraba. La cabecera del teléfono queda en logo, login y menú;
@@ -218,14 +146,14 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
 .btn-login b{font-weight:700}
 .btn.btn-login:hover{transform:translateY(-2px);background:rgba(208,165,92,.15);border-color:var(--gold)}
 [data-theme="light"] .nav-login,[data-theme="light"] .nav-login-m,[data-theme="light"] .btn-login{color:var(--gold-deep)!important}
-@media(max-width:760px){
+@media(max-width:1023px){
   .btn-login{width:100%;justify-content:center}
   .brand .brand-tag,.nav-in>.pill.lang,.nav-in>.theme-toggle,.nav-links .nav-login{display:none!important}
-  .nav-login-m{display:inline-flex;align-items:center;margin:0 10px 0 auto;min-height:40px;padding:0 15px;border:1px solid rgba(208,165,92,.55);border-radius:999px;
+  .nav-login-m{display:inline-flex;align-items:center;margin:0 10px 0 auto;min-height:40px;padding:0 15px;border:0;background:rgba(208,165,92,.12);border-radius:999px;
     color:var(--gold);font-size:.86rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .2s,border-color .2s}
   .nav-login-m:hover{background:rgba(208,165,92,.12);border-color:var(--gold)}
-  .menu-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px 10px 26px;border-top:1px solid var(--border)}
-  .menu-tools .menu-lang{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.08em;color:var(--mute)}
+  .menu-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px 10px 26px}
+  .menu-tools .menu-lang{font-family:var(--font-body);font-size:.78rem;letter-spacing:.08em;color:var(--mute)}
   .nav-links .menu-tools a{display:inline;padding:10px 4px;border:none;font-size:.78rem}
   .menu-tools .theme-toggle{margin:0}
 }
@@ -234,343 +162,38 @@ nav.scrolled{border-color:var(--border);background:rgba(6,10,13,.8)}
   .nav-login-m{padding:0 12px;font-size:.8rem}
 }
 
-/* ---------- hero ---------- */
-.hero{padding-top:clamp(60px,9vw,120px);padding-bottom:80px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
-.hero h1{font-family:var(--font-display);font-weight:600;font-size:clamp(2.7rem,6vw,4.6rem);line-height:.98;letter-spacing:-.03em;margin:22px 0 0}
-.hero h1 .accent{background:linear-gradient(120deg,var(--gold),var(--gold-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.hero p.lead{color:var(--dim);font-size:1.12rem;max-width:32em;margin:24px 0 0}
-.hero .cta-row{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap;align-items:center}
-.btn{font-family:var(--font-body);font-weight:700;font-size:1rem;padding:15px 26px;border-radius:13px;border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:10px;transition:transform .2s,box-shadow .25s}
-.btn-primary{background:linear-gradient(120deg,var(--cyan),var(--cyan-bright));color:#04141a;box-shadow:0 0 0 1px rgba(243,206,127,.4),0 14px 40px -10px rgba(208,165,92,.6)}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(243,206,127,.6),0 18px 50px -10px rgba(208,165,92,.75)}
-.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border-strong)}
-.btn-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
-.trust{display:flex;align-items:center;gap:14px;margin-top:30px;flex-wrap:wrap;color:var(--mute);font-size:.86rem}
-.trust .chip{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--dim);font-weight:500;font-size:.82rem}
-.trust .dot{width:6px;height:6px;border-radius:50%}
-
-/* ---------- phone mockup ---------- */
-.phone-stage{position:relative;display:flex;justify-content:center;align-items:center;min-height:560px}
-.phone{position:relative;width:300px;height:610px;border-radius:46px;background:linear-gradient(160deg,#1c2730,#0a1116);padding:11px;
-  box-shadow:0 0 0 2px rgba(120,150,210,.12),0 50px 120px -30px rgba(0,0,0,.9),0 0 90px -10px rgba(208,165,92,.35);
-  animation:float 6s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-16px) rotate(-1.2deg)}}
-.phone-screen{width:100%;height:100%;border-radius:36px;background:linear-gradient(180deg,#08161c,#060d11);overflow:hidden;position:relative;padding:20px 17px}
-.notch{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:96px;height:24px;background:#05090c;border-radius:0 0 16px 16px;z-index:3}
-.scr-hello{color:var(--dim);font-size:.78rem;margin-top:6px}
-.scr-title{font-family:var(--font-display);font-weight:600;font-size:1.18rem;margin-top:1px}
-.scr-tabs{display:flex;gap:7px;margin-top:13px}
-.scr-tab{font-size:.7rem;padding:5px 13px;border-radius:999px;background:var(--surface);color:var(--mute);font-weight:500}
-.scr-tab.on{background:var(--cyan);color:#04141a;font-weight:700}
-.scr-card{margin-top:13px;border-radius:18px;background:linear-gradient(155deg,rgba(208,165,92,.07),rgba(16,30,39,.6));border:1px solid var(--border);padding:15px 16px;position:relative;overflow:hidden}
-.scr-card .shine{position:absolute;top:-40%;right:-20%;width:130px;height:200px;background:linear-gradient(120deg,rgba(255,255,255,.07),transparent);transform:rotate(25deg)}
-.scr-label{color:var(--dim);font-size:.72rem}
-.scr-bal{font-family:var(--font-display);font-weight:700;font-size:1.85rem;color:var(--teal);letter-spacing:-.02em;line-height:1.1;margin-top:2px}
-.scr-bal .cur{font-size:1.1rem;opacity:.8}
-.scr-mini{display:flex;gap:8px;margin-top:12px}
-.scr-mini > div{flex:1;background:rgba(8,16,21,.6);border:1px solid var(--border);border-radius:12px;padding:9px 11px}
-.scr-mini .t{font-size:.62rem;color:var(--mute);display:flex;align-items:center;gap:5px}
-.scr-mini .v{font-size:.82rem;font-weight:700;margin-top:2px}
-.scr-cat{margin-top:13px;border-radius:18px;background:var(--surface);border:1px solid var(--border);padding:14px 16px}
-.scr-cat h4{font-size:.82rem;font-weight:700;margin-bottom:10px}
-.scr-cat .row{display:flex;align-items:center;justify-content:space-between;font-size:.74rem;margin-bottom:7px}
-.scr-cat .row .name{display:flex;align-items:center;gap:7px;color:var(--dim)}
-.scr-cat .row .name b{width:8px;height:8px;border-radius:50%}
-.scr-cat .row .pct{font-weight:700}
-/* floating side card */
-.float-card{position:absolute;width:194px;border-radius:18px;background:rgba(13,22,29,.86);backdrop-filter:blur(10px);border:1px solid var(--border-strong);padding:14px 15px;
-  box-shadow:0 24px 60px -20px rgba(0,0,0,.8);animation:float2 7s ease-in-out infinite}
-.float-card.fc1{top:30px;right:-26px}
-.float-card.fc2{bottom:46px;left:-34px;animation-delay:-2s}
-@keyframes float2{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-.fc-top{display:flex;align-items:center;gap:9px;font-size:.74rem;color:var(--dim);font-weight:500}
-.fc-ico{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem}
-.fc-amt{font-family:var(--font-display);font-weight:600;font-size:1.15rem;margin-top:9px}
-.fc-sub{font-size:.66rem;color:var(--mute);margin-top:1px}
-
-/* ---------- marquee logos ---------- */
-.partners{padding:34px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.partners .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
-.partners .txt{color:var(--mute);font-size:.84rem;font-family:var(--font-mono);letter-spacing:.04em}
-.partners .set{display:flex;gap:14px;flex-wrap:wrap}
-.partner{display:inline-flex;align-items:center;gap:9px;padding:10px 18px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:.96rem}
-.partner .b{width:9px;height:9px;border-radius:50%}
-/* ---------- crecimiento (números en vivo del backend) ---------- */
-.growth{padding:54px 0;border-bottom:1px solid var(--border)}
-.growth .wrap{display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap}
-.growth .cifra{display:flex;flex-direction:column;gap:6px}
-.growth .n{font-family:var(--font-display);font-weight:800;font-size:clamp(2.6rem,7vw,4.2rem);
-  line-height:1;letter-spacing:-.03em;
-  background:linear-gradient(135deg,var(--gold-bright),var(--gold));
-  -webkit-background-clip:text;background-clip:text;color:transparent}
-.growth .que{font-size:1.05rem;font-weight:700}
-.growth .sub{color:var(--mute);font-size:.88rem}
-.growth .barras{display:flex;align-items:flex-end;gap:10px}
-.growth .mes{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:46px}
-/* La pista tiene altura FIJA a propósito: el alto de la barra va en %, y un
-   porcentaje contra un padre de altura automática no resuelve (las barras
-   salían de 4px). */
-.growth .track{height:96px;display:flex;align-items:flex-end}
-.growth .barra{width:28px;border-radius:7px 7px 3px 3px;
-  background:linear-gradient(180deg,var(--gold-bright),var(--gold));min-height:5px}
-.growth .num{font-family:var(--font-display);font-weight:700;font-size:.84rem;color:var(--dim)}
-.growth .et{color:var(--mute);font-size:.72rem;font-family:var(--font-mono)}
-@media(max-width:680px){
-  .growth .wrap{gap:26px}
-  .growth .barras{gap:7px}
-  .growth .track{height:70px}
-  .growth .mes{min-width:38px}
-  .growth .barra{width:20px}
-  .growth .num{font-size:.76rem}
-}
-/* ---------- global / sin fronteras ---------- */
-.globe{position:relative;text-align:center;padding:96px 0;overflow:hidden}
-.globe::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 120% at 50% -10%,rgba(208,165,92,.10),transparent 60%);pointer-events:none}
-.globe .wrap{position:relative}
-.globe h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.8rem,4vw,2.7rem);letter-spacing:-.02em;margin:16px auto 0;max-width:16em;line-height:1.12}
-.globe .lead{color:var(--dim);font-size:1.06rem;max-width:34em;margin:16px auto 0}
-.globe .flag-marquee{margin:38px auto 0;overflow:hidden;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
-  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
-.globe .flag-track{display:flex;gap:12px;width:max-content;animation:flagscroll 36s linear infinite}
-.globe .flag-marquee:hover .flag-track{animation-play-state:paused}
-@keyframes flagscroll{to{transform:translateX(-50%)}}
-.globe .flag{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-size:.9rem;color:var(--dim);font-weight:600;white-space:nowrap;flex:0 0 auto}
-.globe .flag .fg{font-size:1.15rem;line-height:1}
-@media (prefers-reduced-motion:reduce){.globe .flag-track{animation:none;flex-wrap:wrap;justify-content:center;width:auto}}
-.globe .gstats{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin:38px auto 0}
-.globe .gstat{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 26px;border-radius:18px;border:1px solid var(--border);background:linear-gradient(165deg,rgba(208,165,92,.06),var(--surface) 60%);min-width:140px}
-.globe .gstat b{font-family:var(--font-display);font-weight:700;font-size:1.7rem;letter-spacing:-.02em;color:var(--text)}
-.globe .gstat span{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
-.globe .gstat.gold b{color:var(--gold)}
-
-/* ---------- features ---------- */
-.features{padding:clamp(70px,10vw,120px) 0}
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
-.feat{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:26px 24px;position:relative;overflow:hidden;transition:transform .3s,border-color .3s,background .3s}
-.feat:hover{transform:translateY(-6px);border-color:var(--border-strong);background:var(--surface-2)}
-.feat::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 0%,rgba(208,165,92,.1),transparent 60%);opacity:0;transition:opacity .3s}
-.feat:hover::after{opacity:1}
-.feat .ic{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:18px;border:1px solid var(--border)}
-.feat h3{font-family:var(--font-display);font-weight:600;font-size:1.22rem;letter-spacing:-.01em}
-.feat p{color:var(--dim);font-size:.94rem;margin-top:9px}
-
-/* ---------- how ---------- */
-.how{padding:clamp(60px,9vw,110px) 0}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:50px;counter-reset:s}
-.step{position:relative;padding:30px 26px;border-radius:20px;border:1px solid var(--border);background:linear-gradient(160deg,var(--surface),rgba(13,22,29,.4))}
-.step::before{counter-increment:s;content:"0" counter(s);font-family:var(--font-display);font-weight:700;font-size:2.4rem;
-  background:linear-gradient(120deg,var(--gold),var(--gold-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:block;margin-bottom:14px}
-.step h3{font-family:var(--font-display);font-weight:600;font-size:1.18rem}
-.step p{color:var(--dim);font-size:.93rem;margin-top:8px}
-
-/* ---------- showcase ---------- */
-.showcase{padding:clamp(60px,9vw,110px) 0}
-.show-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:48px}
-.viz{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:26px 28px}
-.viz h3{font-family:var(--font-display);font-weight:600;font-size:1.15rem;display:flex;align-items:center;gap:10px}
-.viz .sub{color:var(--mute);font-size:.82rem;margin-top:2px;margin-bottom:18px}
-.donut-wrap{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
-.donut{position:relative;width:160px;height:160px;flex:0 0 auto}
-.donut .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.donut .center b{font-family:var(--font-display);font-size:1.7rem;font-weight:700}
-.donut .center span{font-size:.68rem;color:var(--mute)}
-.legend{flex:1;min-width:150px}
-.legend .li{display:flex;align-items:center;justify-content:space-between;font-size:.85rem;margin-bottom:9px}
-.legend .li .l{display:flex;align-items:center;gap:8px;color:var(--dim)}
-.legend .li .l i{width:9px;height:9px;border-radius:3px;display:inline-block}
-.legend .li .p{font-weight:700}
-.bars{display:flex;align-items:flex-end;gap:11px;height:170px;margin-top:6px}
-.bar{flex:1;background:var(--surface-2);border-radius:8px 8px 4px 4px;position:relative;display:flex;justify-content:center;align-items:flex-start;height:0;transition:height 1.1s cubic-bezier(.2,.8,.2,1)}
-.bar.hi{background:linear-gradient(180deg,var(--cyan-bright),var(--cyan))}
-.bar .cap{position:absolute;top:-22px;font-size:.66rem;font-weight:700;color:var(--cyan);white-space:nowrap}
-.bar-x{display:flex;gap:11px;margin-top:9px}
-.bar-x span{flex:1;text-align:center;font-size:.74rem;color:var(--mute)}
-.deficit{margin-top:20px;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-radius:14px;background:rgba(255,61,127,.08);border:1px solid rgba(255,61,127,.25)}
-.deficit .lbl{font-size:.8rem;color:var(--dim)}
-.deficit .val{font-family:var(--font-display);font-weight:700;font-size:1.5rem;color:var(--magenta)}
-.deficit .tag{font-size:.72rem;color:var(--magenta);background:rgba(255,61,127,.12);padding:6px 11px;border-radius:999px;font-weight:700}
-
-/* ---------- login showcase ---------- */
-.login-sec{padding:clamp(60px,9vw,110px) 0}
-.login-stage{display:flex;justify-content:center;margin-top:50px}
-.login-screen{padding:30px 19px 16px !important;display:flex;flex-direction:column;align-items:center;
-  background:radial-gradient(ellipse 130% 78% at 50% 16%,#0c1c27,#060d11 62%)}
-/* floating bubbles */
-.bub{position:absolute;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px rgba(208,165,92,.5);animation:bub 7s ease-in-out infinite;z-index:1}
-@keyframes bub{0%,100%{transform:translateY(0);opacity:.18}50%{transform:translateY(-15px);opacity:.65}}
-/* logo + glow */
-.lg-logo{width:116px;height:116px;margin-top:12px;position:relative;z-index:2;animation:lgfloat 5s ease-in-out infinite;
-  filter:drop-shadow(0 0 20px rgba(208,165,92,.5)) drop-shadow(0 0 46px rgba(208,165,92,.28))}
-@keyframes lgfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-11px)}}
-.lg-title{font-family:var(--font-display);font-weight:700;font-size:1.72rem;margin-top:16px;letter-spacing:-.02em;z-index:2}
-.lg-title .y{color:var(--gold)}
-.lg-tag{color:var(--dim);font-size:.82rem;margin-top:3px;z-index:2}
-.lg-feats{width:100%;margin-top:20px;display:flex;flex-direction:column;gap:13px;z-index:2}
-.lg-feat{display:flex;align-items:center;gap:12px}
-.lg-feat .fi{width:40px;height:40px;border-radius:12px;background:rgba(13,22,29,.7);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex:0 0 auto}
-.lg-feat label{color:var(--dim);font-size:.82rem}
-.lg-auth{width:100%;margin-top:18px;background:rgba(13,22,29,.66);border:1px solid var(--border);border-radius:18px;padding:16px 14px 12px;text-align:center;z-index:2}
-.lg-auth h5{font-family:var(--font-display);font-weight:700;font-size:.95rem}
-.lg-auth .sub{color:var(--mute);font-size:.7rem;margin-top:2px}
-.lg-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:11px;border-radius:12px;font-weight:700;font-size:.84rem;margin-top:11px;font-family:var(--font-body)}
-.lg-btn.g{background:transparent;border:1px solid var(--border-strong);color:var(--text)}
-.lg-btn.a{background:#fff;color:#000;border:none}
-.lg-note{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--mute);font-size:.62rem;margin-top:11px;padding:0 8px;line-height:1.3}
-/* store badges */
-.store-badges{display:flex;gap:13px;margin-top:22px;flex-wrap:wrap}
-.store-badge{display:inline-flex;align-items:center;gap:11px;padding:11px 18px;border-radius:14px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);transition:transform .2s,border-color .2s}
-.store-badge:hover{transform:translateY(-2px);border-color:var(--cyan)}
-.store-badge .sb-txt{display:flex;flex-direction:column;line-height:1.15;text-align:left}
-.store-badge .sb-txt small{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-.store-badge .sb-txt b{font-family:var(--font-display);font-weight:600;font-size:1.02rem;color:var(--text)}
-.store-badge.live{border-color:rgba(47,230,168,.4);background:linear-gradient(180deg,rgba(47,230,168,.09),var(--surface))}
-.store-badge.live:hover{border-color:var(--teal)}
-.store-badge.live .sb-txt small{color:var(--teal)}
-/* duo of phones */
-.login-duo{display:flex;justify-content:center;align-items:flex-end;gap:clamp(22px,5vw,64px);margin-top:52px;flex-wrap:wrap}
-.device{display:flex;flex-direction:column;align-items:center;gap:18px}
-.device-label{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);padding:7px 15px;border-radius:999px;border:1px solid var(--border);background:var(--surface)}
-.device-label svg{flex:0 0 auto}
-/* android frame variant */
-.phone.android{border-radius:40px;background:linear-gradient(160deg,#243039,#0c1318);animation-delay:-2.5s}
-.phone.android .phone-screen{border-radius:32px}
-.hole{position:absolute;top:13px;left:50%;transform:translateX(-50%);width:11px;height:11px;border-radius:50%;background:#05090c;z-index:4;box-shadow:0 0 0 2px rgba(0,0,0,.5)}
-
-/* ---------- pricing / pro ---------- */
-.pricing{padding:clamp(60px,9vw,110px) 0}
-.eyebrow.gold{color:var(--gold)}
-.eyebrow.gold::before{background:var(--gold)}
-.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:22px;margin-top:48px;align-items:stretch}
-.plan{position:relative;border-radius:24px;border:1px solid var(--border);background:var(--surface);padding:34px 30px;display:flex;flex-direction:column;transition:transform .3s,border-color .3s}
-.plan:hover{transform:translateY(-5px)}
-.plan-name{font-family:var(--font-display);font-weight:600;font-size:1.32rem;display:flex;align-items:center;gap:9px}
-.plan-price{font-family:var(--font-display);font-weight:700;font-size:2.1rem;margin-top:12px;letter-spacing:-.02em;line-height:1}
-.plan-price small{font-size:.86rem;color:var(--mute);font-weight:500;font-family:var(--font-body);letter-spacing:0}
-.plan-sub{color:var(--dim);font-size:.92rem;margin-top:10px}
-.plan ul{list-style:none;margin:24px 0 0;display:flex;flex-direction:column;gap:13px;flex:1}
-.plan li{display:flex;gap:11px;font-size:.92rem;color:var(--dim);line-height:1.42}
-.plan li .ck{flex:0 0 auto;width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.66rem;margin-top:2px;font-weight:700}
-.plan li b{color:var(--text);font-weight:600}
-.plan-cta{margin-top:28px;width:100%;justify-content:center}
-.plan-free .ck{background:rgba(208,165,92,.12);color:var(--cyan)}
-.plan-pro{border-color:rgba(208,165,92,.42);background:linear-gradient(165deg,rgba(208,165,92,.08),var(--surface) 55%);box-shadow:0 30px 90px -34px rgba(208,165,92,.35)}
-.plan-pro .plan-name{color:var(--gold)}
-.plan-pro .ck{background:rgba(208,165,92,.16);color:var(--gold)}
-.plan-badge{position:absolute;top:-13px;right:26px;font-family:var(--font-mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;padding:6px 13px;border-radius:999px;background:linear-gradient(120deg,var(--gold),#f4d27a);color:#1a1405;font-weight:700}
-.btn-gold{background:linear-gradient(120deg,var(--gold),#f4d27a);color:#1a1405;box-shadow:0 0 0 1px rgba(208,165,92,.4),0 14px 40px -12px rgba(208,165,92,.55)}
-.btn-gold:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(208,165,92,.6),0 18px 50px -12px rgba(208,165,92,.7)}
-.pro-note{text-align:center;color:var(--mute);font-size:.84rem;font-family:var(--font-mono);letter-spacing:.03em;margin-top:26px}
-
-/* ---------- privacy ---------- */
-.privacy{padding:clamp(60px,9vw,110px) 0}
-.priv-card{border-radius:26px;border:1px solid var(--border-strong);background:linear-gradient(155deg,rgba(47,230,168,.05),var(--surface));padding:clamp(30px,5vw,52px);position:relative;overflow:hidden}
-.priv-card::before{content:"";position:absolute;top:-120px;right:-80px;width:340px;height:340px;background:radial-gradient(circle,rgba(47,230,168,.18),transparent 70%);filter:blur(20px)}
-.priv-head{display:flex;align-items:center;gap:14px;position:relative}
-.priv-head .shield{width:52px;height:52px;border-radius:14px;background:rgba(47,230,168,.12);border:1px solid rgba(47,230,168,.3);display:flex;align-items:center;justify-content:center;font-size:1.5rem}
-.priv-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:34px;position:relative}
-.priv-col h4{font-size:.96rem;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:12px}
-.priv-col ul{list-style:none}
-.priv-col li{color:var(--dim);font-size:.88rem;padding:6px 0 6px 20px;position:relative}
-.priv-col li::before{content:"";position:absolute;left:0;top:13px;width:7px;height:7px;border-radius:50%}
-.priv-col.read li::before{background:var(--cyan)}
-.priv-col.save li::before{background:var(--purple)}
-.priv-col.never li::before{background:var(--magenta)}
-.priv-badges{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap;position:relative}
-.priv-badge{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.06em;padding:9px 15px;border-radius:10px;border:1px solid var(--border);background:rgba(8,16,21,.5);color:var(--dim)}
-
-/* ---------- final cta ---------- */
-.final{padding:clamp(70px,10vw,130px) 0}
-.final-card{text-align:center;border-radius:30px;border:1px solid var(--border-strong);background:radial-gradient(ellipse at 50% 0%,rgba(208,165,92,.12),var(--surface) 60%);padding:clamp(40px,6vw,72px) clamp(24px,5vw,60px);position:relative;overflow:hidden}
-.final-card h2{font-family:var(--font-display);font-weight:600;font-size:clamp(2rem,5vw,3.3rem);line-height:1.04;letter-spacing:-.025em}
-.final-card p{color:var(--dim);font-size:1.08rem;margin:18px auto 0;max-width:34em}
-.notify{display:flex;gap:11px;justify-content:center;margin:34px auto 0;max-width:480px;flex-wrap:wrap}
-.notify input{flex:1;min-width:220px;background:rgba(8,16,21,.7);border:1px solid var(--border-strong);border-radius:13px;padding:15px 18px;color:var(--text);font-family:var(--font-body);font-size:1rem;outline:none;transition:border-color .2s}
-.notify input:focus{border-color:var(--cyan)}
-.notify .ok{color:var(--teal);font-weight:600;font-family:var(--font-display)}
-.notify .hp{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
-.notify-msg{margin:16px auto 0;min-height:1.3em;font-family:var(--font-display);font-weight:600;font-size:1rem;text-align:center}
-.notify-msg.ok{color:var(--teal)}
-.notify-msg.err{color:var(--magenta)}
-.notify button[disabled]{opacity:.6;cursor:not-allowed;transform:none}
-.final-note{margin-top:18px;font-size:.82rem;color:var(--mute);font-family:var(--font-mono);letter-spacing:.04em}
-
 /* ---------- footer ---------- */
-footer{border-top:1px solid var(--border);padding:48px 0 40px}
+footer{background:#05070c;padding:72px 0 48px}
 .foot-in{display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap;align-items:flex-start}
 footer .tag{color:var(--dim);font-size:.9rem;margin-top:10px;max-width:24em}
 footer .meta{text-align:right;color:var(--mute);font-size:.84rem;line-height:1.9}
 footer a{color:var(--cyan);text-decoration:none}
-footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(--font-mono);letter-spacing:.04em}
+footer .copy{margin-top:30px;color:var(--dim);font-size:.84rem}
 /* ---------- social ---------- */
 .foot-social{display:flex;align-items:center;gap:13px;margin-top:24px;flex-wrap:wrap}
-.foot-social .label{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-right:3px}
-.social-link{width:46px;height:46px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border-strong);background:rgba(8,16,21,.6);color:var(--dim);transition:transform .25s cubic-bezier(.2,.8,.2,1),color .25s,border-color .25s,box-shadow .25s,background .25s}
+.foot-social .label{font-size:.9rem;color:var(--dim);margin-right:3px}
+.social-link{width:46px;height:46px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;border:0;background:#0d1320;color:var(--dim);transition:transform .25s cubic-bezier(.2,.8,.2,1),color .25s,border-color .25s,box-shadow .25s,background .25s}
 .social-link svg{width:21px;height:21px;display:block}
 .social-link:hover{transform:translateY(-3px);color:#fff}
-.social-link.fb:hover{border-color:#1877f2;background:#1877f2;box-shadow:0 10px 26px -8px rgba(24,119,242,.7)}
-.social-link.ig:hover{border-color:transparent;background:linear-gradient(45deg,#f9ce34,#ee2a7b 48%,#6228d7);box-shadow:0 10px 26px -8px rgba(221,42,123,.7)}
-.social-link.li:hover{border-color:#0a66c2;background:#0a66c2;box-shadow:0 10px 26px -8px rgba(10,102,194,.7)}
+.social-link.fb:hover{border-color:#1877f2;background:#1877f2}
+.social-link.ig:hover{border-color:transparent;background:#e1306c}
+.social-link.li:hover{border-color:#0a66c2;background:#0a66c2}
 .social-link:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 
-/* ---------- reveal ---------- */
-.reveal{opacity:0;transform:perspective(1000px) translateY(64px) translateZ(-150px) rotateX(16deg);transform-origin:50% 100%;transition:opacity 1s ease,transform 1s cubic-bezier(.2,.8,.2,1);will-change:transform,opacity}
-.reveal.in{opacity:1;transform:perspective(1000px) translateY(0) translateZ(0) rotateX(0)}
-.reveal[data-d="1"]{transition-delay:.08s}.reveal[data-d="2"]{transition-delay:.18s}.reveal[data-d="3"]{transition-delay:.28s}.reveal[data-d="4"]{transition-delay:.4s}
-[data-d="1"]{transition-delay:.08s}[data-d="2"]{transition-delay:.16s}[data-d="3"]{transition-delay:.24s}[data-d="4"]{transition-delay:.32s}[data-d="5"]{transition-delay:.4s}
-
-@media(max-width:920px){
-  .hero{grid-template-columns:1fr;text-align:left;overflow:hidden}
-  .phone-stage{margin-top:30px;overflow:hidden}
-  .feat-grid,.steps,.priv-cols,.show-grid,.plans{grid-template-columns:1fr}
-  .feat-grid{grid-template-columns:1fr 1fr}
-  .priv-head{flex-direction:column;align-items:flex-start}
-  /* stack CTAs full-width + hide overhanging mockup cards once single-column */
-  .cta-row{flex-direction:column;align-items:stretch;gap:12px}
-  .cta-row .btn{width:100%;justify-content:center}
-  .float-card{display:none}
-}
 @media(max-width:680px){
   .wrap{padding:0 22px}
-  .feat-grid{grid-template-columns:1fr}
   .nav-in{height:64px}
   .nav-links{top:64px}
-  section{overflow:hidden}
-  .features,.how,.showcase,.privacy{padding:56px 0}
-  .hero{padding-top:32px;padding-bottom:50px;gap:30px}
-  .hero h1{font-size:2.5rem;letter-spacing:-.01em;line-height:1.05}
-  .hero p.lead{font-size:1rem;max-width:none}
-  h2.section-title{font-size:1.95rem;letter-spacing:-.01em}
-  .partners .wrap{flex-direction:column;align-items:flex-start;gap:14px}
-  .priv-card{padding:26px 20px}
-  .priv-badges{flex-direction:column}
-  .priv-badge{text-align:center}
-  .donut-wrap{justify-content:center}
-  .notify{flex-direction:column}
-  .notify .btn{justify-content:center}
   .foot-in{flex-direction:column}
   footer .meta{text-align:left;line-height:2.2}
 }
-@media(max-width:480px){
-  .wrap{padding:0 20px}
-  .phone{width:262px;height:540px;padding:9px}
-  .hero h1{font-size:2.15rem;line-height:1.08;letter-spacing:0}
-  .hero{padding-top:24px;padding-bottom:44px}
-  .scr-bal{font-size:1.6rem}
-  .deficit{flex-direction:column;align-items:flex-start;gap:10px}
-  .trust{gap:10px}
-  .trust .chip{font-size:.78rem;padding:5px 11px}
-  .final-card h2{font-size:1.85rem}
-}
+@media(max-width:480px){.wrap{padding:0 20px}}
 :focus-visible{outline:2px solid var(--gold-bright);outline-offset:2px;border-radius:4px}
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
 }
 </style>
 
-<div class="bg-layer"><div class="glow a"></div><div class="glow b"></div><div class="glow c"></div></div>
-<div class="grid-bg"></div>
-<div class="grain"></div>
 
 <!-- LOGO SVG (reusable) -->
 <svg width="0" height="0" style="position:absolute"><defs>
@@ -591,10 +214,10 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
       <a href="#precio">Preço</a>
       <a href="#privacidad">Privacidade</a>
       <a class="nav-login" href="/app/">Entrar</a>
-      <div class="menu-tools"><span class="menu-lang" aria-label="Idioma"><a href="/" style="color:var(--mute);text-decoration:none">🇵🇪<span class="lc">&nbsp;ES</span></a><span class="lsep">&nbsp;·&nbsp;</span><a href="/en/" style="color:var(--mute);text-decoration:none">🇺🇸<span class="lc">&nbsp;EN</span></a><span class="lsep">&nbsp;·&nbsp;</span><b style="color:var(--gold)">🇧🇷<span class="lc">&nbsp;PT</span></b></span><button class="theme-toggle" aria-label="Alternar tema claro/escuro" title="Alternar tema claro/escuro">🌙</button></div>
+      <div class="menu-tools"><span class="menu-lang" aria-label="Idioma"><a href="/" style="color:var(--mute);text-decoration:none">🇵🇪<span class="lc">&nbsp;ES</span></a><span class="lsep">&nbsp;·&nbsp;</span><a href="/en/" style="color:var(--mute);text-decoration:none">🇺🇸<span class="lc">&nbsp;EN</span></a><span class="lsep">&nbsp;·&nbsp;</span><b style="color:var(--gold)">🇧🇷<span class="lc">&nbsp;PT</span></b></span></div>
     </div>
     <span class="pill lang" aria-label="Idioma"><a href="/" style="color:var(--mute);text-decoration:none">🇵🇪<span class="lc">&nbsp;ES</span></a><span class="lsep">&nbsp;·&nbsp;</span><a href="/en/" style="color:var(--mute);text-decoration:none">🇺🇸<span class="lc">&nbsp;EN</span></a><span class="lsep">&nbsp;·&nbsp;</span><b style="color:var(--gold)">🇧🇷<span class="lc">&nbsp;PT</span></b></span>
-    <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema claro/escuro" title="Alternar tema">🌙</button>
+    
     <a class="nav-login-m" href="/app/">Entrar</a>
     <button class="burger" id="burger" aria-label="Abrir menu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -603,527 +226,422 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
 </nav>
 
 <a id="top"></a>
-<!-- HERO -->
+<!-- ============ MISIÓN: estilos comunes de la landing nueva ============ -->
 <style>
-  .hero{position:relative}
-  .hero>div,.hero>.phone-stage{position:relative;z-index:1}
-  #hero3d{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
-  @media(max-width:760px){#hero3d{display:none}}
-</style>
-<header class="hero wrap">
-  <canvas id="hero3d" aria-hidden="true"></canvas>
-  <div>
-    <span class="eyebrow reveal">Nasceu no Peru 🇵🇪 · agora também na Espanha 🇪🇸 · feita para o mundo</span>
-    <h1 class="reveal" data-d="1">Seu dinheiro,<br><span class="accent">sob controle.</span></h1>
-    <p class="lead reveal" data-d="2">Registre seus gastos pelo <strong>WhatsApp</strong>: mande uma mensagem ou a <strong>foto</strong> do seu comprovante (Yape, Plin ou qualquer banco), e deixe a <strong>inteligência artificial</strong> categorizar tudo em um dashboard em tempo real. <strong>Grátis</strong>, em português, espanhol e inglês.</p>
-    <div class="cta-login reveal" data-d="3"><a class="btn btn-login" href="/app/">Já tem conta? <b>Entrar</b><svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
-    <div class="cta-row reveal" data-d="3">
-      <a href="https://apps.apple.com/app/id6778281655" target="_blank" rel="noopener" class="btn btn-primary">Baixar para iPhone
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#04141a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <a href="https://play.google.com/store/apps/details?id=com.erikgbs.finance_app&amp;pcampaignid=web_share" target="_blank" rel="noopener" class="btn btn-primary">Baixar para Android
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#04141a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-      <a href="#como" class="btn btn-ghost">Veja como funciona</a>
-    </div>
-    <div class="trust reveal" data-d="4">
-      <span class="chip"><i class="dot" style="background:var(--magenta)"></i>Yape</span>
-      <span class="chip"><i class="dot" style="background:var(--cyan)"></i>Plin</span>
-      <span class="chip"><i class="dot" style="background:var(--teal)"></i>Todos os bancos</span>
-      <span>· Grátis por enquanto</span>
-    </div>
-  </div>
+  .b1{display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 28px;border-radius:999px;border:0;background:#d0a55c;color:#1a1206;font:700 1rem/1 var(--font-body);text-decoration:none;cursor:pointer;
+    transition:background-color .2s,transform .15s,translate .45s cubic-bezier(.2,.8,.2,1)}
+  .b1:hover{background:#f3ce7f}
+  .b1:active{transform:scale(.97);transition-duration:.1s}
+  .b1:focus-visible,.lnk:focus-visible{outline:2px solid #f3ce7f;outline-offset:3px}
+  .b1.mag{transition:background-color .2s,transform .15s,translate .12s linear}
+  .lnk{color:var(--text);text-decoration:underline;text-decoration-color:rgba(208,165,92,.7);text-underline-offset:4px;text-decoration-thickness:1.5px}
+  .lnk:hover{color:#f3ce7f}
+  .sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-  <!-- phone -->
-  <div class="phone-stage reveal" data-d="2">
-    <div class="phone">
-      <div class="notch"></div>
-      <div class="phone-screen">
-        <div class="scr-hello">Oi, Erik 👋</div>
-        <div class="scr-title">Seu resumo financeiro</div>
-        <div class="scr-tabs"><span class="scr-tab">Abril</span><span class="scr-tab">Maio</span><span class="scr-tab on">Junho</span></div>
-        <div class="scr-card">
-          <div class="shine"></div>
-          <div class="scr-label">Saldo total</div>
-          <div class="scr-bal" id="balCount">0,00 <span class="cur">S/</span></div>
-          <div class="scr-mini">
-            <div><div class="t"><i style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block"></i>Receitas</div><div class="v" style="color:var(--teal)">6.696,30</div></div>
-            <div><div class="t"><i style="width:6px;height:6px;border-radius:50%;background:var(--magenta);display:inline-block"></i>Despesas</div><div class="v" style="color:var(--magenta)">4.448,54</div></div>
-          </div>
-        </div>
-        <div class="scr-cat">
-          <h4>Por categoria</h4>
-          <div class="row"><span class="name"><b style="background:var(--purple)"></b>Transferências</span><span class="pct" style="color:var(--purple)">61.6%</span></div>
-          <div class="row"><span class="name"><b style="background:var(--teal)"></b>Receita</span><span class="pct" style="color:var(--teal)">15.2%</span></div>
-          <div class="row"><span class="name"><b style="background:var(--cyan)"></b>Entretenimento</span><span class="pct" style="color:var(--cyan)">13.0%</span></div>
-          <div class="row"><span class="name"><b style="background:var(--gold)"></b>Educação</span><span class="pct" style="color:var(--gold)">4.5%</span></div>
-        </div>
+  /* split text y odómetro */
+  .sw{display:inline-block;white-space:nowrap}
+  .sc{display:inline-block;animation:scIn .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*30ms + var(--d0,0ms))}
+  @keyframes scIn{from{opacity:0;transform:translateY(.5em) rotate(7deg);filter:blur(8px)}}
+  /* los títulos de escena nunca desaparecen del todo: entran desde borrosos */
+  .esc h2 .sc{animation-name:scIn2}
+  @keyframes scIn2{from{transform:translateY(.45em) rotate(6deg);filter:blur(10px)}}
+  .odo{display:inline-flex;align-items:flex-end;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .od-c{display:inline-block;height:1.1em;line-height:1.1em;overflow:hidden}
+  .od-s{display:flex;flex-direction:column;align-items:center;transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+  .od-s::before{content:"0\A 1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9";white-space:pre;display:block;line-height:1.1em;text-align:center}
+  .od-t{height:1.1em;line-height:1.1em}
+  .od-t{display:inline-block}
+
+  /* ---------- 1. Despegue ---------- */
+  .despegue{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;padding:120px 0 72px}
+  .despegue-cielo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;opacity:.6}
+  .despegue::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,11,18,.55) 0%,rgba(8,11,18,.25) 45%,#080b12 100%);pointer-events:none} /* taste-skill-ignore: escrim sobre la foto */
+  .despegue-in{position:relative;z-index:1;width:100%;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.6fr);align-items:center;gap:24px}
+  .despegue h1{font-family:var(--font-display);font-weight:600;font-size:clamp(3.4rem,7.6vw,7.8rem);line-height:.92;letter-spacing:-.035em;margin:0;color:var(--text)}
+  .despegue-lead{font-size:clamp(1.08rem,1.4vw,1.3rem);line-height:1.5;color:var(--text);max-width:34em;margin:36px 0 0}
+  .despegue-acc{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+  .despegue-sec{margin:22px 0 0;color:var(--dim);font-size:1rem}
+  .despegue-cuentas{margin:28px 0 0;font-size:1.05rem;color:var(--dim)}
+  .despegue-cuentas b{font-family:var(--font-display);font-size:1.9rem;font-weight:600;color:var(--text);margin-right:8px;vertical-align:-4px}
+  .despegue-astro{margin:0;justify-self:center;width:min(100%,460px);will-change:transform}
+  .despegue-astro img{width:100%;height:auto;display:block;animation:flotar 6s ease-in-out infinite}
+  @keyframes flotar{50%{translate:0 -16px;rotate:-2deg}}
+  @media(max-width:760px){
+    .despegue{padding:96px 0 48px;align-items:flex-start}
+    .despegue-in{grid-template-columns:1fr;gap:0}
+    .despegue h1{font-size:clamp(2.9rem,14vw,4.2rem)}
+    .despegue h1 .ajusta{font-size:.9em} /* traducciones más largas, p. ej. under control. */
+    .despegue-astro{grid-row:1;justify-self:end;width:min(52vw,240px);margin:0 -8px -24px 0}
+    .despegue-lead{margin-top:22px}
+    .despegue-acc .b1{flex:1 1 100%;justify-content:center}
+  }
+
+  /* ---------- 2. Tus mundos ---------- */
+  .mundos{position:relative;--ox:63%;--oy:52%;--rx:min(33vw,500px);--ry:calc(var(--rx)*.3);--ms:min(19vw,270px);overflow:visible;overflow-x:clip;background:#05070c}
+  .mundos.on{height:430svh}
+  .mundos-stage{position:relative;min-height:100svh;overflow:hidden}
+  .mundos.on .mundos-stage{position:sticky;top:0;height:100svh}
+  .mundos-stage::before{content:"";position:absolute;left:0;right:0;top:0;height:160px;z-index:1;background:linear-gradient(#080b12,rgba(8,11,18,0));pointer-events:none} /* taste-skill-ignore: escrim sobre la foto */
+  .mundos-cielo{position:absolute;width:max(130vw,215vh);height:auto;left:calc(var(--ox) - max(65vw,107.5vh));top:calc(var(--oy) - max(40vw,66vh));opacity:.9;pointer-events:none}
+  .mundos-copy{position:relative;z-index:30;padding-top:120px;pointer-events:none}
+  .mundos-copy>*{pointer-events:auto}
+  .mundos h2{font-family:var(--font-display);font-weight:600;font-size:clamp(2.6rem,5.6vw,5.4rem);line-height:.95;letter-spacing:-.03em;margin:0}
+  .mundos-lead{font-size:1.12rem;line-height:1.5;max-width:24em;margin:20px 0 0;color:var(--text)}
+  .mundo-card{margin-top:40px;max-width:380px;padding:24px 24px 22px;border-radius:20px;background:#0d1320}
+  .mundo-nombre{font-family:var(--font-display);font-weight:600;font-size:2.2rem;line-height:1;letter-spacing:-.02em;min-height:1em}
+  .mundo-linea{margin:12px 0 0;font-size:1.02rem;line-height:1.5;color:var(--text);min-height:3em}
+  .mundo-cifra{margin-top:18px;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px}
+  .mundo-cifra b{font-family:var(--font-display);font-weight:600;font-size:2.4rem;color:#f3ce7f;letter-spacing:-.01em}
+  .mundo-cifra>span{color:var(--dim);font-size:.98rem}
+  .mundo-pasos{display:flex;gap:6px;margin-top:20px}
+  .mundo-pasos i{width:16px;height:4px;border-radius:2px;background:#1c2740;transition:width .3s,background-color .3s}
+  .mundo-pasos i.on{width:32px;background:#d0a55c}
+  .orbita{list-style:none;margin:0;padding:0}
+  .mundos.on .orbita{position:absolute;left:var(--ox);top:var(--oy);width:0;height:0;z-index:10}
+  .mundos.on .mundo{position:absolute;left:0;top:0;width:var(--ms);height:var(--ms);margin:calc(var(--ms)/-2) 0 0 calc(var(--ms)/-2);will-change:transform,opacity}
+  .mundo img{width:100%;height:auto;display:block}
+  .mundos.on .mundo-txt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  /* sin JS: los siete mundos en una rejilla legible */
+  .mundos:not(.on) .orbita{position:relative;z-index:30;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:32px;max-width:1180px;margin:56px auto 0;padding:0 26px 120px}
+  .mundos:not(.on) .mundo img{width:140px}
+  .mundos:not(.on) .mundo-txt b{display:block;font-family:var(--font-display);font-size:1.4rem;margin-top:12px}
+  .mundos:not(.on) .mundo-card{display:none}
+  @media(max-width:760px){
+    .mundos{--ox:50%;--oy:38%;--rx:38vw;--ry:calc(var(--rx)*.3);--ms:36vw}
+    .mundos-copy{height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:84px 22px 22px}
+    .mundos h2{font-size:2.5rem}
+    .mundos-lead{font-size:1rem;margin-top:10px}
+    .mundo-card{margin-top:0;max-width:none;padding:18px 18px 16px;background:rgba(13,19,32,.94)}
+    .mundo-nombre{font-size:1.7rem}
+    .mundo-linea{font-size:.95rem;min-height:2.9em;margin-top:8px}
+    .mundo-cifra{margin-top:10px}
+    .mundo-cifra b{font-size:1.8rem}
+    .mundo-pasos{margin-top:12px}
+  }
+  @media(max-width:760px) and (max-height:700px){.mundos-lead{display:none}}
+</style>
+
+<header class="despegue" id="inicio">
+  <img class="despegue-cielo" src="/img/espacio/nebulosa-carina.webp" width="1920" height="930" alt="" fetchpriority="high">
+  <div class="wrap despegue-in">
+    <div class="despegue-texto">
+      <h1 id="titulo">Seu dinheiro,<br>sob controle.</h1>
+      <p class="despegue-lead">Mande seus gastos pelo WhatsApp, em texto ou com a foto do comprovante. A IA organiza tudo e você vê o mês inteiro, grátis.</p>
+      <div class="despegue-acc">
+        <a class="b1" href="https://apps.apple.com/app/id6778281655" target="_blank" rel="noopener">Baixar para iPhone</a>
+        <a class="b1" href="https://play.google.com/store/apps/details?id=com.erikgbs.finance_app&amp;pcampaignid=web_share" target="_blank" rel="noopener">Baixar para Android</a>
       </div>
+      <p class="despegue-sec">Já tem conta? <a class="lnk" href="/app/">Entre</a>. Funciona com Yape, Plin e todos os bancos.</p>
+      <p class="despegue-cuentas" id="cuentas" hidden><b class="odo" id="cuentasN">0</b>contas criadas e contando</p>
     </div>
-    <div class="float-card fc1">
-      <div class="fc-top"><span class="fc-ico" style="background:rgba(47,230,168,.14);color:var(--teal)">↗</span>Receita detectada</div>
-      <div class="fc-amt" style="color:var(--teal)">+5.000,00 S/</div>
-      <div class="fc-sub">Empréstimo Carlos · Transferência</div>
-    </div>
-    <div class="float-card fc2">
-      <div class="fc-top"><span class="fc-ico" style="background:rgba(139,124,246,.16);color:var(--purple)">🧠</span>Categorizado pela IA</div>
-      <div class="fc-amt" style="color:var(--magenta)">−171,04 S/</div>
-      <div class="fc-sub">DLC*GODADDY → Serviços</div>
-    </div>
+    <figure class="despegue-astro" id="astro">
+      <img src="/img/universo/astronauta-cohete.webp" width="512" height="512" alt="O astronauta do Y Altoque decolando no foguete">
+    </figure>
   </div>
 </header>
 
-<!-- PARTNERS -->
-<section class="partners">
-  <div class="wrap">
-    <span class="txt reveal">CONECTA COM O QUE VOCÊ JÁ USA</span>
-    <div class="set reveal" data-d="1">
-      <span class="partner"><i class="b" style="background:var(--magenta)"></i>Yape</span>
-      <span class="partner"><i class="b" style="background:var(--cyan)"></i>Plin</span>
-      <span class="partner"><i class="b" style="background:var(--teal)"></i>Todos os bancos</span>
-      <span class="partner"><i class="b" style="background:#25D366"></i>WhatsApp</span>
-    </div>
-  </div>
-</section>
-
-<!-- CRECIMIENTO (se oculta solo si el backend no responde) -->
-<section class="growth" id="crecimiento" hidden>
-  <div class="wrap">
-    <div class="cifra reveal">
-      <span class="n" id="gN">&nbsp;</span>
-      <span class="que">contas criadas</span>
-      <span class="sub">gente que já abriu seu Y Altoque</span>
-    </div>
-    <div class="reveal" data-d="1">
-      <div class="et" style="margin-bottom:10px">Novas contas por mês</div>
-      <div class="barras" id="gBarras"></div>
-    </div>
-  </div>
-</section>
-
-<!-- GLOBAL / SIN FRONTERAS -->
-<section class="globe">
-  <div class="wrap">
-    <span class="eyebrow reveal">Sem fronteiras</span>
-    <h2 class="reveal" data-d="1">Seu dinheiro, no seu idioma e na sua moeda.</h2>
-    <p class="lead reveal" data-d="2">Nasceu no Peru 🇵🇪 e já está em testes na Espanha 🇪🇸. Multimoeda e multilíngue desde o primeiro dia: onde você estiver, no que você usar.</p>
-    <div class="flag-marquee reveal" data-d="3">
-      <div class="flag-track">
-        <span class="flag"><span class="fg">🇵🇪</span>Peru</span>
-        <span class="flag"><span class="fg">🇪🇸</span>Espanha</span>
-        <span class="flag"><span class="fg">🇲🇽</span>México</span>
-        <span class="flag"><span class="fg">🇨🇴</span>Colômbia</span>
-        <span class="flag"><span class="fg">🇨🇱</span>Chile</span>
-        <span class="flag"><span class="fg">🇦🇷</span>Argentina</span>
-        <span class="flag"><span class="fg">🇧🇷</span>Brasil</span>
-        <span class="flag"><span class="fg">🇺🇾</span>Uruguai</span>
-        <span class="flag"><span class="fg">🇪🇨</span>Equador</span>
-        <span class="flag"><span class="fg">🇺🇸</span>EUA</span>
-        <span class="flag"><span class="fg">🌎</span>e mais</span>
-        <!-- copia para bucle continuo -->
-        <span class="flag" aria-hidden="true"><span class="fg">🇵🇪</span>Peru</span>
-        <span class="flag" aria-hidden="true"><span class="fg">🇪🇸</span>Espanha</span>
-        <span class="flag" aria-hidden="true"><span class="fg">🇲🇽</span>México</span>
-        <span class="flag" aria-hidden="true"><span class="fg">🇨🇴</span>Colômbia</span>
-        <span class="flag" aria-hidden="true"><span class="fg">🇨🇱</span>Chile</span>
-        <span class="flag" aria-hidden="true"><span class="fg">🇦🇷</span>Argentina</span>
-        <span class="flag" aria-hidden="true"><span class="fg">🇧🇷</span>Brasil</span>
-        <span class="flag" aria-hidden="true"><span class="fg">🇺🇾</span>Uruguai</span>
-        <span class="flag" aria-hidden="true"><span class="fg">🇪🇨</span>Equador</span>
-        <span class="flag" aria-hidden="true"><span class="fg">🇺🇸</span>EUA</span>
-        <span class="flag" aria-hidden="true"><span class="fg">🌎</span>e mais</span>
+<section class="mundos" id="producto" aria-labelledby="mundosT">
+  <div class="mundos-stage">
+    <img class="mundos-cielo" src="/img/espacio/ag-carinae.webp" width="1920" height="1185" alt="" loading="lazy">
+    <div class="wrap mundos-copy">
+      <div>
+        <h2 id="mundosT">Seus mundos.</h2>
+        <p class="mundos-lead">Tudo o que o app faz por você, em sete mundos que giram em torno do seu dinheiro.</p>
+      </div>
+      <div class="mundo-card" aria-hidden="true">
+        <div class="mundo-nombre" id="mundoNombre">Resumo</div>
+        <p class="mundo-linea" id="mundoLinea">O que entra, o que sai e o que sobra, num relance.</p>
+        <div class="mundo-cifra"><b class="odo" id="mundoCifra">S/ 2,140.50</b><span id="mundoUnidad">disponíveis este mês</span></div>
+        <div class="mundo-pasos"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       </div>
     </div>
-    <div class="gstats reveal" data-d="3">
-      <div class="gstat"><b>20+</b><span>Moedas</span></div>
-      <div class="gstat"><b>ES · EN · PT</b><span>Idiomas</span></div>
-      <div class="gstat gold"><b>🇵🇪</b><span>Feito no Peru</span></div>
-    </div>
+    <ul class="orbita" id="orbita">
+      <li class="mundo" data-cifra="S/ 2,140.50" data-unidad="disponíveis este mês"><img src="/img/universo/resumen.webp" width="512" height="512" alt=""><div class="mundo-txt"><b>Resumo</b> <span>O que entra, o que sai e o que sobra, num relance.</span></div></li>
+      <li class="mundo" data-cifra="12%" data-unidad="menos que o mês passado nesta data"><img src="/img/universo/como-vas.webp" width="512" height="512" alt=""><div class="mundo-txt"><b>Como você está indo</b> <span>Seu gasto de hoje contra o mesmo dia do mês passado.</span></div></li>
+      <li class="mundo" data-cifra="S/ 640.00" data-unidad="sobram no fechamento"><img src="/img/universo/balance.webp" width="512" height="512" alt=""><div class="mundo-txt"><b>Projeção</b> <span>Como você vai fechar o mês e se está no vermelho.</span></div></li>
+      <li class="mundo" data-cifra="3" data-unidad="pagamentos fixos vencem esta semana"><img src="/img/universo/fijos.webp" width="512" height="512" alt=""><div class="mundo-txt"><b>Fixos</b> <span>Aluguel, luz e internet avisam antes de vencer.</span></div></li>
+      <li class="mundo" data-cifra="68%" data-unidad="da sua meta da viagem"><img src="/img/universo/ahorro.webp" width="640" height="640" alt=""><div class="mundo-txt"><b>Poupança</b> <span>Cada meta com seu cofrinho, e você vê quanto falta.</span></div></li>
+      <li class="mundo" data-cifra="S/ 150.00" data-unidad="Carlos te deve desde sexta"><img src="/img/universo/cobrar.webp" width="512" height="512" alt=""><div class="mundo-txt"><b>A receber</b> <span>O que te devem, anotado e com lembrete.</span></div></li>
+      <li class="mundo" data-cifra="S/ 1,133" data-unidad="vão embora às sextas"><img src="/img/universo/analisis.webp" width="512" height="512" alt=""><div class="mundo-txt"><b>Análises</b> <span>Em que dia você gasta mais e para onde vai.</span></div></li>
+    </ul>
   </div>
 </section>
 
-<!-- FEATURES -->
-<section class="features orb-host" id="producto">
-  <div class="px-orb" data-px="0.34" style="width:520px;height:520px;background:radial-gradient(circle,#d0a55c,transparent 70%);top:-140px;right:-160px"></div>
-  <div class="wrap">
-    <span class="eyebrow reveal">O produto</span>
-    <h2 class="section-title reveal" data-d="1">Todo o seu dinheiro, sem esforço.</h2>
-    <div class="feat-grid">
-      <div class="feat reveal" data-d="1"><div class="ic" style="background:rgba(37,211,102,.14);color:#25D366">💬</div><h3>Registre pelo WhatsApp</h3><p>Mande uma mensagem para o Y Altoque ou a <strong>foto</strong> do comprovante e seu gasto fica registrado na hora.</p></div>
-      <div class="feat reveal" data-d="2"><div class="ic" style="background:rgba(139,124,246,.14);color:var(--purple)">🧠</div><h3>Categorização com IA</h3><p>Transporte, alimentação, serviços, entretenimento… cada gasto se classifica sozinho. Algo em "Outros"? Recategorize com um toque.</p></div>
-      <div class="feat reveal" data-d="3"><div class="ic" style="background:rgba(208,165,92,.12);color:var(--cyan)">📊</div><h3>Dashboard em tempo real</h3><p>Saldo, receitas e despesas do mês com o detalhamento por categoria, sempre atualizado.</p></div>
-      <div class="feat reveal" data-d="1"><div class="ic" style="background:rgba(255,61,127,.12);color:var(--magenta)">📈</div><h3>Projeção de fechamento</h3><p>Veja como você vai fechar o mês e se está em déficit, comparado com o mesmo dia do mês anterior.</p></div>
-      <div class="feat reveal" data-d="2"><div class="ic" style="background:rgba(208,165,92,.12);color:var(--cyan)">💱</div><h3>Multimoeda</h3><p>Gerencie reais, dólares, euros e mais. Cada movimentação guarda sua moeda e seus totais nunca se misturam.</p></div>
-      <div class="feat reveal" data-d="3"><div class="ic" style="background:rgba(139,124,246,.14);color:var(--purple)">🌎</div><h3>No seu idioma</h3><p>Todo o app em <strong>português, espanhol e inglês</strong>. Escolha ao entrar ou troque quando quiser.</p></div>
-      <div class="feat reveal" data-d="1"><div class="ic" style="background:rgba(47,230,168,.12);color:var(--teal)">🗓️</div><h3>Ritmo semanal</h3><p>Descubra os dias em que você mais gasta. "Você gasta mais às sextas" deixa de ser um palpite.</p></div>
-      <div class="feat reveal" data-d="2"><div class="ic" style="background:rgba(47,230,168,.12);color:var(--teal)">🔒</div><h3>Privacidade de verdade</h3><p>Login com Google ou Apple (só nome e e-mail). Criptografia AES-256. Nunca vemos sua senha nem lemos seu e-mail.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- HOW -->
-<section class="how" id="como">
-  <div class="wrap">
-    <span class="eyebrow reveal">Como funciona</span>
-    <h2 class="section-title reveal" data-d="1">Pronto em segundos.</h2>
-    <div class="steps">
-      <div class="step reveal" data-d="1"><h3>Entre com Google ou Apple</h3><p>Um clique, seguro. Usamos só seu nome e e-mail, nunca sua senha.</p></div>
-      <div class="step reveal" data-d="2"><h3>Registre em segundos</h3><p>Pelo WhatsApp (texto ou foto do comprovante) ou manualmente. A IA categoriza cada movimentação para você.</p></div>
-      <div class="step reveal" data-d="3"><h3>Veja seu dinheiro</h3><p>Saldo, categorias, projeção e ritmo de gastos em um dashboard em tempo real.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- WHATSAPP FEATURE -->
+<!-- ============ MISIÓN: escenas 3 a 8 ============ -->
 <style>
-  .wa-sec{padding:84px 0}
-  .wa-grid{display:flex;gap:52px;align-items:center;flex-wrap:wrap;margin-top:38px}
-  .wa-phone{flex:0 0 300px;max-width:300px;margin:0 auto}
-  .wa-phone img{width:100%;border-radius:32px;border:1px solid var(--border);box-shadow:0 34px 90px -22px rgba(0,0,0,.75),0 0 0 1px rgba(47,230,168,.18)}
-  .wa-copy{flex:1;min-width:290px}
-  .wa-copy .wa-lead{color:var(--dim);font-size:1.06rem;line-height:1.62;margin:16px 0 24px;max-width:36em}
-  .wa-chips{display:flex;flex-wrap:wrap;gap:10px}
-  .wa-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--dim);font-size:.85rem;font-weight:500}
-  .wa-chip .d{width:7px;height:7px;border-radius:50%;background:var(--teal)}
-  .wa-sec .section-title .accent{background:linear-gradient(120deg,var(--gold),var(--gold-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  @media(max-width:760px){.wa-sec{padding:60px 0}.wa-grid{gap:34px}}
+  .js .e{opacity:0;translate:0 28px;transition:opacity .7s ease,translate .8s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--k,0)*80ms)}
+  .js .e.in{opacity:1;translate:0 0}
+  .esc{padding:clamp(110px,14vw,200px) 0}
+  .esc h2{font-family:var(--font-display);font-weight:600;font-size:clamp(2.5rem,5.4vw,5rem);line-height:.98;letter-spacing:-.03em;margin:0}
+  .esc h3{font-family:var(--font-display);font-weight:600;font-size:1.45rem;letter-spacing:-.01em;margin:0}
+  .esc p{font-size:1.08rem;line-height:1.55;color:var(--text)}
+
+  /* ---------- 3. WhatsApp ---------- */
+  .wa-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:clamp(40px,7vw,110px);align-items:center}
+  .wa-lead{margin:24px 0 0;max-width:32em}
+  .tono{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:34px}
+  .tono-t{width:100%;color:var(--dim);font-size:1rem;margin-bottom:4px}
+  .tono button{min-height:44px;padding:0 20px;border-radius:999px;border:0;background:#111a2b;color:var(--text);font:600 .98rem var(--font-body);cursor:pointer;transition:background-color .2s,color .2s,transform .15s}
+  .tono button:hover{background:#1c2740}
+  .tono button:active{transform:scale(.96)}
+  .tono button[aria-pressed="true"]{background:#f3f5fa;color:#080b12}
+  .tono button:focus-visible{outline:2px solid #f3ce7f;outline-offset:3px}
+  .wa-lee{margin:34px 0 12px!important;color:var(--dim)!important;font-size:1rem!important}
+  .chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{padding:9px 15px;border-radius:999px;background:#0d1320;color:var(--text);font-size:.92rem;cursor:default;transition:background-color .2s}
+  .chip:hover{background:#1c2740}
+  .wa-tel{position:relative;display:flex;flex-direction:column;align-items:center;gap:22px}
+  .mes{align-self:flex-end;display:inline-flex;align-items:baseline;gap:10px;padding:12px 18px;border-radius:16px;background:#0d1320;color:var(--dim);font-size:.92rem}
+  .mes small{font-size:.86rem}
+  .mes b{font-family:var(--font-display);font-size:1.5rem;font-weight:600;color:#f3ce7f}
+  .tel{width:100%;max-width:360px;height:560px;border-radius:38px;background:#0b141a;border:8px solid #1b2128;overflow:hidden;display:flex;flex-direction:column;font-family:var(--font-body)}
+  .tel-top{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#202c33;color:#e9edef}
+  .tel-top img{width:34px;height:34px;border-radius:50%}
+  .tel-top b{display:block;font-size:.95rem}
+  .tel-top span{display:block;font-size:.82rem;color:#8696a0}
+  .tel-chat{flex:1;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;padding:14px 12px}
+  .bur{max-width:82%;padding:8px 10px 6px;border-radius:10px;font-size:.88rem;line-height:1.4;color:#e9edef;animation:burIn .35s cubic-bezier(.2,.8,.2,1) both}
+  .bur.yo{align-self:flex-end;background:#005c4b;border-top-right-radius:3px}
+  .bur.bot{align-self:flex-start;background:#202c33;border-top-left-radius:3px}
+  .bur.esc3{color:#8696a0;font-style:italic}
+  @keyframes burIn{from{opacity:0;transform:translateY(10px) scale(.96)}}
+  .bol{width:180px;padding:10px 12px 12px;background:#fdfcf7;color:#1a1406;border-radius:6px;font-size:.82rem;line-height:1.45}
+  .bol b{display:block;font-size:.86rem;margin-bottom:4px}
+  .bol span{display:block;color:#5b6170}
+  .bol em{display:block;font-style:normal;font-weight:800;margin-top:6px;font-size:.9rem}
+  .monto{display:inline-block;font-weight:700;color:#f3ce7f}
+  .tel-pie{display:flex;align-items:center;gap:10px;padding:10px 12px 14px;background:#0b141a}
+  .tel-pie span{flex:1;padding:10px 14px;border-radius:20px;background:#202c33;color:#8696a0;font-size:.85rem}
+  .tel-pie i{width:38px;height:38px;border-radius:50%;background:#00a884}
+  .vuela{position:fixed;z-index:80;pointer-events:none;font:700 1.1rem var(--font-body);color:#1a1206;background:#f3ce7f;padding:6px 12px;border-radius:999px}
+  .peek{position:fixed;left:0;top:0;z-index:70;width:224px;pointer-events:none;opacity:0;scale:.85;transition:opacity .2s,scale .25s cubic-bezier(.2,.8,.2,1);
+    background:#fdfcf7;color:#1a1406;border-radius:12px 12px 4px 4px;padding:14px 16px 16px;font-size:.82rem;
+    -webkit-mask:radial-gradient(circle 5px at 50% 100%,transparent 98%,#000) 0 0/14px 100% repeat-x;mask:radial-gradient(circle 5px at 50% 100%,transparent 98%,#000) 0 0/14px 100% repeat-x} /* taste-skill-ignore: borde dentado del comprobante (data-ui) */
+  .peek.in{opacity:1;scale:1}
+  .peek .pk-t{font-weight:800;font-size:.9rem}
+  .peek .pk-s{color:#5b6170;margin-top:2px}
+  .peek .pk-a{font-family:var(--font-display);font-weight:700;font-size:1.8rem;letter-spacing:-.02em;margin:10px 0 2px}
+  .peek .pk-y{margin-top:10px;padding-top:9px;color:#7c5d2b;font-weight:700;border-top:1px dashed #d8d3c4} /* taste-skill-ignore: línea de corte del comprobante (data-ui) */
+
+  /* ---------- 4. Film ---------- */
+  .film2{padding-bottom:clamp(60px,8vw,120px)}
+  .film2 .film-lead{margin:22px 0 0;max-width:36em}
+  .film-marco{width:min(1128px,calc(100% - 52px));margin:56px auto 0;border-radius:22px;overflow:hidden;background:#0d1320;transform-origin:50% 0;will-change:transform}
+  .film-marco video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#0d1320}
+
+  /* ---------- 5. Monedas ---------- */
+  .mon{overflow:hidden}
+  .mon-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:center;margin-top:8px}
+  .mon-in p{margin:22px 0 0;max-width:30em}
+  .mon-cifra{display:flex;flex-direction:column;gap:10px;padding:40px;border-radius:24px;background:#0d1320}
+  .mon-cifra b{font-family:var(--font-display);font-weight:600;font-size:clamp(3rem,6.4vw,5.6rem);line-height:1;letter-spacing:-.02em;color:#f3ce7f}
+  .mon-dice{font-size:1.1rem;color:var(--text);transition:opacity .3s}
+  .banderas{width:min(1128px,calc(100% - 52px));margin:clamp(64px,8vw,110px) auto 0;overflow:hidden;white-space:nowrap}
+  .banderas-pista{display:inline-block;font-family:var(--font-display);font-weight:600;font-size:clamp(2.4rem,6vw,5.4rem);letter-spacing:-.02em;color:#1c2740;animation:pista 40s linear infinite}
+  .banderas-pista span{margin-right:.6em}
+  .banderas-pista span:nth-child(5n+1){color:#d0a55c}
+  @keyframes pista{to{transform:translateX(-50%)}}
+
+  /* ---------- 6. Precio ---------- */
+  .precio-cab{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:32px}
+  .precio-cab img{width:clamp(140px,16vw,230px);height:auto}
+  .planes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:56px}
+  .plan{display:flex;flex-direction:column;padding:32px 28px;border-radius:24px;background:#0d1320}
+  .plan-pro{background:#1b1710}
+  .plan-p{margin:18px 0 0!important;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+  .plan-p b{font-family:var(--font-display);font-weight:600;font-size:3.4rem;line-height:1;color:#f3ce7f}
+  .plan-p>span{color:var(--dim);font-size:1rem}
+  .plan-s{margin:14px 0 0!important;color:var(--text)}
+  .plan ul{list-style:none;margin:22px 0 28px;padding:0;display:flex;flex-direction:column;gap:12px;flex:1}
+  .plan li{position:relative;padding-left:26px;font-size:1rem;line-height:1.45}
+  .plan li::before{content:"";position:absolute;left:2px;top:.5em;width:10px;height:10px;border-radius:50%;background:#d0a55c}
+  .plan .b1{justify-content:center}
+  .precio-nota{margin:28px 0 0!important;color:var(--dim)!important}
+
+  /* ---------- 7. Privacidad ---------- */
+  .priv-in{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(40px,6vw,96px);align-items:center;margin-top:40px}
+  .priv-caja{width:100%;max-width:460px;height:auto;justify-self:center}
+  .priv-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+  .priv-cols p{margin:10px 0 0;font-size:1rem}
+  .priv-in .lnk{display:inline-block;margin-top:32px;font-size:1.05rem}
+
+  /* ---------- 8. Aterrizaje ---------- */
+  .aterriza{overflow:hidden;padding-bottom:clamp(80px,10vw,140px)}
+  .at-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:center}
+  .at-in p{margin:22px 0 0;max-width:30em}
+  .at-escena{position:relative;aspect-ratio:1;max-width:560px;width:100%;justify-self:center}
+  .at-luna{position:absolute;left:4%;bottom:0;width:92%;height:auto}
+  .at-astro{position:absolute;left:30%;top:2%;width:46%;height:auto;will-change:transform}
+  .credits{margin-top:18px;color:var(--dim);font-size:.82rem;line-height:1.6;max-width:70em}
+  .credits a{color:var(--dim);text-decoration:underline}
+
+  @media(max-width:900px){
+    .wa-in,.mon-in,.priv-in,.at-in{grid-template-columns:1fr}
+    .planes{grid-template-columns:1fr}
+    .priv-cols{grid-template-columns:1fr;gap:22px}
+    .mes{align-self:center}
+    .priv-caja{max-width:280px}
+    .at-escena{max-width:380px}
+  }
+  @media(max-width:760px){
+    .esc{padding:96px 0}
+    .esc h2{font-size:2.4rem}
+    .tel{height:520px}
+    .mon-cifra{padding:28px 24px}
+    .precio-cab{grid-template-columns:1fr}
+    .precio-cab img{grid-row:1;width:150px}
+    .plan{padding:26px 22px}
+    .film-marco{width:calc(100% - 44px);border-radius:14px;margin-top:36px}
+    .banderas{width:calc(100% - 44px)}
+  }
 </style>
-<section class="wa-sec" id="whatsapp">
-  <div class="wrap">
-    <span class="eyebrow gold reveal">Seu contador no WhatsApp</span>
-    <h2 class="section-title reveal" data-d="1">Conecte uma vez e mande<br><span class="accent">o que for.</span></h2>
-    <div class="wa-grid">
-      <div class="wa-phone reveal" data-d="1">
-        <img src="/whatsapp-demo.png" loading="lazy"
-             alt="Conversa no WhatsApp com o Y Altoque: você envia a foto de um recibo, a IA lê, pergunta se é do negócio ou pessoal, confirma a data e registra S/94.00 em alimentação." />
+
+<!-- 3. WHATSAPP -->
+<section class="esc wa" id="como" aria-labelledby="waT">
+  <div class="wrap wa-in">
+    <div class="wa-copy">
+      <h2 id="waT">Mande o que quiser.</h2>
+      <p class="wa-lead e">Vincule seu WhatsApp uma vez e mande a foto de um comprovante, sua conta de luz, um print do Yape ou Plin, ou uma mensagem. O Y Altoque lê, pergunta só o necessário e registra já categorizado.</p>
+      <div class="tono e" role="group" aria-label="Como o assistente fala com você">
+        <span class="tono-t">Escolha como ele fala com você. Mude quando quiser em Ajustes.</span>
+        <button type="button" data-tono="carino" aria-pressed="false">Carinho</button>
+        <button type="button" data-tono="pana" aria-pressed="true">Parça</button>
+        <button type="button" data-tono="sargento" aria-pressed="false">Sargento</button>
       </div>
-      <div class="wa-copy reveal" data-d="2">
-        <p class="wa-lead">Conecte seu WhatsApp uma vez e mande <strong>o que for</strong>: a foto de um
-        <strong>recibo</strong>, sua <strong>conta de luz ou água</strong>, um print do
-        <strong>Yape ou Plin</strong>, ou simplesmente uma <strong>mensagem</strong>. O Y Altoque lê,
-        pergunta só o necessário (é do negócio ou pessoal? a data está certa?) e registra na hora,
-        já categorizado.</p>
-        <div class="wa-chips">
-          <span class="wa-chip"><i class="d"></i>Recibos e notas fiscais</span>
-          <span class="wa-chip"><i class="d"></i>Contas de luz e água</span>
-          <span class="wa-chip"><i class="d"></i>Yape</span>
-          <span class="wa-chip"><i class="d"></i>Plin</span>
-          <span class="wa-chip"><i class="d"></i>BCP</span>
-          <span class="wa-chip"><i class="d"></i>Interbank</span>
-          <span class="wa-chip"><i class="d"></i>Scotiabank</span>
-          <span class="wa-chip"><i class="d"></i>BBVA</span>
-          <span class="wa-chip"><i class="d"></i>Ripley</span>
-          <span class="wa-chip"><i class="d"></i>Falabella</span>
-          <span class="wa-chip"><i class="d"></i>Oechsle</span>
-          <span class="wa-chip"><i class="d"></i>e mais…</span>
+      <p class="wa-lee e">Lê comprovantes, contas e prints de:</p>
+      <ul class="chips e">
+        <li class="chip">Notas e faturas</li><li class="chip">Contas de luz e água</li><li class="chip">Yape</li><li class="chip">Plin</li><li class="chip">BCP</li><li class="chip">Interbank</li><li class="chip">Scotiabank</li><li class="chip">BBVA</li><li class="chip">Ripley</li><li class="chip">Falabella</li><li class="chip">Oechsle</li>
+      </ul>
+    </div>
+    <div class="wa-tel e">
+      <div class="mes" id="mesPill"><span>No seu app</span><b class="odo" id="mesTotal">S/ 94.00</b><small id="mesN">1 gasto hoje</small></div>
+      <div class="tel" data-ui>
+        <div class="tel-top"><img src="/logo.png" alt="" width="34" height="34"><div><b>Y Altoque</b><span>online</span></div></div>
+        <div class="tel-chat" id="chat" role="log" aria-label="Chat de exemplo com o Y Altoque">
+          <div class="bur yo"><div class="bol"><b>Minimarket La Esquina</b><span>Arroz 5 kg</span><span>Óleo e frango</span><em>Total S/ 94.00</em></div></div>
+          <div class="bur bot">Anotado: <span class="monto">S/ 94.00</span> em Alimentação.<span id="tonoIni"> Olha, hoje já foram S/ 94.00. Tranquilo, mas atento.</span></div>
         </div>
+        <div class="tel-pie"><span>Mensagem</span><i aria-hidden="true"></i></div>
       </div>
+      <button type="button" class="b1" id="mandar">Mandar outro comprovante</button>
     </div>
   </div>
 </section>
 
-<!-- MOOD DEL ASISTENTE -->
-<style>
-  .mood-sec{padding:84px 0}
-  .mood-sec .section-title .accent{background:linear-gradient(120deg,var(--gold),var(--gold-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  .mood-lead{color:var(--dim);font-size:1.06rem;line-height:1.62;margin:16px 0 34px;max-width:40em}
-  .mood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-  .mood-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px;transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
-  .mood-card:hover{transform:translateY(-4px);border-color:var(--mc);box-shadow:0 22px 50px -26px rgba(0,0,0,.7)}
-  .mood-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-  .mood-emoji{width:48px;height:48px;flex:0 0 48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--mt)}
-  .mood-name{font-family:var(--font-display);font-weight:700;font-size:1.2rem;color:var(--text);line-height:1.1}
-  .mood-tag{font-size:.82rem;color:var(--mc);font-weight:600}
-  .mood-desc{color:var(--dim);font-size:.95rem;line-height:1.55;margin-bottom:14px}
-  .mood-bubble{background:var(--mt);border-radius:4px 16px 16px 16px;padding:11px 14px;color:var(--text);font-size:.92rem;line-height:1.45}
-  @media(max-width:860px){.mood-sec{padding:60px 0}.mood-grid{grid-template-columns:1fr}}
-</style>
-<section class="mood-sec" id="mood">
+<!-- 4. FILM DEL PORTAL -->
+<section class="esc film2" id="video" aria-labelledby="filmT">
   <div class="wrap">
-    <span class="eyebrow gold reveal">Novo</span>
-    <h2 class="section-title reveal" data-d="1">Escolha <span class="accent">como ele fala com você.</span></h2>
-    <p class="mood-lead reveal" data-d="2">Seu assistente tem personalidade. Escolha o tom com que o Y Altoque fala com você no app e pelo WhatsApp, e troque quando quiser nos Ajustes.</p>
-    <div class="mood-grid">
-      <div class="mood-card reveal" data-d="1" style="--mc:#ec9bc0;--mt:rgba(236,155,192,.14)">
-        <div class="mood-head"><div class="mood-emoji">🤍</div><div><div class="mood-name">Carinho</div><div class="mood-tag">Caloroso e próximo</div></div></div>
-        <p class="mood-desc">Doce e atencioso, sempre de olho em você.</p>
-        <div class="mood-bubble">"Oi 🤍 anotei seus S/ 240 de hoje. Vai com calma, tá?"</div>
-      </div>
-      <div class="mood-card reveal" data-d="2" style="--mc:var(--gold);--mt:rgba(208,165,92,.14)">
-        <div class="mood-head"><div class="mood-emoji">🤝</div><div><div class="mood-name">Parça</div><div class="mood-tag">De confiança</div></div></div>
-        <p class="mood-desc">Aquele amigo tranquilo, gente boa, sem parecer robô.</p>
-        <div class="mood-bubble">"Olho aberto 👀 hoje já foram S/ 240. Vamos com calma, mas ligados."</div>
-      </div>
-      <div class="mood-card reveal" data-d="3" style="--mc:var(--negative);--mt:rgba(248,113,113,.14)">
-        <div class="mood-head"><div class="mood-emoji">🫡</div><div><div class="mood-name">Sargento</div><div class="mood-tag">Direto e firme</div></div></div>
-        <p class="mood-desc">Sem rodeios, puxa sua orelha se você passar do limite.</p>
-        <div class="mood-bubble">"S/ 240 em um dia. Segura a mão JÁ. Assim não dá."</div>
-      </div>
-    </div>
+    <h2 id="filmT">Seu mês, também na web.</h2>
+    <p class="film-lead e">O que você registra no celular ou pelo WhatsApp aparece na hora no seu painel: para onde vai o dinheiro, se você chega ao fim do mês e o que de fixo vem por aí. <a class="lnk" href="/app/">Veja com seus dados</a>.</p>
+  </div>
+  <div class="film-marco" id="filmMarco">
+    <video controls playsinline preload="none" poster="/video/tu-mes-poster.webp" width="1920" height="1080" aria-label="Vídeo: um tour pelo painel web do Y Altoque, em espanhol">
+      <source src="/video/tu-mes.mp4" type="video/mp4">
+    </video>
   </div>
 </section>
 
-<!-- LOGIN SHOWCASE -->
-<section class="login-sec" id="login">
+<!-- 5. MONEDAS -->
+<section class="esc mon" id="monedas" aria-labelledby="monT">
   <div class="wrap">
-    <span class="eyebrow gold reveal">Já disponível no iOS e Android</span>
-    <h2 class="section-title reveal" data-d="1">Entre em um toque.</h2>
-    <p class="lead reveal" data-d="2" style="color:var(--dim);max-width:34em;margin-top:16px">A mesma experiência no seu iPhone e no seu Android. Entre com o Google em um clique e comece em segundos.</p>
-    <div class="store-badges reveal" data-d="2">
-      <a class="store-badge live" href="https://apps.apple.com/app/id6778281655" target="_blank" rel="noopener" style="text-decoration:none">
-        <svg width="22" height="22" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-        <span class="sb-txt"><small>Baixar na</small><b>App Store</b></span>
-      </a>
-      <a class="store-badge live" href="https://play.google.com/store/apps/details?id=com.erikgbs.finance_app&amp;pcampaignid=web_share" target="_blank" rel="noopener" style="text-decoration:none">
-        <svg width="20" height="22" viewBox="0 0 40 44"><polygon fill="#EA4335" points="2,2 22,22 27.5,16.5"/><polygon fill="#FBBC04" points="27.5,16.5 38,22 27.5,27.5"/><polygon fill="#34A853" points="2,42 22,22 27.5,27.5"/><polygon fill="#4285F4" points="2,2 2,42 22,22"/></svg>
-        <span class="sb-txt"><small>Baixar no</small><b>Google Play</b></span>
-      </a>
+    <h2 id="monT">Seu idioma, sua moeda.</h2>
+  </div>
+  <div class="wrap mon-in">
+    <div>
+      <p class="e">Nasceu no Peru e já está em testes na Espanha. Mais de 20 moedas e o app em espanhol, inglês e português. Cada gasto guarda sua moeda e os totais nunca se misturam.</p>
     </div>
-    <div class="login-duo reveal" data-d="2">
-
-      <div class="device">
-        <div class="phone">
-          <div class="notch"></div>
-          <div class="phone-screen login-screen">
-            <span class="bub" style="width:6px;height:6px;top:14%;left:12%;animation-delay:-.5s"></span>
-            <span class="bub" style="width:4px;height:4px;top:9%;right:18%;animation-delay:-2.4s"></span>
-            <span class="bub" style="width:7px;height:7px;top:30%;right:9%;animation-delay:-1.2s"></span>
-            <span class="bub" style="width:5px;height:5px;top:44%;left:8%;animation-delay:-3.1s"></span>
-            <span class="bub" style="width:4px;height:4px;top:54%;right:13%;animation-delay:-.9s"></span>
-            <span class="bub" style="width:6px;height:6px;top:24%;left:20%;animation-delay:-4s"></span>
-            <span class="bub" style="width:3px;height:3px;top:38%;left:42%;animation-delay:-2s"></span>
-            <span class="bub" style="width:5px;height:5px;top:62%;right:24%;animation-delay:-3.6s"></span>
-            <img class="lg-logo" src="/logo.png" alt="Y Altoque" />
-            <div class="lg-title"><span class="y">Y</span> Altoque</div>
-            <div class="lg-tag">Seu dinheiro, sob controle</div>
-            <div class="lg-feats">
-              <div class="lg-feat"><span class="fi" style="color:var(--gold)">⚡</span><label>Registre na hora</label></div>
-              <div class="lg-feat"><span class="fi" style="color:var(--purple)">🧠</span><label>Categorização inteligente com IA</label></div>
-              <div class="lg-feat"><span class="fi" style="color:var(--cyan)">📊</span><label>Dashboard de gastos em tempo real</label></div>
-            </div>
-            <div class="lg-auth">
-              <h5>Comece em segundos</h5>
-              <div class="sub">Entre com o Google</div>
-              <div class="lg-btn g">
-                <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                Continuar com o Google
-              </div>
-              <div class="lg-btn a">
-                <svg width="15" height="15" viewBox="0 0 384 512" fill="#000"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-                Continuar com a Apple
-              </div>
-              <div class="lg-note">🔒 Login seguro com o Google. Nunca vemos sua senha.</div>
-            </div>
-          </div>
-        </div>
-        <span class="device-label">
-          <svg width="13" height="13" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-          iPhone · iOS
-        </span>
-      </div>
-
-      <div class="device">
-        <div class="phone android">
-          <div class="hole"></div>
-          <div class="phone-screen login-screen">
-            <span class="bub" style="width:5px;height:5px;top:12%;right:14%;animation-delay:-1.6s"></span>
-            <span class="bub" style="width:4px;height:4px;top:8%;left:16%;animation-delay:-3.3s"></span>
-            <span class="bub" style="width:7px;height:7px;top:28%;left:9%;animation-delay:-.4s"></span>
-            <span class="bub" style="width:5px;height:5px;top:46%;right:10%;animation-delay:-2.7s"></span>
-            <span class="bub" style="width:4px;height:4px;top:56%;left:13%;animation-delay:-1.1s"></span>
-            <span class="bub" style="width:6px;height:6px;top:22%;right:21%;animation-delay:-4.2s"></span>
-            <span class="bub" style="width:3px;height:3px;top:40%;right:40%;animation-delay:-2.2s"></span>
-            <span class="bub" style="width:5px;height:5px;top:60%;left:23%;animation-delay:-3.9s"></span>
-            <img class="lg-logo" src="/logo.png" alt="Y Altoque" />
-            <div class="lg-title"><span class="y">Y</span> Altoque</div>
-            <div class="lg-tag">Seu dinheiro, sob controle</div>
-            <div class="lg-feats">
-              <div class="lg-feat"><span class="fi" style="color:var(--gold)">⚡</span><label>Registre na hora</label></div>
-              <div class="lg-feat"><span class="fi" style="color:var(--purple)">🧠</span><label>Categorização inteligente com IA</label></div>
-              <div class="lg-feat"><span class="fi" style="color:var(--cyan)">📊</span><label>Dashboard de gastos em tempo real</label></div>
-            </div>
-            <div class="lg-auth">
-              <h5>Comece em segundos</h5>
-              <div class="sub">Entre com o Google</div>
-              <div class="lg-btn g">
-                <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                Continuar com o Google
-              </div>
-              <div class="lg-note">🔒 Login seguro com o Google. Nunca vemos sua senha.</div>
-            </div>
-          </div>
-        </div>
-        <span class="device-label">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#3DDC84"><path d="M16.6 9.48l1.84-3.18a.38.38 0 1 0-.66-.38l-1.87 3.23a11.4 11.4 0 0 0-8.82 0L5.22 5.92a.38.38 0 1 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52M7 15.25a1.25 1.25 0 1 1 1.25-1.25A1.25 1.25 0 0 1 7 15.25m10 0A1.25 1.25 0 1 1 18.25 14 1.25 1.25 0 0 1 17 15.25"/></svg>
-          Android
-        </span>
-      </div>
-
+    <div class="mon-cifra e">
+      <b class="odo" id="monMonto">S/ 240.00</b>
+      <span class="mon-dice" id="monDice">Peru · Anotado en soles.</span>
     </div>
   </div>
+  <div class="banderas" aria-hidden="true"><div class="banderas-pista"><span>Peru</span><span>Espanha</span><span>México</span><span>Colômbia</span><span>Chile</span><span>Argentina</span><span>Brasil</span><span>Uruguai</span><span>Equador</span><span>EUA</span><span>Peru</span><span>Espanha</span><span>México</span><span>Colômbia</span><span>Chile</span><span>Argentina</span><span>Brasil</span><span>Uruguai</span><span>Equador</span><span>EUA</span></div></div>
 </section>
 
-<!-- SHOWCASE -->
-<section class="showcase orb-host">
-  <div class="px-orb" data-px="0.42" style="width:560px;height:560px;background:radial-gradient(circle,#8b6cf0,transparent 70%);bottom:-180px;left:-160px;opacity:.3"></div>
+<!-- 6. PRECIO -->
+<section class="esc precio" id="precio" aria-labelledby="precioT">
   <div class="wrap">
-    <span class="eyebrow reveal">No app</span>
-    <h2 class="section-title reveal" data-d="1">Dados que você entende de relance.</h2>
-    <div class="show-grid">
-      <!-- donut -->
-      <div class="viz reveal" data-d="1">
-        <h3>🍩 Por categoria</h3>
-        <div class="sub">Junho · 7 categorias</div>
-        <div class="donut-wrap">
-          <div class="donut">
-            <svg viewBox="0 0 180 180" id="donutSvg">
-              <circle cx="90" cy="90" r="70" fill="none" stroke="#101e27" stroke-width="22"/>
-            </svg>
-            <div class="center"><b>7</b><span>categorias</span></div>
-          </div>
-          <div class="legend">
-            <div class="li"><span class="l"><i style="background:var(--purple)"></i>Transferências</span><span class="p" style="color:var(--purple)">61.6%</span></div>
-            <div class="li"><span class="l"><i style="background:var(--teal)"></i>Receita</span><span class="p" style="color:var(--teal)">15.2%</span></div>
-            <div class="li"><span class="l"><i style="background:var(--cyan)"></i>Entretenimento</span><span class="p" style="color:var(--cyan)">13.0%</span></div>
-            <div class="li"><span class="l"><i style="background:var(--gold)"></i>Educação</span><span class="p" style="color:var(--gold)">4.5%</span></div>
-            <div class="li"><span class="l"><i style="background:var(--magenta)"></i>Transporte</span><span class="p" style="color:var(--magenta)">2.8%</span></div>
-          </div>
-        </div>
-      </div>
-      <!-- weekly + deficit -->
-      <div class="viz reveal" data-d="2">
-        <h3>📊 Ritmo semanal</h3>
-        <div class="sub">Você gasta mais às sextas</div>
-        <div class="bars" id="bars">
-          <div class="bar" data-h="46"></div>
-          <div class="bar" data-h="68"></div>
-          <div class="bar" data-h="30"></div>
-          <div class="bar" data-h="54"></div>
-          <div class="bar hi" data-h="100"><span class="cap">S/ 1133</span></div>
-          <div class="bar" data-h="34"></div>
-          <div class="bar" data-h="80"></div>
-        </div>
-        <div class="bar-x"><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span></div>
-        <div class="deficit">
-          <div><div class="lbl">Saldo estimado no fechamento</div><div class="val">S/ −12 424</div></div>
-          <span class="tag">⚠ Em déficit</span>
-        </div>
-      </div>
+    <div class="precio-cab">
+      <h2 id="precioT">O app é grátis. O assistente é Pro.</h2>
+      <img class="e" src="/img/universo/trofeo.webp" width="512" height="512" alt="Dois troféus dourados" loading="lazy">
     </div>
-  </div>
-</section>
-
-<!-- PRICING -->
-<section class="pricing" id="precio">
-  <div class="wrap">
-    <span class="eyebrow gold reveal">Preço</span>
-    <h2 class="section-title reveal" data-d="1">O app é grátis. O assistente do WhatsApp tem plano.</h2>
-    <div class="plans">
-      <div class="plan plan-free reveal" data-d="1">
-        <div class="plan-name">⚡ O app · Grátis para sempre</div>
-        <div class="plan-price">S/ 0<small> · sem cartão, sem fidelidade</small></div>
-        <div class="plan-sub">Todas as funções do app, para todos. Sem compras dentro do app.</div>
+    <div class="planes">
+      <article class="plan e">
+        <h3>O app</h3>
+        <p class="plan-p"><b class="odo pp">S/ 0</b><span>para sempre</span></p>
+        <p class="plan-s">Todas as funções, para todos. Sem cartão, sem anúncios e sem compras dentro do app.</p>
         <ul>
-          <li><span class="ck">✓</span><span><b>Categorização com IA</b> e painel em tempo real</span></li>
-          <li><span class="ck">✓</span><span><b>Projeção de fluxo</b> e análise mês a mês</span></li>
-          <li><span class="ck">✓</span><span><b>Resumo do negócio</b> e despesas dedutíveis</span></li>
-          <li><span class="ck">✓</span><span><b>Despesas fixas</b>, <b>contas a receber</b> e histórico completo</span></li>
-          <li><span class="ck">✓</span><span><b>Multimoeda</b> e app em espanhol, inglês e português</span></li>
-          <li><span class="ck">✓</span><span><b>10 mensagens grátis</b> com o assistente do WhatsApp ao vincular</span></li>
+          <li>Categorização com IA e painel em tempo real</li>
+          <li>Projeção de fluxo e análise mês a mês</li>
+          <li>Resumo do negócio e despesas dedutíveis</li>
+          <li>Despesas fixas, contas a receber e histórico completo</li>
+          <li>Multimoeda, em espanhol, inglês e português</li>
+          <li>10 mensagens grátis com o assistente do WhatsApp ao vincular</li>
         </ul>
-        <a href="#notify" class="btn btn-gold plan-cta">Começar grátis</a>
-      </div>
-      <div class="plan plan-pro reveal" data-d="2" style="position:relative">
-        <span class="plan-badge">WhatsApp</span>
-        <div class="plan-name">💬 Pro · O assistente no seu WhatsApp</div>
-        <div class="plan-price">S/ 10<small> · por mês, via Yape</small></div>
-        <div class="plan-sub">Para quem registra tudo pelo chat, sem abrir o app.</div>
+        <a class="b1" href="#descargar">Baixar grátis</a>
+      </article>
+      <article class="plan plan-pro e">
+        <h3>Pro, o assistente no seu WhatsApp</h3>
+        <p class="plan-p"><b class="odo pp">S/ 10</b><span>por mês, via Yape</span></p>
+        <p class="plan-s">Para quem registra tudo pelo chat, sem abrir o app.</p>
         <ul>
-          <li><span class="ck">✓</span><span><b>100 mensagens por mês</b> com o assistente</span></li>
-          <li><span class="ck">✓</span><span><b>Fotos de comprovantes</b> lidas na hora</span></li>
-          <li><span class="ck">✓</span><span>Registre seu dinheiro <b>pelo chat</b>, onde estiver</span></li>
-          <li><span class="ck">✓</span><span>Pago por <b>Yape</b>: sem cartão e sem renovação automática</span></li>
+          <li>100 mensagens por mês com o assistente</li>
+          <li>Fotos de comprovantes lidas na hora</li>
+          <li>Registre seu dinheiro pelo chat, onde estiver</li>
+          <li>Pago por Yape: sem cartão e sem renovação automática</li>
         </ul>
-        <a href="/app/" class="btn btn-gold plan-cta">Ver meu plano</a>
-      </div>
-      <div class="plan plan-pro reveal" data-d="3" style="position:relative">
-        <span class="plan-badge">2 meses grátis</span>
-        <div class="plan-name">💬 Pro anual · O mesmo, pagando uma vez</div>
-        <div class="plan-price">S/ 100<small> · por ano, via Yape</small></div>
-        <div class="plan-sub">Para quem já sabe que vai usar o ano todo.</div>
+        <a class="b1" href="/app/">Ver meu plano</a>
+      </article>
+      <article class="plan e">
+        <h3>Pro anual, dois meses grátis</h3>
+        <p class="plan-p"><b class="odo pp">S/ 100</b><span>por ano, via Yape</span></p>
+        <p class="plan-s">Para quem já sabe que vai usar o ano todo.</p>
         <ul>
-          <li><span class="ck">✓</span><span><b>Tudo do Pro mensal</b>, sem mudar nada</span></li>
-          <li><span class="ck">✓</span><span><b>2 meses de presente</b>: paga 10, usa 12</span></li>
-          <li><span class="ck">✓</span><span><b>Um Yape por ano</b>: sem renovar todo mês</span></li>
-          <li><span class="ck">✓</span><span><b>Você economiza S/ 20</b> em vez de pagar mês a mês</span></li>
+          <li>Tudo do Pro mensal, sem mudar nada</li>
+          <li>Paga 10 meses e usa 12</li>
+          <li>Um Yape por ano: sem renovar todo mês</li>
+          <li>Você economiza S/ 20 em vez de pagar mês a mês</li>
         </ul>
-        <a href="/app/" class="btn btn-gold plan-cta">Ver meu plano</a>
-      </div>
+        <a class="b1" href="/app/">Ver meu plano</a>
+      </article>
     </div>
-    <p class="pro-note">O app não tem compras dentro nem anúncios. O Pro é só para o assistente do WhatsApp.</p>
+    <p class="precio-nota e">O app não tem compras dentro do app nem anúncios. O Pro é só para o assistente do WhatsApp.</p>
   </div>
 </section>
 
-<!-- PRIVACY -->
-<section class="privacy" id="privacidad">
+<!-- 7. PRIVACIDAD -->
+<section class="esc priv" id="privacidad" aria-labelledby="privT">
   <div class="wrap">
-    <div class="priv-card reveal">
-      <div class="priv-head">
-        <div class="shield">🛡️</div>
-        <div>
-          <span class="eyebrow">Sua privacidade não é negociável</span>
-          <h2 class="section-title" style="font-size:clamp(1.7rem,3.6vw,2.5rem)">Privado. Criptografado. Seu.</h2>
-        </div>
-      </div>
+    <h2 id="privT">Privado. Cifrado. Seu.</h2>
+  </div>
+  <div class="wrap priv-in">
+    <img class="priv-caja e" src="/img/universo/caja-fuerte.webp" width="512" height="512" alt="Um cofre com moedas e notas" loading="lazy">
+    <div>
       <div class="priv-cols">
-        <div class="priv-col read">
-          <h4>👓 O que usamos</h4>
-          <ul>
-            <li>Só seu login do Google ou Apple (nome e e-mail, para identificar você). <strong>Não lemos seu e-mail nem acessamos outros dados.</strong></li>
-            <li>Você registra suas movimentações pelo WhatsApp (texto ou foto), ou manualmente.</li>
-          </ul>
-        </div>
-        <div class="priv-col save">
-          <h4>💾 O que guardamos</h4>
-          <ul>
-            <li>Valor, data e categoria. Descrição e contraparte, criptografadas.</li>
-            <li>Criptografia em repouso AES-256. Nunca sua senha do Google.</li>
-          </ul>
-        </div>
-        <div class="priv-col never">
-          <h4>🚫 O que NÃO fazemos</h4>
-          <ul>
-            <li>Não vendemos nem compartilhamos seus dados com terceiros.</li>
-            <li>Não usamos seus dados para publicidade nem criação de perfis.</li>
-          </ul>
-        </div>
+        <div class="e"><h3>O que usamos</h3><p>Só seu login do Google ou Apple: nome e e-mail para identificar você. Não lemos seu e-mail nem acessamos outros dados. Você mesmo registra suas movimentações, pelo WhatsApp ou manualmente.</p></div>
+        <div class="e"><h3>O que guardamos</h3><p>Valor, data e categoria. Descrição e contraparte vão cifradas com AES-256. Nunca sua senha.</p></div>
+        <div class="e"><h3>O que não fazemos</h3><p>Não vendemos nem compartilhamos seus dados, nem usamos para publicidade. Você apaga tudo para sempre quando quiser.</p></div>
       </div>
-      <div class="priv-badges">
-        <span class="priv-badge">🔐 Só e-mail e perfil</span>
-        <span class="priv-badge">🛡️ AES-256 em repouso</span>
-        <span class="priv-badge">🗑️ Exclusão permanente quando você quiser</span>
-      </div>
+      <a class="lnk e" href="/privacidad.html">Leia a política de privacidade</a>
     </div>
   </div>
 </section>
 
-<!-- FINAL CTA -->
-<section class="final" id="notify">
-  <div class="wrap">
-    <div class="final-card reveal">
-      <h2>Comece hoje com <span style="color:var(--gold)">Y</span> Altoque</h2>
-      <p>Já estamos na App Store e no Google Play: baixe <strong>grátis</strong> no seu iPhone ou Android e assuma o controle do seu dinheiro.</p>
-      <div style="text-align:center;margin-bottom:22px;display:flex;gap:13px;justify-content:center;flex-wrap:wrap">
-        <a class="btn btn-primary" href="https://apps.apple.com/app/id6778281655" target="_blank" rel="noopener" style="display:inline-flex">
-          <svg width="18" height="18" viewBox="0 0 384 512" fill="#04141a"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-          Baixar na App Store
-        </a>
-        <a class="btn btn-primary" href="https://play.google.com/store/apps/details?id=com.erikgbs.finance_app&amp;pcampaignid=web_share" target="_blank" rel="noopener" style="display:inline-flex">
-          <svg width="17" height="18" viewBox="0 0 40 44"><polygon fill="#04141a" points="2,2 22,22 27.5,16.5"/><polygon fill="#04141a" points="27.5,16.5 38,22 27.5,27.5"/><polygon fill="#04141a" points="2,42 22,22 27.5,27.5"/><polygon fill="#04141a" points="2,2 2,42 22,22"/></svg>
-          Baixar no Google Play
-        </a>
+<!-- 8. ATERRIZAJE -->
+<section class="esc aterriza" id="descargar" aria-labelledby="atT">
+  <div class="wrap at-in">
+    <div>
+      <h2 id="atT">Comece hoje, grátis.</h2>
+      <p class="e">Já está na App Store e no Google Play. Baixe, entre com Google ou Apple e assuma o controle do seu dinheiro.</p>
+      <div class="despegue-acc e">
+        <a class="b1" href="https://apps.apple.com/app/id6778281655" target="_blank" rel="noopener">Baixar para iPhone</a>
+        <a class="b1" href="https://play.google.com/store/apps/details?id=com.erikgbs.finance_app&amp;pcampaignid=web_share" target="_blank" rel="noopener">Baixar para Android</a>
       </div>
-      <div class="final-note">Grátis · Já na App Store e no Google Play</div>
+      <p class="despegue-sec e">Já tem conta? <a class="lnk" href="/app/">Entre pela web</a>.</p>
+    </div>
+    <div class="at-escena">
+      <img class="at-luna" src="/img/universo/luna.webp" width="512" height="512" alt="A lua" loading="lazy">
+      <img class="at-astro" id="astro2" src="/img/universo/astronauta-cohete.webp" width="512" height="512" alt="O astronauta do Y Altoque chegando à lua" loading="lazy">
     </div>
   </div>
 </section>
@@ -1159,18 +677,11 @@ footer .copy{margin-top:30px;color:var(--mute);font-size:.78rem;font-family:var(
       <a href="mailto:marketing@yaltoque.com">marketing@yaltoque.com</a>
     </div>
   </div>
+  <div class="wrap"><p class="credits">Fotos do espaço: <a href="https://commons.wikimedia.org/wiki/File:NGC_3372a-full.jpg">NGC 3372</a> da NASA, ESA e N. Smith (domínio público) e <a href="https://commons.wikimedia.org/w/index.php?curid=104425052">AG Carinae</a> da NASA, ESA e STScI (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>), via Wikimedia Commons.</p></div>
   <div class="wrap copy">Y Altoque v1.0.0 · Jun 2026 · © 2026. Todos os direitos reservados.</div>
 </footer>
 
 <script>
-// tema claro/oscuro
-(function(){
-  const root=document.documentElement, btns=document.querySelectorAll('.theme-toggle');
-  function apply(t){root.setAttribute('data-theme',t);try{localStorage.setItem('theme',t);}catch(e){}
-    btns.forEach(b=>b.textContent = t==='light' ? '☀️' : '🌙');}
-  apply(root.getAttribute('data-theme')||'dark');
-  btns.forEach(b=>b.addEventListener('click',()=>apply(root.getAttribute('data-theme')==='light'?'dark':'light')));
-})();
 
 // nav scroll
 const nav=document.getElementById('nav');
@@ -1188,260 +699,230 @@ navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
   navLinks.classList.remove('open');burger.classList.remove('open');burger.setAttribute('aria-expanded','false');
 }));
 
-// reveal on scroll
-const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.15});
-document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
-// balance count-up
-function countUp(el,target){
-  let start=null;const dur=1600;
-  function step(t){if(!start)start=t;const p=Math.min((t-start)/dur,1);
-    const eased=1-Math.pow(1-p,3);const val=target*eased;
-    el.firstChild.textContent=val.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2})+' ';
-    if(p<1)requestAnimationFrame(step);}
-  requestAnimationFrame(step);
-}
-const bal=document.getElementById('balCount');
-const balObs=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){countUp(bal,2247.76);balObs.disconnect();}})},{threshold:.4});
-balObs.observe(bal);
 
-// donut
-const segs=[{p:61.6,c:'#8b6cf0'},{p:15.2,c:'#4ade80'},{p:13.0,c:'#d0a55c'},{p:4.5,c:'#d0a55c'},{p:2.8,c:'#5bd6f0'},{p:2.9,c:'#3a4a55'}];
-const svg=document.getElementById('donutSvg');
-const R=70,C=2*Math.PI*R;let acc=0;
-const paths=[];
-segs.forEach(s=>{
-  const len=C*s.p/100;
-  const ce=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  ce.setAttribute('cx',90);ce.setAttribute('cy',90);ce.setAttribute('r',R);
-  ce.setAttribute('fill','none');ce.setAttribute('stroke',s.c);ce.setAttribute('stroke-width',22);
-  ce.setAttribute('stroke-dasharray',`${len} ${C-len}`);
-  ce.setAttribute('stroke-dashoffset',-acc);
-  ce.setAttribute('transform','rotate(-90 90 90)');
-  ce.style.strokeDasharray=`0 ${C}`;ce.style.transition='stroke-dasharray 1.1s cubic-bezier(.2,.8,.2,1)';
-  ce.dataset.len=len;ce.dataset.off=-acc;
-  svg.appendChild(ce);paths.push(ce);acc+=len;
-});
-const dObs=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){
-  paths.forEach((p,i)=>setTimeout(()=>{p.style.strokeDasharray=`${p.dataset.len} ${C-p.dataset.len}`;},i*120));
-  dObs.disconnect();}})},{threshold:.4});
-dObs.observe(svg);
-
-// bars
-const barWrap=document.getElementById('bars');
-const bObs=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){
-  barWrap.querySelectorAll('.bar').forEach((b,i)=>setTimeout(()=>{b.style.height=b.dataset.h+'%';},i*80));
-  bObs.disconnect();}})},{threshold:.4});
-bObs.observe(barWrap);
-
-// notify form -> waitlist API
-const WAITLIST_API = "https://finance-tracker-production-450d.up.railway.app/waitlist";
-const nForm=document.getElementById('notifyForm');
-const nEmail=document.getElementById('email');
-const nHp=document.getElementById('hp_website');
-const nBtn=document.getElementById('notifyBtn');
-const nMsg=document.getElementById('notifyMsg');
-
-if(nForm)nForm.addEventListener('submit', async (ev)=>{
-  ev.preventDefault();
-  const email=nEmail.value.trim();
-  nMsg.className='notify-msg';
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    nMsg.textContent='Digite um e-mail válido.';nMsg.classList.add('err');return;
-  }
-  const label=nBtn.textContent;
-  nBtn.disabled=true;nBtn.textContent='Enviando…';
-  try{
-    const res=await fetch(WAITLIST_API,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email, website:nHp.value})
-    });
-    if(res.ok){
-      nForm.style.display='none';
-      nMsg.textContent='✓ Pronto! Vamos avisar você em '+email;
-      nMsg.classList.add('ok');
-    } else if(res.status===409){
-      nMsg.textContent='Esse e-mail já está na lista 🙌';
-      nMsg.classList.add('ok');
-      nBtn.disabled=false;nBtn.textContent=label;
-    } else {
-      throw new Error('status '+res.status);
-    }
-  }catch(err){
-    nMsg.textContent='Não conseguimos registrar agora. Tente de novo.';
-    nMsg.classList.add('err');
-    nBtn.disabled=false;nBtn.textContent=label;
-  }
-});
 </script>
 
-<!-- 3D al scrollear: parallax por capas + tilt de secciones + tilt de tarjetas. -->
-<style>
-  .px-orb{position:absolute;border-radius:50%;filter:blur(85px);opacity:.4;z-index:0;pointer-events:none;will-change:transform}
-  .orb-host{position:relative;overflow:hidden}
-  .orb-host>.wrap{position:relative;z-index:1}
-</style>
 <script>
+// Misión: split text, odómetro, botones magnéticos, despegue y órbita de los mundos.
 (function(){
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine=matchMedia('(hover: hover) and (pointer: fine)').matches;
   var clamp=function(v,a,b){return v<a?a:(v>b?b:v);};
+  var $=function(id){return document.getElementById(id);};
 
-  // (A) Parallax: capas de fondo + orbes [data-px]
-  var layers=[];
-  function reg(el,f){ if(!el) return; el.style.willChange='transform'; layers.push([el,f]); }
-  document.querySelectorAll('.glow.a').forEach(function(e){reg(e,0.42);});
-  document.querySelectorAll('.glow.b').forEach(function(e){reg(e,0.24);});
-  document.querySelectorAll('.glow.c').forEach(function(e){reg(e,0.32);});
-  reg(document.getElementById('hero3d'),-0.14);
-  document.querySelectorAll('[data-px]').forEach(function(e){reg(e, parseFloat(e.getAttribute('data-px'))||0.15);});
-
-  // (B) Tilt de secciones segun su posicion en pantalla (excluye el hero)
-  var tilt=[].slice.call(document.querySelectorAll('section')).filter(function(s){return !s.classList.contains('hero');});
-  tilt.forEach(function(s){ s.style.willChange='transform'; });
-  var vh=innerHeight; addEventListener('resize',function(){ vh=innerHeight; });
-
-  var ticking=false;
-  function update(){
-    var y=window.scrollY||window.pageYOffset;
-    for(var i=0;i<layers.length;i++){ layers[i][0].style.transform='translate3d(0,'+(y*layers[i][1]).toFixed(1)+'px,0)'; }
-    for(var j=0;j<tilt.length;j++){
-      var r=tilt[j].getBoundingClientRect();
-      var p=clamp(((r.top+r.height/2)-vh/2)/vh,-1,1);
-      tilt[j].style.transform='perspective(1000px) rotateX('+(p*7).toFixed(2)+'deg) translateZ('+(-Math.abs(p)*40).toFixed(1)+'px)';
-    }
-    ticking=false;
+  // Split text: cada letra en su span. Si el script falla, el texto queda tal cual.
+  function split(el,d0){
+    var i=0,orig=el.innerHTML;el.setAttribute('aria-label',el.textContent.replace(/\s+/g,' ').trim());
+    (function walk(n){[].slice.call(n.childNodes).forEach(function(c){
+      if(c.nodeType===3){var f=document.createDocumentFragment();
+        c.textContent.split(/(\s+)/).forEach(function(w){if(!w)return;
+          if(/^\s+$/.test(w)){f.appendChild(document.createTextNode(' '));return;}
+          var ws=document.createElement('span');ws.className='sw';ws.setAttribute('aria-hidden','true');
+          Array.from(w).forEach(function(ch){var s=document.createElement('span');s.className='sc';s.textContent=ch;s.style.setProperty('--i',i++);ws.appendChild(s);});
+          f.appendChild(ws);});
+        c.replaceWith(f);
+      }else if(c.nodeType===1&&c.tagName!=='BR')walk(c);
+    });})(el);
+    if(d0)el.style.setProperty('--d0',d0+'ms');
+    // al terminar, el título vuelve a ser texto normal (mejor para lectores de pantalla y para copiarlo)
+    var todos=el.querySelectorAll('.sc'),ult=todos[todos.length-1];
+    if(ult)ult.addEventListener('animationend',function(){if(el.contains(ult)){el.innerHTML=orig;el.removeAttribute('aria-label');}},{once:true});
   }
-  addEventListener('scroll',function(){ if(!ticking){ ticking=true; requestAnimationFrame(update); } },{passive:true});
-  update();
 
-  // (C) Tilt 3D de tarjetas siguiendo el cursor
-  document.querySelectorAll('.feat,.mood-card,.step').forEach(function(card){
-    card.addEventListener('pointermove',function(e){
-      var r=card.getBoundingClientRect();
-      var px=(e.clientX-r.left)/r.width-0.5, py=(e.clientY-r.top)/r.height-0.5;
-      card.style.transition='transform .06s linear';
-      card.style.transform='perspective(600px) rotateX('+(-py*13).toFixed(2)+'deg) rotateY('+(px*17).toFixed(2)+'deg) translateZ(22px) scale(1.03)';
-    });
-    card.addEventListener('pointerleave',function(){
-      card.style.transition='transform .5s cubic-bezier(.2,.8,.2,1)';
-      card.style.transform='';
-    });
-  });
-})();
-</script>
-
-<!-- Teléfono 3D: rotación siguiendo el cursor (CSS, fallback seguro). -->
-<script>
-(function(){
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches || innerWidth<760) return;
-  var hero=document.querySelector('.hero'), stage=document.querySelector('.phone-stage');
-  if(!hero||!stage) return;
-  var tx=0,ty=0,cx=0,cy=0,raf=0;
-  stage.style.transition='none';
-  function render(){
-    cx+=(tx-cx)*0.08; cy+=(ty-cy)*0.08;
-    stage.style.transform='perspective(1100px) rotateY('+cx.toFixed(2)+'deg) rotateX('+cy.toFixed(2)+'deg)';
-    if(Math.abs(tx-cx)>0.02||Math.abs(ty-cy)>0.02){ raf=requestAnimationFrame(render); } else { raf=0; }
+  // Odómetro: cada dígito es una columna 0-9 que rueda desde el dígito que había.
+  function odo(el,text){
+    var prev=el.dataset.v||'';el.dataset.v=text;
+    var html='<span class="sr">'+text+'</span><span aria-hidden="true" style="display:inline-flex">';
+    for(var i=0;i<text.length;i++){var c=text[i];
+      if(c>='0'&&c<='9')html+='<span class="od-c"><span class="od-s" data-d="'+c+'"></span></span>';
+      else html+='<span class="od-t">'+(c===' '?'&nbsp;':c)+'</span>';}
+    el.innerHTML=html+'</span>';
+    var ss=el.querySelectorAll('.od-s'),pd=prev.replace(/\D/g,''),nd=text.replace(/\D/g,'');
+    ss.forEach(function(s,j){var from=pd[pd.length-(nd.length-j)];s.style.transition='none';s.style.transform='translateY(-'+(from?+from:0)*1.1+'em)';});
+    void el.offsetWidth;
+    ss.forEach(function(s,j){s.style.transition=reduce?'none':'';s.style.transitionDelay=(j*60)+'ms';s.style.transform='translateY(-'+(+s.dataset.d)*1.1+'em)';});
   }
-  hero.addEventListener('pointermove',function(e){ var r=hero.getBoundingClientRect();
-    tx=((e.clientX-r.left)/r.width-0.5)*22; ty=-((e.clientY-r.top)/r.height-0.5)*14;
-    if(!raf) raf=requestAnimationFrame(render); },{passive:true});
-  hero.addEventListener('pointerleave',function(){ tx=0; ty=0; if(!raf) raf=requestAnimationFrame(render); });
-})();
-</script>
+  window.misionOdo=odo;window.misionSplit=split;
 
-<!-- Hero 3D (Three.js): moneda dorada con reflejos, reactiva al mouse. Fallback 2D. -->
-<script type="importmap">
-{ "imports": {
-  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-} }
-</script>
-<script>
-(function(){
-  var canvas = document.getElementById('hero3d');
-  if(!canvas) return;
-  if(innerWidth < 760) return;                                  // móvil: hero 2D
-  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  try{ if(!(canvas.getContext('webgl2')||canvas.getContext('webgl'))) return; }catch(e){ return; }
-  Promise.all([ import('three'), import('three/addons/environments/RoomEnvironment.js') ]).then(function(m){
-    var THREE=m[0], RoomEnvironment=m[1].RoomEnvironment;
-    var W=function(){return canvas.clientWidth||1}, H=function(){return canvas.clientHeight||1};
-    var renderer=new THREE.WebGLRenderer({canvas:canvas,alpha:true,antialias:true});
-    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-    renderer.setSize(W(),H(),false);
-    renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
-    var scene=new THREE.Scene();
-    var camera=new THREE.PerspectiveCamera(45,W()/H(),0.1,100); camera.position.set(0,0,6);
-    // Reflejos de estudio para que el oro brille
-    var pmrem=new THREE.PMREMGenerator(renderer);
-    scene.environment=pmrem.fromScene(new RoomEnvironment(),0.04).texture;
-    scene.add(new THREE.AmbientLight(0x332b1a,0.5));
-    var key=new THREE.PointLight(0xffe6b0,90,60); key.position.set(5,6,7); scene.add(key);
-    // Cara con la "Y"
-    var cc=document.createElement('canvas'); cc.width=cc.height=512; var x=cc.getContext('2d');
-    x.fillStyle='#e6b663'; x.fillRect(0,0,512,512);
-    x.strokeStyle='#b98e44'; x.lineWidth=26; x.beginPath(); x.arc(256,256,238,0,7); x.stroke();
-    x.fillStyle='#11192a'; x.font='bold 300px Arial'; x.textAlign='center'; x.textBaseline='middle'; x.fillText('Y',256,286);
-    var faceTex=new THREE.CanvasTexture(cc); faceTex.anisotropy=8;
-    var gold=new THREE.MeshStandardMaterial({color:0xe8b864,metalness:1.0,roughness:0.22,envMapIntensity:1.5});
-    var goldFace=new THREE.MeshStandardMaterial({map:faceTex,color:0xffffff,metalness:0.9,roughness:0.3,envMapIntensity:1.3});
-    var coin=new THREE.Mesh(new THREE.CylinderGeometry(1.35,1.35,0.2,80),[gold,goldFace,goldFace]);
-    coin.position.set(1.7,0,0); scene.add(coin);
-    var N=reduce?120:320, pos=new Float32Array(N*3);
-    for(var i=0;i<N*3;i++) pos[i]=(Math.random()-0.5)*22;
-    var pts=new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.BufferAttribute(pos,3)),
-      new THREE.PointsMaterial({color:0xf3ce7f,size:0.045,transparent:true,opacity:0.55}));
-    scene.add(pts);
-    // Reactividad al mouse
-    var mx=0,my=0,cmx=0,cmy=0;
-    addEventListener('pointermove',function(e){ mx=e.clientX/innerWidth-0.5; my=e.clientY/innerHeight-0.5; },{passive:true});
-    function resize(){ camera.aspect=W()/H(); camera.updateProjectionMatrix(); renderer.setSize(W(),H(),false); }
-    addEventListener('resize',resize);
-    var visible=true, running=true;
-    function frame(t){
-      cmx+=(mx-cmx)*0.05; cmy+=(my-cmy)*0.05;
-      coin.rotation.x=Math.PI/2 + cmy*0.5;
-      coin.rotation.y=Math.sin(t*0.0005)*0.45 + cmx*1.1;
-      coin.rotation.z=-0.12;
-      coin.position.y=Math.sin(t*0.0011)*0.16;
-      pts.rotation.y=t*0.00018;
-      renderer.render(scene,camera);
-    }
-    function loop(){ if(!running||!visible) return; requestAnimationFrame(loop); frame(performance.now()); }
-    document.addEventListener('visibilitychange',function(){ running=!document.hidden; if(running&&visible&&!reduce) loop(); });
-    if('IntersectionObserver' in window){ new IntersectionObserver(function(es){ visible=es[0].isIntersecting; if(visible&&!reduce) loop(); else frame(performance.now()); }).observe(canvas); }
-    if(reduce){ frame(1500); } else { loop(); }
+  var titulo=$('titulo');
+  if(titulo&&!reduce)split(titulo,120);
+
+  // Botón magnético: solo con mouse. En el teléfono queda el :active.
+  if(fine&&!reduce){
+    var mx=-1e4,my=-1e4,raf=0;
+    var tick=function(){raf=0;document.querySelectorAll('.b1').forEach(function(b){
+      b.style.translate='';var r=b.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;
+      var dx=mx-(r.left+r.width/2),dy=my-(r.top+r.height/2);
+      var near=!b.disabled&&Math.abs(dx)<r.width/2+50&&Math.abs(dy)<r.height/2+40;
+      b.classList.toggle('mag',near);b.style.translate=near?(dx*.3).toFixed(1)+'px '+(dy*.4).toFixed(1)+'px':'';});};
+    addEventListener('pointermove',function(e){mx=e.clientX;my=e.clientY;if(!raf)raf=requestAnimationFrame(tick);},{passive:true});
+    document.addEventListener('pointerleave',function(){mx=my=-1e4;if(!raf)raf=requestAnimationFrame(tick);});
+  }
+
+  // Cuentas creadas: dato real del backend; si falla, el renglón no aparece.
+  fetch('https://finance-tracker-production-450d.up.railway.app/public/stats').then(function(r){return r.ok?r.json():null;}).then(function(d){
+    var n=d&&+d.registered_users;if(!n)return;
+    var box=$('cuentas'),txt=n.toLocaleString('en-US');box.hidden=false;$('cuentasN').textContent=txt;
+    if(!('IntersectionObserver' in window)||reduce)return;
+    $('cuentasN').dataset.v=txt.replace(/\d/g,'0');
+    var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){odo($('cuentasN'),txt);o.disconnect();}},{threshold:.8});o.observe(box);
   }).catch(function(){});
-})();
 
-/* Crecimiento: conteos públicos del backend, sin datos de nadie. Si no
-   responde, la sección se queda oculta: un cero en la landing dice algo
-   peor que no decir nada. */
-(async () => {
-  const sec = document.getElementById("crecimiento");
-  if (!sec) return;
-  try {
-    const r = await fetch("https://finance-tracker-production-450d.up.railway.app/public/stats");
-    if (!r.ok) return;
-    const d = await r.json();
-    if (!d.registered_users) return;
-    document.getElementById("gN").textContent = d.registered_users.toLocaleString("pt-BR");
-    const meses = (d.signups || []).slice(-6);
-    const tope = Math.max(1, ...meses.map(m => m.n));
-    const LOCALE = "pt-BR";
-    const NOMBRES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
-    document.getElementById("gBarras").innerHTML = meses.map(m => {
-      const alto = Math.max(5, Math.round(m.n / tope * 100));
-      const mm = Number(m.m.slice(5, 7)) - 1;
-      return `<div class="mes" title="${m.m}">
-        <span class="num">${m.n.toLocaleString(LOCALE)}</span>
-        <div class="track"><div class="barra" style="height:${alto}%"></div></div>
-        <span class="et">${NOMBRES[mm] || m.m}</span></div>`;
-    }).join("");
-    sec.hidden = false;
-  } catch (e) { /* la sección se queda oculta */ }
+  // Escenas guiadas por scroll: el despegue del cohete y la órbita de los mundos.
+  var astro=$('astro'),hero=astro&&astro.closest('.despegue');
+  var M=$('producto'),mundos=M?[].slice.call(M.querySelectorAll('.mundo')):[],cur=-1;
+  var pasos=M?[].slice.call(M.querySelectorAll('.mundo-pasos i')):[];
+  var cab=M?M.querySelector('.mundos-copy>div'):null;
+  if(M&&mundos.length)M.classList.add('on');
+  var vars={};
+  function medir(){if(!M)return;var cs=getComputedStyle(M),px=function(v){var t=document.createElement('div');t.style.width=v;M.appendChild(t);var w=t.getBoundingClientRect().width;t.remove();return w;};
+    vars.rx=px(cs.getPropertyValue('--rx'));vars.ry=px(cs.getPropertyValue('--ry'));}
+  function mostrar(i){cur=i;var m=mundos[i],t=m.querySelector('.mundo-txt');
+    var nom=$('mundoNombre');nom.textContent=t.querySelector('b').textContent;if(!reduce)split(nom);
+    $('mundoLinea').textContent=t.querySelector('span').textContent;
+    odo($('mundoCifra'),m.dataset.cifra);$('mundoUnidad').textContent=m.dataset.unidad;
+    pasos.forEach(function(p,j){p.classList.toggle('on',j===i);});}
+  function pintar(){pend=false;
+    if(hero&&!reduce){var h=hero.offsetHeight,p=clamp(scrollY/(h*.85),0,1),e=p*p;
+      astro.style.transform=p?'translate('+(e*55).toFixed(2)+'vw,'+(-e*80).toFixed(2)+'vh) rotate('+(-e*18).toFixed(2)+'deg) scale('+(1-e*.35).toFixed(3)+')':'';}
+    if(!M||!mundos.length)return;
+    var r=M.getBoundingClientRect(),span=r.height-innerHeight;
+    if(r.bottom<-50||r.top>innerHeight+50)return;
+    var pr=clamp(-r.top/span,0,1),n=mundos.length,f=pr*(n-1),i=Math.round(f);if(reduce)f=i;
+    // el título se despide al empezar el giro: lo que queda fijo es la tarjeta del mundo
+    var ha=clamp((pr-.05)/.08,0,1);cab.style.opacity=(1-ha).toFixed(3);cab.style.visibility=ha>=1?'hidden':'';cab.style.transform=ha?'translateY('+(-ha*40).toFixed(1)+'px)':'';
+    mundos.forEach(function(m,k){var a=(k-f)*2*Math.PI/n,d=Math.cos(a),q=(d+1)/2,s=.34+.66*q*q;
+      m.style.transform='translate('+(Math.sin(a)*vars.rx).toFixed(1)+'px,'+(d*vars.ry).toFixed(1)+'px) scale('+s.toFixed(3)+')';
+      m.style.opacity=(.25+.75*q).toFixed(3);m.style.zIndex=Math.round(d*50)+50;});
+    if(i!==cur)mostrar(i);}
+  var pend=false;
+  addEventListener('scroll',function(){if(!pend){pend=true;requestAnimationFrame(pintar);}},{passive:true});
+  addEventListener('resize',function(){medir();pintar();});
+  medir();pintar();
+})();
+// Misión, escenas 3 a 8: entradas, chat de WhatsApp con vuelo al total, comprobantes que siguen
+// al cursor, el film que se abre, las monedas, los precios y el aterrizaje.
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine=matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var clamp=function(v,a,b){return v<a?a:(v>b?b:v);};
+  var $=function(id){return document.getElementById(id);};
+  var odo=window.misionOdo||function(el,t){el.textContent=t;};
+  var soles=function(v){return 'S/ '+v.toFixed(2);};
+  var io='IntersectionObserver' in window;
+  var alVer=function(el,fn,th){if(!el)return;if(!io){fn();return;}
+    var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){o.disconnect();fn();}},{threshold:th||.5});o.observe(el);};
+
+  // Entradas: titular, texto y figura de cada escena, escalonados, una sola vez.
+  if(io&&!reduce){
+    document.documentElement.classList.add('js');
+    var eo=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');eo.unobserve(x.target);}});},{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+    document.querySelectorAll('.esc').forEach(function(s){s.querySelectorAll('.e').forEach(function(el,k){el.style.setProperty('--k',k%6);eo.observe(el);});});
+  }
+
+  if(!reduce&&window.misionSplit)document.querySelectorAll('.esc h2').forEach(function(t){alVer(t,function(){window.misionSplit(t);},.01);});
+
+  // Comprobantes que siguen al cursor sobre los chips (en el teléfono, al tocar).
+  var V={
+    'Notas e faturas':['Nota fiscal','Bodega Don Lucho','S/ 23.40','Pão, leite e ovos','Alimentação'],
+    'Contas de luz e água':['Conta de luz','Novembro 2026','S/ 86.40','Vence em 28/11','Serviços'],
+    'Yape':['Pago com Yape','para Juan P.','S/ 25.00','26 nov · 19:42','Transferências'],
+    'Plin':['Pago com Plin','para María R.','S/ 40.00','26 nov · 13:15','Transferências'],
+    'BCP':['Transferência BCP','para Carlos M.','S/ 150.00','Operação 004512','Transferências'],
+    'Interbank':['Transferência Interbank','para Lucía V.','S/ 80.00','Operação 118230','Transferências'],
+    'Scotiabank':['Pagamento de cartão','Scotiabank','S/ 320.00','Conta poupança','Cartões'],
+    'BBVA':['Compra no débito','BBVA','S/ 54.90','Supermercado','Alimentação'],
+    'Ripley':['Compra no cartão','Ripley','S/ 199.90','Parcela 1 de 3','Compras'],
+    'Falabella':['Compra no cartão','Falabella','S/ 129.00','À vista','Compras'],
+    'Oechsle':['Compra no cartão','Oechsle','S/ 89.90','À vista','Compras']};
+  var chips=[].filter.call(document.querySelectorAll('.chip'),function(c){return V[c.textContent.trim()];});
+  if(chips.length){
+    var pk=document.createElement('div');pk.className='peek';pk.setAttribute('aria-hidden','true');pk.setAttribute('data-ui','');document.body.appendChild(pk);
+    var tx=0,ty=0,x=0,y=0,on=false,praf=0,hide=0;
+    var fill=function(c){var v=V[c.textContent.trim()];
+      pk.innerHTML='<div class="pk-t">'+v[0]+'</div><div class="pk-s">'+v[1]+'</div><div class="pk-a">'+v[2]+'</div><div class="pk-s">'+v[3]+'</div><div class="pk-y">Y Altoque · '+v[4]+'</div>';};
+    var follow=function(){praf=0;var k=reduce?1:.2;x+=(tx-x)*k;y+=(ty-y)*k;
+      var rot=reduce?0:clamp((tx-x)*.12,-10,10);
+      pk.style.transform='translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px) rotate('+rot.toFixed(2)+'deg)';
+      if(on&&(Math.abs(tx-x)>.3||Math.abs(ty-y)>.3))praf=requestAnimationFrame(follow);};
+    var aim=function(px,py){tx=clamp(px+18,8,innerWidth-232);ty=clamp(py-150,8,innerHeight-190);if(!praf)praf=requestAnimationFrame(follow);};
+    chips.forEach(function(c){
+      c.addEventListener('pointerenter',function(e){if(!fine)return;fill(c);if(!on){x=tx=clamp(e.clientX+18,8,innerWidth-232);y=ty=clamp(e.clientY-150,8,innerHeight-190);}on=true;pk.classList.add('in');aim(e.clientX,e.clientY);});
+      c.addEventListener('pointermove',function(e){if(fine)aim(e.clientX,e.clientY);});
+      c.addEventListener('pointerleave',function(){if(!fine)return;on=false;pk.classList.remove('in');});
+      c.addEventListener('click',function(){if(fine)return;fill(c);var r=c.getBoundingClientRect();on=true;
+        x=tx=clamp(r.left+r.width/2-112,8,innerWidth-232);y=ty=clamp(r.top-200,8,innerHeight-190);pk.style.transform='translate('+x+'px,'+y+'px)';pk.classList.add('in');
+        clearTimeout(hide);hide=setTimeout(function(){on=false;pk.classList.remove('in');},2400);});
+    });
+    addEventListener('scroll',function(){if(!fine&&on){on=false;pk.classList.remove('in');}},{passive:true});
+  }
+
+  // Chat: mandas la boleta, el asistente responde en su tono y el monto vuela al total de la app.
+  var chat=$('chat'),btn=$('mandar');
+  if(chat&&btn){
+    var BOL=[
+      {t:'Conta de luz',it:['Novembro 2026','Vence em 28/11'],m:86.4,c:'Serviços'},
+      {t:'Yape para Juan P.',it:['Pagamento enviado','26 nov · 19:42'],m:25,c:'Transferências'},
+      {t:'Menú El Rinconcito',it:['Lomo saltado','Chicha morada'],m:18,c:'Alimentação'},
+      {t:'Combi Javier Prado',it:['Passagem'],m:3.5,c:'Transporte'},
+      {t:'Bodega Don Lucho',it:['Pão francês','Leite e ovos'],m:23.4,c:'Alimentação'}];
+    var TONO={carino:function(t){return 'Oi, já são '+soles(t)+' hoje. Se cuida um pouquinho, tá?';},
+      pana:function(t){return 'Olha, hoje já foram '+soles(t)+'. Tranquilo, mas atento.';},
+      sargento:function(t){return soles(t)+' em um dia. Pare AGORA. Assim não dá.';}};
+    var tono='pana',total=94,n=1,k=0,ocupado=false,ultimo=$('tonoIni'),ultTotal=94;
+    var tbs=[].slice.call(document.querySelectorAll('.tono button'));
+    tbs.forEach(function(b){b.addEventListener('click',function(){tono=b.dataset.tono;
+      tbs.forEach(function(o){o.setAttribute('aria-pressed',o===b?'true':'false');});
+      if(ultimo)ultimo.textContent=' '+TONO[tono](ultTotal);});});
+    var bur=function(cls,html){var d=document.createElement('div');d.className='bur '+cls;d.innerHTML=html;chat.appendChild(d);
+      while(chat.children.length>5)chat.removeChild(chat.firstElementChild);return d;};
+    var mandar=function(){if(ocupado)return;ocupado=true;btn.disabled=true;var b=BOL[k++%BOL.length];
+      bur('yo','<div class="bol"><b>'+b.t+'</b>'+b.it.map(function(s){return '<span>'+s+'</span>';}).join('')+'<em>Total '+soles(b.m)+'</em></div>');
+      setTimeout(function(){var esp=bur('bot esc3','Lendo seu comprovante…');
+        setTimeout(function(){esp.remove();var nuevo=total+b.m;
+          var r=bur('bot','Anotado: <span class="monto">'+soles(b.m)+'</span> em '+b.c+'.<span></span>');
+          ultimo=r.lastChild;ultTotal=nuevo;ultimo.textContent=' '+TONO[tono](nuevo);
+          var fin=function(){total=nuevo;n++;odo($('mesTotal'),soles(total));$('mesN').textContent=n+' gastos hoje';
+            var p=$('mesPill');if(!reduce&&p.animate)p.animate([{scale:1},{scale:1.07},{scale:1}],{duration:380,easing:'cubic-bezier(.34,1.56,.64,1)'});
+            ocupado=false;btn.disabled=false;};
+          var m=r.querySelector('.monto'),a=m.getBoundingClientRect(),z=$('mesTotal').getBoundingClientRect();
+          if(reduce||!document.body.animate||a.bottom<0||a.top>innerHeight){fin();return;}
+          var v=document.createElement('div');v.className='vuela';v.textContent=soles(b.m);v.setAttribute('aria-hidden','true');
+          v.style.left=a.left+'px';v.style.top=a.top+'px';document.body.appendChild(v);
+          var dx=z.left+z.width/2-(a.left+a.width/2),dy=z.top+z.height/2-(a.top+a.height/2),fr=[];
+          for(var s=0;s<=16;s++){var t=s/16;fr.push({transform:'translate('+(dx*t).toFixed(1)+'px,'+(dy*t-Math.sin(t*Math.PI)*120).toFixed(1)+'px) scale('+(1-t*.4).toFixed(3)+')',opacity:t>.9?(1-t)*10:1});}
+          v.animate(fr,{duration:800,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'}).onfinish=function(){v.remove();fin();};
+        },reduce?0:1100);
+      },reduce?0:500);};
+    btn.addEventListener('click',mandar);
+    alVer(chat,function(){setTimeout(mandar,reduce?0:700);},.6);
+  }
+
+  // Precios: ruedan al entrar.
+  document.querySelectorAll('.pp').forEach(function(p){var v=p.textContent;
+    alVer(p,function(){if(reduce)return;p.dataset.v=v.replace(/\d/g,'9');odo(p,v);},.8);});
+
+  // Monedas: el mismo gasto, en la moneda y el idioma de cada país.
+  var MON=[['Peru','S/ 240.00','Anotado en soles.'],['Espanha','€ 58.00','Anotado en euros.'],['Brasil','R$ 345.00','Anotado em reais.'],
+    ['EUA','$ 64.00','Logged in dollars.'],['México','MX$ 1,190.00','Anotado en pesos mexicanos.'],['Colômbia','COP 251,000','Anotado en pesos colombianos.']];
+  var monM=$('monMonto');
+  if(monM&&!reduce){var mi=0,mt=0;
+    var paso=function(){mi=(mi+1)%MON.length;var m=MON[mi];
+      var md=$('monDice');md.style.opacity=0;
+      setTimeout(function(){md.textContent=m[0]+' · '+m[2];md.style.opacity=1;},250);
+      odo(monM,m[1]);};
+    if(io)new IntersectionObserver(function(es){clearInterval(mt);if(es[0].isIntersecting)mt=setInterval(paso,2600);},{threshold:.4}).observe(monM);
+  }
+
+  // Scroll: el film se abre y el astronauta aterriza en la luna.
+  var marco=$('filmMarco'),astro2=$('astro2'),pend=false;
+  var pintar=function(){pend=false;var vh=innerHeight;
+    if(marco){var r=marco.getBoundingClientRect();if(r.top<vh&&r.bottom>0){var p=clamp((vh-r.top)/(vh*.85),0,1);
+      marco.style.transform='scale('+(.86+.14*p).toFixed(4)+')';}}
+    if(astro2){var e=astro2.parentNode.getBoundingClientRect();if(e.top<vh&&e.bottom>0){var q=clamp((vh-e.top)/(vh*.9),0,1),w=1-q;w=w*w;
+      astro2.style.transform='translate('+(-w*60).toFixed(1)+'vw,'+(-w*70).toFixed(1)+'vh) rotate('+(w*-35).toFixed(1)+'deg)';}}};
+  if(!reduce){addEventListener('scroll',function(){if(!pend){pend=true;requestAnimationFrame(pintar);}},{passive:true});pintar();}
 })();
 </script>
 </body>
