@@ -1,4 +1,5 @@
 <!-- Y Altoque - Landing page (showcase) -->
+<html lang="es">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -255,8 +256,8 @@ footer .copy{margin-top:30px;color:var(--dim);font-size:.84rem}
   .despegue{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;padding:120px 0 72px}
   .despegue-cielo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;opacity:.6}
   .despegue::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,11,18,.55) 0%,rgba(8,11,18,.25) 45%,#080b12 100%);pointer-events:none} /* taste-skill-ignore: escrim sobre la foto */
-  .despegue-in{position:relative;z-index:1;width:100%;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);align-items:center;gap:24px}
-  .despegue h1{font-family:var(--font-display);font-weight:600;font-size:clamp(3.4rem,8.2vw,8.4rem);line-height:.92;letter-spacing:-.035em;margin:0;color:var(--text)}
+  .despegue-in{position:relative;z-index:1;width:100%;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.6fr);align-items:center;gap:24px}
+  .despegue h1{font-family:var(--font-display);font-weight:600;font-size:clamp(3.4rem,7.6vw,7.8rem);line-height:.92;letter-spacing:-.035em;margin:0;color:var(--text)}
   .despegue-lead{font-size:clamp(1.08rem,1.4vw,1.3rem);line-height:1.5;color:var(--text);max-width:34em;margin:36px 0 0}
   .despegue-acc{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
   .despegue-sec{margin:22px 0 0;color:var(--dim);font-size:1rem}
@@ -269,6 +270,7 @@ footer .copy{margin-top:30px;color:var(--dim);font-size:.84rem}
     .despegue{padding:96px 0 48px;align-items:flex-start}
     .despegue-in{grid-template-columns:1fr;gap:0}
     .despegue h1{font-size:clamp(2.9rem,14vw,4.2rem)}
+    .despegue h1 .ajusta{font-size:.9em} /* traducciones más largas, p. ej. under control. */
     .despegue-astro{grid-row:1;justify-self:end;width:min(52vw,240px);margin:0 -8px -24px 0}
     .despegue-lead{margin-top:22px}
     .despegue-acc .b1{flex:1 1 100%;justify-content:center}
@@ -429,7 +431,7 @@ footer .copy{margin-top:30px;color:var(--dim);font-size:.84rem}
 
   /* ---------- 5. Monedas ---------- */
   .mon{overflow:hidden}
-  .mon-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:center}
+  .mon-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:center;margin-top:8px}
   .mon-in p{margin:22px 0 0;max-width:30em}
   .mon-cifra{display:flex;flex-direction:column;gap:10px;padding:40px;border-radius:24px;background:#0d1320}
   .mon-cifra b{font-family:var(--font-display);font-weight:600;font-size:clamp(3rem,6.4vw,5.6rem);line-height:1;letter-spacing:-.02em;color:#f3ce7f}
@@ -457,9 +459,9 @@ footer .copy{margin-top:30px;color:var(--dim);font-size:.84rem}
   .precio-nota{margin:28px 0 0!important;color:var(--dim)!important}
 
   /* ---------- 7. Privacidad ---------- */
-  .priv-in{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(40px,6vw,96px);align-items:center}
+  .priv-in{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(40px,6vw,96px);align-items:center;margin-top:40px}
   .priv-caja{width:100%;max-width:460px;height:auto;justify-self:center}
-  .priv-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;margin-top:40px}
+  .priv-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
   .priv-cols p{margin:10px 0 0;font-size:1rem}
   .priv-in .lnk{display:inline-block;margin-top:32px;font-size:1.05rem}
 
@@ -541,9 +543,11 @@ footer .copy{margin-top:30px;color:var(--dim);font-size:.84rem}
 
 <!-- 5. MONEDAS -->
 <section class="esc mon" id="monedas" aria-labelledby="monT">
+  <div class="wrap">
+    <h2 id="monT">Tu idioma, tu moneda.</h2>
+  </div>
   <div class="wrap mon-in">
     <div>
-      <h2 id="monT">Tu idioma, tu moneda.</h2>
       <p class="e">Nació en Perú y ya se prueba en España. Más de 20 monedas y la app en español, inglés y portugués. Cada gasto guarda su moneda y los totales nunca se mezclan.</p>
     </div>
     <div class="mon-cifra e">
@@ -607,10 +611,12 @@ footer .copy{margin-top:30px;color:var(--dim);font-size:.84rem}
 
 <!-- 7. PRIVACIDAD -->
 <section class="esc priv" id="privacidad" aria-labelledby="privT">
+  <div class="wrap">
+    <h2 id="privT">Privado. Cifrado. Tuyo.</h2>
+  </div>
   <div class="wrap priv-in">
     <img class="priv-caja e" src="img/universo/caja-fuerte.webp" width="512" height="512" alt="Una caja fuerte con monedas y billetes" loading="lazy">
     <div>
-      <h2 id="privT">Privado. Cifrado. Tuyo.</h2>
       <div class="priv-cols">
         <div class="e"><h3>Qué usamos</h3><p>Solo tu inicio de sesión de Google o Apple: nombre y correo para identificarte. No leemos tu correo ni entramos a otros datos. Tus movimientos los registras tú, por WhatsApp o a mano.</p></div>
         <div class="e"><h3>Qué guardamos</h3><p>Monto, fecha y categoría. La descripción y la contraparte van cifradas con AES-256. Nunca tu contraseña.</p></div>
